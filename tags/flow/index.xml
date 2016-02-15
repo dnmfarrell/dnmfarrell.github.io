@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Flow on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/flow/</link>
+    <description>Recent content in Flow on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 10 Apr 2013 21:48:42 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/flow/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Test if the user is root</title>
+      <link>http://perltricks.com/article/16/2013/4/10/Test-if-the-user-is-root/</link>
+      <pubDate>Wed, 10 Apr 2013 21:48:42 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/16/2013/4/10/Test-if-the-user-is-root/</guid>
+      <description>&lt;p&gt;When Perl is executing a program, it maintains the user id of the process owner in a global variable ($&amp;lt;). When a Perl program is executed by root or a user with root privileges (e.g. using the sudo command), the user id variable is always set to zero. This can be checked at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -e &#39;print $&amp;lt; . \n;&#39;
+1000
+$ sudo perl -e &#39;print $&amp;lt; . \n;&#39;
+0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Because the root user id is always zero and in Perl zero is treated as false, it is a trivial task to test if the user is root during runtime. This can be used to for flow control, such as exiting the program early:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Carp qw/croak/;
+
+if ($&amp;lt;) {
+    croak &amp;quot;Error: exiting program as not executed by root\n&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In Windows the user id variable is always set to zero and is of limited use. However the Perl &lt;a href=&#34;https://metacpan.org/module/Win32&#34;&gt;Win32&lt;/a&gt; module has the Win32::IsAdminUser() method that can be used instead of $&amp;lt;, like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Win32;
+use Carp qw/croak/;
+
+if (not Win32::IsAdminUser()) {
+    croak &amp;quot;Error: exiting program as not executed by root\n&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Dom on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/dom/</link>
+    <description>Recent content in Dom on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 08 Jan 2015 14:01:42 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/dom/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Extracting from HTML with Mojo::DOM</title>
+      <link>http://perltricks.com/article/143/2015/1/8/Extracting-from-HTML-with-Mojo--DOM/</link>
+      <pubDate>Thu, 08 Jan 2015 14:01:42 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/143/2015/1/8/Extracting-from-HTML-with-Mojo--DOM/</guid>
+      <description>&lt;p&gt;Everyone wants to parse HTML, and many people reach for a regular expression to do that. Although you can &lt;a href=&#34;http://stackoverflow.com/a/4234491/2766176&#34;&gt;use a regex to parse HTML&lt;/a&gt;, it&amp;rsquo;s not as fun as my latest favorite way: &lt;a href=&#34;http://www.metacpan.org/module/Mojo::DOM&#34;&gt;Mojo::DOM&lt;/a&gt; with CSS3 selectors. I find this much easier than trying to remember XPATH and I get to play with Mojo.&lt;/p&gt;
+
+&lt;p&gt;The DOM is the &lt;a href=&#34;http://www.w3.org/DOM/&#34;&gt;&amp;ldquo;Document Object Model&amp;rdquo;&lt;/a&gt;. Something behind the scenes parses and organizes the information and allows me to query it with questions such as &amp;ldquo;find all the &lt;code&gt;a&lt;/code&gt; tags inside a &lt;code&gt;div&lt;/code&gt; tag&amp;rdquo;, or &amp;ldquo;find all the tags of a particular class&amp;rdquo;. I don&amp;rsquo;t manipulate the text myself.&lt;/p&gt;
+
+&lt;p&gt;If I&amp;rsquo;m using &lt;a href=&#34;http://mojolicio.us/perldoc/Mojo/UserAgent&#34;&gt;Mojo::UserAgent&lt;/a&gt;, I can get a DOM object from the response object from an HTTP request:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Mojo::UserAgent;
+my $ua = Mojo::UserAgent-&amp;gt;new;
+
+my $dom = $ua-&amp;gt;get( &#39;http://search.cpan.org/~bdfoy/&#39; )
+    -&amp;gt;res
+    -&amp;gt;dom;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The Mojo method-chaining style with one method per line shows its strengths as I get into more complicated tasks later.&lt;/p&gt;
+
+&lt;p&gt;I don&amp;rsquo;t &lt;em&gt;have&lt;/em&gt; to make a request to get a DOM object. I&amp;rsquo;m often presented with HTML files to parse with no server to give them to me. Depending on the tractability of the task, I might hand edit it to remove the parts I don&amp;rsquo;t want to think about then use a regex to handle the rest. That way, I don&amp;rsquo;t have to do a lot of work to save state and know where I am in the document. With a DOM, that&amp;rsquo;s not a problem.&lt;/p&gt;
+
+&lt;p&gt;In the first example, I fetched &lt;code&gt;http://search.cpan.org/~bdfoy/&#39;&lt;/code&gt;, my author page at &lt;a href=&#34;http://search.cpan.org/&#34;&gt;CPAN Search&lt;/a&gt;. I&amp;rsquo;ll start with that HTML, assuming I already have it in a string.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Mojo::DOM;
+
+my $string = ...;
+
+my $dom = Mojo::DOM-&amp;gt;new( $string );
+
+my $module_list = $dom
+    -&amp;gt;find(&#39;a&#39;)
+    -&amp;gt;join(&amp;quot;\n&amp;quot;);
+
+print $module_list;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once I have the &lt;code&gt;$dom&lt;/code&gt; object, I can use &lt;code&gt;find&lt;/code&gt; to select elements. I give &lt;code&gt;find&lt;/code&gt; a &lt;a href=&#34;http://mojolicio.us/perldoc/Mojo/DOM/CSS#SELECTORS&#34;&gt;CSS3 selector&lt;/a&gt;, in this case just &lt;code&gt;a&lt;/code&gt; to find all the anchor links. &lt;code&gt;find&lt;/code&gt; returns a &lt;a href=&#34;=&#34; title=&#34;http://mojolicio.us/perldoc/Mojo/Collection&#34;&gt;Mojo::Collection&lt;/a&gt; object, a fancy way to store a list and do things do it. The Mojolicious style makes heavy use of method chaining so it needs a way to call methods on the result. In this example, I merely &lt;code&gt;join&lt;/code&gt; the elements with a newline. These are the results:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;lt;a href=&amp;quot;/&amp;quot;&amp;gt;&amp;lt;img alt=&amp;quot;CPAN&amp;quot; src=&amp;quot;http://st.pimg.net/tucs/img/cpan_banner.png&amp;quot;&amp;gt;&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/&amp;quot;&amp;gt;Home&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/author/&amp;quot;&amp;gt;Authors&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/recent&amp;quot;&amp;gt;Recent&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;http://log.perl.org/cpansearch/&amp;quot;&amp;gt;News&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/mirror&amp;quot;&amp;gt;Mirrors&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/faq.html&amp;quot;&amp;gt;FAQ&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/feedback&amp;quot;&amp;gt;Feedback&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;Acme-BDFOY-0.01/&amp;quot;&amp;gt;Acme-BDFOY-0.01&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/CPAN/authors/id/B/BD/BDFOY/Acme-BDFOY-0.01.tar.gz&amp;quot;&amp;gt;Download&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/src/BDFOY/Acme-BDFOY-0.01/&amp;quot;&amp;gt;Browse&amp;lt;/a&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s a good start, but I extracted all of the links. I want to limit it to the links to my distributions. Looking at the HTML, I see that the link I want is in the first &lt;code&gt;td&lt;/code&gt; tag in a &lt;code&gt;tr&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;lt;tr class=s&amp;gt;
+    &amp;lt;td&amp;gt;&amp;lt;a href=&amp;quot;Data-Constraint-1.17/&amp;quot;&amp;gt;Data-Constraint-1.17&amp;lt;/a&amp;gt;&amp;lt;/td&amp;gt;
+    &amp;lt;td&amp;gt;prototypical value checking&amp;lt;/td&amp;gt;
+    &amp;lt;td&amp;gt;&amp;lt;small&amp;gt;[&amp;lt;a href=&amp;quot;/CPAN/authors/id/B/BD/BDFOY/Data-Constraint-1.17.tar.gz&amp;quot;&amp;gt;Download&amp;lt;/a&amp;gt;] [&amp;lt;a
+      href=&amp;quot;/src/BDFOY/Data-Constraint-1.17/&amp;quot;&amp;gt;Browse&amp;lt;/a&amp;gt;]&amp;lt;/small&amp;gt;&amp;lt;/td&amp;gt;
+    &amp;lt;td nowrap&amp;gt;26 Aug 2014&amp;lt;/td&amp;gt;
+   &amp;lt;/tr&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I change my selector to look for the first anchor in the first table cell in a table row:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $module_list = $dom
+    -&amp;gt;find(&#39;tr td:first-child a:first-child&#39;)
+    -&amp;gt;join(&amp;quot;\n&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now I have a list of the links I want, but with the anchor HTML and text:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;lt;a href=&amp;quot;Acme-BDFOY-0.01/&amp;quot;&amp;gt;Acme-BDFOY-0.01&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;Apache-Htaccess-1.4/&amp;quot;&amp;gt;Apache-Htaccess-1.4&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;Apache-iTunes-0.11/&amp;quot;&amp;gt;Apache-iTunes-0.11&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;App-Module-Lister-0.15/&amp;quot;&amp;gt;App-Module-Lister-0.15&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;App-PPI-Dumper-1.02/&amp;quot;&amp;gt;App-PPI-Dumper-1.02&amp;lt;/a&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I still have a bit of work to do. I want to extract the value of the &lt;code&gt;href&lt;/code&gt; attribute. I can do that with the &lt;code&gt;map&lt;/code&gt; method from &lt;a href=&#34;http://mojolicio.us/perldoc/Mojo/Collection&#34;&gt;Mojo::Collection&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $module_list = $dom
+    -&amp;gt;find(&#39;tr td:first-child a:first-child&#39;)
+    -&amp;gt;map( attr =&amp;gt; &#39;href&#39; )
+    -&amp;gt;join(&amp;quot;\n&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Each element in the collection is actually a &lt;a href=&#34;http://mojolicio.us/perldoc/Mojo/DOM&#34;&gt;Mojo::DOM&lt;/a&gt; object. The first argument to &lt;code&gt;map&lt;/code&gt; is the method to call on each element and the remaining arguments pass through to that method. In this case, I&amp;rsquo;m calling &lt;code&gt;attr(&#39;href&#39;)&lt;/code&gt; on each object. Now I mostly have the values I want:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Acme-BDFOY-0.01/
+Apache-Htaccess-1.4/
+Apache-iTunes-0.11/
+App-Module-Lister-0.15/
+App-PPI-Dumper-1.02/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I don&amp;rsquo;t want that trailing slash. I can use another &lt;code&gt;map&lt;/code&gt;, but with an anonymous subroutine. The result of the subroutine replaces the element in the collection. I use the &lt;a href=&#34;http://www.effectiveperlprogramming.com/2010/09/use-the-r-substitution-flag-to-work-on-a-copy/&#34;&gt;&lt;code&gt;/r&lt;/code&gt; of the substitution operator to return the modified string&lt;/a&gt; instead of the number of substitutions (best Perl enhancement ever):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.14;
+
+my $module_list = $dom
+    -&amp;gt;find(&#39;tr td:first-child a:first-child&#39;)
+    -&amp;gt;map( attr =&amp;gt; &#39;href&#39; )
+    -&amp;gt;map( sub { s|/\z||r } )
+    -&amp;gt;join(&amp;quot;\n&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now I have my list of distributions:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Acme-BDFOY-0.01
+Apache-Htaccess-1.4
+Apache-iTunes-0.11
+App-Module-Lister-0.15
+App-PPI-Dumper-1.02
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s still as one string since I ended the method chain with &lt;code&gt;join(&amp;quot;\n&amp;quot;)&lt;/code&gt;. To get a list, I use &lt;code&gt;each&lt;/code&gt; to get the list, which I join myself later:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @module_list = $dom
+    -&amp;gt;find(&#39;tr td:first-child a:first-child&#39;)
+    -&amp;gt;map( attr =&amp;gt; &#39;href&#39; )
+    -&amp;gt;map( sub { s|/\z||r } )
+    -&amp;gt;each;
+
+print join &amp;quot;\n&amp;quot;, @module_list;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can get even fancier. Instead of the distribution name with the version, I can break it up with &lt;a href=&#34;http://www.metacpan.org/module/CPAN::DistnameInfo&#34;&gt;CPAN::DistnameInfo&lt;/a&gt;. I&amp;rsquo;ll turn every found link into a tuple of name and version. Since that module wants to deal with a distribution filename, I tack on &lt;em&gt;.tar.gz&lt;/em&gt; to make it work out:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Data::Printer;
+use CPAN::DistnameInfo;
+
+my $dom = Mojo::DOM-&amp;gt;new( $string );
+
+my @module_list = $dom
+    -&amp;gt;find(&#39;tr td:first-child a:first-child&#39;)
+    -&amp;gt;map( attr =&amp;gt; &#39;href&#39; )
+    -&amp;gt;map( sub { s|/\z||r } )
+    -&amp;gt;map( sub { 
+        my $d = CPAN::DistnameInfo-&amp;gt;new( &amp;quot;$_.tar.gz&amp;quot; );
+        [ map { $d-&amp;gt;$_() } qw(dist version) ];
+         } )
+    -&amp;gt;each;
+
+p @module_list;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;each&lt;/code&gt; extracts each element from the collection and returns it. I use &lt;a href=&#34;https://metacpan.org/pod/Data::Printer&#34;&gt;Data::Printer&lt;/a&gt; to display the array:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;[
+    [0]   [
+        [0] &amp;quot;Acme-BDFOY&amp;quot;,
+        [1] 0.01
+    ],
+    [1]   [
+        [0] &amp;quot;Apache-Htaccess&amp;quot;,
+        [1] 1.4
+    ],
+    [2]   [
+        [0] &amp;quot;Apache-iTunes&amp;quot;,
+        [1] 0.11
+    ],
+    [3]   [
+        [0] &amp;quot;App-Module-Lister&amp;quot;,
+        [1] 0.15
+    ],
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If I want only the distributions that are development versions, I can use &lt;a href=&#34;http://mojolicio.us/perldoc/Mojo/Collection&#34;&gt;Mojo::Collection&lt;/a&gt;&amp;rsquo;s &lt;code&gt;grep&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @module_list = $dom
+    -&amp;gt;find(&#39;tr td:first-child a:first-child&#39;)
+    -&amp;gt;map( attr =&amp;gt; &#39;href&#39; )
+    -&amp;gt;map( sub { s|/\z||r } )
+    -&amp;gt;map( sub { 
+        my $d = CPAN::DistnameInfo-&amp;gt;new( &amp;quot;$_.tar.gz&amp;quot; );
+        [ map { $d-&amp;gt;$_() } qw(dist version) ];
+         } )
+    -&amp;gt;grep( sub { $_-&amp;gt;[-1] =~ /_/ } )
+    -&amp;gt;each;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;grep&lt;/code&gt; selects each element of the collection for which the subroutine returns a true value:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;[
+    [0]  [
+        [0] &amp;quot;Brick&amp;quot;,
+        [1] &amp;quot;0.227_01&amp;quot;
+    ],
+    [1]  [
+        [0] &amp;quot;Distribution-Guess-BuildSystem&amp;quot;,
+        [1] &amp;quot;0.12_02&amp;quot;
+    ],
+    [2]  [
+        [0] &amp;quot;File-Fingerprint&amp;quot;,
+        [1] &amp;quot;0.10_02&amp;quot;
+    ],
+    [3]  [
+        [0] &amp;quot;Geo-GeoNames&amp;quot;,
+        [1] &amp;quot;1.01_01&amp;quot;
+    ],
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s the process. No HTML shows up in my code. The rest is figuring out how to select the particular element that I want.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

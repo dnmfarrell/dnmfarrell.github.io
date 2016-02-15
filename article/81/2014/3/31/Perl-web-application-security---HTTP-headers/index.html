@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Perl web application security - HTTP headers Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Instantly upgrade your web application security with these headers"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Perl web application security - HTTP headers</h1>
+            <p class="blog-post-meta">Mar 31, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/81/ECAB3C5E-FF2E-11E3-B4AE-5C05A68B9E16.jpeg"/>
+            </div>
+              
+
+<p><em>HTTP headers are included in every HTTP response from a web server. Setting the appropriate HTTP headers can reduce the risk of man-in-the-middle and cross-site-scripting attacks on a web application. You can also reduce information leaks about the web application configuration - vital data that gives a would-be attacker clues about potential vulnerabilities. Read on to find out how to set the appropriate headers in your Perl web application.</em></p>
+
+<h3 id="application:87bd3c5b42cb426b55681d8c1ff3ca2c">Application</h3>
+
+<p>All three of major Perl web frameworks provide some kind of identifying header. Dancer and Mojolicious use &ldquo;X-Powered-By&rdquo; and Catalyst uses &ldquo;X-Catalyst&rdquo;. The problem with this header is it informs the requester the language of the application (Perl) and the web framework being used. In some cases it also reveals the version number. With this information a would-be attacker can focus on exploits that are specific to Perl or the web framework. Here&rsquo;s how you can disable it:</p>
+
+<ul>
+<li>By default Catalyst does not turn on its application header. The header is controlled by the &ldquo;enable_catalyst_header&rdquo; config option, normally located in the root application class (e.g. lib/MyApp.pm) or the application config file.</li>
+<li>Mojolicious does not set this header since <a href="https://github.com/kraih/mojo/blob/b5da0c7afcdd793c85e8e2a67eb29f7f36bdb601/Changes#L538">version 4.00</a>.</li>
+<li>Dancer (and Dancer2) use the <a href="http://search.cpan.org/~xsawyerx/Dancer2-0.11/lib/Dancer2/Config.pod#server_tokens_%28boolean%29">server tokens</a> directive.</li>
+</ul>
+
+<h3 id="server:87bd3c5b42cb426b55681d8c1ff3ca2c">Server</h3>
+
+<p>Web servers often broadcast information about themselves by default. For example:</p>
+
+<pre><code class="language-prettyprint">Server: nginx/1.4.6
+</code></pre>
+
+<p>This is risky for the same reason that revealing information about the underlying Perl web application is. To disable the server header in nginx, just add this line to your nginx.conf or virtual host file:</p>
+
+<pre><code class="language-prettyprint">server_tokens off;
+</code></pre>
+
+<p>For Apache 1.3x add these lines to your virtual host file:</p>
+
+<pre><code class="language-prettyprint">ServerTokens Prod
+ServerSignature Off
+</code></pre>
+
+<p>For Apache 2.x, these lines will load the mod_headers module, and remove the server header:</p>
+
+<pre><code class="language-prettyprint">LoadModule headers_module /usr/lib/apache/modules/mod_headers.so
+Header unset Server
+</code></pre>
+
+<p>All of the major Perl web frameworks ship with web servers that set the server header:</p>
+
+<pre><code class="language-prettyprint"># Catalyst
+Server: HTTP::Server::PSGI
+
+# mojolicious
+Server: Mojolicious (Perl)
+
+# Dancer
+Server: Perl Dancer 1.3121
+</code></pre>
+
+<p>These headers can be overwritten within the application code. For instance, if we wanted to change the server to appear to be nginx:</p>
+
+<pre><code class="language-prettyprint"># Catalyst
+$c-&gt;response-&gt;header('Server' =&gt; 'nginx');
+
+# Mojolicious
+$self-&gt;res-&gt;headers-&gt;header('Server' =&gt; 'nginx');
+
+# Dancer / Dancer2
+header 'Server' =&gt; 'nginx';
+</code></pre>
+
+<h3 id="x-frame-options:87bd3c5b42cb426b55681d8c1ff3ca2c">X-Frame-Options</h3>
+
+<p>This header can prevent your application responses from being loaded within frame or iframe HTML elements (see the <a href="http://tools.ietf.org/html/rfc7034">spec</a>). This is to prevent clickjacking requests where your application response is displayed on another website, within an invisible iframe, which then hijacks the user&rsquo;s request when they click a link on your website. Here&rsquo;s how to disable it in the respective web frameworks:</p>
+
+<pre><code class="language-prettyprint"># Catalyst
+$c-&gt;response-&gt;header('X-Frame-Options' =&gt; 'DENY');
+
+# Mojolicious
+$self-&gt;res-&gt;headers-&gt;header('X-Frame-Options' =&gt; 'DENY');
+
+# Dancer / Dancer2
+header 'X-Frame-Options' =&gt; 'DENY';
+</code></pre>
+
+<h3 id="strict-transport-security:87bd3c5b42cb426b55681d8c1ff3ca2c">Strict-Transport-Security</h3>
+
+<p>This header instructs the requester to load all content from the domain via HTTPS and not load any content unless there is a valid ssl certificate. This header can help prevent man-in-middle attacks as it ensures that all HTTP requests and responses are encrypted. The Strict-Transport-Security header has a max-age parameter that defines how long in seconds to enforce the policy for. Here&rsquo;s how to add it to your Perl web application:</p>
+
+<pre><code class="language-prettyprint"># Catalyst
+$c-&gt;response-&gt;header('Strict-Transport-Security' =&gt; 'max-age=3600');
+
+# Mojolicious
+$self-&gt;res-&gt;headers-&gt;header('Strict-Transport-Security' =&gt; 'max-age=3600');
+
+# Dancer / Dancer2
+header 'Strict-Transport-Security' =&gt; 'max-age=3600';
+</code></pre>
+
+<h3 id="content-security-policy:87bd3c5b42cb426b55681d8c1ff3ca2c">Content-Security-Policy</h3>
+
+<p>The CSP header sets a whitelist of domains from which content can be safely loaded. This prevents most types of XSS attack, assuming the malicious content is not hosted by a whitelisted domain. For example this line specifies that all content should only be loaded from the responding domain:</p>
+
+<pre><code class="language-prettyprint">X-Content-Security-Policy: default-src 'self'
+</code></pre>
+
+<p>There is <a href="http://www.html5rocks.com/en/tutorials/security/content-security-policy%0A">a lot to CSP</a> (<a href="http://www.w3.org/TR/CSP/">spec</a>) and browser support is <a href="http://caniuse.com/#feat=contentsecuritypolicy">fairly good</a>. One downside to the whitelist approach is it&rsquo;s not compatible with ad services like Google&rsquo;s adsense as you won&rsquo;t know the domains in advance in order to whitelist them. To set the header in your facourite Perl web application, use on of these lines:</p>
+
+<pre><code class="language-prettyprint"># Catalyst
+$c-&gt;response-&gt;header('X-Content-Security-Policy' =&gt; &quot;default-src 'self'&quot;);
+
+# Mojolicious
+$self-&gt;res-&gt;headers-&gt;header('X-Content-Security-Policy' =&gt; &quot;default-src 'self'&quot;);
+
+# Dancer / Dancer2
+header 'X-Content-Security-Policy' =&gt; &quot;default-src 'self'&quot;;
+</code></pre>
+
+<h3 id="x-content-type-options:87bd3c5b42cb426b55681d8c1ff3ca2c">X-Content-Type-Options</h3>
+
+<p>This is an IE only header that is used to disable mime sniffing. The vulnerability is that IE will auto-execute any script code contained in a file when IE attempts to detect the file type. This is disabled by default in IE anyway, but to enforce it:</p>
+
+<pre><code class="language-prettyprint"># Catalyst
+$c-&gt;response-&gt;header('X-Content-Type-Options' =&gt; 'nosniff');
+
+# Mojolicious
+$self-&gt;res-&gt;headers-&gt;header('X-Content-Type-Options' =&gt; 'nosniff');
+
+# Dancer / Dancer2
+header 'X-Content-Type-Options' =&gt; 'nosniff';
+</code></pre>
+
+<h3 id="x-download-options:87bd3c5b42cb426b55681d8c1ff3ca2c">X-Download-Options</h3>
+
+<p>This is another IE-only header that prevents IE from opening an HTML file directly on download from a website. The security issue here is, if a browser opens the file directly, it can run as if it were part of the site. To add this header, use one of these lines:</p>
+
+<pre><code class="language-prettyprint"># Catalyst
+$c-&gt;response-&gt;header('X-Download-Options' =&gt; 'noopen');
+
+# Mojolicious
+$self-&gt;res-&gt;headers-&gt;header('X-Download-Options' =&gt; 'noopen');
+
+# Dancer / Dancer2
+header 'X-Download-Options' =&gt; 'noopen';
+</code></pre>
+
+<h3 id="x-xss-protection:87bd3c5b42cb426b55681d8c1ff3ca2c">X-XSS-Protection</h3>
+
+<p>This is the final IE-only header. It was introduced in IE8 as part of the cross-site-scripting (XSS) filter functionality (more <a href="http://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx">here</a>). The header can force IE to turn on its XSS filter. Additionally it has an optional setting called &ldquo;mode&rdquo; that can force IE to block the entire page if an XSS attempt is detected. Here&rsquo;s how to add it:</p>
+
+<pre><code class="language-prettyprint"># Catalyst
+$c-&gt;response-&gt;header('X-XSS-Protection' =&gt; &quot;1; 'mode=block'&quot;);
+
+# Mojolicious
+$self-&gt;res-&gt;headers-&gt;header('X-XSS-Protection' =&gt; &quot;1; 'mode=block'&quot;);
+
+# Dancer / Dancer2
+header 'X-XSS-Protection' =&gt; &quot;1; 'mode=block'&quot;;
+</code></pre>
+
+<h3 id="adding-headers-in-the-web-server:87bd3c5b42cb426b55681d8c1ff3ca2c">Adding headers in the web server</h3>
+
+<p>You may prefer to add these headers in the web server configuration, rather than at the application level. For nginx, use the &ldquo;add_header&rdquo; directive - see <a href="https://gist.github.com/plentz/6737338">here</a> for a good example. For Apache use the &ldquo;Header set&rdquo; directive in mod_headers (<a href="http://moko.ru/doc/apache/mod/mod_headers.html">1.3</a>, <a href="http://httpd.apache.org/docs/2.0/de/mod/mod_headers.html">2.x</a>).</p>
+
+<h3 id="testing-the-headers:87bd3c5b42cb426b55681d8c1ff3ca2c">Testing the headers</h3>
+
+<p>tThere are a number of ways to check which headers your application is returning. Firstly you can use curl (replace perltricks.com with the URL to check):</p>
+
+<pre><code class="language-prettyprint">curl -I perltricks.com
+</code></pre>
+
+<p>This will return the HTTP headers only:</p>
+
+<pre><code class="language-prettyprint">HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 31 Mar 2014 01:54:59 GMT
+Content-Type: text/html; charset=utf-8
+Connection: keep-alive
+Cache-Control: max-age=3600
+X-Frame-Options: DENY
+</code></pre>
+
+<p>You can use <a href="https://securityheaders.com/">SecurityHeaders.com&rsquo;s</a> excellent checking tool. Or you can inspect the headers yourself by using your browser&rsquo;s developer mode.</p>
+
+<h3 id="conclusion:87bd3c5b42cb426b55681d8c1ff3ca2c">Conclusion</h3>
+
+<p>These HTTP headers are easy to add and can make a reduce your application&rsquo;s vulnerability to XSS and man-in-the-middle attacks, particularly for applications that allow users to upload content.</p>
+
+<p>Enjoyed this article? Help us out and <a href="https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F81%2F2014%2F3%2F31%2FPerl-web-application-security-HTTP-headers&amp;text=Perl+web+application+security+-+HTTP+headers&amp;tw_p=tweetbutton&amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F81%2F2014%2F3%2F31%2FPerl-web-application-security-HTTP-headers&amp;via=perltricks">retweet</a> it!</p>
+
+<p><em>Cover photo © <a href="http://www.flickr.com/photos/rightee/259084010/in/photostream/">Andy Wright</a></em></p>
+
+<p><em>Updates: Mojolicious application header corrected. Web frameworks server header added. (31/3/2014)</em></p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/catalyst">catalyst</a></div>
+              
+                <div class="tag"><a href="/tags/dancer">dancer</a></div>
+              
+                <div class="tag"><a href="/tags/mojolicious">mojolicious</a></div>
+              
+                <div class="tag"><a href="/tags/mvc">mvc</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

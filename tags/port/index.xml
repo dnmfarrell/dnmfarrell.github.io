@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Port on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/port/</link>
+    <description>Recent content in Port on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 01 Jul 2015 12:51:31 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/port/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Basic network hacking with Perl</title>
+      <link>http://perltricks.com/article/179/2015/7/1/Basic-network-hacking-with-Perl/</link>
+      <pubDate>Wed, 01 Jul 2015 12:51:31 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/179/2015/7/1/Basic-network-hacking-with-Perl/</guid>
+      <description>
+
+&lt;p&gt;Recently I&amp;rsquo;ve been reading &lt;a href=&#34;https://www.packtpub.com/networking-and-servers/penetration-testing-perl-raw&#34;&gt;Penetration Testing With Perl&lt;/a&gt; by Douglas Berdeaux. The book was released late last year, and whilst Dave Cross gave it a fairly scathing &lt;a href=&#34;http://perlhacks.com/2015/02/penetration-testing-perl/&#34;&gt;review&lt;/a&gt; I&amp;rsquo;ve found it interesting so far. I&amp;rsquo;ve been coding and refactoring the scripts presented in the book in a GitHub &lt;a href=&#34;https://github.com/dnmfarrell/Penetration-Testing-With-Perl&#34;&gt;repo&lt;/a&gt; as I go. Here is some of the stuff I&amp;rsquo;ve learned so far.&lt;/p&gt;
+
+&lt;h3 id=&#34;livehost-detection:f1808d343c8e37bf4bcdf4923d18881f&#34;&gt;Livehost Detection&lt;/h3&gt;
+
+&lt;p&gt;If you&amp;rsquo;re connected to a network, it&amp;rsquo;s helpful to know the IP addresses of all of the other hosts on the same network. This &lt;a href=&#34;https://github.com/dnmfarrell/Penetration-Testing-With-Perl/blob/master/livehost_scanner&#34;&gt;script&lt;/a&gt; starts by detecting the network device name (or accepting it as an argument) and initializing a packet capture object:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use feature &#39;say&#39;;
+use Net::ARP;
+use Net::Address::IP::Local;
+use Net::Frame::Device;
+use Net::Frame::Dump::Online;
+use Net::Frame::Simple;
+use Net::Netmask;
+use Net::Pcap ();
+
+my $network_device_name = $ARGV[0] if @ARGV;
+
+unless ($network_device_name)
+{
+  $network_device_name = Net::Pcap::pcap_lookupdev(\my $error_msg);
+  die &amp;quot;pcap device lookup failed &amp;quot; . ($error_msg || &#39;&#39;)
+    if $error_msg || not defined $network_device_name;
+}
+
+my $device = Net::Frame::Device-&amp;gt;new(dev =&amp;gt; $network_device_name);
+
+my $pcap = Net::Frame::Dump::Online-&amp;gt;new(
+  dev =&amp;gt; $network_device_name,
+  filter =&amp;gt; &#39;arp and dst host &#39; . $device-&amp;gt;ip,
+  promisc =&amp;gt; 0,
+  unlinkOnStop =&amp;gt; 1,
+  timeoutOnNext =&amp;gt; 10
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It then detects the gateway IP (the Ip address of the network controller) and sends a broadcast packet to every IP address in the subnet. The packet capture object &lt;code&gt;$pcap&lt;/code&gt; will detect any responses. It then prints out the respondent&amp;rsquo;s IP and MAC address.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;printf &amp;quot;Gateway IP: %s\nStarting scan\n&amp;quot;, $device-&amp;gt;gatewayIp;
+
+$pcap-&amp;gt;start;
+
+for my $ip_address (Net::Netmask-&amp;gt;new($device-&amp;gt;subnet)-&amp;gt;enumerate)
+{
+  Net::ARP::send_packet(
+    $network_device_name,
+    $device-&amp;gt;ip,
+    $ip_address,
+    $device-&amp;gt;mac,
+    &amp;quot;ff:ff:ff:ff:ff:ff&amp;quot;, # broadcast
+    &amp;quot;request&amp;quot;,
+  );
+}
+
+until ($pcap-&amp;gt;timeout)
+{
+  if (my $next = $pcap-&amp;gt;next)
+  {
+    my $frame = Net::Frame::Simple-&amp;gt;newFromDump($next);
+    my $local_ip = Net::Address::IP::Local-&amp;gt;public;
+    my $frame_ip = $frame-&amp;gt;ref-&amp;gt;{ARP}-&amp;gt;srcIp;
+    my $frame_mac = $frame-&amp;gt;ref-&amp;gt;{ARP}-&amp;gt;src;
+    say &amp;quot;$frame_ip $frame_mac&amp;quot;. ($local_ip eq $frame_ip ? &#39; (this machine)&#39; : &#39;&#39;);
+  }
+}
+END { say &amp;quot;Exiting.&amp;quot;; $pcap-&amp;gt;stop }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If I run this script on my home network, I get the following output&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ sudo $(which perl) livehost_scanner
+Gateway IP: 192.168.1.1
+Starting scan
+Gateway IP: 192.168.1.1
+Starting scan
+192.168.1.1 10:0d:7f:81:31:c2
+192.168.1.2 5c:c5:d4:47:0a:13 (this machine)
+192.168.1.3 68:09:27:03:d0:35
+Exiting.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;From this I can deduce that there is one other machine connected to the network at &lt;code&gt;192.168.1.4&lt;/code&gt;, in addition to the router at &lt;code&gt;192.168.1.1&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;fingerprinting:f1808d343c8e37bf4bcdf4923d18881f&#34;&gt;Fingerprinting&lt;/h3&gt;
+
+&lt;p&gt;Now I&amp;rsquo;ve identified the addresses of two hosts on my network, if I was an attacker I would want to try and identify the types of hosts they are, in order to determine which types of attacks to use against them.&lt;/p&gt;
+
+&lt;p&gt;One way to fingerprint a host is using their &lt;a href=&#34;https://en.wikipedia.org/wiki/MAC_address&#34;&gt;MAC address&lt;/a&gt;. The first half of the address is the Organisationally Unique Identifier (OUI). The IEEE provide a &lt;a href=&#34;http://standards-oui.ieee.org/oui.txt&#34;&gt;file&lt;/a&gt; that lists all authorized OUIs and their manufacturer. So to identify the Manufacturer of the network device of the host, all we have to do is lookup their OUI in the file. This &lt;a href=&#34;https://github.com/dnmfarrell/Penetration-Testing-With-Perl/blob/master/id_target&#34;&gt;script&lt;/a&gt; does that:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+my $target_mac = shift or die &amp;quot;Usage\n\t./id_target \n&amp;quot;;
+
+printf &amp;quot;Address: %s, MAC Manufacturer: %s\n&amp;quot;,
+  $target_mac, oui_lookup($target_mac);
+
+sub oui_lookup
+{
+  my $mac_address = shift;
+  $mac_address =~ s/:/-/g;
+  my $oui = substr $mac_address, 0, 8;
+
+  open (my $oui_file, &#39;&amp;lt;&#39;, &#39;data/oui.txt&#39;) or die $!;
+  while (my $line = &amp;lt;$oui_file&amp;gt;)
+  {
+    if($line =~ /$oui/i)
+    {
+      my ($address, $manufacturer_name) = split /\t+/, $line;
+      return &amp;quot;$manufacturer_name&amp;quot;;
+      last;
+    }
+  }
+  return &amp;quot;Unknown&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If I run this script on the Gateway MAC address, I can identify the access point manufacturer:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./id_target 10:0d:7f:81:31:c2
+Address: 10:0d:7f:81:31:c2, MAC Manufacturer: NETGEAR INC.,
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Aha! so the access point is made by Netgear. There was another host detected on my network at address &lt;code&gt;192.168.1.3&lt;/code&gt;. I can try and fingerprint them too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./id_target 68:09:27:03:d0:35
+Address: 68:09:27:03:d0:35, MAC Manufacturer: Apple
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;rsquo;s an Apple machine. With this data I can either try to fingerprint the hosts further, or I can start testing them for weaknesses, using a port scan or a known vulnerability. A good source of vulnerabilities is &lt;a href=&#34;http://www.exploit-db.com&#34;&gt;exploit-db.com&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

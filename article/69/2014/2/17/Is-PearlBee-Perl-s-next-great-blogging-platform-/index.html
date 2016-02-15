@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Is PearlBee Perl&#39;s next great blogging platform? Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="We review the new open source blogging platform"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Is PearlBee Perl&#39;s next great blogging platform?</h1>
+            <p class="blog-post-meta">Feb 17, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/69/EC51073E-FF2E-11E3-94AE-5C05A68B9E16.png"/>
+            </div>
+              
+
+<p><em>Last year the Perl-based Movable Type blogging platform turned closed-source and left Perl without a major open source blogging platform. The wait is over; PearlBee is a new open source blogging platform written in Perl and developed by Evozon. But is it any good? We took it for a spin to find out.</em></p>
+
+<h3 id="setup:49c8291c3f206ef8d30e95bbf67657c3">Setup</h3>
+
+<p>I tested the PearlBee on a machine running Fedora 19, MariaDB v5.5.34 and Perl 5.16.3. Installation was simple, I followed the readme instructions from the project&rsquo;s GitHub <a href="https://github.com/perl-evozon/pearlbee">repository</a>.</p>
+
+<h3 id="writing-a-blog-post:49c8291c3f206ef8d30e95bbf67657c3">Writing a blog post</h3>
+
+<p>PearlBee comes with an administration portal from where you can write new blog posts. It&rsquo;s accessed via a login page at /admin. The default login credentials are &ldquo;admin&rdquo; and &ldquo;password&rdquo;.</p>
+
+<p><img src="/static/images/69/admin_login.png" alt="PearlBee login page screenshot" /></p>
+
+<p>Once logged in, by default the new post form will display:</p>
+
+<p><img src="/static/images/69/new_post.png" alt="PearlBee new post page screenshot" /></p>
+
+<p>The form is well put together: it has title, slug and cover image file upload controls and a WYSIWYG editor for the main blog text. To the right of the main form is a details form, for setting the blog post category and adding tags. PearlBee creates a tag object for every tag text entered, allowing the tags to be searched against and reused in later posts.</p>
+
+<p><img src="/static/images/69/completed_post.png" alt="PearlBee new post page screenshot" /></p>
+
+<p>Having completed the form, press &ldquo;Publish&rdquo; to save the post and make it live. PearlBee will display a helpful success message:</p>
+
+<p><img src="/static/images/69/saved_post.png" alt="PearlBee saved post page screenshot" /></p>
+
+<p>And the post will now be live on the main blog page:</p>
+
+<p><img src="/static/images/69/post_on_frontpage.png" alt="PearlBee page frontpage screenshot" /></p>
+
+<p>Notice how PearlBee has updated the categories and tags on the right side of the screen for convenient filtering.</p>
+
+<p>One thing that could be better is the image handling. I found that a square image was unevenly flattened into landscape proportions (but it displays correctly on the blog front page).</p>
+
+<p><img src="/static/images/69/flat_onion_image.png" alt="PearlBee saved post flat image page screenshot" /></p>
+
+<p>I tested PearlBee&rsquo;s image upload with both jpeg and png files and both worked fine.</p>
+
+<h3 id="basic-administration:49c8291c3f206ef8d30e95bbf67657c3">Basic Administration</h3>
+
+<p>PearlBee&rsquo;s admin portal has a slick and clean interface. Menu drop-down lists expand and contract smoothly and forms are provided to manage the site&rsquo;s data. We&rsquo;ve encountered some of the database model objects already: posts, categories and tags. Here is the post management page:</p>
+
+<p><img src="/static/images/69/post_management.png" alt="PearlBee post management page screenshot" /></p>
+
+<p>The page lists all posts and provides there high level attributes such as author, title and categories. It also provides switches to quickly change a post&rsquo;s status. This is useful if a post needs to be taken-down and edited, or re-posted. At the time of review the page contained a couple of typos and unfortunately the link to view the article did not work (neither the link on the title or the eye icon). These can be worked around though.</p>
+
+<p>One other opportunity for improvement here: PearlBee should create the appropriate META tags for blog posts, using the post&rsquo;s attributes. This would help with SEO.</p>
+
+<p>There is also a site-wide settings page for the blog. From here you can set the blog&rsquo;s timezone and enable / disable use of social media buttons.</p>
+
+<h3 id="comments:49c8291c3f206ef8d30e95bbf67657c3">Comments</h3>
+
+<p>PearlBee comes with a comments system built-in. The comments form appears beneath a blog post, with existing comments showing there as well:</p>
+
+<p><img src="/static/images/69/comment_posted.png" alt="PearlBee comment management page screenshot" /></p>
+
+<p>I thought the styling on the comments form looks professional and reminded me of the &ldquo;Disqus&rdquo; comments system design. PearlBee provides a CAPTCHA on the form out-of-the-box, which is a useful spam filter.</p>
+
+<p>All comments are moderated, and require approval before going live. I tested the comment submission and moderation process and it worked first time. This is the comments management page:</p>
+
+<p><img src="/static/images/69/comment_management.png" alt="PearlBee comment management page screenshot" /></p>
+
+<p>Once approved, comments appear beneath the blog post.</p>
+
+<p>Comments can be security risk as they allow users to upload text which is then displayed on the site. For example if a user uploads malicious JavaScript, they can carry out a XSS attack whenever a visitor loads the page with the comment (or an administrator reviews it). PearlBee does not yet implement comment content filtering which can prevent this type of attack by removing code characters from the comment text. This would need to be in place before a PearlBee site was used in a production environment.</p>
+
+<h3 id="user-management:49c8291c3f206ef8d30e95bbf67657c3">User Management</h3>
+
+<p>PearlBee recognizes two types of users: &ldquo;administrators&rdquo; who can manage the site&rsquo;s data, and &ldquo;authors&rdquo; who can write blog posts but not do much else. As with the other database objects, PearlBee provides a form-driven interface for managing the site&rsquo;s users. During testing I was able to create a new author, login with that author and write blog posts. It worked well. PearlBee created a default, random, encrypted password for the account and sent the new user an email with instructions on how to login (the email actually wasn&rsquo;t sent, more on this later). PearlBee uses <a href="https://metacpan.org/pod/Crypt::RandPasswd">Crypt::RandPasswd</a> to generate the initial password, and <a href="https://metacpan.org/pod/Digest::SHA1">Digest::SHA1</a> to encrypt it. This should be set to a stronger encryption method, as Digest::SHA1 contains <a href="https://www.schneier.com/blog/archives/2005/02/cryptanalysis_o.html">security weaknesses</a>.</p>
+
+<p>Additional roles might be useful here: an editor role that can edit and publish posts, but not change the site&rsquo;s settings or create new users would bridge the gap between the current admin and author roles. I would probably remove the author role&rsquo;s permission to publish articles.</p>
+
+<h3 id="customization:49c8291c3f206ef8d30e95bbf67657c3">Customization</h3>
+
+<p>PearlBee is built in a responsive design with the Twitter Bootstrap framework. The design is clever and works well at many different screen resolutions and form factors. At this time of writing there are no publicly available alternative themes, so you&rsquo;re stuck with the existing theme unless you want to code an alternative one yourself. I did find an example alternative theme online: the &ldquo;Built in Perl&rdquo; <a href="http://blog.builtinperl.com/">blog</a>.</p>
+
+<p>Apart from the design, you&rsquo;ll want to edit the PearlBee templates to use your blog&rsquo;s name, and update the default footer information. It would be awesome if PearlBee were able to read this from the config.yml file, rather than requiring code edits to the template toolkit view files.</p>
+
+<p>PearlBee requires a local SMTP server to send emails (such as the new user welcome email). I found the email settings were hard-coded to use the default and not configurable, which meant I wasn&rsquo;t able to test the email functionality. Contrary to the Makefile, PearlBee uses <a href="https://metacpan.org/pod/Email::Template">Email::Template</a> and not MIME::Email or Email::Sender::Simple to handle email. PearlBee does come with some pre-configured email templates which look useful.</p>
+
+<h3 id="conclusion:49c8291c3f206ef8d30e95bbf67657c3">Conclusion</h3>
+
+<p>PearlBee is a promising platform that is still in development. It looks good, has a solid data model and runs fast on the Dancer2 framework with DBIx::Class. In my interactions with the development team they were responsive and helpful. It feels about 80% complete - the core functionality is in place but there are some rough edges. PearlBee needs better security, SEO integration and to be more configurable. If the development team can resolve these issues in time for the first major release of PearlBee, it could be a milestone Perl development for what has been a barren couple of years in blogging technology.</p>
+
+<p>Enjoyed this article? Help us out and <a href="https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F69%2F2014%2F2%2F17%2FIs-PearlBee-Perl-s-next-great-blogging-platform-&amp;text=Is+PearlBee+Perl%27s+next+great+blogging+platform%3F&amp;tw_p=tweetbutton&amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F69%2F2014%2F2%2F17%2FIs-PearlBee-Perl-s-next-great-blogging-platform-&amp;via=perltricks">retweet</a> it!</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/community">community</a></div>
+              
+                <div class="tag"><a href="/tags/blog">blog</a></div>
+              
+                <div class="tag"><a href="/tags/github">github</a></div>
+              
+                <div class="tag"><a href="/tags/movable_type">movable_type</a></div>
+              
+                <div class="tag"><a href="/tags/evozon">evozon</a></div>
+              
+                <div class="tag"><a href="/tags/open_source">open_source</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

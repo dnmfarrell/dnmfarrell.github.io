@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Read an entire file into a string Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="TIMTOWDI"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Read an entire file into a string</h1>
+            <p class="blog-post-meta">Apr 21, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>There are several ways in Perl to read an entire file into a string, (a procedure also known as &ldquo;slurping&rdquo;).</p>
+
+<p>If you have access to CPAN, you can use the <a href="https://metacpan.org/module/File::Slurp">File::Slurp</a> module:</p>
+
+<pre><code class="language-prettyprint">use File::Slurp;
+
+my $file_content = read_file('text_document.txt');
+</code></pre>
+
+<p>File::Slurp&rsquo;s <code>read_file</code> function to reads the entire contents of a file with the file name and returns it as a string. It&rsquo;s simple and usually does what it&rsquo;s expected to do. However use of <code>File::Slurp</code> is discouraged as it has some encoding layer problems that may cause issues. <a href="https://metacpan.org/pod/File::Slurper">File::Slurper</a> aims to be a safer alternative that, regrettably is still described as experimental:</p>
+
+<pre><code class="language-prettyprint">use File::Slurper;
+
+my $content = read_text('text_document.txt');
+</code></pre>
+
+<p>File::Slurper&rsquo;s <code>read_text</code> function accepts an optional encoding argument, and can automatically decode <code>crlf</code> line endings if you request it (for Windows files).</p>
+
+<h3 id="slurping-files-without-modules:6e7298651c4cb8ae2dfdff77b8dd1aac">Slurping files without modules</h3>
+
+<p>Slurping files is not complicated though and requires just a few lines of Perl. First I open a filehandle:</p>
+
+<pre><code class="language-prettyprint">open my $fh, '&lt;', 'text_document.txt' or die &quot;Can't open file $!&quot;;
+</code></pre>
+
+<p>Now I can read the file contents:</p>
+
+<pre><code class="language-prettyprint">my $file_content = do { local $/; &lt;$fh&gt; };
+</code></pre>
+
+<p>Within the <code>do</code> block it localizes Perl&rsquo;s record separator variable <code>$/</code> to <code>undef</code>, so that the diamond <code>&lt;&gt;</code> operator will read all the lines of the file at once (usually <code>$/</code> is set to newline).</p>
+
+<p>Once you&rsquo;ve opened a filehandle to the file you want to slurp, instead of a <code>do</code> block, you can also use <code>read</code> to slurp a file:</p>
+
+<pre><code class="language-prettyprint">read $fh, my $file_content, -s $fh;
+</code></pre>
+
+<p><code>read</code> requires a filehandle, a target variable to read content into and a length argument. To get the length of the file, we use the <code>-s</code> function on the filehandle, which returns the file size in bytes. For large files, this approach is faster than the <code>do</code> block method.</p>
+
+<h3 id="perlio-layers:6e7298651c4cb8ae2dfdff77b8dd1aac">PerlIO Layers</h3>
+
+<p>When slurping a file, you may want to add a PerlIO layer <a href="http://perldoc.perl.org/PerlIO.html">instruction</a> to the open argument:</p>
+
+<pre><code class="language-prettyprint">open my $fh, '&lt;:unix', 'text_document.txt' or die &quot;Couldn't open $filename: $!&quot;;
+</code></pre>
+
+<p>With this code the first line looks the same except <code>:unix</code> has been appended to the file open direction. You can read more about the PerlIO layers <a href="http://perldoc.perl.org/PerlIO.html">here</a>.</p>
+
+<h3 id="yet-another-way:6e7298651c4cb8ae2dfdff77b8dd1aac">Yet another way</h3>
+
+<p>In the comments section of a blog <a href="http://blogs.perl.org/users/leon_timmermans/2013/05/why-you-dont-need-fileslurp.html">post</a>, Damien Krotkine showed that it&rsquo;s also possible to slurp a file in &ldquo;one line&rdquo; of Perl, or at least without using <code>open</code>:</p>
+
+<pre><code class="language-prettyprint">my $file_content = do{local(@ARGV,$/)=$filename;&lt;&gt;};
+</code></pre>
+
+<p>Cool, huh? This works by localizing <code>@ARGV</code> and saving <code>$filename</code> as the first element of <code>@ARGV</code>. The empty diamond operator <code>&lt;&gt;</code> automatically opens a filehandle to the first element of <code>@ARGV</code>, which is the filename. If you need to set a PerlIO layer, the filehandle name is <code>ARGV</code> so you can use binmode to set the layer (<em>before</em> the file is read!):</p>
+
+<pre><code class="language-prettyprint">binmode ARGV, $layer;
+</code></pre>
+
+<p><strong>Updated:</strong> changed to give more examples, File::Slurp warning and include File::Slurper. 2015-06-26</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/file">file</a></div>
+              
+                <div class="tag"><a href="/tags/filehandle">filehandle</a></div>
+              
+                <div class="tag"><a href="/tags/open">open</a></div>
+              
+                <div class="tag"><a href="/tags/slurp">slurp</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

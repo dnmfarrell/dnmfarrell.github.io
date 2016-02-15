@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Global_variables on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/global_variables/</link>
+    <description>Recent content in Global_variables on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 18 Aug 2013 18:48:51 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/global_variables/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Catch and Handle Signals in Perl</title>
+      <link>http://perltricks.com/article/37/2013/8/18/Catch-and-Handle-Signals-in-Perl/</link>
+      <pubDate>Sun, 18 Aug 2013 18:48:51 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/37/2013/8/18/Catch-and-Handle-Signals-in-Perl/</guid>
+      <description>
+
+&lt;p&gt;Signals are types of messages sent by an operating system to a process such as a Perl program. Signals provide a method for communicating with a process, for example when running a command line program pressing control-c will send the interrupt signal (&amp;lsquo;SIGINT&amp;rsquo;) to the program by default terminating it. Signals are often unexpected and if not handled can leave your Perl program or data in an unfinished state. This article describes some useful Perl programming tools for gracefully handling signals.&lt;/p&gt;
+
+&lt;h3 id=&#34;method-1-the-sig-hash:7909a2df78dbcc2767753affaca8b750&#34;&gt;Method 1: The %SIG Hash&lt;/h3&gt;
+
+&lt;p&gt;All Perl programs have the global variable %SIG hash which contains keys corresponding to each signal type. When a signal is sent to a Perl program, the value of the matching key name in %SIG is automatically de-referenced. This makes it possible to assign code references to handle specific signals by adding a coderef to the signal&amp;rsquo;s key value in %SIG. Let&amp;rsquo;s use an example Perl script called sleeper.pl to demonstrate. All sleeper.pl does is sleep for 20 seconds:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+sleep(20);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now let&amp;rsquo;s update sleeper.pl to handle an interrupt signal using %SIG:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+$SIG{INT} = sub { die &amp;quot;Caught a sigint $!&amp;quot; };
+
+sleep(20);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If we run sleeper.pl on the command line and press control-c to send a SIGINT to it, we can see the our code ref was executed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl sleeper.pl
+^CCaught a sig int Interrupted system call at projects/scripts/sleeper.pl line 4.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By updating the various key-value pairs in %SIG it&amp;rsquo;s possible to handle specific signals, for example we can update sleeper.pl to handle a terminate signal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+$SIG{INT} = sub { die &amp;quot;Caught a sigint $!&amp;quot; };
+$SIG{TERM} = sub { die &amp;quot;Caught a sigterm $!&amp;quot; };
+
+sleep(20);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;rsquo;s often easier to define a signal handling subroutine rather than using anonymous subroutines for every signal you wish to catch. Let&amp;rsquo;s update sleeper.pl accordingly:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+$SIG{INT}  = \&amp;amp;signal_handler;
+$SIG{TERM} = \&amp;amp;signal_handler;
+
+sleep(20);
+
+sub signal_handler {
+    die &amp;quot;Caught a signal $!&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now the signal_handler subroutine will be called everytime sleeper.pl receives a SIGINT or SIGTERM signal. Using these techniques it&amp;rsquo;s possible to extend signal-handling behavior for all signals that you wish to be handled.&lt;/p&gt;
+
+&lt;h3 id=&#34;method-2-sigtrap:7909a2df78dbcc2767753affaca8b750&#34;&gt;Method 2: sigtrap&lt;/h3&gt;
+
+&lt;p&gt;sigtrap is a useful Perl pragma that makes handling signals easier than manipulating %SIG directly. The sigtrap pragma recognizes three groups of signals: normal-signals (HUP, PIPE, INT, TERM), error-signals (ABRT, BUS, EMT, FPE, ILL, QUIT, SEGV, SYS and TRAP) and old-interface-signals (ABRT, BUS, EMT, FPE, ILL, PIPE, QUIT, SEGV, SYS, TERM, and TRAP). Using sigtrap we can update sleeper.pl to die when any of the normal-signals are received:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use sigtrap qw/die normal-signals/;
+
+sleep(20);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Instead of calling die we can have sigtrap call the signal_handler routine that we defined previously:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use sigtrap qw/handler signal_handler normal-signals/;
+
+sleep(20);
+
+sub signal_handler {
+    die &amp;quot;Caught a signal $!&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There is a lot more to sigtrap, check out the &lt;a href=&#34;http://perldoc.perl.org/sigtrap.html&#34;&gt;sigtrap perldoc entry&lt;/a&gt; for more details about its functionality.&lt;/p&gt;
+
+&lt;h3 id=&#34;useful-signal-handling-behavior:7909a2df78dbcc2767753affaca8b750&#34;&gt;Useful signal handling behavior&lt;/h3&gt;
+
+&lt;p&gt;It&amp;rsquo;s common to call die when handling SIGINT and SIGTERM. die is useful because it will ensure that Perl stops correctly: for example Perl will execute a destructor method if present when die is called, but the destructor method will not be called if a SIGINT or SIGTERM is received and no signal handler calls die. Additional behaviors that are useful in a signal handling subroutine are stack tracing, event logging, thread termination and temporary file clean up. The correct behavior to define will depend on the type of signal received and the type of Perl program.&lt;/p&gt;
+
+&lt;h3 id=&#34;posix-signals:7909a2df78dbcc2767753affaca8b750&#34;&gt;POSIX signals&lt;/h3&gt;
+
+&lt;p&gt;Not every signal can be handled: on POSIX compliant systems (such as BSD, Linux and OSX) SIGSTOP and SIGKILL cannot be caught, blocked or ignored. See the &lt;a href=&#34;http://man7.org/linux/man-pages/man7/signal.7.html&#34;&gt;signal man page&lt;/a&gt; for further details. Not every signal needs to be handled - each signal has a default program behavior (disposition) which may not affect the running of the program (also defined on the man page). You can find a list of signals Perl recognizes by printing %SIG at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl -e &#39;foreach (keys %SIG) { print &amp;quot;$_\n&amp;quot; }&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;windows-signals:7909a2df78dbcc2767753affaca8b750&#34;&gt;Windows signals&lt;/h3&gt;
+
+&lt;p&gt;Windows implements a subset of the standard POSIX signals. These signals can still be handled using the techniques described above. Microsoft have provided a list of these signals on &lt;a href=&#34;http://msdn.microsoft.com/en-us/library/ms811896#ucmgch09_topic3&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Perl tokens you should know</title>
+      <link>http://perltricks.com/article/24/2013/5/11/Perl-tokens-you-should-know/</link>
+      <pubDate>Sat, 11 May 2013 11:17:52 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/24/2013/5/11/Perl-tokens-you-should-know/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Perl has many global variables, a few of which are stored in a special literal format as: __NAME__. It&amp;rsquo;s good to be aware of these special literals, (aka tokens) as they appear frequently in Perl code and provide useful functionality.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;package:312653f903a23a965a58cfb9108566a6&#34;&gt;PACKAGE&lt;/h3&gt;
+
+&lt;p&gt;This token contains the name of the package which is declared at the top of any Perl module e.g:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Perltricks::Example;
+use strict;
+use warnings;
+
+sub print_package_name {
+    print __PACKAGE__ . &amp;quot;\n&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In this example, the subroutine &amp;lsquo;print_package_name&amp;rsquo; would print &amp;lsquo;Perltricks::Example&amp;rsquo;. __PACKAGE__ is one of the most useful (and frequently used) tokens, as it has applications in code generation and class inheritance, where the programmer does not know the name of the package ahead of time. In a Perl program (.pl file) __PACKAGE__ returns &amp;lsquo;main&amp;rsquo;.&lt;/p&gt;
+
+&lt;h3 id=&#34;line-file:312653f903a23a965a58cfb9108566a6&#34;&gt;LINE, FILE&lt;/h3&gt;
+
+&lt;p&gt;The __LINE__ token returns the value of the current line number. __FILE__ provides the filename. Similar to __PACKAGE__ these tokens can be used with string and numeric functions as appropriate (such as print).&lt;/p&gt;
+
+&lt;h3 id=&#34;end-data:312653f903a23a965a58cfb9108566a6&#34;&gt;END, DATA&lt;/h3&gt;
+
+&lt;p&gt;__END__ defines the end of the Perl code in the file. Any text that appears after __END__ is ignored by the Perl compiler. Perl programmers often put module documentation after an __END__ token. Even though POD markup language is ignored by the Perl compiler, using __END__ provides the guarantee that even if the POD markup contains a syntax error, the Perl compiler will not scan that part of the file. A clear example of that can be seen in the &lt;a href=&#34;https://metacpan.org/source/GAAS/libwww-perl-6.05/lib/LWP.pm&#34;&gt;LWP source code&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;__DATA__ is similar to __END__ in that it defines the end of the Perl code in any file. However, any text that appears on the line immediately after __DATA__ until the end of the file, is read into the filehandle PACKAGENAME::DATA, (where package name is the name of the package that __DATA__ appeared in). The documentation for &lt;a href=&#34;http://perldoc.perl.org/SelfLoader.html&#34;&gt;SelfLoader&lt;/a&gt; discusses __DATA__ and __END__ in more detail.&lt;/p&gt;
+
+&lt;h3 id=&#34;sub:312653f903a23a965a58cfb9108566a6&#34;&gt;SUB&lt;/h3&gt;
+
+&lt;p&gt;__SUB__ returns a reference to the current subroutine. It&amp;rsquo;s available in Perl 5.16 and higher via the &amp;lsquo;use feature&amp;rsquo; pragma.&lt;/p&gt;
+
+&lt;p&gt;*This article was updated on 15th May 2013 including corrections to information relating to __SUB__. Thanks to &lt;strong&gt;Jochen Hayek&lt;/strong&gt; for the correction.*&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

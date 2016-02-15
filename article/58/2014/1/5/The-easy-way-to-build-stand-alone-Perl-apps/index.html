@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>The easy way to build stand-alone Perl apps Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Making dependency-free Perl applications is simple with App::FatPacker"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">The easy way to build stand-alone Perl apps</h1>
+            <p class="blog-post-meta">Jan 5, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/58/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png"/>
+            </div>
+              
+
+<p>The Perl toolchain has such a large install base it&rsquo;s tempting to just upload your app to PAUSE and let users install it via CPAN. <a href="https://metacpan.org/search?q=App%3A%3A">Many authors</a> have taken this approach and it makes sense in most cases to reuse the power of the CPAN in providing a common install, dependency management and update mechanism. Sometimes however you want to distribute a dependency-free Perl app in a single executable file, and for these cases you&rsquo;ll want to look at <a href="https://metacpan.org/pod/App::FatPacker">App::FatPacker</a>.</p>
+
+<h3 id="requirements:41e4dd307f92bfa80a5468497f197a81">Requirements</h3>
+
+<p>You&rsquo;ll need a Unix-based system (Linux, OSX, BSD) and to install <a href="https://metacpan.org/pod/App::FatPacker">App::FatPacker</a>. It runs on every version of Perl from 5.8.8 upwards, so just fire up the terminal and enter the following:</p>
+
+<pre><code class="language-prettyprint">cpan App::FatPacker
+</code></pre>
+
+<h3 id="coding-your-app:41e4dd307f92bfa80a5468497f197a81">Coding your app</h3>
+
+<p>You can convert any typical Perl script into a standalone app, as long as it doesn&rsquo;t have XS dependencies (see &ldquo;Alternatives to App::Fatpacker&rdquo; below for more info on how to create apps with XS dependencies). One suggestion would be to use the following shebang line:</p>
+
+<pre><code class="language-prettyprint">#!/usr/bin/env perl
+</code></pre>
+
+<p>This shebang line will call the &ldquo;env&rdquo; program passing &ldquo;perl&rdquo; as a parameter. This deals with the issue of the Perl binary beng installed in different locations on platforms as it will use the Perl binary in the user&rsquo;s $PATH. This is documented in <a href="http://perldoc.perl.org/perlrun.html">perlrun</a>. It is also compatible with Perlbrew.</p>
+
+<h3 id="producing-the-single-file-app:41e4dd307f92bfa80a5468497f197a81">Producing the single file app</h3>
+
+<p>This couldn&rsquo;t be simpler: once you have your Perl script ready to go, open the terminal and enter the following, replacing the paths with your own:</p>
+
+<pre><code class="language-prettyprint">fatpack pack /path/to/script &gt; /path/to/app
+</code></pre>
+
+<p>This will pack all of the dependencies used by your script into a single executable app.</p>
+
+<h3 id="running-the-app:41e4dd307f92bfa80a5468497f197a81">Running the app</h3>
+
+<p>Now that your app is in a single file, distributing and running it is a piece of cake. Simply copy the file to any directory in your $PATH. In order to be able to run your new app, you&rsquo;ll need to set it&rsquo;s permission to be executable. You can do this with chmod:</p>
+
+<pre><code class="language-prettyprint">chmod 755 /path/to/app
+</code></pre>
+
+<p>Now the app should run simply by entering the app filename in the terminal.</p>
+
+<h3 id="a-simple-example:41e4dd307f92bfa80a5468497f197a81">A simple example</h3>
+
+<p>Let say we have the following script, BillCalc.pl which calculates how much each person should pay at dinner using the fictitious &ldquo;Math::Bill&rdquo; library.</p>
+
+<pre><code class="language-prettyprint">#!/usr/bin/env perl
+use strict;
+use warnings;
+use Math::Bill;
+use feature 'say';
+use Carp 'croak';
+
+croak &quot;Error: missing arguments. Requires a bill total and number of people at dinner. e.g:\n   BillCalc 100.40 3&quot; unless @ARGV == 2;
+
+my $bill = Math::Bill-&gt;new($ARGV[0], $ARGV[1]);
+
+say 'Each person should pay: ' . $bill-&gt;apportion . ' each';
+</code></pre>
+
+<p>We can pack BillCalc.pl into a single file app using App::Fatpacker:</p>
+
+<pre><code class="language-prettyprint">fatpack pack BillCalc.pl &gt; BillCalc
+BillCalc.pl syntax OK
+</code></pre>
+
+<p>App::Fatpacker prints out a confirmation message (&ldquo;BillCalc.pl syntax OK&rdquo;) and we should now have a new file, called &ldquo;BillCalc&rdquo; in our current directory. This file will contain all of the contents of &ldquo;Math::Bill&rdquo; and any other dependencies in BillCalc.pl.</p>
+
+<p>Let&rsquo;s move this to a directory in my $PATH, /home/sillymoose/local/bin</p>
+
+<pre><code class="language-prettyprint">mv BillCalc /home/sillymoose/local/bin
+</code></pre>
+
+<p>And change the file permissions to be executable:</p>
+
+<pre><code class="language-prettyprint">chmod 755 /home/sillymoose/local/bin/BillCalc
+</code></pre>
+
+<p>Now we can run the BillCalc app at the command line:</p>
+
+<pre><code class="language-prettyprint">BillCalc 120 3
+Each person should pay: 40 each
+</code></pre>
+
+<p>For an example of a real-world Perl app created with App::FatPacker, check out our article on <a href="http://perltricks.com/article/55/2013/12/22/Schedule-jobs-like-a-boss-with-every">every</a>, the cron scheduling app.</p>
+
+<h3 id="alternatives-to-app-fatpacker:41e4dd307f92bfa80a5468497f197a81">Alternatives to App::FatPacker</h3>
+
+<p><a href="https://metacpan.org/pod/pp">PP</a> is another Perl tool that can create stand-alone Perl apps. It also supports XS module dependencies (unlike App::FatPacker).</p>
+
+<p>Of course you can also distribute an application via CPAN, where you have the flexibility of including the dependent modules in your application&rsquo;s inc directory, or include the modules as dependencies in the makefile, and let CPAN install them for you - this is also more disk space efficient. Perl applications on CPAN place the app in the application&rsquo;s bin directory and use &ldquo;EXE_FILES&rdquo; directive in the makefile to install the app to the Perl bin directory. If you&rsquo;re interested in this approach, check out the <a href="https://metacpan.org/source/XSAWYERX/Module-Starter-1.62">Module::Starter source</a> as a good example to copy from.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/configuration">configuration</a></div>
+              
+                <div class="tag"><a href="/tags/app">app</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

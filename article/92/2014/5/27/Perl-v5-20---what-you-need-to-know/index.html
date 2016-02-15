@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Perl v5.20 - what you need to know Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="We review the new features, changes and enhancements of the new Perl release"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Perl v5.20 - what you need to know</h1>
+            <p class="blog-post-meta">May 27, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p><em>With a new version of Perl expected to land this week, we&rsquo;ve pulled together a summary of the headline changes for Perl v5.20. Enjoy!</em></p>
+
+<h3 id="subroutine-signatures:999d6889f3c69750b45ce67cbc31e8ce">Subroutine signatures</h3>
+
+<p>This is the big one. It&rsquo;s hard to understate how great this is. No more ugly assignment code - with 5.20 you can write:</p>
+
+<pre><code class="language-prettyprint">use feature 'signatures';
+
+sub echo_chamber ($sound) {
+    return $sound;
+}
+</code></pre>
+
+<p>We first <a href="http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures">covered</a> them back in February, and Ovid <a href="http://blogs.perl.org/users/ovid/2014/03/subroutine-signatures-in-perl-are-long-overdue.html">blogged</a> about them too. More recently we <a href="http://perltricks.com/article/88/2014/5/12/Benchmarking-subroutine-signatures">benchmarked</a> them.</p>
+
+<h3 id="postfix-dereferencing:999d6889f3c69750b45ce67cbc31e8ce">Postfix dereferencing</h3>
+
+<p>The next cool new feature is postfix dereferencing. Hard to describe but easy to show:</p>
+
+<pre><code class="language-prettyprint">use experimental 'postderef';
+
+my $nested_array_ref = [[[[[1,2,3]]]]];
+
+# circumfix dereference - usual way
+push @{$nested_array_ref-&gt;[0]-&gt;[0]-&gt;[0]-&gt;[0]}, 4;
+
+# postfix dereference - new way
+push $nested_array_ref-&gt;[0]-&gt;[0]-&gt;[0]-&gt;[0]-&gt;@*, 5;
+</code></pre>
+
+<p>We previously <a href="http://perltricks.com/article/68/2014/2/13/Cool-new-Perl-feature--postfix-dereferencing">detailed</a> the benefits of postfix dereferencing.</p>
+
+<h3 id="hash-slices:999d6889f3c69750b45ce67cbc31e8ce">Hash slices</h3>
+
+<p>Perl 5.20 delivers a new slice type: hash slices. These work in a similar way to the array slice, except the &ldquo;sliced&rdquo; data provides full key value pairs instead of just the values as with an array slice.</p>
+
+<pre><code class="language-prettyprint">my %raindrops = ( splish =&gt; 4, splash =&gt; 9, splosh =&gt; 7 );
+my %hash_slice = %raindrops{ 'splish', 'splosh'};
+# hash_slice is (splish =&gt; 4, splosh =&gt; 7)
+</code></pre>
+
+<p>What&rsquo;s even more cool, if you use a hash slice on an array, the resulting hash has the array index elements as the keys:</p>
+
+<pre><code class="language-prettyprint">my @raindrop_types = qw/splish splash splosh/;
+my %hash_slice = %raindrop_types[0, 2];
+# hash_slice is (0 =&gt; 'splish', 2 =&gt; 'splosh')
+</code></pre>
+
+<h3 id="android:999d6889f3c69750b45ce67cbc31e8ce">Android</h3>
+
+<p>Yes that&rsquo;s right, Perl 5.20 compiles on Android! The current documentation is <a href="https://github.com/Perl/perl5/blob/blead/README.android">online</a>, and will be accessible via &ldquo;perldoc android&rdquo; once you&rsquo;ve installed 5.20.</p>
+
+<h3 id="performance-improvements:999d6889f3c69750b45ce67cbc31e8ce">Performance improvements</h3>
+
+<p>Perl 5.20 is faster in all kinds of areas - the perldelta for 5.20 lists 17 performance improvements, covering things like faster regexes, hash key lookups and string copying. Matthew Horsfall <a href="http://blogs.perl.org/users/matthew_horsfall/2014/02/perl-519x-performance-improvements.html">blogged</a> about some of the changes as did <a href="http://blog.booking.com/more-optimizations-in-perl-5.20-to-be.html">Stefan Müller</a>.</p>
+
+<h3 id="miscellaneous:999d6889f3c69750b45ce67cbc31e8ce">Miscellaneous</h3>
+
+<p>Subroutine prototypes can now be declared as subroutine attribute with the &ldquo;prototype&rdquo; keyword. For example:</p>
+
+<pre><code class="language-prettyprint"># usual prototype
+sub example ($$) {}
+
+# prototype declared via attribute
+sub example :prototype($$) {}
+</code></pre>
+
+<p>Faster Windows installation - ~15 minutes can be saved from the installation process due to the fix of a &ldquo;make test&rdquo; bug. Additionally, Perl can now be built using the Visual C++ 2013 compiler.</p>
+
+<p>Perl 5.20 uses the latest Unicode version 6.3 up from 6.2 (Unicode <a href="http://www.unicode.org/versions/Unicode6.3.0/">changelog</a>).</p>
+
+<p>The rand function now uses an internal platform independent random number generator. Previously Perl would use a platform specific random number generator leading to inconsistent quality of random number generation.</p>
+
+<h3 id="deprecations:999d6889f3c69750b45ce67cbc31e8ce">Deprecations</h3>
+
+<p><a href="https://metacpan.org/pod/CGI">CGI</a> and its associated modules are being removed from core (Sawyer X <a href="http://www.youtube.com/watch?v=jKOqtRMT85s">must</a> be happy).</p>
+
+<p><a href="https://metacpan.org/pod/Module::Build">Module::Build</a> is also being removed from core. David Golden <a href="http://www.dagolden.com/index.php/2140/paying-respect-to-modulebuild/">blogged</a> about this last year.</p>
+
+<p>Setting a non-integer reference value to the input record separator variable (&ldquo;$/&rdquo;) will throw a fatal exception (but undef is still fine).</p>
+
+<h3 id="conclusion:999d6889f3c69750b45ce67cbc31e8ce">Conclusion</h3>
+
+<p>There is a lot more to 5.20 than the summary items mentioned above. For a list of all the changes see <a href="https://github.com/Perl/perl5/blob/blead/pod/perl5200delta.pod">perldelta</a>. Perl 5.20 is the most exciting release in years. Thanks to the Perl 5 Porters team for doing an incredible job of delivering an exceptional new Perl!</p>
+
+<p>Enjoyed this article? Help us out and <a href="https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F92%2F2014%2F5%2F27%2FPerl-v5-20-what-you-need-to-know&amp;text=Perl+v5.20+-+what+you+need+to+know&amp;tw_p=tweetbutton&amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F92%2F2014%2F5%2F27%2FPerl-v5-20-what-you-need-to-know&amp;via=perltricks">tweet</a> about it!</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/community">community</a></div>
+              
+                <div class="tag"><a href="/tags/news">news</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

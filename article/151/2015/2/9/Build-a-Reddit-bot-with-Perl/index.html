@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Build a Reddit bot with Perl Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="It&#39;s easy and fast to do"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Build a Reddit bot with Perl</h1>
+            <p class="blog-post-meta">Feb 9, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/151/2E921FA4-B008-11E4-BF49-19CBDA487E9F.jpeg"/>
+            </div>
+              
+
+<p>One of my goals for this year was to post more links to the Perl <a href="http://www.reddit.com/r/perl">subreddit</a>. I&rsquo;m usually good at linking to PerlTricks articles, but not so good at linking to other content. And that&rsquo;s a shame because there are a lot of active Perl blogs out there (I know of at least 25-30).</p>
+
+<p>A busier Perl subreddit is good for the community; more links on /r/perl should lead to more visitors, and more activity on the subreddit and so on - a virtuous circle. So I built a bot to automate the posting of links. In this article I&rsquo;m going to show you how I did it.</p>
+
+<h3 id="reddit-api:f338286cb816fcc4501664bb4edd9fd0">Reddit API</h3>
+
+<p>You&rsquo;ll need a Reddit account to use the API. I like to use <a href="https://metacpan.org/pod/Reddit::Client">Reddit::Client</a> as it works well, has good documentation and maintains a session cache. This is a subroutine for posting links to Reddit:</p>
+
+<pre><code class="language-prettyprint">use warnings;
+use strict;
+use Reddit::Client;
+
+sub post_reddit_link
+{
+    my ($title, $url, $subreddit) = @_; 
+
+    my $reddit       = Reddit::Client-&gt;new(
+        session_file =&gt; 'logs/session_data.json',
+        user_agent   =&gt; 'perly_bot/v0.01',
+    );  
+
+    unless ( $reddit-&gt;is_logged_in ) { 
+        $reddit-&gt;login( $ENV{REDDIT_USERNAME}, 
+                        $ENV{REDDIT_PASSWORD} );
+        $reddit-&gt;save_session();
+    }   
+    
+    $reddit-&gt;submit_link(
+            subreddit =&gt; $subreddit,
+            title     =&gt; $title,
+            url       =&gt; $url
+    );
+}
+</code></pre>
+
+<p>The code should be fairly self-explanatory. The <code>post_reddit_link</code> subroutine accepts three parameters: the subreddit to post to, the title of the post, and the URL of the link. It initializes a new Reddit::Client object, passing the path of the session file and the user agent string to use when calling the Reddit API. The session file is just a cache for storing a session cookie.</p>
+
+<p>Next, the subroutine checks if the <code>$reddit</code> object has an active session or not, triggering a login request if necessary. I like to store credentials in environment variables: that way the code and any config files can still be hosted on a public repository, without risk of sharing your login details with anyone. The last bit of code calls <code>submit_link</code> method to post the link to the Reddit API.</p>
+
+<p>This code will work in ideal scenarios, but what if something goes wrong? For example, Reddit imposes restrictions on the posting of links: the same link cannot be posted twice to the same subreddit, proxy domains are banned and links cannot be posted too frequently. In order to capture the error messages, I&rsquo;m going to wrap the <code>submit_link</code> method in a try/catch block.</p>
+
+<pre><code class="language-prettyprint">use warnings;
+use strict;
+use Reddit::Client;
+use Try::Tiny;
+use Time::Piece;
+
+open my $ERROR_LOG, '&gt;&gt;', 'logs/error.log' or die $!;
+
+sub post_reddit_link
+{
+    my ($title, $url, $subreddit) = @_; 
+
+    my $reddit       = Reddit::Client-&gt;new(
+        session_file =&gt; 'logs/session_data.json',
+        user_agent   =&gt; 'perly_bot/v0.01',
+    );  
+
+    unless ( $reddit-&gt;is_logged_in ) { 
+        $reddit-&gt;login( $ENV{REDDIT_USERNAME}, 
+                        $ENV{REDDIT_PASSWORD} );
+        $reddit-&gt;save_session();
+    }   
+    
+    try {
+        $reddit-&gt;submit_link(
+            subreddit =&gt; $subreddit,
+            title     =&gt; $title,
+            url       =&gt; $url
+        );
+    } catch {
+        log_error(&quot;Error posting $title $url $_&quot;);
+    };
+}
+
+sub log_error
+{
+    my $datetime = localtime;
+    say $ERROR_LOG $datetime_now-&gt;datetime . &quot;\t$_[0]&quot;;
+}
+</code></pre>
+
+<p>In addition to the try/catch, I&rsquo;ve added a <code>log_error</code> subroutine which will write error messages to the error log.</p>
+
+<h3 id="reading-blog-feeds:f338286cb816fcc4501664bb4edd9fd0">Reading blog feeds</h3>
+
+<p>Now I have a subroutine for posting links to Reddit, I need a way to monitor blog feeds and post links to new articles. Most blogs provide feed data via RSS or atom data, for example <a href="http://blogs.perl.org">blogs.perl.org</a> uses atom. I can monitor this feed using <a href="https://metacpan.org/pod/HTTP::Tiny">HTTP::Tiny</a> and <a href="https://metacpan.org/pod/XML::Atom::Client">XML::Atom::Client</a>.</p>
+
+<pre><code class="language-prettyprint">use XML::Atom::Client;
+use HTTP::Tiny;
+
+sub check_feed
+{
+    my ($url) = @_;
+
+    my $ua = HTTP::Tiny-&gt;new;
+    my $response = $ua-&gt;get($url);
+    if ( $response-&gt;{success} )
+    {
+        my $posts = 
+          XML::Atom::Feed-&gt;new( Stream =&gt; \$response-&gt;{content} );
+
+        foreach my $post ( $posts-&gt;entries )
+        {
+            post_reddit_link(
+                $post-&gt;title,
+                $post-&gt;link-&gt;href,
+                'perl'
+            );
+        }
+    }
+    else
+    {
+        log_error(
+&quot;Error requesting $url. $response-&gt;{status} $response-&gt;{reason}&quot;
+        );
+    }
+}
+</code></pre>
+
+<p>This code declares a subroutine called <code>check_feed</code> which accepts a URL as parameter. It fetches the URL content using HTTP::Tiny, and if successful, loops through every blog post in an atom feed, calling <code>post_reddit_link</code> on each post. As it stands, this code is going to cause problems. We only want to post relevant and new content to the Perl subreddit, but this code will post a link for every blog post returned by the feed URL.</p>
+
+<p>To check for relevant content, I can use a regex to match against keywords. If the text contains words like &ldquo;Perl&rdquo; or &ldquo;CPAN&rdquo;, I assume it&rsquo;s Perl related. This is the regex:</p>
+
+<pre><code class="language-prettyprint">#  must contain a Perl keyword to be considered relevant
+my $looks_perly = qr/\b(?:perl|cpan|cpanminus|moose|metacpan|modules?)\b/i;
+</code></pre>
+
+<p>To filter out stale content, I need to set a threshold for how long posts should be considered fresh. I can then subtract the publication date of the blog post from the current datetime to see if the publication date exceeds my threshold or not. I&rsquo;m going to use 24 hours as my threshold:</p>
+
+<pre><code class="language-prettyprint">use Time::Piece;
+use Time::Seconds;
+
+my $datetime_post = 
+  Time::Piece-&gt;strptime($post-&gt;published, '%Y-%m-%dT%H:%M:%SZ');
+my $datetime_now = localtime;
+
+if ( $datetime_post &gt; $datetime_now - ONE_DAY )
+{
+   ...
+}
+</code></pre>
+
+<p>This code uses the <code>strptime</code> function in Time::Piece to extract the publication datetime of the post. It then compares the datetime of the post with the current datetime minus 24 hours (&ldquo;ONE_DAY&rdquo; is a constant for 24 hours that is exported by Time::Seconds).</p>
+
+<h3 id="wrap-up:f338286cb816fcc4501664bb4edd9fd0">Wrap up</h3>
+
+<p>Putting it all together, the code looks like this:</p>
+
+<pre><code class="language-prettyprint">use warnings;
+use strict;
+use Reddit::Client;
+use Try::Tiny;
+use Time::Piece;
+use Time::Seconds;
+use XML::Atom::Client;
+use HTTP::Tiny;
+
+open my $ERROR_LOG, '&gt;&gt;', 'logs/error.log' or die $!;
+
+#  must contain a Perl keyword to be considered relevant
+my $looks_perly = qr/\b(?:perl|cpan|cpanminus|moose|metacpan|modules?)\b/i;
+
+# post links for new posts on blogs.perl.org
+check_feed('http://blogs.perl.org/atom.xml');
+
+sub post_reddit_link
+{
+    my ($title, $url, $subreddit) = @_;
+
+    my $reddit       = Reddit::Client-&gt;new(
+        session_file =&gt; 'logs/session_data.json',
+        user_agent   =&gt; 'perly_bot/v0.01',
+    );
+
+    unless ( $reddit-&gt;is_logged_in ) {
+        $reddit-&gt;login( $ENV{REDDIT_USERNAME},
+                        $ENV{REDDIT_PASSWORD} );
+        $reddit-&gt;save_session();
+    }
+
+    try {
+        $reddit-&gt;submit_link(
+            subreddit =&gt; $subreddit,
+            title     =&gt; $title,
+            url       =&gt; $url
+        );
+    } catch {
+        log_error(&quot;Error posting $title $url $_&quot;);
+    };
+}
+
+sub log_error
+{
+    my $datetime = localtime;
+    say $ERROR_LOG $datetime-&gt;datetime . &quot;\t$_[0]&quot;;
+}
+
+sub check_feed
+{
+    my ($url) = @_;
+
+    my $ua = HTTP::Tiny-&gt;new;
+    my $response = $ua-&gt;get($url);
+
+    if ( $response-&gt;{success} )
+    {
+        my $posts =
+          XML::Atom::Feed-&gt;new( Stream =&gt; \$response-&gt;{content} );
+
+        foreach my $post ( $posts-&gt;entries )
+        {
+            my $datetime_post =
+              Time::Piece-&gt;strptime($post-&gt;published, '%Y-%m-%dT%H:%M:%SZ');
+            my $datetime_now = localtime;
+
+            # if fresh post and contains Perl keyword
+            if (   $datetime_post &gt; $datetime_now - ONE_DAY
+                &amp;&amp; $post-&gt;summary =~ $looks_perly)
+            {
+                post_reddit_link(
+                    $post-&gt;title,
+                    $post-&gt;link-&gt;href,
+                    'perl'
+                );
+            }
+        }
+    }
+    else
+    {
+        log_error(
+&quot;Error requesting $url. $response-&gt;{status} $response-&gt;{reason}&quot;
+        );
+    }
+}
+</code></pre>
+
+<p>When run, this script will check blogs.perl.org for new posts, and submit them to /r/perl.</p>
+
+<p>There&rsquo;s a lot more that could be done with this script: for instance it only supports atom feeds, but many blog feeds use RSS. The URLs to check must be hard coded into the script - it would be better to take them from a configurable list. Finally, there is no URL caching, so running this script twice in 24 hours will lead to it attempting to post the same links to Reddit twice. For an extended example that addresses these issues and more, check out my Perly-Bot GitHub <a href="https://github.com/dnmfarrell/Perly-Bot">repo</a>.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/xml">xml</a></div>
+              
+                <div class="tag"><a href="/tags/perl">perl</a></div>
+              
+                <div class="tag"><a href="/tags/reddit">reddit</a></div>
+              
+                <div class="tag"><a href="/tags/rss">rss</a></div>
+              
+                <div class="tag"><a href="/tags/feed">feed</a></div>
+              
+                <div class="tag"><a href="/tags/atom">atom</a></div>
+              
+                <div class="tag"><a href="/tags/bot">bot</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

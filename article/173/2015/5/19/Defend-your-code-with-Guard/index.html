@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Defend your code with Guard Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Guard helps you protect against unexpected changes to values"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Defend your code with Guard</h1>
+            <p class="blog-post-meta">May 19, 2015 by <a href="/authors/brian-d-foy">brian d foy</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/173/B0D682F6-FDC5-11E4-92B6-0F24103B7DD2.jpeg"/>
+            </div>
+              <p>I can&rsquo;t always trust my subroutines to leave the world in the same way that they found it. Perl has some features to help with this, but the <a href="https://metacpan.org/pod/Guard">Guard</a> module goes much further.</p>
+
+<p>Consider the case where I want to change the current working directory temporarily in my subroutine. If I&rsquo;m not careful, the rest of the ends up in an unexpected directory since <code>chdir</code> has process-level effect:</p>
+
+<pre><code class="language-prettyprint">sub do_some_work {
+  state $dir = '/usr/local/etc';
+  chdir $dir or die &quot;Could not change to $dir! $!&quot;;
+  
+  ...; # do some work
+}
+</code></pre>
+
+<p>Since I don&rsquo;t change back to the starting directory, after I call <code>do_some_work</code>, the rest of the program uses <code>/usr/local/etc</code> as the base to resolve relative paths.</p>
+
+<p>If I were careful, I would have done the work to save the current working directory before I changed it, and I would have changed back to that directory. The <code>getcw</code> from the <a href="https://metacpan.org/pod/Cwd">Cwd</a> module from the Standard Library:</p>
+
+<pre><code class="language-prettyprint">use Cwd qw(getcwd);
+
+sub do_some_work {
+  state $dir = '/usr/local/etc';
+  
+  my $old_directory = getcwd();
+  chdir $dir or die &quot;Could not change to $dir! $!&quot;;
+  
+  ...; # do some work
+  
+  chdir $old_directory 
+    or die &quot;Could not change back to $old_directory! $!&quot;;
+    
+  return $value;
+}
+</code></pre>
+
+<p>That&rsquo;s too much work. I have long wished that the <code>chdir</code> would return the old directory like <code>select</code> returns the current default filehandle. Instead, I use a module with an imported subroutine.</p>
+
+<p>I also have to call another <code>chdir</code> when I&rsquo;m done, and I probably have to add some extra code to return the right value since I can&rsquo;t easily organize the code to use Perl&rsquo;s nifty last-evaluated-expression idiom (although Perl 5.20 optimizes <a href="http://www.effectiveperlprogramming.com/2014/06/perl-5-20-optimizes-return-at-the-end-of-a-subroutine/">return at the end of a subroutine</a>). It offends my sense of code style that the two <code>chdir</code>s are apart from each other when I want to keep the logical parts close to each other. I&rsquo;d like all of the code to handle the current working directory next to each other.</p>
+
+<p>Enter the <a href="https://metacpan.org/pod/Guard">Guard</a> module that lets me define blocks of code that run at the end of the subroutine. Somewhere in the scope I create a guard with <code>scope_guard</code> and that guard runs at scope exit:</p>
+
+<pre><code class="language-prettyprint">use v5.10;
+
+use Cwd qw(getcwd);
+use Guard;
+
+chdir '/etc' or die &quot;Could not start at /etc: $!&quot;;
+my $starting_dir = getcwd();
+
+do_some_work();
+
+say &quot;Finally, the directory is &quot;, getcwd();
+
+
+sub do_some_work {
+  state $dir = '/usr/local/etc';
+  
+  my $old_directory = getcwd();
+  scope_guard { 
+    say &quot;Guard thinks old directory is $old_directory&quot;;
+    chdir $old_directory;
+  };
+  chdir $dir or die &quot;Could not change to $dir! $!&quot;;
+  
+  say &quot;At the end of do_some_work(), the directory is &quot;, getcwd();
+}
+</code></pre>
+
+<p>The output shows which each part thinks the current working directory should be:</p>
+
+<pre><code>At the end of do_some_work(), the directory is /usr/local/etc
+Guard thinks old directory is /etc
+Finally, the directory is /etc
+</code></pre>
+
+<p>This is still a little bit ugly. The <code>scope_guard</code> only takes a block or <code>sub {}</code> argument, so I can&rsquo;t refactor its argument into a subroutine. This doesn&rsquo;t work:</p>
+
+<pre><code class="language-prettyprint">scope_guard make_sub_ref();  # wrong sort of argument
+</code></pre>
+
+<p>I can make a guard in a variable, though, to get around this. Instead of doing its work at scope exit, the variable guard does its work when it&rsquo;s cleaned up (which we might do on our own before the end of its scope). In this example, I use <a href="http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures">Perl v5.20 subroutine signatures</a> just because I can (they are really nice even if they are experimental):</p>
+
+<pre><code class="language-prettyprint">use v5.20;
+use feature qw(signatures);
+no warnings qw(experimental::signatures);
+
+use Cwd qw(getcwd);
+use Guard;
+
+chdir '/etc' or die &quot;Could not start at /etc: $!&quot;;
+my $starting_dir = getcwd();
+
+do_some_work();
+
+say &quot;Finally, the directory is &quot;, getcwd();
+
+
+sub do_some_work {
+  state $dir = '/usr/local/etc';
+  
+  my $guard = make_guard( getcwd() );
+  chdir $dir or die &quot;Could not change to $dir! $!&quot;;
+  
+  say &quot;At the end of do_some_work(), the directory is &quot;, getcwd();
+}
+
+sub make_guard ( $old_directory ) {
+  return guard {
+    say &quot;Guard thinks old directory is $old_directory&quot;;
+    chdir $old_directory;  
+  };
+}
+</code></pre>
+
+<p>Now the code in <code>do_some_work</code> is a bit nicer and I can reuse this guard in other subroutines.</p>
+
+<dl>
+<dt>Here&rsquo;s a bonus trick and one of the reasons I wanted to show the subroutine signatures. I can declare a default value for a subroutine argument. If I don&rsquo;t specify an argument to <code>make_guard</code>, Perl fills it in with the value of <code>getcwd</code></dt>
+</dl>
+
+<p>:</p>
+
+<pre><code class="language-prettyprint">sub make_guard ( $old_directory = getcwd() ) {
+  return guard {
+    say &quot;Guard thinks old directory is $old_directory&quot;;
+    chdir $old_directory;  
+    };
+}
+</code></pre>
+
+<p>With the default value, I can simplify my call to <code>make_guard</code> while still having the flexibility to supply an argument:</p>
+
+<pre><code class="language-prettyprint">my $guard = make_guard();
+</code></pre>
+
+<p>There are other tricks I can employ with M. I can define multiple <code>scope_guard</code>s. In that case, they execute in reverse order of their definition (like <code>END</code> blocks). With a guard object, I can cancel the guard if I decide I don&rsquo;t want it any longer.</p>
+
+<p><em>Cover image <a href="http://creativecommons.org/licenses/by/4.0/">©</a> <a href="https://www.flickr.com/photos/kwl/4229954645/in/photolist-7rMC9v-pWeFtB-dyGDSJ-4MTKCZ-9KGfvt-2Vmh2z-isiLE-a8wfzo-a8wdRy-nP4HU4-pMmELA-ebn2Yf-fR1AiY-6pwAvQ-oZC6iQ-eiAHKH-KaYMr-7ur9cv-eex2Ee-aJRH8P-nAD84h-nB5gYR-fFiErQ-6Y7HDp-dzKZh2-7xKM96-63dow9-6YbKFs-6nwuvh-6jFGwT-gDJYEc-bvwwma-7dKehm-8s7yHZ-8s7yjr-hNorq7-66hCWL-cLiZjq-7dKeYQ-9f4UgQ-nB5fP6-c6w6dU-7VSAhE-nAkYD2-gDKEpJ-iegmK-fFiE61-dd5mRC-64joJH-64CuGq">Kenny Loule</a></em></p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/guard">guard</a></div>
+              
+                <div class="tag"><a href="/tags/safety">safety</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Test on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/test/</link>
+    <description>Recent content in Test on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 09 Jun 2015 12:59:02 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/test/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Get to grips with Prove, Perl&#39;s test workhorse</title>
+      <link>http://perltricks.com/article/177/2015/6/9/Get-to-grips-with-Prove--Perl-s-test-workhorse/</link>
+      <pubDate>Tue, 09 Jun 2015 12:59:02 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/177/2015/6/9/Get-to-grips-with-Prove--Perl-s-test-workhorse/</guid>
+      <description>
+
+&lt;p&gt;Prove is a test running tool that ships with Perl. It has a ton of options, which can make it confusing for a beginner to use. If you have never used prove, or are not confident using it, do not despair! This article will get you up to speed with prove and it&amp;rsquo;s most common options.&lt;/p&gt;
+
+&lt;h3 id=&#34;basics:21cbf2b2f91d9b431c49ffbcae20ce43&#34;&gt;Basics&lt;/h3&gt;
+
+&lt;p&gt;If you have Perl installed, you should already have Prove installed as well. To demo the features of Prove, I&amp;rsquo;m going to clone the Mojolicious repo using Git. I like demoing Prove with Mojolicious as it has a large test suite. At the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git clone https://github.com/kraih/mojo
+$ cd mojo
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So I&amp;rsquo;ve cloned the Mojolicious repo and changed into the project directory. Now I&amp;rsquo;m ready to run some tests with Prove!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -l t/mojo/asset.t
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I executed Prove using the &lt;code&gt;prove&lt;/code&gt; command. I included the &lt;code&gt;-l&lt;/code&gt; option so that Prove would load the Mojolicious code beneath the &lt;code&gt;lib&lt;/code&gt; directory. If I didn&amp;rsquo;t do this, Perl would not find the Mojolicious code referenced in &lt;code&gt;t/mojo/asset.t&lt;/code&gt; and raise an error, or perhaps worse, it might run the tests against an older version of Mojolicious I already had installed on my system.&lt;/p&gt;
+
+&lt;p&gt;Sometimes the code to include is not directly in the &lt;code&gt;lib&lt;/code&gt; directory. For these cases Prove has the &lt;code&gt;-I&lt;/code&gt; option for &amp;ldquo;include&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;prove -I/path/to/lib /path/to/test_file
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Prove can run a single test file, or if given a directory containing multiple test files, with will execute them all:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -l t/mojo
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This runs all the test files in &lt;code&gt;t/mojo&lt;/code&gt; directory.&lt;/p&gt;
+
+&lt;h3 id=&#34;recursively-execute-test-files-with-r:21cbf2b2f91d9b431c49ffbcae20ce43&#34;&gt;Recursively execute test files with &amp;ldquo;r&amp;rdquo;&lt;/h3&gt;
+
+&lt;p&gt;The Mojolicious project has test files in several different directories beneath the &lt;code&gt;t&lt;/code&gt; directory. It would be tiresome to locate all of these directory paths and give them to Prove. Instead, Prove provides the &lt;code&gt;-r&lt;/code&gt; option to recursively search for test files.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -lr
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This option executed every test file under the &lt;code&gt;t&lt;/code&gt; directory, about 10,000 tests across 85 different files. Pretty convenient huh? Note that I didn&amp;rsquo;t provide the &lt;code&gt;t&lt;/code&gt; directory as an argument, because Prove searches the &lt;code&gt;t&lt;/code&gt; directory by default. Now that&amp;rsquo;s convenience!&lt;/p&gt;
+
+&lt;h3 id=&#34;run-tests-in-parallel-using-j:21cbf2b2f91d9b431c49ffbcae20ce43&#34;&gt;Run tests in parallel using &amp;ldquo;j&amp;rdquo;&lt;/h3&gt;
+
+&lt;p&gt;The ability to run lots of test files is useful, but it can take a long time to run all of the tests. On my machine, executing the Mojolicious test suite takes 32 seconds. To speed things up, Prove can run test files in parallel, to share the work across multiple processes. To do this I just add the &lt;code&gt;-j&lt;/code&gt; option plus the number of processes I want to use. I have a quad core machine, so I&amp;rsquo;m going to use 4 different processes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -lr -j 4
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This time, prove executed all the tests in 12 seconds. That&amp;rsquo;s a 266% speed-up, not bad!&lt;/p&gt;
+
+&lt;h3 id=&#34;get-more-detail-with-v-for-verbose:21cbf2b2f91d9b431c49ffbcae20ce43&#34;&gt;Get more detail with &amp;ldquo;v&amp;rdquo; for verbose&lt;/h3&gt;
+
+&lt;p&gt;To minimize line noise, by default Prove provides summary-level statistics and low-level detail for test failures. Sometimes it&amp;rsquo;s useful to see the output for each test. I can see this detail by adding the &lt;code&gt;-v&lt;/code&gt; option for &amp;ldquo;verbose&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -lrv
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;running-perl-6-tests:21cbf2b2f91d9b431c49ffbcae20ce43&#34;&gt;Running Perl 6 tests&lt;/h3&gt;
+
+&lt;p&gt;Prove can run tests for other languages, as long as the tests follow the Test Anything Protocol. Perl 6 unit tests follow TAP, so we can use Prove to run Perl 6 tests too! I can demo this on my Perl 6 module, &lt;a href=&#34;https://github.com/dnmfarrell/URI-Encode&#34;&gt;URI::Encode&lt;/a&gt;. To follow along, just clone the repo with Git:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git clone https://github.com/dnmfarrell/URI-Encode
+$ cd URI-Encode
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To run non Perl tests with Prove, we need to pass the &lt;code&gt;--exec&lt;/code&gt; option, with a program name. That tells Prove which program to execute the tests with. Like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove --exec perl6
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that I didn&amp;rsquo;t have to pass the filepath of which tests to run. It&amp;rsquo;s just lucky that by convention Perl6 modules have their tests in the &lt;code&gt;t&lt;/code&gt; directory, usually with a &lt;code&gt;.t&lt;/code&gt; extension. For other languages, you&amp;rsquo;ll need to specify the test filepath:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove --exec some_program /path/to/testfile
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;documentation:21cbf2b2f91d9b431c49ffbcae20ce43&#34;&gt;Documentation&lt;/h3&gt;
+
+&lt;p&gt;You can get a summary of the options Prove accepts by using the &lt;code&gt;-h&lt;/code&gt; option for help:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -h
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For more detailed documentation, use &lt;code&gt;perldoc&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc prove
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Perldoc is another useful Perl tool, if you&amp;rsquo;d like to know more about it, have a look at our introductory &lt;a href=&#34;http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster&#34;&gt;article&lt;/a&gt;. Prove also has a man page entry (if you&amp;rsquo;re on Unix/BSD based systems).&lt;/p&gt;
+
+&lt;h3 id=&#34;prove-cheat-sheet:21cbf2b2f91d9b431c49ffbcae20ce43&#34;&gt;Prove Cheat sheet&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;prove [options] [filepath]
+
+Options
+-------
+l       Include the &amp;quot;lib&amp;quot; dir
+I       Include a dir: -I/path/to/lib
+r       Recursively search and run test files
+j       Parallel, specify # procs: -j 4
+v       Verbose test output
+h       Help, summary of options
+exec    Exec tests in another program: --exec perl6
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to test for exceptions in Perl</title>
+      <link>http://perltricks.com/article/157/2015/3/5/How-to-test-for-exceptions-in-Perl/</link>
+      <pubDate>Thu, 05 Mar 2015 13:27:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/157/2015/3/5/How-to-test-for-exceptions-in-Perl/</guid>
+      <description>
+
+&lt;p&gt;Most Perl programmers are familiar with &lt;a href=&#34;https://metacpan.org/pod/Test::More&#34;&gt;Test::More&lt;/a&gt;; it&amp;rsquo;s the go-to library for writing unit tests in Perl. But Test::More doesn&amp;rsquo;t provide functions for testing exceptions. For that you&amp;rsquo;ll need &lt;a href=&#34;https://metacpan.org/pod/Test::Exception&#34;&gt;Test::Exception&lt;/a&gt;. And good code throws exceptions - Paul Fenwick &lt;a href=&#34;http://perltraining.com.au/tips/2008-08-20.html&#34;&gt;once&lt;/a&gt; summed this approach nicely:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;bIlujDI&#39; yIchegh()Qo&#39;; yIHegh()!
+
+It is better to die() than to return() in failure.
+
+    -- Klingon programming proverb.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The simplest way to throw an exception is with Perl&amp;rsquo;s built-in &lt;code&gt;die&lt;/code&gt; function. Just like Test::More makes it easy to test that subroutines return the right values, Test::Exception makes it easy to check the code is &lt;em&gt;dying&lt;/em&gt; in the right way (and &lt;a href=&#34;https://metacpan.org/pod/Test::Fatal&#34;&gt;Test::Fatal&lt;/a&gt; is a good alternative).&lt;/p&gt;
+
+&lt;h3 id=&#34;did-my-code-die-ok:e7d97283f2b325db6a8881183934ffb4&#34;&gt;Did my code die ok?&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s say we&amp;rsquo;re writing unit tests for the following package which exports the &lt;code&gt;double_integer&lt;/code&gt; subroutine:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Double;
+use Exporter;
+@ISA = &#39;Exporter&#39;;
+@EXPORT = &#39;double_integer&#39;;
+
+sub double_integer
+{
+  my ($number) = @_;
+  die &#39;double_integer() requires a positive integer as an argument&#39;
+    unless defined $number &amp;amp;&amp;amp; $number =~ /^\d+$/;
+
+  return $number * 2;
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code will &lt;code&gt;die&lt;/code&gt; unless the double_integer subroutine is called with a positive integer. I&amp;rsquo;ll save this package as &lt;code&gt;Double.pm&lt;/code&gt;. Let&amp;rsquo;s write a test script for this package. Test::Exception exports the &lt;code&gt;dies_ok&lt;/code&gt; function that checks the code dies as expected:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::Exception tests =&amp;gt; 1;
+use Double;
+
+dies_ok { double_integer() } &#39;double_integer() dies with no number&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;dies_ok&lt;/code&gt; is clever, it won&amp;rsquo;t actually let your code die and the program exit, as that would interrupt testing! Instead it catches any thrown exceptions so testing can continue. My program should also die if &lt;code&gt;double_integer&lt;/code&gt; is called with a non-number as an argument. I can add more tests for some common scenarios:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::Exception test =&amp;gt; 6;
+use Double;
+
+dies_ok { double_integer() } &#39;double_integer() dies with no number&#39;;
+dies_ok { double_integer(undef) } &#39;double_integer() dies with undef&#39;;
+dies_ok { double_integer(&#39;abc&#39;) } &#39;double_integer() dies with text&#39;;
+dies_ok { double_integer(&#39;1 two&#39;) } &#39;double_integer() dies with mixed&#39;;
+dies_ok { double_integer(&#39;-7&#39;) } &#39;double_integer() dies with a negative&#39;;
+dies_ok { double_integer(&#39;2.5&#39;) } &#39;double_integer() dies with a decimal&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can also check the code throws the right exception with &lt;code&gt;throws_ok&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::Exception tests =&amp;gt; 1;
+use Double;
+
+throws_ok { double_integer() } qr/requires a positive integer/, 
+  &#39;double_integer() requires a positive integer&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;throws_ok&lt;/code&gt; function checks that the code throws an exception, but also that the exception message matches a regex. This is useful if you have several different conditions that may throw different types of exceptions: imagine with a web application, you&amp;rsquo;d want to throw a different exception code if the user requested a page they didn&amp;rsquo;t have permission to access (403) versus requesting a non-existent page (404).&lt;/p&gt;
+
+&lt;p&gt;Test::Exception is fully compatible with Test::More so you can combine functions from both libraries in the same file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::More;
+use Test::Exception;
+use Double;
+
+# test arg validation works
+dies_ok { double_integer() } &#39;double_integer() dies with no number&#39;;
+dies_ok { double_integer(undef) } &#39;double_integer() dies with undef&#39;;
+dies_ok { double_integer(&#39;abc&#39;) } &#39;double_integer() dies with text&#39;;
+dies_ok { double_integer(&#39;1 two&#39;) } &#39;double_integer() dies with mixed&#39;;
+dies_ok { double_integer(&#39;-7&#39;) } &#39;double_integer() dies with a negative&#39;;
+dies_ok { double_integer(&#39;2.5&#39;) } &#39;double_integer() dies with a decimal&#39;;
+
+# test exception message
+throws_ok { double_integer() } qr/requires a positive integer/, 
+  &#39;double_integer() requires a positive integer&#39;;
+
+# test double_integer works
+lives_ok { double_integer(1) } &#39;calling double() with a number lives&#39;;
+is double_integer(0), 0, &#39;zero doubled is zero&#39;;
+is double_integer(2), 4, &#39;two doubled is four&#39;;
+is double_integer(999), 1998, 
+  &#39;nine nine nine doubled is one nine nine eight&#39;;
+
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now the test script checks both that the function throws the appropriate exception when the argument is wrong, and it returns the argument doubled when the argument is valid. If I save this test file as &lt;code&gt;Double.t&lt;/code&gt; I can run the tests at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl Double.t
+ok 1 - double_integer() dies with no number
+ok 2 - double_integer() dies with undef
+ok 3 - double_integer() dies with text
+ok 4 - double_integer() dies with mixed
+ok 5 - double_integer() dies with a negative
+ok 6 - double_integer() dies with a decimal
+ok 7 - double_integer() requires a positive integer
+ok 8 - calling double() with a number lives
+ok 9 - zero doubled is zero
+ok 10 - two doubled is four
+ok 11 - nine nine nine doubled is one nine nine eight
+1..11
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All the tests pass. &lt;a href=&#34;https://metacpan.org/pod/Test::Exception&#34;&gt;Test::Exception&lt;/a&gt; has great documentation and is easy to use, so add exception testing to your code today!&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Updated:&lt;/strong&gt; &lt;em&gt;Added Test::Fatal reference 2015-03-10&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Pause on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/pause/</link>
+    <description>Recent content in Pause on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 09 Dec 2015 13:46:17 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/pause/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Create GitHub files automatically with Dist::Zilla</title>
+      <link>http://perltricks.com/article/203/2015/12/9/Create-GitHub-files-automatically-with-Dist--Zilla/</link>
+      <pubDate>Wed, 09 Dec 2015 13:46:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/203/2015/12/9/Create-GitHub-files-automatically-with-Dist--Zilla/</guid>
+      <description>
+
+&lt;p&gt;I use &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla&#34;&gt;Dist::Zilla&lt;/a&gt; to release my code to CPAN. I really like it as with a single command I can build, package and ship a distribution. But most of my code lives on GitHub. In fact, a quick check shows that I have 90 &lt;a href=&#34;https://github.com/dnmfarrell&#34;&gt;repos&lt;/a&gt;, but only 13 distributions on &lt;a href=&#34;https://metacpan.org/author/DFARRELL&#34;&gt;CPAN&lt;/a&gt;. So only 14% of my code makes it to CPAN.&lt;/p&gt;
+
+&lt;p&gt;Traditionally Dist::Zilla makes a distinction between your code and the files needed for CPAN and PAUSE to work, (like package metadata, a readme etc). The basic use case goes like this: you write your class files, scripts and unit tests, and when you tell Dist::Zilla to release the distribution, it generates all of the extra files, creates a tarball and uploads it to &lt;a href=&#34;https://pause.perl.org/pause/query&#34;&gt;PAUSE&lt;/a&gt;. The problem is though, some of those additional files would be nice to have in my GitHub repos too. I don&amp;rsquo;t want to write another &lt;code&gt;readme.md&lt;/code&gt;, or spend time copying the license file into the repo if Dist::ZIlla can already generate one. To solve this issue I use two Dist::Zilla plugins from &lt;a href=&#34;https://metacpan.org/author/RTHOMPSON&#34;&gt;Ryan Thompson&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;setup:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Setup&lt;/h3&gt;
+
+&lt;p&gt;To use the code in this article, you&amp;rsquo;ll need to install Dist::Zilla and the two plugin modules described below. You can do that with &lt;code&gt;cpan&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Dist::Zilla \
+  Dist::Zilla::Plugin::ReadmeAnyFromPod  \
+  Dist::Zilla::Plugin::CopyFilesFromBuild
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you&amp;rsquo;re installing Dist::Zilla consider using &lt;a href=&#34;https://metacpan.org/pod/App::cpanminus&#34;&gt;cpanminus&lt;/a&gt; instead, with no tests for a much faster install:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpanm --notest Dist::Zilla \ 
+  Dist::Zilla::Plugin::ReadmeAnyFromPod \
+  Dist::Zilla::Plugin::CopyFilesFromBuild
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;creating-a-readme-automatically:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Creating a readme automatically&lt;/h3&gt;
+
+&lt;p&gt;Ryan&amp;rsquo;s module &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::ReadmeAnyFromPod&#34;&gt;Dist::Zilla::Plugin::ReadmeAnyFromPod&lt;/a&gt; can generate a readme automatically, in any common format. It uses the Pod text from the main modules in the distribution. I use it to create my GitHub readme files in Pod, by adding the following text to my &lt;code&gt;dist.ini&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[ReadmeAnyFromPod]
+type = pod 
+filename = README.pod
+location = root
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If I build the distribution with Dist::Zilla, it will generate a new readme for me, including the author, copyright and version information in addition to the documentation already in the main module.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ dzil build &amp;amp;&amp;amp; dzil clean
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This line instructs Dist::Zilla to build the distribution, which generates the new &lt;code&gt;README.pod&lt;/code&gt; and then clean up the build files that it generated, leaving a clean working directory.&lt;/p&gt;
+
+&lt;h3 id=&#34;adding-a-license:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Adding a license&lt;/h3&gt;
+
+&lt;p&gt;I use another module from Ryan, &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::CopyFilesFromBuild&#34;&gt;Dist::Zilla::Plugin::CopyFilesFromBuild&lt;/a&gt; to copy the software license from the Dist::Zilla build into my project directory:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[CopyFilesFromBuild]
+copy = LICENSE
+[GatherDir]
+exclude_filename = LICENSE
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will copy the license out of the build directory into the root project directory. The &lt;code&gt;exclude_filename&lt;/code&gt; clause is there so that during the &lt;em&gt;next&lt;/em&gt; build, Dist::Zilla does not include the generated license in the working directory of files. Running this in the same way as before, I can generate whatever license text I want for my distribution (the type of license is specified in the &lt;code&gt;dist.ini&lt;/code&gt;).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ dzil build &amp;amp;&amp;amp; dzil clean
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;helping-others:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Helping others&lt;/h3&gt;
+
+&lt;p&gt;Dist::Zilla is great, but if you don&amp;rsquo;t have it, installing a distribution from GitHub can really suck. Recently a friend was trying to deploy some code of mine to his Macbook with a vanilla Perl install. I didn&amp;rsquo;t want to upload the code to CPAN and wait for PAUSE to index it. Installing Dist::Zilla on the his machine was not a great option either: Dist::Zilla is a beast. According to Devel::Modlist, Dist::Zilla has &lt;strong&gt;178&lt;/strong&gt; non-core dependencies (including indirectly-used modules). That&amp;rsquo;s the price you pay for automation and modularity - Dist::Zilla is working hard so us module authors don&amp;rsquo;t have to. But for someone who barely knows Perl, installing Dist::Zilla in a virgin environment can be a nightmare.&lt;/p&gt;
+
+&lt;p&gt;To get around this issue, I used &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::CopyFilesFromBuild&#34;&gt;Dist::Zilla::Plugin::CopyFilesFromBuild&lt;/a&gt; again to copy the Makefile.PL and cpanfile into the project directory. My friend then cloned the directory with Git and used &lt;a href=&#34;https://metacpan.org/pod/App::cpanminus&#34;&gt;cpanminus&lt;/a&gt; to install it. Easy! It worked so well, I&amp;rsquo;m going to include a Makefile and cpanfile in my GitHub repos from now on.&lt;/p&gt;
+
+&lt;h3 id=&#34;a-sample-dist-zilla-config:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;A sample Dist::Zilla config&lt;/h3&gt;
+
+&lt;p&gt;Here&amp;rsquo;s a &lt;code&gt;dist.ini&lt;/code&gt; from a &lt;a href=&#34;https://github.com/dnmfarrell/Settlers-Game&#34;&gt;repo&lt;/a&gt; of mine that uses the code in this article. As certain directives are required in order, it can be useful to see the entire context:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;name    = Settlers-Game
+author  = David Farrell 
+license = FreeBSD
+copyright_holder = David Farrell
+copyright_year   = 2015
+version = 0.06
+
+[CPANFile]
+[License]
+[CopyFilesFromBuild]
+copy = cpanfile
+copy = LICENSE
+copy = Makefile.PL
+[GatherDir]
+exclude_filename = cpanfile
+exclude_filename = LICENSE
+exclude_filename = Makefile.PL
+[PkgVersion]
+[AutoPrereqs]
+[GithubMeta]
+[ChangelogFromGit]
+[MetaYAML]
+[MetaJSON]
+[MakeMaker]
+[ModuleBuild]
+[ManifestSkip]
+[Manifest]
+[PodWeaver]
+[ReadmeAnyFromPod]
+type = pod
+filename = README.pod
+location = root
+[PodSyntaxTests]
+[PodCoverageTests]
+[TestRelease]
+[Test::EOL]
+[UploadToCPAN]
+[ConfirmRelease]
+[Clean]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To use this config with Dist::Zilla you&amp;rsquo;ll need some additional plugins:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Dist::Zilla::Plugin::Clean \
+  Dist::Zilla::Plugin::GithubMeta \
+  Dist::Zilla::Plugin::ChangelogFromGit \
+  Dist::Zilla::Plugin::PodWeaver
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Ok it&amp;rsquo;s not &lt;em&gt;all&lt;/em&gt; gravy. The copy file method has one downside: it overwrites the copied files every time they&amp;rsquo;re generated. This isn&amp;rsquo;t an issue for me; the commit diff only shows the changed lines, but some people may not like it.&lt;/p&gt;
+
+&lt;p&gt;For more information on Dist::Zilla, check out the official &lt;a href=&#34;http://dzil.org/tutorial/contents.html&#34;&gt;documentation&lt;/a&gt;. For a completely different approach to releasing code to CPAN, you may like&lt;a href=&#34;https://metacpan.org/pod/%20Module::Release&#34;&gt;Module::Release&lt;/a&gt;. Oh and if you find yourself in a new development environment, needing to install dependencies for a local module, David Golden has a useful &lt;a href=&#34;http://www.dagolden.com/index.php/1528/five-ways-to-install-modules-prereqs-by-hand/&#34;&gt;post&lt;/a&gt; that includes five different ways to do it.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Celebrate CPAN day on August 16th</title>
+      <link>http://perltricks.com/article/109/2014/8/13/Celebrate-CPAN-day-on-August-16th/</link>
+      <pubDate>Wed, 13 Aug 2014 12:43:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/109/2014/8/13/Celebrate-CPAN-day-on-August-16th/</guid>
+      <description>
+
+&lt;p&gt;Back in 1995 CPAN was a visionary concept that propelled Perl to the height of its popularity during the dotcom boom. For the first time there was a single, integrated online system for Perl programmers to distribute software. Today CPAN continues to go from &lt;a href=&#34;http://neilb.org/cpan-report/&#34;&gt;strength to strength&lt;/a&gt; as Perl&amp;rsquo;s &amp;ldquo;killer feature&amp;rdquo;. CPAN Day is August the 16th - the day of the first ever upload to CPAN, and a fantastic opportunity to celebrate our wonderful tool and give back to the Perl community.&lt;/p&gt;
+
+&lt;h3 id=&#34;ways-to-celebrate:37fcf7f7809608d85d3fba77ced9a502&#34;&gt;Ways to celebrate&lt;/h3&gt;
+
+&lt;p&gt;The idea of CPAN Day was conceived by Philippe Bruhat from an IRC conversation with Neil Bowers. Since then, Neil has blogged daily about different ways to celebrate CPAN Day. Most of these ideas are Neil&amp;rsquo;s:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Help make history by releasing a new &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/07/the-ghost-of-cpan-days-past.html&#34;&gt;distribution&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Give your module good &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/07/give-your-modules-a-good-abstract.html&#34;&gt;extract&lt;/a&gt;, &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/craft-the-first-paragraph-of-your-description.html&#34;&gt;description&lt;/a&gt;, &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/07/give-your-modules-a-good-synopsis.html&#34;&gt;synopsis&lt;/a&gt; []() or &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/07/give-your-module-a-good-see-also-section.html&#34;&gt;see also&lt;/a&gt; section&lt;/li&gt;
+&lt;li&gt;Thank a &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/thank-a-cpan-author-on-cpan-day.html&#34;&gt;CPAN author&lt;/a&gt; or acknowledge a &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/acknowledge-your-contributors-on-cpan-day.html&#34;&gt;contributor&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Help keep Perl strong and donate to the &lt;a href=&#34;https://secure.donor.com/pf012/give&#34;&gt;Perl Foundation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Put your module on &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/put-your-cpan-distributions-on-github.html&#34;&gt;Github&lt;/a&gt; so other programmers can easily contribute&lt;/li&gt;
+&lt;li&gt;Classify your &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/classify-your-rt-tickets-on-cpan-day.html&#34;&gt;RT tickets&lt;/a&gt; or fix a &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/fix-a-bug-on-cpan-day.html&#34;&gt;bug&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;If you have a stable module, let others know and update the distribution version to 1.0&lt;/li&gt;
+&lt;li&gt;Check your &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/check-your-test-coverage-with-develcover.html&#34;&gt;test coverage&lt;/a&gt; with Devel::Cover&lt;/li&gt;
+&lt;li&gt;Make your module more portable by fixing your CPAN Testers &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/fix-your-cpan-testers-failures.html&#34;&gt;failures&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Increase your module&amp;rsquo;s &amp;ldquo;kwalitee&amp;rdquo; by improving your &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/get-cpants-clean-on-cpan-day.html&#34;&gt;CPANTS rating&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Maybe improve your module &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/dont-be-afraid-to-rename-your-module-dist.html&#34;&gt;name&lt;/a&gt; or remove the &lt;a href=&#34;http://blogs.perl.org/users/book/2014/08/curating-cpan-sometimes-mean-deleting-stuff.html&#34;&gt;module&lt;/a&gt; entirely&lt;/li&gt;
+&lt;li&gt;Write an article about your favourite CPAN module&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So there are loads of different ways to contribute! Earlier today I caught up with Neil Bowers and asked him if he had to pick one, which was the most important contribution. Neil said:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I would pick the see also section - it outlines other relevant modules, the pros and cons of each one and saves people time when first approaching a problem.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;For you self-interested module authors out there, Neil also explained that a good SEE ALSO section can make your own module more popular. This is because &lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; is built on elastic search and by listing other modules in the SEE ALSO, you ensure that your modules appear in the search results for those other modules.&lt;/p&gt;
+
+&lt;p&gt;So how will you celebrate CPAN Day? Even if you did just one of the above suggestions, you&amp;rsquo;d be supporting the community in some way. Apparently some of CPAN&amp;rsquo;s most prolific authors are planning large releases to CPAN. Diff records will be broken, commit history will be made. I&amp;rsquo;m planning to move my modules to GitHub and to thank an author. I can&amp;rsquo;t wait to see what everyone else does. The inaugural CPAN Day is August 16th 2014, let&amp;rsquo;s make it &lt;em&gt;our&lt;/em&gt; day!&lt;/p&gt;
+
+&lt;h3 id=&#34;thanks:37fcf7f7809608d85d3fba77ced9a502&#34;&gt;Thanks&lt;/h3&gt;
+
+&lt;p&gt;Thanks to Neil Bowers for contributing additional detail in support of this article.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Do on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/do/</link>
+    <description>Recent content in Do on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 05 Jun 2013 13:22:52 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/do/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Use do to execute Perl code stored in files</title>
+      <link>http://perltricks.com/article/28/2013/6/5/Use-do-to-execute-Perl-code-stored-in-files/</link>
+      <pubDate>Wed, 05 Jun 2013 13:22:52 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/28/2013/6/5/Use-do-to-execute-Perl-code-stored-in-files/</guid>
+      <description>&lt;p&gt;Following our &lt;a href=&#34;http://perltricks.com/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval&#34;&gt;recent article&lt;/a&gt; on how to execute Perl code stored in a file using eval, Perl programmer mithaldu pointed out that the Perl built-in function do provides similar functionality.&lt;/p&gt;
+
+&lt;p&gt;This is a the text file &amp;lsquo;print.txt&amp;rsquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;print &amp;quot;it works! \n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here is the original solution using eval:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use File::Slurp;
+use strict;
+use warnings;
+
+my $command = read_file(&#39;print.txt&#39;);
+eval $command;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and here is the same code re-written using do:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+do &#39;print.txt&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Using do requires fewer lines of code then the eval solution and there is no need to open a filehandle or use a module to slurp the file (such as &lt;a href=&#34;https://metacpan.org/module/File::Slurp&#34;&gt;File::Slurp&lt;/a&gt;). The do function also updates @INC and %INC, so it can be used to load modules which are then used later in the program (eval does not do this).&lt;/p&gt;
+
+&lt;p&gt;One scenario where the eval approach would be needed instead of do would be if the text file contained non-Perl code that required parsing before the file is ready to be executed.&lt;/p&gt;
+
+&lt;p&gt;Using do does not replace the inherent risks associated with executing code stored in a separate file - this is a cool trick, not a recommended solution.&lt;/p&gt;
+
+&lt;p&gt;The official Perl documentation, Perldoc has more information on both &lt;a href=&#34;http://perldoc.perl.org/functions/do.html&#34;&gt;do&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/functions/eval.html&#34;&gt;eval&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

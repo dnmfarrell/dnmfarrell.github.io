@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Shazam! Use Image::Magick with Perlbrew in minutes Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="How to get a local non-root install of Image::Magick working with Perlbrew"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Shazam! Use Image::Magick with Perlbrew in minutes</h1>
+            <p class="blog-post-meta">Jan 1, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/57/EC09836E-FF2E-11E3-9F8C-5C05A68B9E16.png"/>
+            </div>
+              
+
+<p><em>The open source ImageMagick software provides amazing tools for creating and manipulating images in over 100 formats. Unfortunately, installing ImageMagick&rsquo;s Perl module under Perlbrew can be a frustrating and time-consuming task. However it doesn&rsquo;t have to be this way - with the method described below you can have the module installed in minutes, no root access required!</em></p>
+
+<h3 id="update-07-01-2014:5eaf94c7ee71c974c0676a2e0c0a2bea"><em>Update 07-01-2014</em></h3>
+
+<p>Zaki (<a href="https://twitter.com/zmughal">@zhmughal</a>) has worked up a sweet <a href="https://gist.github.com/zmughal/8264712/raw/8831e421393143c5b48f22dcfa12eeda51c5cfbf/install-imagemagick-perl">shell script</a> to automate the installation process for you, so you can save the finger work for using ImageMagick with your next Perl program:)</p>
+
+<h3 id="requirements:5eaf94c7ee71c974c0676a2e0c0a2bea">Requirements</h3>
+
+<p>You&rsquo;ll need to have Perlbrew and a local Perl installation via Perlbrew on Unix-based platform. This has been tested on Perl 5.16.3 but should work on any modern Perl version.</p>
+
+<h3 id="preparation:5eaf94c7ee71c974c0676a2e0c0a2bea">Preparation</h3>
+
+<p>Create a local directory: we will install ImageMagick here. Open up the terminal and enter the following:</p>
+
+<pre><code class="language-prettyprint">mkdir ~/local
+</code></pre>
+
+<h3 id="installing-image-magick-don-t-use-cpan:5eaf94c7ee71c974c0676a2e0c0a2bea">Installing Image::Magick - don&rsquo;t use CPAN</h3>
+
+<p>Although the <a href="https://metacpan.org/pod/Image::Magick">Image::Magick</a> module is available on CPAN, installing it via CPAN is usually a fruitless task as the process croaks on make. Instead download the whole <a href="http://www.imagemagick.org/download/ImageMagick.tar.gz">ImageMagick tarball</a>. Once downloaded, navigate to the tarball&rsquo;s parent directory using the terminal and un-tar the archive with the following command</p>
+
+<pre><code class="language-prettyprint">tar xvfz ImageMagick.tar.gz
+</code></pre>
+
+<p>Now change into the new directory:</p>
+
+<pre><code class="language-prettyprint">cd ImageMagick-6.8.8-0
+</code></pre>
+
+<p>Enter the following command, replacing [username], [path to CORE] and [path to Perl bin] with your system&rsquo;s details. Remove the &ldquo;&ndash;without-threads&rdquo; text if your Perl was compiled with threads (here is how to check).</p>
+
+<pre><code class="language-prettyprint">LDFLAGS=-L/home/[username]/perl5/perlbrew/perls/[path to CORE] \
+    ./configure --prefix /home/[username]/local \
+    --with-perl=/home/[username]/perl5/perlbrew/perls/[path to Perl bin] \
+    --enable-shared --without-threads
+</code></pre>
+
+<p>Here is a completed example for my system:</p>
+
+<pre><code class="language-prettyprint">LDFLAGS=-L/home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/lib/5.16.3/x86_64-linux/CORE \
+    ./configure --prefix /home/sillymoose/local \
+    --with-perl=/home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/bin/perl \
+    --enable-shared --without-threads
+</code></pre>
+
+<p>Running this command should cause ImageMagick to run a series of configuration checks, at the end of which it will print a configuration summary, which should look something like this:</p>
+
+<pre><code class="language-prettyprint">ImageMagick is configured as follows. Please verify that this configuration
+matches your expectations.
+
+Host system type: x86_64-unknown-linux-gnu
+Build system type: x86_64-unknown-linux-gnu
+
+                  Option                        Value
+-------------------------------------------------------------------------------
+Shared libraries  --enable-shared=yes       yes
+Static libraries  --enable-static=yes       yes
+Module support    --with-modules=no     no
+GNU ld            --with-gnu-ld=yes     yes
+Quantum depth     --with-quantum-depth=16   16
+High Dynamic Range Imagery
+                  --enable-hdri=no      no
+
+Delegate Configuration:
+BZLIB             --with-bzlib=yes      yes
+Autotrace         --with-autotrace=no       no
+Dejavu fonts      --with-dejavu-font-dir=default    /usr/share/fonts/dejavu/
+DJVU              --with-djvu=yes       no
+DPS               --with-dps=yes        no
+FFTW              --with-fftw=yes       no
+FlashPIX          --with-fpx=yes        no
+FontConfig        --with-fontconfig=yes     no
+FreeType          --with-freetype=yes       yes
+GhostPCL          None              pcl6 (unknown)
+GhostXPS          None              gxps (unknown)
+Ghostscript       None              gs (9.10)
+Ghostscript fonts --with-gs-font-dir=default    /usr/share/fonts/default/Type1/
+Ghostscript lib   --with-gslib=no       no
+Graphviz          --with-gvc=no     
+JBIG              --with-jbig=yes       no
+JPEG v1           --with-jpeg=yes       yes
+JPEG-2000         --with-jp2=yes        yes
+LCMS v1           --with-lcms=yes       yes
+LCMS v2           --with-lcms2=yes      no
+LQR               --with-lqr=yes        no
+LTDL              --with-ltdl=yes       no
+LZMA              --with-lzma=yes       yes
+Magick++          --with-magick-plus-plus=yes   no (failed tests)
+MUPDF             --with-mupdf=no       no
+OpenEXR           --with-openexr=yes        no
+PANGO             --with-pango=yes      no
+PERL              --with-perl=/home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/bin/perl        /home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/bin/perl
+PNG               --with-png=yes        yes
+RSVG              --with-rsvg=no        no
+TIFF              --with-tiff=yes       yes
+WEBP              --with-webp=yes       no
+Windows fonts     --with-windows-font-dir=  none
+WMF               --with-wmf=no     no
+X11               --with-x=         yes
+XML               --with-xml=yes        yes
+ZLIB              --with-zlib=yes       yes
+</code></pre>
+
+<p>Check that the image file formats you expect to be working with are showing as &ldquo;yes&rdquo;. If any are showing as &ldquo;no&rdquo; that you require, you&rsquo;ll need to install the appropriate C library (e.g. libpng for PNG files) and re-run the previous command.</p>
+
+<p>To install ImageMagick and the Image::Magick Perl module, run this command:</p>
+
+<pre><code class="language-prettyprint">make install
+</code></pre>
+
+<h3 id="confirm-installation:5eaf94c7ee71c974c0676a2e0c0a2bea">Confirm Installation</h3>
+
+<p>Confirming that the Image::Magick module has installed is not quite straightforward either. With version Image Magick 6.8.8, the $VERSION variable is stored in the super class Image::Magick::Q16. Hence you&rsquo;ll need to type:</p>
+
+<pre><code class="language-prettyprint">perl -MImage::Magick::Q16\ 999
+</code></pre>
+
+<p>Which should yield:</p>
+
+<pre><code class="language-prettyprint">Image::Magick::Q16 version 999 required--this is only version 6.88.
+</code></pre>
+
+<h3 id="sources:5eaf94c7ee71c974c0676a2e0c0a2bea">Sources</h3>
+
+<p>Thanks to Jason Galea - his invaluable <a href="https://github.com/lecstor/DevNotes/wiki/Image-Magick-with-Perlbrew">GitHub notes</a> formed the basis of this solution.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/configuration">configuration</a></div>
+              
+                <div class="tag"><a href="/tags/sysadmin">sysadmin</a></div>
+              
+                <div class="tag"><a href="/tags/perlbrew">perlbrew</a></div>
+              
+                <div class="tag"><a href="/tags/ImageMagick">ImageMagick</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Understanding Haskell types Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="The basics"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Understanding Haskell types</h1>
+            <p class="blog-post-meta">Oct 14, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/198/2812558A-6F58-11E5-9A38-7E733498AD2D.png"/>
+            </div>
+              
+
+<p>I recently took a break from Perl work to study at the <a href="http://recurse.com">Recurse Center</a>. I&rsquo;m learning Haskell, and it&rsquo;s been an interesting adventure so far. I&rsquo;d heard good things about Haskell&rsquo;s type system and started with an introductory book <a href="http://learnyouahaskell.com/">Learn You a Haskell for Great Good!</a>. The book is filled with cartoonish humor - &ldquo;how hard can this be?&rdquo; I asked myself. The answer was &ldquo;hard&rdquo;. I found Haskell&rsquo;s type system to be counter-intuitive, so this article lays out my understanding of Haskell types. If you&rsquo;re a programmer with an imperative programming background, you might find this useful.</p>
+
+<h3 id="your-intuition-is-wrong:5be15c15f4a045cfb2cf059143ee7b55">Your intuition is wrong</h3>
+
+<p>For imperative-language programmers, Haskell keywords are likely to mislead. Take the <code>type</code> keyword for instance. It&rsquo;s not for creating new types per se, but <em>type synonyms</em>, which are like aliases for existing types. I might use it like this:</p>
+
+<pre><code class="language-prettyprint">type FirstName = String
+type LastName = String
+type Age = Int
+</code></pre>
+
+<p>One way to declare new types is with the <code>data</code> keyword (naturally!). If I wanted to create a person type, I could use <code>data</code> :</p>
+
+<pre><code class="language-prettyprint">data Person = Person String String Int
+</code></pre>
+
+<p>This declares a new type called <code>Person</code> with 2 strings and 1 integer as attributes. But I could also use our type synonyms from the earlier example, and clarify my intentions:</p>
+
+<pre><code class="language-prettyprint">data Person = Person FirstName LastName Age
+</code></pre>
+
+<h3 id="functions-and-types:5be15c15f4a045cfb2cf059143ee7b55">Functions and types</h3>
+
+<p>In Haskell function signatures can be restricted by types. I can create a function to tell which of two people is older:</p>
+
+<pre><code class="language-prettyprint">eldest :: Person -&gt; Person -&gt; String
+eldest (Person x1 y1 z1) (Person x2 y2 z2)
+  | z1 &gt; z2   = x1 ++ &quot; &quot; ++ y1 ++ &quot; is older&quot;
+  | z1 &lt; z2   = x2 ++ &quot; &quot; ++ y2 ++ &quot; is older&quot;
+  | otherwise = &quot;They're the same age!&quot;
+</code></pre>
+
+<p>This is a lot of new syntax, so bear with me. The first line declares a function called <code>eldest</code> which takes two persons and returns a string. The second line assigns the attributes of each person to variables. The rest of the function tests which person is older and returns an appropriate message. I&rsquo;ll save all of this code into a file called &ldquo;person.hs&rdquo;, so I can test the function in the Haskell REPL, <code>ghci</code></p>
+
+<pre><code class="language-prettyprint">ghci&gt; :l person.hs
+[1 of 1] Compiling Main             ( person.hs, interpreted )
+Ok, modules loaded: Main.
+ghci&gt; let a = Person &quot;Bart&quot; &quot;Simpson&quot; 10
+ghci&gt; let b = Person &quot;Lisa&quot; &quot;Simpson&quot; 7
+ghci&gt; eldest a b
+&quot;Bart Simpson is older&quot;
+</code></pre>
+
+<p>Sometimes we don&rsquo;t need to access all of the attributes of a type in a function. In these cases Haskell let&rsquo;s you use <code>_</code> as a placeholder, that won&rsquo;t be assigned to a variable. For example to print the initials of a person, I only need to know their first and last names:</p>
+
+<pre><code class="language-prettyprint">initials :: Person -&gt; String
+initials (Person x y _) = [head x,'.',head y, '.']
+</code></pre>
+
+<p>The second line of code assigns a person&rsquo;s firstname to <code>x</code> and lastname to <code>y</code>. It then takes the first char of each using <code>head</code> and returns a new list of chars with a dot after each char. I can test the function by reloading &ldquo;person.hs&rdquo;:</p>
+
+<pre><code class="language-prettyprint">ghci&gt; :l person.hs
+[1 of 1] Compiling Main             ( person.hs, interpreted )
+Ok, modules loaded: Main.
+ghci&gt; let a = Person &quot;Maggie&quot; &quot;Simpson&quot; 1
+ghci&gt; initials a
+&quot;M.S.&quot;
+</code></pre>
+
+<h3 id="typeclasses:5be15c15f4a045cfb2cf059143ee7b55">Typeclasses</h3>
+
+<p>Typeclasses are similar to traits (roles in Perl-speak) for types. For example, integers are instances of typeclasses like <code>Ord</code> as they are orderable, <code>Num</code> as they are numbers, and so on. Each typeclass defines functions for handling types in specific contexts. The <code>Eq</code> typeclass adds the ability to compare types for equality using operators like <code>==</code>.</p>
+
+<p>By generalizing the properties of types with typeclasses, Haskell can support generic functions which operate on typeclasses, instead of being restricted to one type. The signature of the <code>quicksort</code> function from <a href="http://learnyouahaskell.com/recursion">Learn You a Haskell</a> is a great example of this:</p>
+
+<pre><code class="language-prettyprint">quicksort :: (Ord a) =&gt; [a] -&gt; [a]
+quicksort [] = []
+quicksort (x:xs) =·
+    let smallerSorted = quicksort [a | a &lt;- xs, a &lt;= x]
+        biggerSorted = quicksort [a | a &lt;- xs, a &gt; x]
+    in  smallerSorted ++ [x] ++ biggerSorted
+</code></pre>
+
+<p>This declares a new function called quicksort which is restricted to lists of orderable types. Ignore the body and just focus on the first line of code, the function signature. The code <code>(Ord a)</code> defines the typeclass constraint for the function. This function can be used to sort anything orderable, like lists of numbers. Aren&rsquo;t strings just lists of chars? I guess we can sort them with <code>quicksort</code> too then.</p>
+
+<h3 id="instance-and-class:5be15c15f4a045cfb2cf059143ee7b55">Instance and Class</h3>
+
+<p>If you saw the <code>instance</code> keyword in some Haskell code, you might think &ldquo;aha, a singleton constructor!&rdquo; but actually <code>instance</code> is used to make types instances of typeclasses. This makes sense when you consider that every type is an <strong>instance</strong> of a typeclass. Revisiting my <code>Person</code> type from earlier, what if I wanted to make it orderable? Typically in the English-speaking parts of the world, people are sorted by their last name, so I&rsquo;m going to implement it that way:</p>
+
+<pre><code class="language-prettyprint">data Person = Person FirstName LastName Age deriving (Eq, Show)
+
+instance Ord Person where
+  compare (Person _ a _) (Person _ b _) = compare a b
+</code></pre>
+
+<p>I start by updating the type declaration of Person with <code>deriving (Eq, Show)</code>. These operate on the whole type (all of its attributes together). <code>Eq</code> will let Haskell compare Persons for equality and <code>Show</code> just let&rsquo;s Haskell serialize the type as a string. The second line of code uses <code>instance</code> to make persons orderable. The final line implements a comparison function using the lastname attribute of the Person. I can test the code using the <code>quicksort</code> function declared above.</p>
+
+<pre><code class="language-prettyprint">ghci&gt; :l person.hs
+[1 of 1] Compiling Main             ( person.hs, interpreted )
+Ok, modules loaded: Main.
+ghci&gt; let a = Person &quot;Jason&quot; &quot;Bourne&quot; 37
+ghci&gt; let b = Person &quot;James&quot; &quot;Bond&quot; 42
+ghci&gt; quicksort [a,b]
+[Person &quot;James&quot; &quot;Bond&quot; 43,Person &quot;Jason&quot; &quot;Bourne&quot; 37]
+</code></pre>
+
+<p>This sorted our list of people by their lastname, and because <code>Person</code> is an instance of <code>Show</code>, Haskell was able to print out the detail to the command line. Not bad!</p>
+
+<p>The final keyword to be aware of is <code>class</code>. By now it shouldn&rsquo;t surprise you to find out that <code>class</code> is not for declaring classes like in imperative programming, but for creating new typeclasses. You probably won&rsquo;t use this much when starting out with Haskell, but it&rsquo;s useful to keep in mind for reducing repetitive code. If you have multiple sets of code doing very similar things for different types, consider creating a new typeclass and merging the functions to operate on the new type class, to keep things <a href="https://en.wikipedia.org/wiki/Don't_repeat_yourself">DRY</a>.</p>
+
+<h3 id="code-complete:5be15c15f4a045cfb2cf059143ee7b55">Code complete</h3>
+
+<p>This is the finished code:</p>
+
+<pre><code class="language-prettyprint">--person.hs
+type FirstName = String
+type LastName  = String
+type Age = Int 
+
+data Person = Person FirstName LastName Age deriving (Eq, Show)
+
+eldest :: Person -&gt; Person -&gt; String
+eldest (Person x1 y1 z1) (Person x2 y2 z2)
+  | z1 &gt; z2   = x1 ++ &quot; &quot; ++ y1 ++ &quot; is older&quot;
+  | z1 &lt; z2   = x2 ++ &quot; &quot; ++ y2 ++ &quot; is older&quot;
+  | otherwise = &quot;They're the same age!&quot;
+
+initials :: Person -&gt; String
+initials (Person x y _) = [head x,'.',head y, '.']
+
+quicksort [] = []
+quicksort (x:xs) =·
+    let smallerSorted = quicksort [a | a &lt;- xs, a &lt;= x]
+        biggerSorted = quicksort [a | a &lt;- xs, a &gt; x]
+    in  smallerSorted ++ [x] ++ biggerSorted
+
+instance Ord Person where
+  compare (Person _ a _) (Person _ b _) = compare a b
+</code></pre>
+
+<h3 id="learn-haskell-the-hard-way:5be15c15f4a045cfb2cf059143ee7b55">Learn Haskell the Hard Way</h3>
+
+<p>Despite its childish demeanor, <a href="http://learnyouahaskell.com/">Learn You a Haskell</a> goes deep into the Haskell type system and can be a bit long-winded at times. My current learning method involves reading the book, and typing out every code example, and studying Penn State&rsquo;s <a href="https://www.cis.upenn.edu/~cis194/spring13/lectures.html">cis194 course</a>. Both are free. O&rsquo;Reilly&rsquo;s <a href="http://book.realworldhaskell.org/read/">Real World Haskell</a> is also available for free online, and emphasizes more immediate practical uses of Haskell. It&rsquo;s good for when you&rsquo;re tired of coding binary search trees and sorting algorithms. If you find yourself needing to lookup a Haskell term, DuckDuckGo has the <code>!h</code> bang, which searches <a href="https://www.haskell.org/hoogle/">Hoogle</a> automatically.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/types">types</a></div>
+              
+                <div class="tag"><a href="/tags/oreilly">oreilly</a></div>
+              
+                <div class="tag"><a href="/tags/cis194">cis194</a></div>
+              
+                <div class="tag"><a href="/tags/lyas">lyas</a></div>
+              
+                <div class="tag"><a href="/tags/ghci">ghci</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Twitter on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/twitter/</link>
+    <description>Recent content in Twitter on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 23 Feb 2015 14:12:06 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/twitter/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Build a Twitter bot with Perl</title>
+      <link>http://perltricks.com/article/154/2015/2/23/Build-a-Twitter-bot-with-Perl/</link>
+      <pubDate>Mon, 23 Feb 2015 14:12:06 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/154/2015/2/23/Build-a-Twitter-bot-with-Perl/</guid>
+      <description>
+
+&lt;p&gt;Following on from last week&amp;rsquo;s Reddit bot &lt;a href=&#34;http://perltricks.com/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl&#34;&gt;article&lt;/a&gt;, let&amp;rsquo;s look at how to build a Twitter bot using Perl. As you&amp;rsquo;d expect, Perl makes it easy to do, but before we get to the code, let&amp;rsquo;s talk about advantages.&lt;/p&gt;
+
+&lt;p&gt;Adding tweet automation to an existing app can bring several benefits. Firstly it&amp;rsquo;s a time saver, allowing you to focus on other higher-value activities. Automation provides protection from manual transcription errors like misspelled words and broken urls. Automation also means it&amp;rsquo;s cheaper to increase your tweet volume and all else being equal, a higher tweet volume will lead to more Twitter followers. Sound good? Excellent, let&amp;rsquo;s get to the code then!&lt;/p&gt;
+
+&lt;h3 id=&#34;writing-tweets:12c8fd35ec6bfe5464697c6b32eba8bb&#34;&gt;Writing tweets&lt;/h3&gt;
+
+&lt;p&gt;The core code for writing tweets is very simple. I&amp;rsquo;m using the &lt;a href=&#34;https://metacpan.org/pod/Net::Twitter::Lite&#34;&gt;Net::Twitter::Lite&lt;/a&gt; distribution, which supports the latest version of the Twitter &lt;a href=&#34;https://dev.twitter.com/rest/public&#34;&gt;API&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Net::Twitter::Lite::WithAPIv1_1;
+
+sub tweet
+{
+  my ($text) = @_;
+
+  my $twitter = Net::Twitter::Lite::WithAPIv1_1-&amp;gt;new(
+    access_token_secret =&amp;gt; $ENV{TWITTER_ACCESS_SECRET},
+    consumer_secret     =&amp;gt; $ENV{TWITTER_CONSUMER_SECRET},
+    access_token        =&amp;gt; $ENV{TWITTER_ACCESS_TOKEN},
+    consumer_key        =&amp;gt; $ENV{TWITTER_CONSUMER_KEY},
+    user_agent          =&amp;gt; &#39;TwitterBotExample&#39;,
+    ssl =&amp;gt; 1,
+  );
+  $twitter-&amp;gt;update($text);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code imports &lt;code&gt;Net::Twitter::Lite::WithAPIv1_1&lt;/code&gt; to use the new Twitter API. The subroutine &lt;code&gt;tweet&lt;/code&gt; takes some text as an argument. It then creates a new &lt;code&gt;Net::Twitter::Lite::WithAPIv1_1&lt;/code&gt; object, using environment vars as credentials. If you don&amp;rsquo;t have these credentials already, it&amp;rsquo;s free to register an application for your own Twitter account and &lt;a href=&#34;https://dev.twitter.com/oauth/overview/application-owner-access-tokens&#34;&gt;generate the tokens&lt;/a&gt;. Finally the subroutine calls the &lt;code&gt;update&lt;/code&gt; method to tweet the text.&lt;/p&gt;
+
+&lt;p&gt;Now I can send one tweet by adding this line to my code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;tweet(&amp;quot;This is a computer speaking!&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;safety-first:12c8fd35ec6bfe5464697c6b32eba8bb&#34;&gt;Safety first&lt;/h3&gt;
+
+&lt;p&gt;So far so good huh? However this code isn&amp;rsquo;t very safe. What if &lt;code&gt;$text&lt;/code&gt; is not provided as an argument, or our environment variables are not declared, or the call to Twitter fails? I&amp;rsquo;ll add some checks to handle these scenarios:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Net::Twitter::Lite::WithAPIv1_1;
+use Try::Tiny;
+
+sub tweet
+{
+  my ($text) = @_;
+
+  die &#39;tweet requires text as an argument&#39; unless $text;
+
+  unless ($ENV{TWITTER_CONSUMER_KEY}
+          &amp;amp;&amp;amp; $ENV{TWITTER_CONSUMER_SECRET}
+          &amp;amp;&amp;amp; $ENV{TWITTER_ACCESS_TOKEN}
+          &amp;amp;&amp;amp; $ENV{TWITTER_ACCESS_SECRET})
+  {
+    die &#39;Required Twitter Env vars are not all defined&#39;;
+  }
+
+  try
+  {
+    my $twitter = Net::Twitter::Lite::WithAPIv1_1-&amp;gt;new(
+      access_token_secret =&amp;gt; $ENV{TWITTER_ACCESS_SECRET},
+      consumer_secret     =&amp;gt; $ENV{TWITTER_CONSUMER_SECRET},
+      access_token        =&amp;gt; $ENV{TWITTER_ACCESS_TOKEN},
+      consumer_key        =&amp;gt; $ENV{TWITTER_CONSUMER_KEY},
+      user_agent          =&amp;gt; &#39;TwitterBotExample&#39;,
+      ssl =&amp;gt; 1,
+    );
+    $twitter-&amp;gt;update($text);
+  }
+  catch
+  {
+    die join(&#39; &#39;, &amp;quot;Error tweeting $text&amp;quot;,
+                   $_-&amp;gt;code, $_-&amp;gt;message, $_-&amp;gt;error);
+  };
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code is largely the same as before, except now it checks for the required variables before processing. The code also imports &lt;a href=&#34;https://metacpan.org/pod/Try::Tiny&#34;&gt;Try::Tiny&lt;/a&gt; as I added a try/catch block around the twitter code. The catch block will activate if the Twitter interaction throws an exception. Because Net::Twitter::Lite throws structured exceptions, the catch block builds an exception string by extracting information from the structured exception, then calls &lt;code&gt;die&lt;/code&gt; itself.&lt;/p&gt;
+
+&lt;p&gt;You might be wondering if it&amp;rsquo;s necessary to call &lt;code&gt;die&lt;/code&gt; at all. Can&amp;rsquo;t we just return &lt;code&gt;undef&lt;/code&gt; instead and keep our code running? The advantage of calling &lt;code&gt;die&lt;/code&gt; is that the caller of the &lt;code&gt;tweet&lt;/code&gt; subroutine is better placed to decide how to handle the issue, and so we defer that decision to them. If the calling code doesn&amp;rsquo;t handle &lt;code&gt;die&lt;/code&gt; correctly, we know the program will exit. But if we returned &lt;code&gt;undef&lt;/code&gt;, we would have no such assurances. This doesn&amp;rsquo;t mean however that the code &lt;em&gt;has&lt;/em&gt; to exit. Let&amp;rsquo;s assume I had hundreds of tweets to send out, maybe I just want to log the error somewhere and keep going:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;foreach my $text (@tweet_texts)
+{
+  try
+  {
+    tweet($text);
+  }
+  catch
+  {
+    log_error($_);
+  };
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If I was printing a sequence of tweets, where ordering is important, I could still log the error but then call &lt;code&gt;die&lt;/code&gt; to exit the program:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;foreach my $text (@sequence_of_texts)
+{
+  try
+  {
+    tweet($text);
+  }
+  catch
+  {
+    log_error($_);
+    die $_; # exit the program
+  };
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;better-text-handling:12c8fd35ec6bfe5464697c6b32eba8bb&#34;&gt;Better text handling&lt;/h3&gt;
+
+&lt;p&gt;So now the code is safer, how else can it be improved? One famous restriction is that a tweet cannot be longer than 140 characters. Right now if the &lt;code&gt;tweet()&lt;/code&gt; subroutine received a text string longer than 140 characters, the Twitter API would reject it, raise and exception and the code would die. I think we can do better than that.&lt;/p&gt;
+
+&lt;p&gt;When I think about the contents of tweets that I send, I&amp;rsquo;m usually tweeting links to articles about Perl. Invariably they will include some text, a url and a hashtag. It&amp;rsquo;s useful to break these out into separate arguments to &lt;code&gt;tweet()&lt;/code&gt; because to make everything fit, you could truncate the text, but you wouldn&amp;rsquo;t want to truncate a url or hashtag as it might change the meaning and/or break the url.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Net::Twitter::Lite::WithAPIv1_1;
+use Try::Tiny;
+
+sub tweet
+{
+  my ($text, $url, $hashtag) = @_;
+
+  unless ($text &amp;amp;&amp;amp; $url &amp;amp;&amp;amp; $hashtag)
+  {
+    die &#39;tweet requires text, url and hashtag arguments&#39;;
+  }
+
+  unless ($ENV{TWITTER_CONSUMER_KEY}
+          &amp;amp;&amp;amp; $ENV{TWITTER_CONSUMER_SECRET}
+          &amp;amp;&amp;amp; $ENV{TWITTER_ACCESS_TOKEN}
+          &amp;amp;&amp;amp; $ENV{TWITTER_ACCESS_SECRET})
+  {
+    die &#39;Required Twitter Env vars are not all defined&#39;;
+  }
+
+  # build tweet, max 140 chars
+  my $tweet;
+  
+  if (length(&amp;quot;$text $hashtag&amp;quot;) &amp;lt; 118)
+  {
+    $tweet = &amp;quot;$text $url $hashtag&amp;quot;;
+  }
+  elsif (length($text) &amp;lt; 118)
+  {
+    $tweet = &amp;quot;$text $url&amp;quot;;
+  }
+  else # shorten text, drop the hashtag
+  {
+    $tweet = substr($text, 0, 113) . &amp;quot;... &amp;quot; . $url;
+  }
+
+  try
+  {
+    my $twitter = Net::Twitter::Lite::WithAPIv1_1-&amp;gt;new(
+      access_token_secret =&amp;gt; $ENV{TWITTER_ACCESS_SECRET},
+      consumer_secret     =&amp;gt; $ENV{TWITTER_CONSUMER_SECRET},
+      access_token        =&amp;gt; $ENV{TWITTER_ACCESS_TOKEN},
+      consumer_key        =&amp;gt; $ENV{TWITTER_CONSUMER_KEY},
+      user_agent          =&amp;gt; &#39;TwitterBotExample&#39;,
+      ssl =&amp;gt; 1,
+    );
+    $twitter-&amp;gt;update($tweet);
+  }
+  catch
+  {
+    die join(&#39; &#39;, &amp;quot;Error tweeting $text $url $hashtag&amp;quot;,
+                   $_-&amp;gt;code, $_-&amp;gt;message, $_-&amp;gt;error);
+  };
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Twitter treats urls as having a length of 12 characters. Now the code checks the length of our arguments, truncating &lt;code&gt;$text&lt;/code&gt; if necessary. The hashtag will be included only if there is enough space.&lt;/p&gt;
+
+&lt;p&gt;This code works for me, but you may want to do things a little differently. The Twitter credentials could be stored in a &lt;a href=&#34;http://perltricks.com/article/29/2013/9/17/How-to-Load-YAML-Config-Files&#34;&gt;configuration&lt;/a&gt; file, instead of environment variables. The &lt;code&gt;$hashtag&lt;/code&gt; argument could be an arrayref of hashtags, that are incrementally added to the tweet text, instead of a single text string which restricts it to an all-or-nothing basis.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

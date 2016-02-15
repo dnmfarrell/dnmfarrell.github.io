@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Libyaml on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/libyaml/</link>
+    <description>Recent content in Libyaml on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 17 Sep 2013 03:18:10 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/libyaml/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How to Load YAML Config Files</title>
+      <link>http://perltricks.com/article/29/2013/9/17/How-to-Load-YAML-Config-Files/</link>
+      <pubDate>Tue, 17 Sep 2013 03:18:10 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/29/2013/9/17/How-to-Load-YAML-Config-Files/</guid>
+      <description>
+
+&lt;p&gt;Config files are used by programmers to store local variables as it&amp;rsquo;s usually better to update a config file than to edit source code. &lt;a href=&#34;http://www.yaml.org/spec/1.2/spec.html#Introduction&#34;&gt;YAML&lt;/a&gt; is a popular data serialization language that&amp;rsquo;s easy to read and can serialize the common Perl variables (scalars, arrays and hashes). This article describes how to read a YAML config file in Perl and access the config file&amp;rsquo;s variables.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-config-file:3635643ce2dafff7a934f356c4953c84&#34;&gt;The config file&lt;/h3&gt;
+
+&lt;p&gt;YAML defines different types of &lt;a href=&#34;http://www.yaml.org/spec/1.2/spec.html#id2759963&#34;&gt;data collections&lt;/a&gt; that can be used to serialize (represent or store) Perl variables. Let&amp;rsquo;s define a YAML config file to store some local email data. The config.yaml file could look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;---
+emailName: David
+emailAddresses: 
+    - sillymoos@cpan.org
+    - perltricks.com@gmail.com
+credentials:
+    username: sillymoose
+    password: itsasecret
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s walkthrough config.yaml: the config file starts with three hyphens (&amp;ldquo;&amp;mdash;&amp;rdquo;) to signify the start of the document, &amp;ldquo;emailName&amp;rdquo;: is a scalar mapping with the value &amp;ldquo;David&amp;rdquo;, &amp;ldquo;emailAddresses&amp;rdquo; is a sequence of email addresses and &amp;ldquo;credentials&amp;rdquo; is a mapping of scalar mappings for the email username and password.&lt;/p&gt;
+
+&lt;h3 id=&#34;load-the-config-file:3635643ce2dafff7a934f356c4953c84&#34;&gt;Load the config file&lt;/h3&gt;
+
+&lt;p&gt;Perl&amp;rsquo;s &lt;a href=&#34;https://metacpan.org/module/YAML::XS&#34;&gt;YAML::XS&lt;/a&gt; module provides a &lt;code&gt;LoadFile&lt;/code&gt; subroutine that can be used to read any YAML file into a scalar variable. This script loads the &amp;ldquo;config.yaml&amp;rdquo; config file and prints it using &lt;a href=&#34;https://metacpan.org/pod/Data::Dumper&#34;&gt;Data::Dumper&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use YAML::XS &#39;LoadFile&#39;;
+use Data::Dumper;
+    
+my $config = LoadFile(&#39;config.yaml&#39;);
+
+print Dumper($config);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If we run this script we get the following results:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$VAR1 = {
+          &#39;emailName&#39; =&amp;gt; &#39;David&#39;,
+          &#39;credentials&#39; =&amp;gt; {
+                           &#39;password&#39; =&amp;gt; &#39;itsasecret&#39;,
+                           &#39;username&#39; =&amp;gt; &#39;sillymoose&#39;
+                         },
+          &#39;emailAddresses&#39; =&amp;gt; [
+                              &#39;sillymoos@cpan.org&#39;,
+                              &#39;perltricks.com@gmail.com&#39;
+                            ]
+        };
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;These results show that config.yaml has been read into &lt;code&gt;$config&lt;/code&gt; as a hash reference with three keys: &amp;ldquo;emailName&amp;rdquo;, &amp;ldquo;credentials&amp;rdquo; and &amp;ldquo;emailAddresses&amp;rdquo;.&lt;/p&gt;
+
+&lt;h3 id=&#34;accessing-the-config-data:3635643ce2dafff7a934f356c4953c84&#34;&gt;Accessing the config data&lt;/h3&gt;
+
+&lt;p&gt;So far the script reads the contents of config.yaml into &lt;code&gt;$config&lt;/code&gt;. To access the config data we need to dereference the data from &lt;code&gt;$config&lt;/code&gt;. The following script shows examples of accessing the config scalar, array and hash data.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use YAML::XS &#39;LoadFile&#39;;
+use feature &#39;say&#39;;
+
+my $config = LoadFile(&#39;config.yaml&#39;);
+
+# access the scalar emailName
+my $emailName = $config-&amp;gt;{emailName};
+
+# access the array emailAddresses directly
+my $firstEmailAddress = $config-&amp;gt;{emailAddresses}-&amp;gt;[0];
+my $secondEmailAddress= $config-&amp;gt;{emailAddresses}-&amp;gt;[1];
+
+# loop through and print emailAddresses
+for (@{$config-&amp;gt;{emailAddresses}}) { say }
+
+# access the credentials hash key values directly
+my $username = $config-&amp;gt;{credentials}-&amp;gt;{username};
+my $password = $config-&amp;gt;{credentials}-&amp;gt;{password};
+
+# loop through and print credentials
+for (keys %{$config-&amp;gt;{credentials}}) {
+    say &amp;quot;$_: $config-&amp;gt;{credentials}-&amp;gt;{$_}&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;more-yaml:3635643ce2dafff7a934f356c4953c84&#34;&gt;More YAML&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/module/YAML::XS&#34;&gt;YAML::XS&lt;/a&gt; uses the libyaml C library and provides strong performance and adherence to the YAML specification. However if you have difficulty installing YAML::XS, there are pure Perl alternatives available: &lt;a href=&#34;https://metacpan.org/module/YAML&#34;&gt;YAML&lt;/a&gt; is not actively maintained and has several bugs but excellent documentation and generally works, &lt;a href=&#34;https://metacpan.org/module/YAML::Tiny&#34;&gt;YAML::Tiny&lt;/a&gt; is a newer module that implements a useful subset of the YAML specification.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

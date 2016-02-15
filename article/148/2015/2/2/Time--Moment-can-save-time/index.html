@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Time::Moment can save time Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A useful alternative to DateTime"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Time::Moment can save time</h1>
+            <p class="blog-post-meta">Feb 2, 2015 by <a href="/authors/brian-d-foy">brian d foy</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/148/050708F8-AAE4-11E4-AC4E-C3E39EE10EC8.png"/>
+            </div>
+              <p>A long time ago in a galaxy far, far away, the rebel alliance ran into a slight problem when the starship carrying the princess left two hours late because its software was in the wrong time zone, running into an imperial cruiser that was patrolling an hour early for a similar reason. The bad guys unwittingly solved the rebels&rsquo; problem by removing the wrong time zone when they removed that special case—a solution familiar to programmers. The rebels exploited an imperial bug when a literal hole in their defense was left open an hour late.</p>
+
+<p>You might think that we are in the computer revolution (<a href="https://www.youtube.com/watch?v=oKg1hTOQXoY">Alan Kay says we aren&rsquo;t</a>), but for all of our fancy hardware, the cheap or free platforms and services, and the amazing programming tools we have, the way we handle and times is often a mess. Y2K has nothing on this.</p>
+
+<p>When Dave Rolsky came out with <a href="http://www.metacpan.org/module/DateTime">DateTime</a>, everyone rejoiced. It&rsquo;s a masterful piece of software that strives to be pedantically correct down to the nanosecond and leap seconds. Before then, I used a hodge-podge of modules to deal with dates and avoided date math.</p>
+
+<p><a href="http://www.metacpan.org/module/DateTime">DateTime</a> can represent dates and tell me various things about them, such as the day of the quarter, give me locale-specific names, format them in interesting ways, and also give me the difference between dates:</p>
+
+<pre><code class="language-prettyprint">use Date::Time;
+
+my $dt = DateTime-&gt;new(
+    year       =&gt; 2014,
+    month      =&gt; 12,
+    day        =&gt; 18,
+    hour       =&gt; 12,
+    minute     =&gt; 37,
+    second     =&gt; 57,
+    nanosecond =&gt; 0,
+    time_zone  =&gt; 'UTC',
+);
+
+my $quarter = $dt-&gt;quarter;
+my $day_of_quarter = $dt-&gt;day_of_quarter;
+
+my $month_name = $dt-&gt;month_name;  # can be locale specific
+
+my $ymd = $dt-&gt;ymd('/'); # 2015/02/06
+
+my $now = DateTime-&gt;now;
+
+my $duration = $now - $dt;
+</code></pre>
+
+<p><a href="http://www.metacpan.org/module/DateTime">DateTime</a> doesn&rsquo;t parse dates. Separate modules in the same namespace can do that while returning a <a href="http://www.metacpan.org/module/DateTime">DateTime</a> object. For instance, the <a href="http://www.metacpan.org/module/DateTime::Format::W3CDTF">DateTime::Format::W3CDTF</a> module parses dates and turn them into objects:</p>
+
+<pre><code class="language-prettyprint">use DateTime::Format::W3CDTF;
+
+my $w3c = DateTime::Format::W3CDTF-&gt;new;
+my $dt = $w3c-&gt;parse_datetime( '2003-02-15T13:50:05-05:00' );
+
+# 2003-02-15T13:50:05-05:00
+$w3c-&gt;format_datetime($dt);
+</code></pre>
+
+<p>Brilliant. <a href="http://www.metacpan.org/module/DateTime">DateTime</a> is the standard answer to any date question. It works with almost no thought on my side.</p>
+
+<p>But <a href="http://www.metacpan.org/module/DateTime">DateTime</a> has a problem. It creates big objects and in the excitement to use something that works (slow and correct is better than fast and wrong), I might end up with hundreds of those objects, not leaving much space for other things. Try dumping one of these objects to see its extent. I won&rsquo;t waste space with that in this article.</p>
+
+<p>Although <a href="http://www.metacpan.org/module/DateTime">DateTime</a> is exactingly correct, sometimes I&rsquo;d like to be a little less exact and quite a bit faster. That&rsquo;s where Christian Hansen&rsquo;s <a href="http://www.metacpan.org/module/Time::Moment">Time::Moment</a> comes in (see his <a href="http://blogs.perl.org/users/chansen/2014/08/timemoment-vs-datetime.html">Time::Moment vs DateTime</a>). It works in UTC, ignores leap seconds, and limits its dates to the years 1 to 9999. It&rsquo;s objects are immutable, so it can be a bit faster. To get a new datetime, you get a new object. And, it has many of the common features and an interface close to <a href="http://www.metacpan.org/module/DateTime">DateTime</a>.</p>
+
+<p>The <a href="http://www.metacpan.org/module/Time::Moment">Time::Moment</a> distribution comes with a program, <em>dev/bench.pl</em>, that allows me to compare the performance. Here&rsquo;s some of the output:</p>
+
+<pre><code>$ perl dev/bench.pl
+Benchmarking constructor: -&gt;new()
+                  Rate     DateTime Time::Moment
+DateTime       14436/s           --         -99%
+Time::Moment 1064751/s        7276%           --
+</code></pre>
+
+<p>Let&rsquo;s make a more interesting benchmark that constructs an object from a string, add a day to it, and check if it&rsquo;s before today. As with every benchmark, you have to check it against your particular use:</p>
+
+<pre><code class="language-prettyprint">use Benchmark;
+use DateTime;
+use Time::Moment;
+use DateTime::Format::W3CDTF;
+
+my $dtf_string ='2014-02-01T13:01:37-05:00';
+
+my $time_moment = sub {
+    my $tm = Time::Moment-&gt;from_string( $dtf_string );
+    my $tm2 = $tm-&gt;plus_days( 1 );
+    
+    my $now = Time::Moment-&gt;now;
+    
+    my $comparison = $now &gt; $tm2;
+    };
+        
+my $datetime = sub {
+    my $w3c = DateTime::Format::W3CDTF-&gt;new;
+    my $dt = $w3c-&gt;parse_datetime( $dtf_string );
+    $dt-&gt;add( days =&gt; 1 );
+
+    my $now = DateTime-&gt;now;
+
+    my $comparison = $now &gt; $dt;
+    };
+
+Benchmark::cmpthese( -10, {
+    'Time::Moment' =&gt; $time_moment,
+    'DateTime'     =&gt; $datetime,
+    });
+</code></pre>
+
+<p><a href="http://www.metacpan.org/module/Time::Moment">Time::Moment</a> is still really fast. Amazingly fast:</p>
+
+<pre><code>$ perl dtf_bench.pl
+                 Rate     DateTime Time::Moment
+DateTime       1889/s           --         -99%
+Time::Moment 273557/s       14384%           --
+</code></pre>
+
+<p>If my problem is within the limits of <a href="http://www.metacpan.org/module/Time::Moment">Time::Moment</a> (and, who ever needs more than 640k?), I can get big wins. When that no longer applies, with a little work I can switch to <a href="http://www.metacpan.org/module/DateTime">DateTime</a>. Either way, you might want to wipe the memory of your droids.</p>
+
+<p><em>Cover image <a href="http://creativecommons.org/licenses/by-nc/2.5/">©</a> <a href="http://xkcd.com/1179/">XKCD</a></em></p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/time">time</a></div>
+              
+                <div class="tag"><a href="/tags/datetime">datetime</a></div>
+              
+                <div class="tag"><a href="/tags/8601">8601</a></div>
+              
+                <div class="tag"><a href="/tags/moment">moment</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

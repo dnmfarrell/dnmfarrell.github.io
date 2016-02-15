@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Writing DuckDuckGo plugins just got easier Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="All you need is JSON"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Writing DuckDuckGo plugins just got easier</h1>
+            <p class="blog-post-meta">Aug 22, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/189/7FF3F50E-48D6-11E5-B8B3-C12EFC9DDBA7.png"/>
+            </div>
+              
+
+<p>The developers behind DuckDuckGo, the search engine that doesn&rsquo;t track you, have made it easier than ever to write plugins for the site. With the first global <a href="https://duck.co/blog/post/196/the-first-global-quack-hack">Quack &amp; Hack</a> event taking place later this month, there&rsquo;s never been a better time to get involved.</p>
+
+<h3 id="instant-answers:06f8e3dfccc590daeee2c2b9ec28de7c">Instant Answers</h3>
+
+<p>The DuckDuckGo engine supports several types of plugin, but instant answers that provide a static &ldquo;cheatsheet&rdquo; are a simple to get started. <a href="http://perltricks.com/article/169/2015/4/20/Writing-DuckDuckGo-instant-answers-is-easy">Previously</a> developing a new instant answer would require a Perl module, a test file and a plain text version of the response. Now all you need to provide is a JSON file of your instant answer and you&rsquo;re in business.</p>
+
+<h3 id="setup:06f8e3dfccc590daeee2c2b9ec28de7c">Setup</h3>
+
+<p>You&rsquo;ll need to fork the DuckDuckGo <a href="https://github.com/duckduckgo/zeroclickinfo-goodies">repo</a> and clone your forked repo to your development machine. Optionally you can install <a href="https://metacpan.org/pod/App::DuckPAN">App::DuckPAN</a>, which can launch a local version of the DuckDuckGo site for testing your code. Another way to test the cheatsheet is via <a href="https://vimeo.com/132712266">Codio</a>.</p>
+
+<h3 id="an-instant-answer-json-file:06f8e3dfccc590daeee2c2b9ec28de7c">An Instant Answer JSON file</h3>
+
+<p>Instant answer JSON files should be created in the <code>share/goodie/cheat_sheets</code> directory in the repo. A good way to start is to copy one of the existing files and change it to include your content.</p>
+
+<p>This is a truncated example from my <code>perldoc</code> instant answer:</p>
+
+<pre><code class="language-prettyprint">{
+    &quot;id&quot;: &quot;perldoc_cheat_sheet&quot;,
+    &quot;name&quot;: &quot;perldoc&quot;,
+    &quot;description&quot;: &quot;Perl Documentation&quot;,
+    &quot;metadata&quot;: {
+        &quot;sourceName&quot;: &quot;perldoc Manual&quot;,
+        &quot;sourceUrl&quot;: &quot;http://perldoc.perl.org/perldoc.html&quot;
+    },
+    &quot;section_order&quot;: [&quot;Usage&quot;, &quot;Module Options&quot;, &quot;Search Options&quot;, &quot;Common Options&quot;],
+    &quot;sections&quot;: {
+        &quot;Usage&quot;: [
+        {
+            &quot;key&quot;: &quot;[perldoc &lt;option&gt;]&quot;,
+            &quot;val&quot;: &quot;start perldoc&quot;
+        },
+        {
+            &quot;key&quot;: &quot;[perldoc perldoc]&quot;,
+            &quot;val&quot;: &quot;perldoc help&quot;
+        }
+        ],
+       ...
+    }
+}
+</code></pre>
+
+<p>The <code>id</code> and <code>name</code> fields should be unique values that describe the plugin. The <code>metadata</code> fields describe the source of the information in the instant answer. It&rsquo;s good to use a canonical source - in this case I referenced the official Perl documentation.</p>
+
+<p>The <code>sections</code> field is the content of the instant answer. Each entry is a key value for an array of key pairs. <code>section_order</code> describes the order in which the sections will be displayed in the search engine results, so make sure you put the most important sections first!</p>
+
+<p>Let&rsquo;s take a closer look at a section entry, here is <code>Module Options</code>:</p>
+
+<pre><code class="language-prettyprint">        &quot;Module Options&quot;: [
+        {
+            &quot;key&quot;: &quot;Module::Name&quot;,
+            &quot;val&quot;: &quot;Show module documentation&quot;
+        },
+        {
+            &quot;key&quot;: &quot;[-l Module::Name]&quot;,
+            &quot;val&quot;: &quot;Module filepath&quot;
+        },
+        {
+            &quot;key&quot;: &quot;[-m Module::Name]&quot;,
+            &quot;val&quot;: &quot;Module source code&quot;
+        },
+        {
+            &quot;key&quot;: &quot;[-lm Module::Name]&quot;,
+            &quot;val&quot;: &quot;Module filepath (alt.)&quot;
+        }
+        ],
+</code></pre>
+
+<p>&ldquo;Module Options&rdquo; is the section name, this must be present exactly in the <code>section_order</code> field, or this section will not appear at all. The section name text is the subheading used for the section, so be sure to choose something readable: &ldquo;Module Options&rdquo; is better than &ldquo;module_options&rdquo;.</p>
+
+<p>Each key pair entry represents the text to be displayed for the instant answer, the <code>key</code> text should be the code and <code>val</code> the description. If the <code>key</code> text contains spaces, wrap the text in square brackets to ensure it&rsquo;s displayed as code on the web page (see this article&rsquo;s cover image for examples). You can find the complete perldoc JSON file <a href="https://github.com/duckduckgo/zeroclickinfo-goodies/blob/master/share/goodie/cheat_sheets/json/perldoc.json">here</a>.</p>
+
+<h3 id="wrap-up:06f8e3dfccc590daeee2c2b9ec28de7c">Wrap up</h3>
+
+<p>You can test your instant answer using <a href="https://metacpan.org/pod/App::DuckPAN">App::DuckPAN</a> (see my previous <a href="http://perltricks.com/article/169/2015/4/20/Writing-DuckDuckGo-instant-answers-is-easy">article</a> for examples). If you want to discuss your instant answer with a developer, or resolve an issue, the DuckDuckGo team are on Slack, you can request access via <a href="mailto:QuackSlack@duckduckgo.com?subject=AddMe">email</a>. The official <a href="https://duck.co/duckduckhack/goodie_overview">documentation</a> is also useful.</p>
+
+<p>Once you&rsquo;ve finished an instant answer, create a pull request! The DuckDuckGo developers will review your code and give feedback. Once your instant answer is approved, it will go live within a few days.</p>
+
+<p><strong>Updated:</strong> Changed chat details for DDG slack 2015-08-26</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/community">community</a></div>
+              
+                <div class="tag"><a href="/tags/search">search</a></div>
+              
+                <div class="tag"><a href="/tags/json">json</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

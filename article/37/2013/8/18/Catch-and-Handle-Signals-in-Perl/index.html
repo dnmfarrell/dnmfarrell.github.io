@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Catch and Handle Signals in Perl Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="We show you how to listen for signals and handle them gracefully"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Catch and Handle Signals in Perl</h1>
+            <p class="blog-post-meta">Aug 18, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>Signals are types of messages sent by an operating system to a process such as a Perl program. Signals provide a method for communicating with a process, for example when running a command line program pressing control-c will send the interrupt signal (&lsquo;SIGINT&rsquo;) to the program by default terminating it. Signals are often unexpected and if not handled can leave your Perl program or data in an unfinished state. This article describes some useful Perl programming tools for gracefully handling signals.</p>
+
+<h3 id="method-1-the-sig-hash:7909a2df78dbcc2767753affaca8b750">Method 1: The %SIG Hash</h3>
+
+<p>All Perl programs have the global variable %SIG hash which contains keys corresponding to each signal type. When a signal is sent to a Perl program, the value of the matching key name in %SIG is automatically de-referenced. This makes it possible to assign code references to handle specific signals by adding a coderef to the signal&rsquo;s key value in %SIG. Let&rsquo;s use an example Perl script called sleeper.pl to demonstrate. All sleeper.pl does is sleep for 20 seconds:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+
+sleep(20);
+</code></pre>
+
+<p>Now let&rsquo;s update sleeper.pl to handle an interrupt signal using %SIG:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+
+$SIG{INT} = sub { die &quot;Caught a sigint $!&quot; };
+
+sleep(20);
+</code></pre>
+
+<p>If we run sleeper.pl on the command line and press control-c to send a SIGINT to it, we can see the our code ref was executed:</p>
+
+<pre><code class="language-prettyprint">perl sleeper.pl
+^CCaught a sig int Interrupted system call at projects/scripts/sleeper.pl line 4.
+</code></pre>
+
+<p>By updating the various key-value pairs in %SIG it&rsquo;s possible to handle specific signals, for example we can update sleeper.pl to handle a terminate signal:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+
+$SIG{INT} = sub { die &quot;Caught a sigint $!&quot; };
+$SIG{TERM} = sub { die &quot;Caught a sigterm $!&quot; };
+
+sleep(20);
+</code></pre>
+
+<p>It&rsquo;s often easier to define a signal handling subroutine rather than using anonymous subroutines for every signal you wish to catch. Let&rsquo;s update sleeper.pl accordingly:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+
+$SIG{INT}  = \&amp;signal_handler;
+$SIG{TERM} = \&amp;signal_handler;
+
+sleep(20);
+
+sub signal_handler {
+    die &quot;Caught a signal $!&quot;;
+}
+</code></pre>
+
+<p>Now the signal_handler subroutine will be called everytime sleeper.pl receives a SIGINT or SIGTERM signal. Using these techniques it&rsquo;s possible to extend signal-handling behavior for all signals that you wish to be handled.</p>
+
+<h3 id="method-2-sigtrap:7909a2df78dbcc2767753affaca8b750">Method 2: sigtrap</h3>
+
+<p>sigtrap is a useful Perl pragma that makes handling signals easier than manipulating %SIG directly. The sigtrap pragma recognizes three groups of signals: normal-signals (HUP, PIPE, INT, TERM), error-signals (ABRT, BUS, EMT, FPE, ILL, QUIT, SEGV, SYS and TRAP) and old-interface-signals (ABRT, BUS, EMT, FPE, ILL, PIPE, QUIT, SEGV, SYS, TERM, and TRAP). Using sigtrap we can update sleeper.pl to die when any of the normal-signals are received:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use sigtrap qw/die normal-signals/;
+
+sleep(20);
+</code></pre>
+
+<p>Instead of calling die we can have sigtrap call the signal_handler routine that we defined previously:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use sigtrap qw/handler signal_handler normal-signals/;
+
+sleep(20);
+
+sub signal_handler {
+    die &quot;Caught a signal $!&quot;;
+}
+</code></pre>
+
+<p>There is a lot more to sigtrap, check out the <a href="http://perldoc.perl.org/sigtrap.html">sigtrap perldoc entry</a> for more details about its functionality.</p>
+
+<h3 id="useful-signal-handling-behavior:7909a2df78dbcc2767753affaca8b750">Useful signal handling behavior</h3>
+
+<p>It&rsquo;s common to call die when handling SIGINT and SIGTERM. die is useful because it will ensure that Perl stops correctly: for example Perl will execute a destructor method if present when die is called, but the destructor method will not be called if a SIGINT or SIGTERM is received and no signal handler calls die. Additional behaviors that are useful in a signal handling subroutine are stack tracing, event logging, thread termination and temporary file clean up. The correct behavior to define will depend on the type of signal received and the type of Perl program.</p>
+
+<h3 id="posix-signals:7909a2df78dbcc2767753affaca8b750">POSIX signals</h3>
+
+<p>Not every signal can be handled: on POSIX compliant systems (such as BSD, Linux and OSX) SIGSTOP and SIGKILL cannot be caught, blocked or ignored. See the <a href="http://man7.org/linux/man-pages/man7/signal.7.html">signal man page</a> for further details. Not every signal needs to be handled - each signal has a default program behavior (disposition) which may not affect the running of the program (also defined on the man page). You can find a list of signals Perl recognizes by printing %SIG at the command line:</p>
+
+<pre><code class="language-prettyprint">perl -e 'foreach (keys %SIG) { print &quot;$_\n&quot; }'
+</code></pre>
+
+<h3 id="windows-signals:7909a2df78dbcc2767753affaca8b750">Windows signals</h3>
+
+<p>Windows implements a subset of the standard POSIX signals. These signals can still be handled using the techniques described above. Microsoft have provided a list of these signals on <a href="http://msdn.microsoft.com/en-us/library/ms811896#ucmgch09_topic3">here</a></p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/linux">linux</a></div>
+              
+                <div class="tag"><a href="/tags/windows">windows</a></div>
+              
+                <div class="tag"><a href="/tags/mac">mac</a></div>
+              
+                <div class="tag"><a href="/tags/global_variables">global_variables</a></div>
+              
+                <div class="tag"><a href="/tags/core">core</a></div>
+              
+                <div class="tag"><a href="/tags/signal">signal</a></div>
+              
+                <div class="tag"><a href="/tags/posix">posix</a></div>
+              
+                <div class="tag"><a href="/tags/sigint">sigint</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Activating Perl 6 syntax highlighting in Vim Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Four tricks to get the highlighting you want"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Activating Perl 6 syntax highlighting in Vim</h1>
+            <p class="blog-post-meta">Sep 22, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/194/C75D3D7C-6197-11E5-993C-AA2FD27BB60F.png"/>
+            </div>
+              
+
+<p>Modern versions of the Vim text editor ship with Perl 6 syntax highlighting, but automatically activating it is tricky because Perl 6 files can have ambiguous file extensions. It can get tiresome to correct the file type every time you open a Perl 6 file, so I&rsquo;m going to show you a few tricks that I use to make Vim detect Perl 6 files automatically.</p>
+
+<h3 id="showing-and-setting-the-filetype-in-vim:2b44acefc7661ab01fd1d69f1b86a6cb">Showing and setting the filetype in Vim</h3>
+
+<p>First of all I want to make sure that syntax highlighting is turned on by default, so I add this option to my <code>.vimrc</code>:</p>
+
+<pre><code>syntax on
+</code></pre>
+
+<p>To edit your <code>.vimrc</code> just start Vim and enter this command <code>:e $MYVIMRC</code>. Save your changes with <code>:w</code>, and then reload your <code>.vimrc</code> with <code>:so %</code>.</p>
+
+<p>Now that I have syntax highlighting turned on, I need to know how set Vim&rsquo;s file type to Perl 6 when I&rsquo;m working with Perl 6 files. I can see the current file type by typing this command <code>:set filetype?</code>. To set the file type to Perl 6, I use this command <code>:set filetype=perl6</code>. The <code>filetype</code> keyword can be shortened to <code>ft</code>. In which case the last command becomes <code>:set ft=perl6</code>.</p>
+
+<h3 id="detecting-perl-6-files:2b44acefc7661ab01fd1d69f1b86a6cb">Detecting Perl 6 files</h3>
+
+<p>Now the challenge becomes correctly detecting when I&rsquo;m working with Perl 6 files in Vim. Perl 6 scripts shouldn&rsquo;t be a problem: Vim (not Vi) automatically parses the <a href="https://en.wikipedia.org/wiki/Shebang_line">shebang</a> line to determine the file type. However this fails when the script has an extension like <code>.pl</code>.</p>
+
+<h4 id="use-the-pm6-file-extension:2b44acefc7661ab01fd1d69f1b86a6cb">Use the .pm6 file extension</h4>
+
+<p>Vim will automatically use Perl 6 syntax highlighting if the file extension is <code>.pm6</code>. So when working with Perl 6 module files, it&rsquo;s better to use this extension. This doesn&rsquo;t help when I&rsquo;m working on other people&rsquo;s Perl 6 projects however. It also doesn&rsquo;t help for test files, which do not have an equivalent Perl 6 file extension (<code>.t6</code> test files are ignored when installing Perl 6 modules).</p>
+
+<h4 id="use-a-modeline:2b44acefc7661ab01fd1d69f1b86a6cb">Use a modeline</h4>
+
+<p>A modeline is a line of code in the text of the file which Vim reads and executes. So to activate Perl 6 syntax highlighting I just need to add this modeline to every Perl 6 file I work with:</p>
+
+<pre><code class="language-prettyprint"># vim: filetype=perl6
+</code></pre>
+
+<p>Take a look at the <a href="https://github.com/Mouq/json5/blob/master/lib/JSON5/Tiny.pm6#L54">source code</a> of JSON5::Tiny for a real-World example. To Perl 6 this code looks just like an ordinary comment, but Vim will use it to turn on Perl 6 syntax highlighting. The modeline can appear anywhere in the code, but it&rsquo;s better to place it at the start or end of the file.</p>
+
+<p>Older versions of Vim (pre 7.3) and when Vim is run under root privileges, disable modelines as a security risk. Don&rsquo;t run Vim as root! But if you have an older Vim, you can turn on modelines with <code>:set modeline</code>. As with <code>filetype</code>, modeline can be abbreviated to <code>ml</code>, so <code>set ml</code> works too. To activate modelines automatically, add this line to your <code>.vimrc</code>:</p>
+
+<pre><code>set ml
+</code></pre>
+
+<p>The downside of using modelines? First there is aforementioned security risk for older Vims. Also it feels impure to add editor directives to the code I&rsquo;m working with, as not everyone uses Vim. These seem like minor issues though.</p>
+
+<h4 id="use-a-local-vimrc:2b44acefc7661ab01fd1d69f1b86a6cb">Use a local vimrc</h4>
+
+<p>Often different Open Source projects will have different coding conventions that I need to follow, so it can be helpful to use a local vimrc file to store these project-specific settings. This works for syntax highlighting too. In order to use local vimrc files, I add the following code to my <code>.vimrc</code>:</p>
+
+<pre><code>if filereadable(&quot;.vimrc.local&quot;)
+  so .vimrc.local
+endif
+</code></pre>
+
+<p>This will check the current working directory for <code>.vimrc.local</code> file, and automatically execute it if it finds it. <strong>Warning</strong> this is a security risk - Vim will execute ANY instruction in a local vimrc, so I am very careful when working with projects that are not my own. Next I create a <code>.vimrc.local</code> file in the root project directory and add this auto command to it:</p>
+
+<pre><code>au Bufnewfile,bufRead *.pm,*.t,*.pl set filetype=perl6
+</code></pre>
+
+<p>Now when I open or create any file with a Perl extension, Vim will set the syntax highlighting to Perl 6. I like this technique because it&rsquo;s not intrusive: it doesn&rsquo;t require any changes to the Perl 6 files themselves, so it works well on shared projects (I never check-in my local vimrc to the Git repo).</p>
+
+<h4 id="use-code-detection:2b44acefc7661ab01fd1d69f1b86a6cb">Use code detection</h4>
+
+<p>I can also have Vim try to detect Perl 6 code automatically. Two directives which would indicate we&rsquo;re working with Perl 6 instead of Perl 5 code: the shebang line and the <code>use v6;</code> directive. To check for these, I&rsquo;ll add a function to my .vimrc:</p>
+
+<pre><code>function! LooksLikePerl6 ()
+  if getline(1) =~# '^#!.*/bin/.*perl6'
+    set filetype=perl6
+  else
+    for i in [1,2,3,4,5]
+      if getline(i) == 'use v6;'
+        set filetype=perl6
+        break
+      endif
+    endfor
+  endif
+endfunction
+
+au bufRead *.pm,*.t,*.pl call LooksLikePerl6()
+</code></pre>
+
+<p>This function uses <code>getline()</code> to check the first line of the file to see if it looks like a Perl 6 shebang. This should work well for <code>.pl</code> scripts, but Perl 6 module files will not have a shebang, so the next part of the script checks the first 5 lines of the file for the <code>use v6;</code> directive. The last line of code is an auto command which will call the function anytime we open file with a Perl file extension.</p>
+
+<p>The main drawback of this technique is that not all Perl 6 code uses the <code>use v6;</code> directive, and so when working with module files, the code detection can fail. However the code detection could be improved to use more rules for detecting Perl 6 code such as class declarations. The <a href="https://github.com/vim-perl/vim-perl">vim-perl</a> plugin has more sophisticated Perl 6 code detection <a href="https://github.com/vim-perl/vim-perl/blob/master/ftdetect/perl11.vim">rules</a>.</p>
+
+<h3 id="complete-vimrc:2b44acefc7661ab01fd1d69f1b86a6cb">Complete .vimrc</h3>
+
+<p>This <code>.vimrc</code> contains all the code shown above:</p>
+
+<pre><code>syntax on
+
+&quot;Recognize modeline # vim: filetype=perl6
+set ml
+
+&quot;check for a local vimrc
+if filereadable(&quot;.vimrc.local&quot;)
+  so .vimrc.local
+endif
+
+&quot;check for Perl 6 code
+function! LooksLikePerl6 ()
+  if getline(1) =~# '^#!.*/bin/.*perl6'
+    set filetype=perl6
+  else
+    for i in [1,2,3,4,5]
+      if getline(i) == 'use v6;'
+        set filetype=perl6
+        break
+      endif
+    endfor
+  endif
+endfunction
+
+au bufRead *.pm,*.t,*.pl call LooksLikePerl6()
+</code></pre>
+
+<h3 id="conclusion:2b44acefc7661ab01fd1d69f1b86a6cb">Conclusion</h3>
+
+<p>So that&rsquo;s it, four useful-but-imperfect techniques for detecting file types in Vim. I tend to use a combination of all four. This would be a nice problem not to have. I&rsquo;d like the Perl 6 community to agree and encourage unambiguous file extensions like <code>.pm6</code>, <code>.t6</code> and <code>.pl6</code>. Larry Wall called this &ldquo;free advertising&rdquo;. It&rsquo;s also a simple way to make Perl 6 programmers more productive. Not every text editor is as customizable as Vim.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/config">config</a></div>
+              
+                <div class="tag"><a href="/tags/perl6">perl6</a></div>
+              
+                <div class="tag"><a href="/tags/productivity">productivity</a></div>
+              
+                <div class="tag"><a href="/tags/vimscript">vimscript</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

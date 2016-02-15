@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Unit_test on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/unit_test/</link>
+    <description>Recent content in Unit_test on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 05 Mar 2015 13:27:17 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/unit_test/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How to test for exceptions in Perl</title>
+      <link>http://perltricks.com/article/157/2015/3/5/How-to-test-for-exceptions-in-Perl/</link>
+      <pubDate>Thu, 05 Mar 2015 13:27:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/157/2015/3/5/How-to-test-for-exceptions-in-Perl/</guid>
+      <description>
+
+&lt;p&gt;Most Perl programmers are familiar with &lt;a href=&#34;https://metacpan.org/pod/Test::More&#34;&gt;Test::More&lt;/a&gt;; it&amp;rsquo;s the go-to library for writing unit tests in Perl. But Test::More doesn&amp;rsquo;t provide functions for testing exceptions. For that you&amp;rsquo;ll need &lt;a href=&#34;https://metacpan.org/pod/Test::Exception&#34;&gt;Test::Exception&lt;/a&gt;. And good code throws exceptions - Paul Fenwick &lt;a href=&#34;http://perltraining.com.au/tips/2008-08-20.html&#34;&gt;once&lt;/a&gt; summed this approach nicely:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;bIlujDI&#39; yIchegh()Qo&#39;; yIHegh()!
+
+It is better to die() than to return() in failure.
+
+    -- Klingon programming proverb.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The simplest way to throw an exception is with Perl&amp;rsquo;s built-in &lt;code&gt;die&lt;/code&gt; function. Just like Test::More makes it easy to test that subroutines return the right values, Test::Exception makes it easy to check the code is &lt;em&gt;dying&lt;/em&gt; in the right way (and &lt;a href=&#34;https://metacpan.org/pod/Test::Fatal&#34;&gt;Test::Fatal&lt;/a&gt; is a good alternative).&lt;/p&gt;
+
+&lt;h3 id=&#34;did-my-code-die-ok:e7d97283f2b325db6a8881183934ffb4&#34;&gt;Did my code die ok?&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s say we&amp;rsquo;re writing unit tests for the following package which exports the &lt;code&gt;double_integer&lt;/code&gt; subroutine:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Double;
+use Exporter;
+@ISA = &#39;Exporter&#39;;
+@EXPORT = &#39;double_integer&#39;;
+
+sub double_integer
+{
+  my ($number) = @_;
+  die &#39;double_integer() requires a positive integer as an argument&#39;
+    unless defined $number &amp;amp;&amp;amp; $number =~ /^\d+$/;
+
+  return $number * 2;
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code will &lt;code&gt;die&lt;/code&gt; unless the double_integer subroutine is called with a positive integer. I&amp;rsquo;ll save this package as &lt;code&gt;Double.pm&lt;/code&gt;. Let&amp;rsquo;s write a test script for this package. Test::Exception exports the &lt;code&gt;dies_ok&lt;/code&gt; function that checks the code dies as expected:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::Exception tests =&amp;gt; 1;
+use Double;
+
+dies_ok { double_integer() } &#39;double_integer() dies with no number&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;dies_ok&lt;/code&gt; is clever, it won&amp;rsquo;t actually let your code die and the program exit, as that would interrupt testing! Instead it catches any thrown exceptions so testing can continue. My program should also die if &lt;code&gt;double_integer&lt;/code&gt; is called with a non-number as an argument. I can add more tests for some common scenarios:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::Exception test =&amp;gt; 6;
+use Double;
+
+dies_ok { double_integer() } &#39;double_integer() dies with no number&#39;;
+dies_ok { double_integer(undef) } &#39;double_integer() dies with undef&#39;;
+dies_ok { double_integer(&#39;abc&#39;) } &#39;double_integer() dies with text&#39;;
+dies_ok { double_integer(&#39;1 two&#39;) } &#39;double_integer() dies with mixed&#39;;
+dies_ok { double_integer(&#39;-7&#39;) } &#39;double_integer() dies with a negative&#39;;
+dies_ok { double_integer(&#39;2.5&#39;) } &#39;double_integer() dies with a decimal&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can also check the code throws the right exception with &lt;code&gt;throws_ok&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::Exception tests =&amp;gt; 1;
+use Double;
+
+throws_ok { double_integer() } qr/requires a positive integer/, 
+  &#39;double_integer() requires a positive integer&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;throws_ok&lt;/code&gt; function checks that the code throws an exception, but also that the exception message matches a regex. This is useful if you have several different conditions that may throw different types of exceptions: imagine with a web application, you&amp;rsquo;d want to throw a different exception code if the user requested a page they didn&amp;rsquo;t have permission to access (403) versus requesting a non-existent page (404).&lt;/p&gt;
+
+&lt;p&gt;Test::Exception is fully compatible with Test::More so you can combine functions from both libraries in the same file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::More;
+use Test::Exception;
+use Double;
+
+# test arg validation works
+dies_ok { double_integer() } &#39;double_integer() dies with no number&#39;;
+dies_ok { double_integer(undef) } &#39;double_integer() dies with undef&#39;;
+dies_ok { double_integer(&#39;abc&#39;) } &#39;double_integer() dies with text&#39;;
+dies_ok { double_integer(&#39;1 two&#39;) } &#39;double_integer() dies with mixed&#39;;
+dies_ok { double_integer(&#39;-7&#39;) } &#39;double_integer() dies with a negative&#39;;
+dies_ok { double_integer(&#39;2.5&#39;) } &#39;double_integer() dies with a decimal&#39;;
+
+# test exception message
+throws_ok { double_integer() } qr/requires a positive integer/, 
+  &#39;double_integer() requires a positive integer&#39;;
+
+# test double_integer works
+lives_ok { double_integer(1) } &#39;calling double() with a number lives&#39;;
+is double_integer(0), 0, &#39;zero doubled is zero&#39;;
+is double_integer(2), 4, &#39;two doubled is four&#39;;
+is double_integer(999), 1998, 
+  &#39;nine nine nine doubled is one nine nine eight&#39;;
+
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now the test script checks both that the function throws the appropriate exception when the argument is wrong, and it returns the argument doubled when the argument is valid. If I save this test file as &lt;code&gt;Double.t&lt;/code&gt; I can run the tests at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl Double.t
+ok 1 - double_integer() dies with no number
+ok 2 - double_integer() dies with undef
+ok 3 - double_integer() dies with text
+ok 4 - double_integer() dies with mixed
+ok 5 - double_integer() dies with a negative
+ok 6 - double_integer() dies with a decimal
+ok 7 - double_integer() requires a positive integer
+ok 8 - calling double() with a number lives
+ok 9 - zero doubled is zero
+ok 10 - two doubled is four
+ok 11 - nine nine nine doubled is one nine nine eight
+1..11
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All the tests pass. &lt;a href=&#34;https://metacpan.org/pod/Test::Exception&#34;&gt;Test::Exception&lt;/a&gt; has great documentation and is easy to use, so add exception testing to your code today!&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Updated:&lt;/strong&gt; &lt;em&gt;Added Test::Fatal reference 2015-03-10&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Exercism_io on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/exercism_io/</link>
+    <description>Recent content in Exercism_io on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 22 May 2014 15:09:13 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/exercism_io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How to contribute to the exercism.io Perl 5 repo</title>
+      <link>http://perltricks.com/article/91/2014/5/22/How-to-contribute-to-the-exercism-io-Perl-5-repo/</link>
+      <pubDate>Thu, 22 May 2014 15:09:13 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/91/2014/5/22/How-to-contribute-to-the-exercism-io-Perl-5-repo/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Earlier this week I rounded off our exercism.io article with a call to action to help port exercises into the Perl 5 repo. Today I&amp;rsquo;m going to walk through the porting process step-by-step and show you how easy it is to contribute.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:96c520196f6519b815b433280ae5ea10&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need a GitHub account and Perl installed. That&amp;rsquo;s it!&lt;/p&gt;
+
+&lt;h3 id=&#34;fork-the-repo:96c520196f6519b815b433280ae5ea10&#34;&gt;Fork the repo&lt;/h3&gt;
+
+&lt;p&gt;To contribute to a project on GitHub, we&amp;rsquo;ll use the &amp;ldquo;fork and pull&amp;rdquo; approach. First we&amp;rsquo;ll login to GitHub:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_1.png&#34; title=&#34;Login to GitHub&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_1_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Next, search for the exercism/xperl5 repo:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_2.png&#34; title=&#34;Search for exercism/xperl5&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_2_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_3.png&#34; title=&#34;Click the fork button&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_3_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Click the &amp;ldquo;Fork&amp;rdquo; button to copy the repo into our own perltricks/xperl5 repo:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_4.png&#34; title=&#34;Our own forked repo&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_4_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;get-the-exercises:96c520196f6519b815b433280ae5ea10&#34;&gt;Get the exercises&lt;/h3&gt;
+
+&lt;p&gt;Now we&amp;rsquo;ve forked the repo, we can commit changes to our forked version. To start we&amp;rsquo;ll need to download the Perl exercises from our forked repo. We can do this from the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git clone https://github.com/sillymoose/xperl5.git
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will download the xperl5 repo into a directory called &amp;ldquo;xperl5&amp;rdquo;. Next download the list of common exercises:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git clone https://github.com/exercism/x-common.git
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will download the latest list of available exercises to the &amp;ldquo;x-common&amp;rdquo; directory, which contains a collection of readme files for the exercises. Any exercise that has a readme file in x-common that is missing from the xperl5 directory needs to be ported.&lt;/p&gt;
+
+&lt;h3 id=&#34;find-the-exercise-in-another-language:96c520196f6519b815b433280ae5ea10&#34;&gt;Find the exercise in another language&lt;/h3&gt;
+
+&lt;p&gt;Once you&amp;rsquo;ve found an exercise that needs to be ported, you&amp;rsquo;ll want to find that exercise in one of the other languages repos. It&amp;rsquo;s far easier to translate an exercise than to write it from scratch yourself! The Ruby, Python and JavaScript repos have most of the exercises, so we&amp;rsquo;ll start with one of those. For example to download the Ruby exercises repo, just type this command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git clone https://github.com/exercism/xruby.git
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If the xruby directory doesn&amp;rsquo;t have the exercise you&amp;rsquo;re looking to port, try cloning xpython or xjavascript instead.&lt;/p&gt;
+
+&lt;h3 id=&#34;porting-the-exercise:96c520196f6519b815b433280ae5ea10&#34;&gt;Porting the exercise&lt;/h3&gt;
+
+&lt;p&gt;To port an exercise you need to provide the exercise test file and an Example.pm module which passes the tests. Earlier this week I ported the &amp;ldquo;leap&amp;rdquo; exercise from Ruby to Perl. This involved three steps. First I created the new exercise subdirectory in the xperl5 directory:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ mkdir xperl5/leap
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Next, I translated the Ruby test file &amp;ldquo;xruby/leap/leap_test.rb&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;require &#39;date&#39;
+require &#39;minitest/autorun&#39;
+require_relative &#39;year&#39;
+
+class Date
+  def leap?
+    throw &amp;quot;Try to implement this yourself instead of using Ruby&#39;s implementation.&amp;quot;
+  end
+  
+  alias :gregorian_leap? :leap?
+  alias :julian_leap? :leap?
+end
+
+class YearTest &amp;lt; MiniTest::Unit::TestCase
+  def test_leap_year
+    assert Year.leap?(1996)
+  end
+
+  def test_non_leap_year
+    skip
+    refute Year.leap?(1997)
+  end
+  
+  def test_non_leap_even_year
+    skip
+    refute Year.leap?(1998)
+  end
+
+  def test_century
+    skip
+    refute Year.leap?(1900)
+  end
+
+  def test_fourth_century
+    skip
+    assert Year.leap?(2400)
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;to &amp;ldquo;xperl5/leap/leap.t&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use warnings;
+use strict;
+use Test::More tests =&amp;gt; 7;
+
+my $module = $ENV{EXERCISM} ? &#39;Example&#39; : &#39;Leap&#39;;
+my $sub = $module . &#39;::is_leap&#39;;
+
+use_ok($module) or BAIL_OUT (&amp;quot;You need to create a module called $module.pm.&amp;quot;);
+can_ok($module, &#39;is_leap&#39;) or BAIL_OUT(&amp;quot;Missing package $module with sub is_leap().&amp;quot;);
+
+do {
+    no strict &#39;refs&#39;;
+    is 1, $sub-&amp;gt;(1996), &#39;1996 is a leap year&#39;;
+    is 0, $sub-&amp;gt;(1997), &#39;1997 is not a leap year&#39;;
+    is 0, $sub-&amp;gt;(1998), &#39;1998 is not a leap year&#39;;
+    is 0, $sub-&amp;gt;(1900), &#39;1900 is not a leap year&#39;;
+    is 1, $sub-&amp;gt;(2400), &#39;2400 is a leap year&#39;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Finally I ported the example answer &amp;ldquo;xruby/leap/example.rb&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;require &#39;delegate&#39;
+
+class Year &amp;lt; SimpleDelegator
+
+  def self.leap?(number)
+    Year.new(number).leap?
+  end 
+
+  def leap?
+    divisible_by?(400) || divisible_by?(4) &amp;amp;&amp;amp; !divisible_by?(100)
+  end
+
+  private
+
+  def divisible_by?(i)
+    (self % i) == 0
+  end 
+end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here is the Perl version, &amp;ldquo;xperl5/leap/Example.pm&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Example;
+use warnings;
+use strict;
+
+sub is_leap {
+    my $year = shift;
+    divisible_by($year, 400)
+        or divisible_by($year, 4) and !divisible_by($year, 100)
+        ? 1 : 0;
+}
+
+sub divisible_by {
+    $_[0] % $_[1] == 0 ? 1 : 0;
+}
+
+__PACKAGE__;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Run the test file at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ EXERCISM=1 prove leap.t
+leap.t .. ok   
+All tests successful.
+Files=1, Tests=7,  0 wallclock secs ( 0.02 usr  0.00 sys +  0.02 cusr  0.00 csys =  0.04 CPU)
+Result: PASS
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All of our tests passed, so we can commit these files. I also &lt;a href=&#34;https://github.com/sillymoose/xperl6/tree/master/leap&#34;&gt;ported&lt;/a&gt; a Perl 6 version.&lt;/p&gt;
+
+&lt;h3 id=&#34;add-the-new-exercise-to-the-forked-repo:96c520196f6519b815b433280ae5ea10&#34;&gt;Add the new exercise to the forked repo&lt;/h3&gt;
+
+&lt;p&gt;Now that we&amp;rsquo;ve ported the files, we need to add them to the forked xperl5 repository and commit the change. Here&amp;rsquo;s are the commands to do that:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cd xperl5
+$ git add leap/Example.pm leap/leap.t
+$ git commit -am &#39;Added the leap exercise&#39;
+$ git push origin master
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If the forked repo is out of sync with exercism/xperl5 you&amp;rsquo;ll need to &lt;a href=&#34;http://stackoverflow.com/questions/7244321/how-to-update-github-forked-repository&#34;&gt;rebase&lt;/a&gt; it.&lt;/p&gt;
+
+&lt;h3 id=&#34;create-a-pull-request:96c520196f6519b815b433280ae5ea10&#34;&gt;Create a pull request&lt;/h3&gt;
+
+&lt;p&gt;Returning to GitHub, all we have to do is initiate a pull request from our forked repo at perltricks/xperl5. Clicking the &amp;ldquo;pull requests&amp;rdquo; link on the right of the screen brings us to the pull requests screen:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_5.png&#34; title=&#34;The pull requests screen&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_5_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Clicking the &amp;ldquo;new pull request&amp;rdquo; button will create the pull request form, GitHub automatically knows that the pull request should go back to exercism/xperl5.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_6.png&#34; title=&#34;The new pull request. Send the pull request!&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_6_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Clicking the &amp;ldquo;Send pull request&amp;rdquo; button submits the pull request and we&amp;rsquo;re done! The exercism repo committers usually respond within a couple of hours. So now you&amp;rsquo;ve seen how easy it is to port an exercise, be warned it can be addictive &amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F91%2F2014%2F5%2F21%2FHow-to-contribute-to-the-exercism-io-Perl-5-repo&amp;amp;text=How+to+contribute+to+the+exercism.io+Perl+5+repo&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F91%2F2014%2F5%2F21%2FHow-to-contribute-to-the-exercism-io-Perl-5-repo&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

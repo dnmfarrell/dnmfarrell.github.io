@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Screen_scraping on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/screen_scraping/</link>
+    <description>Recent content in Screen_scraping on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 02 Dec 2013 04:38:11 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/screen_scraping/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Wear the cloak of invisibility with OpenVPN and Perl</title>
+      <link>http://perltricks.com/article/50/2013/12/2/Wear-the-cloak-of-invisibility-with-OpenVPN-and-Perl/</link>
+      <pubDate>Mon, 02 Dec 2013 04:38:11 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/50/2013/12/2/Wear-the-cloak-of-invisibility-with-OpenVPN-and-Perl/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Screen-scraping useragents can be identified by several characteristics including their IP address and useragent string. This article shows how with the VPN service of &lt;a href=&#34;http://hidemyass.com/vpn/r14824/&#34;&gt;HideMyAss.com&lt;/a&gt; and the Perl module &lt;a href=&#34;https://metacpan.org/pod/Net::OpenVPN::Agent&#34;&gt;Net::OpenVPN::Agent&lt;/a&gt; you can obfuscate these data points and make your useragent harder to detect and monitor.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;pre-requisites:a4365f9dfaa93e2157234fd965542a9e&#34;&gt;Pre-requisites&lt;/h3&gt;
+
+&lt;p&gt;The following solution has been tested on Linux and may work on other UNIX-based platforms but is unlikely to work on Windows. Before getting started you&amp;rsquo;ll need to install &lt;a href=&#34;http://openvpn.net/index.php/open-source.html&#34;&gt;OpenVPN&lt;/a&gt; (open source networking software) - this is used to connect to the VPN networks of &lt;a href=&#34;http://hidemyass.com/vpn/r14824/&#34;&gt;HideMyAss.com&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;You will also need to install Net::OpenVPN::Agent via CPAN:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan Net::OpenVPN::Agent
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Finally you will need a &amp;ldquo;VPN Pro&amp;rdquo; account with &lt;a href=&#34;http://hidemyass.com/vpn/r14824/&#34;&gt;HideMyAss.com&lt;/a&gt;. They provide 49,000 IP addresses Worldwide. I can recommend their service and have been using them successfully for months. If you have an account with a different VPN provider that uses OpenVPN, you should be able to hack Net::OpenVPN::Agent to use that service instead (contact me if you&amp;rsquo;d like help with this - I&amp;rsquo;m the module author).&lt;/p&gt;
+
+&lt;h3 id=&#34;overview:a4365f9dfaa93e2157234fd965542a9e&#34;&gt;Overview&lt;/h3&gt;
+
+&lt;p&gt;The Net::OpenVPN::Agent provides a configurable useragent that will automatically connect to a random &lt;a href=&#34;http://hidemyass.com/vpn/r14824/&#34;&gt;HideMyAss.com&lt;/a&gt; server before fetching the target URL. After a configurable number of requests, the useragent will automatically disconnect and re-connect to another random server. When connecting to a new server, the useragent will also select a new useragent string from a configurable list of useragent strings. This way both the IP address and the useragent string will change at the same time to adopt a new identity. The useragent is designed to be resilient: server connections and failed page requests will be attempted multiple times (configurable), new IP addresses are confirmed using a remote service and full logging capability is provided via &lt;a href=&#34;https://metacpan.org/pod/Log::Log4perl&#34;&gt;Log::log4perl&lt;/a&gt; (also configurable).&lt;/p&gt;
+
+&lt;h3 id=&#34;configuration:a4365f9dfaa93e2157234fd965542a9e&#34;&gt;Configuration&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::OpenVPN::Agent&#34;&gt;Net::OpenVPN::Agent&lt;/a&gt; requires a YAML file called agent.conf to be present in the root application directory. This is explained in the &lt;a href=&#34;https://metacpan.org/pod/Net::OpenVPN::Agent#new&#34;&gt;module documentation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;writing-a-covert-scraper:a4365f9dfaa93e2157234fd965542a9e&#34;&gt;Writing a covert scraper&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s pull together a simple scraper to demonstrate the concept. The code below initializes uses &lt;a href=&#34;https://metacpan.org/pod/Net::OpenVPN::Agent&#34;&gt;Net::OpenVPN::Agent&lt;/a&gt; to get the main page of the New York times website. It then extracts and requests every URL it finds, with the aim of doing something with that content.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Net::OpenVPN::Agent;
+use strict;
+use warnings;
+use 5.10.3;
+use utf8;
+
+my $ua = Net::OpenVPN::Agent-&amp;gt;new;
+my $base_url = &#39;http://www.nytimes.com&#39;;
+my $html = $ua-&amp;gt;get_page($base_url) =~ s/\n//gr;
+foreach ($html =~ /href=&amp;quot;($base_url.*?)&amp;quot;/g) {
+    my $story = $ua-&amp;gt;get_page($_)
+    # do something
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Running this code at the terminal with full logging gives the following output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sudo $(which perl) times.pl
+DEBUG - setting ip address
+DEBUG - GET: http://geoip.hidemyass.com/ip/
+DEBUG - Request successful
+DEBUG - Request limit is zero, resetting the request limit.
+DEBUG - GET: http://securenetconnection.com/vpnconfig/servers-cli.php
+DEBUG - Request successful
+DEBUG - GET: http://securenetconnection.com/vpnconfig/openvpn-template.ovpn
+DEBUG - Request successful
+DEBUG - Connecting to 72.11.140.130, USA, California, Los Angeles (LOC1 S4), us
+WARN - Ip address not changed, re-requesting ip
+DEBUG - GET: http://geoip.hidemyass.com/ip/
+DEBUG - Request successful
+DEBUG - Ip address changed to 72.11.140.138 from 172.254.124.113
+DEBUG - GET: http://www.nytimes.com
+DEBUG - Request successful
+DEBUG - GET: http://www.nytimes.com/weather
+DEBUG - Request successful
+DEBUG - GET: http://www.nytimes.com/pages/sports/index.html
+DEBUG - Request successful
+DEBUG - GET: http://www.nytimes.com/pages/science/index.html
+DEBUG - Request successful
+DEBUG - GET: http://www.nytimes.com/pages/health/index.html
+DEBUG - Request successful
+DEBUG - GET: http://www.nytimes.com/pages/arts/index.html
+DEBUG - Request successful
+DEBUG - Request limit is zero, resetting the request limit.
+DEBUG - Disconnecting from server.
+DEBUG - Connecting to 173.234.233.226, USA, New York, Manhattan (LOC1 S3), us
+WARN - Ip address not changed, re-requesting ip
+DEBUG - GET: http://geoip.hidemyass.com/ip/
+DEBUG - Request successful
+DEBUG - Ip address changed to 108.62.48.75 from 72.11.140.138
+DEBUG - GET: http://www.nytimes.com/pages/style/index.html
+DEBUG - Request successful
+DEBUG - GET: http://www.nytimes.com/pages/opinion/index.html
+DEBUG - Request successful
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The output demonstrates how the useragent first establishes a secure, encrypted connection to a Los Angeles-based VPN before proceeding to request pages from the New York Times website. Once the configured page request limit is reached the useragent automatically disconnects and connects to a new VPN in New York, establishing a new IP and adopting a new useragent string. From the New York Times web server perspective, it received a series of requests from two different users with different IP addresses, one in Los Angeles and the other in New York. And neither of these is the user&amp;rsquo;s actual IP address.&lt;/p&gt;
+
+&lt;h3 id=&#34;warning:a4365f9dfaa93e2157234fd965542a9e&#34;&gt;Warning&lt;/h3&gt;
+
+&lt;p&gt;The ability to anonymously scrape websites is a powerful but potentially harmful activity - you should never screen-scrape for unethical or illegal purposes. Adhere to robots.txt. This approach does not guarantee anonymity: the VPN provider may disclose all connections logs if required to by a law enforcement agency.&lt;/p&gt;
+
+&lt;h3 id=&#34;disclosure:a4365f9dfaa93e2157234fd965542a9e&#34;&gt;Disclosure&lt;/h3&gt;
+
+&lt;p&gt;As a customer of &lt;a href=&#34;http://hidemyass.com/vpn/r14824/&#34;&gt;HideMyAss.com&lt;/a&gt; I receive an affiliate payment for the successful referrals from the links on this page.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

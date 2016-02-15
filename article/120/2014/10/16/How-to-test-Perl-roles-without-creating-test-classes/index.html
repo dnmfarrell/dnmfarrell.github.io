@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>How to test Perl roles without creating test classes Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Don&#39;t waste time writing test classes, test the role directly"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">How to test Perl roles without creating test classes</h1>
+            <p class="blog-post-meta">Oct 16, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>Recently I&rsquo;ve been working on a <a href="https://github.com/sillymoose/March">game engine</a> which uses a composition pattern for its actors. I&rsquo;m using <a href="https://metacpan.org/pod/Role::Tiny">Role::Tiny</a> to create the roles. Role::Tiny is really convenient as it lets you use roles with native OO Perl, without committing to a whole object system like Moose. A typical role looks like this:</p>
+
+<pre><code class="language-prettyprint">package March::Attribute::Id;
+use 5.020;
+use Role::Tiny;
+use feature 'signatures';
+no warnings 'experimental';
+
+sub id ($self)
+{
+    $self-&gt;{id};
+}
+
+1;
+</code></pre>
+
+<p>All this role does is return the id attribute of the consuming class (yes I&rsquo;m using <a href="http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures">signatures</a> throughout). I wanted to write unit tests for this role, but I didn&rsquo;t want to a create test class to test the role. So how do you construct an object from a package that has no constructor? The answer is by using <code>bless</code> in your test file:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use Test::More;
+
+my $self = bless { id =&gt; 5 }, 'March::Attribute::Id';
+
+BEGIN { use_ok 'March::Attribute::Id' }
+
+is $self-&gt;id, 5, 'id()';
+
+done_testing();
+</code></pre>
+
+<p>This code creates an object called <code>$self</code> by blessing a hashref with the package name of the role that I want to test. It adds a key value pair for the id attribute, and then tests that the role&rsquo;s id method returns the correct id value. I can execute the tests using <code>prove</code>:</p>
+
+<pre><code class="language-prettyprint">$ prove -vl t/Attribute/Id.t 
+t/Attribute/Id.t .. 
+ok 1 - use March::Attribute::Id;
+ok 2 - id()
+1..2
+ok
+All tests successful.
+Files=1, Tests=2,  0 wallclock secs ( 0.02 usr  0.00 sys +  0.02 cusr  0.00 csys =  0.04 CPU)
+Result: PASS
+</code></pre>
+
+<p>This is another role I want to test:</p>
+
+<pre><code class="language-prettyprint">package March::Attribute::Direction;
+use 5.020;
+use Role::Tiny;
+use feature 'signatures';
+no warnings 'experimental';
+use March::Game;
+use March::Msg;
+
+requires 'id';
+
+sub direction ($self, $new_direction = 0)
+{
+    if ($new_direction &amp;&amp; $new_direction-&gt;isa('Math::Shape::Vector'))
+    {
+        $self-&gt;{direction} = $new_direction;
+
+        # publish direction to game queue
+        March::Game-&gt;publish(
+            March::Msg-&gt;new(__PACKAGE__, $self-&gt;id, $new_direction)
+        );
+    }
+    $self-&gt;{direction};
+}
+
+1;
+</code></pre>
+
+<p>This role gets and sets the direction vector for the consuming class. The challenge with testing this role is that it requires the consuming class to implement an <code>id</code> method. Role::Tiny&rsquo;s <code>requires</code> function is a great way to ensure that the consuming class meets the requirements of the role. But how do we test it without creating a real class with an <code>id</code> sub? What I do is declare the required sub in the test file:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use Test::More;
+use Math::Shape::Vector;
+
+# create an object
+my $self = bless { direction =&gt; Math::Shape::Vector-&gt;new(1, 2) 
+                  }, 'March::Attribute::Direction';
+
+# add required sub
+sub March::Attribute::Direction::id { 107 };
+
+BEGIN { use_ok 'March::Attribute::Direction' }
+
+is $self-&gt;direction-&gt;{x}, 1, 'Check direction x is 1';
+is $self-&gt;direction-&gt;{y}, 2, 'Check direction y is 2';
+ok $self-&gt;direction( Math::Shape::Vector-&gt;new(1, 0) ),
+    'Update direction to new vector';
+is $self-&gt;direction-&gt;{x}, 1, 'Check direction x is still 1';
+is $self-&gt;direction-&gt;{y}, 0, 'Check direction y is now 0';
+
+done_testing();
+</code></pre>
+
+<p>The magic line is <code>sub March::Attribute::Direction::id { 107 };</code> which adds the sub to the role I&rsquo;m testing (it just returns the value 107). Now I can test the <code>direction</code> method, again using <code>prove</code>:</p>
+
+<pre><code class="language-prettyprint">$ prove -lv t/Attribute/Direction.t 
+t/Attribute/Direction.t .. 
+ok 1 - use March::Attribute::Direction;
+ok 2 - Check direction
+ok 3 - Check direction
+ok 4 - Update direction to new vector
+ok 5 - Check direction
+ok 6 - Check direction
+1..6
+ok
+All tests successful.
+Files=1, Tests=6,  0 wallclock secs ( 0.02 usr  0.00 sys +  0.08 cusr  0.00 csys =  0.10 CPU)
+Result: PASS
+</code></pre>
+
+<h3 id="it-s-not-all-gravy:b7f53836af028eb45de42bcacd025737">It&rsquo;s not all gravy</h3>
+
+<p>One drawback I&rsquo;ve encountered with this approach can be seen with the following role and test file:</p>
+
+<pre><code class="language-prettyprint">package Data::Inspector;
+use Role::Tiny;
+
+sub inspect_data
+{
+    my ($self, $data);
+    Data::Dumper-&gt;Dump(['Inspecting:', $data]);
+}
+
+1;
+</code></pre>
+
+<p>This role has a method called <code>inspect_data</code> which simply returns a dump of any data reference pass to it. This is the test file:</p>
+
+<pre><code class="language-prettyprint">use Test::More;
+use Data::Dumper;
+
+my $self = bless {}, 'Data::Inspector';
+
+BEGIN { use_ok 'Data::Inspector' } 
+
+ok $self-&gt;inspect_data({ test =&gt; 'data' });
+
+done_testing();
+</code></pre>
+
+<p>As before I bless the role in the test file and then proceed to test the <code>inspect_data</code> method. This test file runs and all the tests pass. Can you spot this issue here? Notice that the Data::Inspector role uses <a href="https://metacpan.org/pod/Data::Dumper">Data::Dumper&rsquo;s</a> <code>Dump</code> method, but it doesn&rsquo;t load the Data::Dumper module, the test file does! This is a problem as when the Data::Inspector role is used elsewhere in real code, it will crash and burn when it doesn&rsquo;t find Data::Dumper loaded in memory.</p>
+
+<h3 id="conclusion:b7f53836af028eb45de42bcacd025737">Conclusion</h3>
+
+<p>With this project I intend to create a lot of simple roles, so this approach provides a lightweight way for me to test roles within the test file without creating test classes for every role.</p>
+
+<p>I really like <a href="https://metacpan.org/pod/Role::Tiny">Role::Tiny</a>. It&rsquo;s flexible: you can create minimalist trait-like behavior or go further and create mixins (roles which modify state). It has nice features like auto-enabling strict and warnings, method modifiers and good <a href="https://metacpan.org/pod/Role::Tiny">documentation</a>. <a href="https://metacpan.org/pod/Role::Basic">Role::Basic</a> is another lightweight roles module that supports traits only (by <a href="https://metacpan.org/pod/Role::Basic#DESIGN-GOALS-AND-LIMITATIONS">design</a>). I wonder if I&rsquo;ll come to regret using a mixin approach as I get further into development of the game engine.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/object">object</a></div>
+              
+                <div class="tag"><a href="/tags/test_more">test_more</a></div>
+              
+                <div class="tag"><a href="/tags/role_tiny">role_tiny</a></div>
+              
+                <div class="tag"><a href="/tags/unit">unit</a></div>
+              
+                <div class="tag"><a href="/tags/mock">mock</a></div>
+              
+                <div class="tag"><a href="/tags/fake">fake</a></div>
+              
+                <div class="tag"><a href="/tags/role_basic">role_basic</a></div>
+              
+                <div class="tag"><a href="/tags/bless">bless</a></div>
+              
+                <div class="tag"><a href="/tags/sub">sub</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Re-use code with Perl&#39;s anonymous functions Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An anonymous function in Perl is an unnamed subroutine. But what are they good for? This article shows how through using anonymous functions it&#39;s possible to write more generic, re-usable Perl code."/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Re-use code with Perl&#39;s anonymous functions</h1>
+            <p class="blog-post-meta">Jul 17, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              <p>An anonymous function in Perl is an unnamed subroutine. But what are they good for? This article shows how through using anonymous functions it&rsquo;s possible to write more generic, re-usable Perl code.</p>
+
+<p>Imagine that you&rsquo;ve developed the following script. The script receives a directory path as a parameter and recursively searches the child directories of the path, printing any file name it finds:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use feature qw/say/;
+
+die &quot;Error: you must supply a directory path argument $!&quot; unless @ARGV;
+
+sub listFiles {
+    my $dir = shift;
+    opendir(my $DH, $dir) or die &quot;Error: failed to open $dir $!&quot;;
+
+    while (readdir $DH) {
+        my $path = $dir . $_;
+        if(-d $path ){
+            # recurse but ignore Linux symlinks . and ..
+            listFiles($path .'/') if $_ !~ /^\.{1,2}$/;
+        }
+        elsif(-f $path){
+            say $path;
+        }
+    }
+}
+
+listFiles($ARGV[0]);
+</code></pre>
+
+<p>The most re-usable aspect of this script is the recursive directory searching logic. If you wanted to develop a file name searching script (similar to the find program in Linux), you could start by copying and pasting the script above, and then updating the code to provide the required behavior. An alternative way would be to change the core subroutine to accept an anonymous function as an argument, and then execute that function on every file it finds. Such a subroutine would look like this:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use feature qw/say/;
+
+die &quot;Error: you must supply a directory path argument $!&quot; unless @ARGV;
+
+sub walkDir {
+    my ($dir, $function) = @_;
+
+    # validate args
+    opendir(my $DH, $dir) or die &quot;Error: failed to open $dir $!&quot;;
+    ref($function) eq 'CODE' or 
+        die &quot;Error: second argument to walkDir must be an anonymous function $!&quot;;
+
+    while (readdir $DH) {
+        my $path = $dir . $_;
+        if(-d $path ){ 
+            # recurse but ignore Linux symlinks . and ..
+            walkDir($path . '/', $function) if $_ !~ /^\.{1,2}$/;
+        }
+        elsif(-f $path){
+            $function-&gt;($path);
+        }
+    }
+}
+
+walkDir($ARGV[0], sub { say shift });
+</code></pre>
+
+<p>The &ldquo;walkDir&rdquo; subroutine in the code above accepts two arguments: the directory path and a function. It recursively searches the directories as before, however when it encounters a file, it de-references and executes the function, passing the file path to the function as an argument. The final line of code provides the file name printing behaviour by calling &ldquo;walkDir&rdquo; and passing the target directory path, and an anonymous function to print (say) the default argument.</p>
+
+<p>We can re-use the same walkDir subroutine for our file-searching script and all we have to do is update the anonymous function behavior:</p>
+
+<pre><code class="language-prettyprint">walkDir($ARGV[0], 
+        sub { 
+            my $filename = shift;
+            say $filename if $filename =~ /$ARGV[1]/i;
+        });
+</code></pre>
+
+<p>To create a grep-like tool, we would replace the previous code with this:</p>
+
+<pre><code class="language-prettyprint">use File::Slurp;
+walkDir($ARGV[0],
+        sub {
+            my $filename = shift;
+            say $filename if read_file($filename) =~ qr/$ARGV[1]/i;
+        });
+</code></pre>
+
+<p>In fact we could quickly create a whole library of useful sysadmin scripts with this approach. We could even put the &ldquo;walkDir&rdquo; subroutine code into a module to augment further re-use. Hopefully these examples show how by using anonymous functions, Perl let&rsquo;s you re-use useful code.</p>
+
+<p>This article was inspired by <a href="http://hop.perl.plover.com/">Higher Order Perl</a> by Mark Jason Dominus. Higher Order Perl explores anonymous functions and other functional programming techniques like recursion, currying and laziness. It&rsquo;s free to read online and in ebook format.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/functional">functional</a></div>
+              
+                <div class="tag"><a href="/tags/subroutine">subroutine</a></div>
+              
+                <div class="tag"><a href="/tags/sysadmin">sysadmin</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

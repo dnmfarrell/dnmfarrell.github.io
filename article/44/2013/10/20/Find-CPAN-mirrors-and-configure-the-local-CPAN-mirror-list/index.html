@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Find CPAN mirrors and configure the local CPAN mirror list Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="CPAN mirrors are online repositories which host or &#34;mirror&#34; the Perl module distributions on CPAN. There are hundreds of CPAN mirrors dispersed throughout the World. When the CPAN program is run for the first time on a machine, it will configure the CPAN mirror list to use for checking for new versions of modules and downloading Perl distributions.  All CPAN mirrors are not created equally though: the distribution list&#39;s age, speed and the geographic location vary from mirror to mirror and so you may want to re-configure your local CPAN mirror list to suit your needs. This article describes how to find CPAN mirrors and edit the local CPAN mirror configuration."/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Find CPAN mirrors and configure the local CPAN mirror list</h1>
+            <p class="blog-post-meta">Oct 20, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>CPAN mirrors are online repositories which host or &ldquo;mirror&rdquo; the Perl module distributions on CPAN. There are hundreds of CPAN mirrors dispersed throughout the World. When the CPAN program is run for the first time on a machine, it will configure the CPAN mirror list to use for checking for new versions of modules and downloading Perl distributions. All CPAN mirrors are not created equally though: the distribution list&rsquo;s age, speed and the geographic location vary from mirror to mirror and so you may want to re-configure your local CPAN mirror list to suit your needs. This article describes how to find CPAN mirrors and edit the local CPAN mirror configuration.</p>
+
+<h3 id="finding-cpan-mirrors:6b39c76ec4be1267597fa5bb07945eee">Finding CPAN mirrors</h3>
+
+<p>An online list of public CPAN mirrors can be found <a href="http://mirrors.cpan.org/">here</a>. The list is frequently updated and lists mirrors by location, the scheme used (ftp, http), the age of the module list and some test results. Viewing this list you can see that some mirrors do not refresh their module list for days at a time - if you are using these mirrors you could be missing out on the latest version of your favourite module! A JSON formatted CPAN mirror list can be found <a href="http://www.cpan.org/indices/mirrors.json">here</a>.</p>
+
+<h3 id="start-the-cpan-shell:6b39c76ec4be1267597fa5bb07945eee">Start the CPAN shell</h3>
+
+<p>Once you have identified the URLs of the CPAN mirrors you want to use, fire up the terminal and load the cpan shell:</p>
+
+<pre><code class="language-prettyprint">cpan
+
+cpan shell -- CPAN exploration and modules installation (v2.00)
+Enter 'h' for help.
+
+cpan[1]&gt;
+</code></pre>
+
+<h3 id="view-the-local-cpan-mirror-list:6b39c76ec4be1267597fa5bb07945eee">View the local CPAN mirror list</h3>
+
+<p>The CPAN mirror list is stored in the &ldquo;urllist&rdquo; variable. To view the list of mirrors, type &ldquo;o conf urllist&rdquo; in the CPAN shell:</p>
+
+<pre><code class="language-prettyprint">cpan[1]&gt;o conf urllist
+    urllist           
+    0 [http://httpupdate3.cpanel.net/CPAN/]
+    1 [http://httpupdate23.cpanel.net/CPAN/]
+    2 [http://mirrors.servercentral.net/CPAN/]
+    3 [ftp://cpan.cse.msu.edu/]
+</code></pre>
+
+<h3 id="add-a-cpan-mirror:6b39c76ec4be1267597fa5bb07945eee">Add a CPAN mirror</h3>
+
+<p>To add a CPAN mirror use the &ldquo;unshift&rdquo; or &ldquo;push&rdquo; functions to add the mirror&rsquo;s url to the front or end of the mirror list. Make sure that the URL for the mirror <strong>includes the scheme</strong> (http, ftp).</p>
+
+<pre><code class="language-prettyprint">cpan[2]&gt; o conf urllist push http://mirror.waia.asn.au/pub/cpan/
+</code></pre>
+
+<h3 id="remove-a-cpan-mirror:6b39c76ec4be1267597fa5bb07945eee">Remove a CPAN mirror</h3>
+
+<p>To remove a CPAN mirror use the &ldquo;shift&rdquo; or &ldquo;pop&rdquo; functions to remove the mirror URL from the front or end of the mirror list:</p>
+
+<pre><code class="language-prettyprint">cpan[3]&gt; o conf urllist pop
+</code></pre>
+
+<h3 id="completely-replace-the-existing-mirror-list:6b39c76ec4be1267597fa5bb07945eee">Completely replace the existing mirror list</h3>
+
+<p>To overwrite the existing mirror list with a new one, just provide the URLs to the new mirrors as a space separated list:</p>
+
+<pre><code class="language-prettyprint">cpan[4]&gt; o conf urllist http://mirror.waia.asn.au/pub/cpan/ ftp://mirrors.coopvgg.com.ar/CPAN/
+</code></pre>
+
+<h3 id="saving-changes:6b39c76ec4be1267597fa5bb07945eee">Saving changes</h3>
+
+<p>Once you have updated the CPAN mirror list, make sure you commit the changes to file so they are saved beyond the current session:</p>
+
+<pre><code class="language-prettyprint">cpan[5]&gt; o conf commit
+commit: wrote '/home/sillymoose/.cpan/CPAN/MyConfig.pm'
+</code></pre>
+
+<h3 id="edit-the-cpan-configuration-file-directly:6b39c76ec4be1267597fa5bb07945eee">Edit the CPAN configuration file directly</h3>
+
+<p>You can also edit the CPAN config file directly. For local user Perl installations this is */CPAN/MyConfig.pm and system Perl installations */CPAN/Config.pm (the parent directory will depend on the platform). When editing the file, urllist is a hash key for an array reference of mirror urls. Note the urls are quoted using Perl&rsquo;s quoting operator (&ldquo;q&rdquo;). Simply edit and save the file.</p>
+
+<pre><code class="language-prettyprint">'urllist' =&gt; [
+    q[http://httpupdate3.cpanel.net/CPAN/], 
+    q[http://httpupdate23.cpanel.net/CPAN/], 
+    q[http://mirrors.servercentral.net/CPAN/], 
+    q[ftp://cpan.cse.msu.edu/]
+],
+</code></pre>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/configuration">configuration</a></div>
+              
+                <div class="tag"><a href="/tags/cpan">cpan</a></div>
+              
+                <div class="tag"><a href="/tags/module">module</a></div>
+              
+                <div class="tag"><a href="/tags/sysadmin">sysadmin</a></div>
+              
+                <div class="tag"><a href="/tags/config">config</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

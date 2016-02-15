@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>The ultimate guide to Windows and Unix file line ending conversion in Perl  Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Think you know how to fix CRLF in one line of Perl? There might be more to it than you think ..."/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">The ultimate guide to Windows and Unix file line ending conversion in Perl </h1>
+            <p class="blog-post-meta">Dec 14, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p><em>Most programmers know that the file line endings used by Windows and Unix-based systems are different. Windows uses CRLF and the Unix-based systems use LF. So fixing this is in Perl requires a simple substitution regex right? Not so fast &hellip;</em></p>
+
+<h3 id="requirements:702a2a2b148525e915fdb1399d13703a">Requirements</h3>
+
+<p>You must be using Perl version 5.14 or greater.</p>
+
+<h3 id="conversion-on-unix-based-systems:702a2a2b148525e915fdb1399d13703a">Conversion on Unix-based systems</h3>
+
+<p>These are easy. To convert a file to Unix-style line endings (as used by Linux, BSD, OSX) just open up the terminal and run:</p>
+
+<pre><code class="language-prettyprint">perl -pi.bak -e 's/\R/\012/' /path/to/file
+</code></pre>
+
+<p>This code works by replacing any line break characters (&rdquo;\R&rdquo;) with a single line feed character (&rdquo;\012&rdquo;). The &ldquo;\R&rdquo; meta-character is available in Perl from version 5.10 onwards, it&rsquo;s useful because it will even work for files with mixed line ending styles. The in-place switch (&ldquo;i&rdquo;) creates a backup of the original file with the extension &ldquo;.bak&rdquo;. To convert a file from Unix to Windows-style line endings, use this:</p>
+
+<pre><code class="language-prettyprint">perl -pi.bak -e 's/\R/\015\012/' /path/to/file
+</code></pre>
+
+<p>This replaces any vertical character with the CRLF (&rdquo;\015\012&rdquo;) line ending used by Windows. Again, this will also work for files with a mix of Unix and Windows line endings.</p>
+
+<h3 id="conversion-on-windows:702a2a2b148525e915fdb1399d13703a">Conversion on Windows</h3>
+
+<p>Things are trickier on Windows; there are a few things to be aware of:</p>
+
+<ul>
+<li>By default Perl changes the value of &ldquo;\n&rdquo; to CRLF. This means that the regex match: &ldquo;/\015\012/&rdquo; will fail on Windows as Perl is actually running: &ldquo;/\015\015\012/&ldquo;. Regexes using meta-characters and hex codes (&rdquo;/\r\n/&rdquo; and &ldquo;/\x0d\x0a/&ldquo;) fail for the same reason.</li>
+<li>Single-quotes must be replaced with double-quotes to enclose the code in &ldquo;e&rdquo; and quoting operators must be used when single quotes are required within the code (e.g. &ldquo;q||&rdquo;)</li>
+<li>The in-place switch (&ldquo;i&rdquo;) works, but any extension (e.g. &ldquo;.bak&rdquo;) will change the file ending and the default programs associated with it. The examples below use alternative methods.</li>
+</ul>
+
+<p>If you&rsquo;re using cmd.exe or PowerShell the following Perl one liner will convert a file to Windows-style line endings:</p>
+
+<pre><code class="language-prettyprint">perl -pe &quot;binmode(STDOUT);s/\R/\015\012/&quot; /path/to/file &gt; /path/to/new/file
+</code></pre>
+
+<p>The main differences here are: replacing single-quotes with double-quotes, &ldquo;binmode(STDOUT)&rdquo; to turn off Perl&rsquo;s CRLF line endings and the use of redirect &ldquo;&gt;&rdquo; to write the contents to a different file, instead of using the in-place switch. To convert a file to Unix-style line endings on cmd.exe this will work:</p>
+
+<pre><code class="language-prettyprint">perl -pe &quot;binmode(STDOUT);s/\R/\012/&quot; /path/to/file &gt; /path/to/new/file
+</code></pre>
+
+<p>On PowerShell a few more changes are required. To convert to Unix-style line endings use:</p>
+
+<pre><code class="language-prettyprint">perl -ne &quot;open(OUT, q(&gt;&gt;), q(/path/to/new/file));binmode(OUT);print OUT s/\R/\012/r&quot; /path/to/file
+</code></pre>
+
+<p>So what just happened there? First of all we changed the command line switch &ldquo;p&rdquo; to &ldquo;n&rdquo;. This stops Perl from printing every line it processes to standard output. Instead we opened an appending filehandle &ldquo;OUT&rdquo; to our output file and printed the result ourselves. The reason we had to do this was that PowerShell automatically interprets standard output as Unicode and replaces Unix-style endings with Windows CRLF endings. Hence using the re-direct method (&rdquo;&gt;&rdquo;) does not work. And before you try, piping the output like this generates an error:</p>
+
+<pre><code class="language-prettyprint">perl -pe &quot;binmode(STDOUT);s/\R/\012/r&quot; /path/to/file | set-content /path/to/new/file -Encoding Byte
+</code></pre>
+
+<p>We also had to use the quoting operator (&ldquo;q()&rdquo;) to quote our content instead of using single quotes. Finally, the substitution regex (&ldquo;s/\R/\012/&ldquo;) was changed to use the &ldquo;r&rdquo; modifier, which returns the result of the substitution without modifying the original variable. This feature is available from Perl version 5.14 onwards.</p>
+
+<h3 id="further-reading:702a2a2b148525e915fdb1399d13703a">Further Reading</h3>
+
+<p>Perl&rsquo;s offical documentation &ldquo;perlrun&rdquo; entry has a lot of detail on Perl&rsquo;s command line switches. Access it <a href="http://perldoc.perl.org/perlrun.html">online</a> or at the command line by typing: &ldquo;perldoc perlrun&rdquo;</p>
+
+<p>Peteris Krummins&rsquo; <a href="http://www.catonmat.net/">website</a> provides loads of Perl one liners. His new book <a href="http://www.amazon.com/gp/product/159327520X/ref=as_li_qf_sp_asin_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=159327520X&amp;linkCode=as2&amp;tag=perltrickscom-20">Perl One-Liners: 130 Programs That Get Things Done</a> has just been published (affiliate link). It contains many useful one liners, but also 9 pages of detailed guidance on running one liners on Windows - highly recommended!</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/file">file</a></div>
+              
+                <div class="tag"><a href="/tags/linux">linux</a></div>
+              
+                <div class="tag"><a href="/tags/windows">windows</a></div>
+              
+                <div class="tag"><a href="/tags/powershell">powershell</a></div>
+              
+                <div class="tag"><a href="/tags/bash">bash</a></div>
+              
+                <div class="tag"><a href="/tags/CRLF">CRLF</a></div>
+              
+                <div class="tag"><a href="/tags/OSX">OSX</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

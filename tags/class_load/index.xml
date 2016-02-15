@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Class_load on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/class_load/</link>
+    <description>Recent content in Class_load on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 05 Jan 2016 14:32:45 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/class_load/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Save time with compile tests</title>
+      <link>http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/</link>
+      <pubDate>Tue, 05 Jan 2016 14:32:45 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/</guid>
+      <description>
+
+&lt;p&gt;Over the past year I&amp;rsquo;ve been working on several large Perl projects, sometimes as part of a team and sometimes alone. As the codebase grows, testing becomes increasingly important and one test in particular that pays dividends is the compile test. That is, before running any other tests, simply check if that every module in the codebase compiles.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-basics:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;The basics&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s look at a simple compile test, I&amp;rsquo;ve adapted this example from &lt;a href=&#34;https://github.com/dnmfarrell/Perly-Bot&#34;&gt;Perly-Bot&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Test::More;
+use lib &#39;lib&#39;;
+
+my @modules = qw(
+  Perly::Bot
+  Perly::Bot::Feed
+  Perly::Bot::Feed::Post
+  Perly::Bot::Cache
+  Perly::Bot::Media
+  Perly::Bot::Media::Twitter
+  Perly::Bot::Media::Reddit
+);
+for my $module ( @modules )
+{
+  BAIL_OUT( &amp;quot;$module does not compile&amp;quot; ) unless require_ok( $module );
+}
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code is simple enough; it adds the local &lt;code&gt;lib&lt;/code&gt; directory to the list of directories for Perl to search for modules. Then it declares an array of module names called &lt;code&gt;@modules&lt;/code&gt;. Finally it loops through each module name and tries to import it, bailing out if any module fails to load. Because tests are usually run in alphabetical order, this file is called &lt;code&gt;00-compile.t&lt;/code&gt; so that it is run first. I can run this test at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./t/00-compile.t
+perl t/00-compile.t 
+ok 1 - use Perly::Bot;
+ok 2 - use Perly::Bot::Feed;
+ok 3 - use Perly::Bot::Feed::Post;
+ok 4 - use Perly::Bot::Cache;
+ok 5 - use Perly::Bot::Media;
+ok 6 - use Perly::Bot::Media::Twitter;
+ok 7 - use Perly::Bot::Media::Reddit;
+1..7
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;write-once-compile-tests:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;Write-once compile tests&lt;/h3&gt;
+
+&lt;p&gt;The basic compile test example has an obvious flaw: it requires the programmer to list all the module names to be tested. This means that every time a new module is added to the codebase or a module is renamed, this test needs to be updated. This also introduces the risk of error - a failing module could exist in the codebase and never be tested. Instead of a static list of modules, I can tell Perl to search the &lt;code&gt;lib&lt;/code&gt; directory and try to import any module it finds:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Test::More;
+use lib &#39;lib&#39;;
+use Path::Tiny;
+
+# try to import every .pm file in /lib
+my $dir = path(&#39;lib/&#39;);
+my $iter = $dir-&amp;gt;iterator({
+            recurse         =&amp;gt; 1,
+            follow_symlinks =&amp;gt; 0,
+           }); 
+while (my $path = $iter-&amp;gt;())
+{
+  next if $path-&amp;gt;is_dir || $path !~ /\.pm$/;
+  BAIL_OUT( &amp;quot;$path does not compile&amp;quot; ) unless require_ok( $path );
+}
+done_testing;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here I use &lt;a href=&#34;https://metacpan.org/pod/Path::Tiny&#34;&gt;Path::Tiny&lt;/a&gt; to iterate through the files in &lt;code&gt;lib&lt;/code&gt;. Instead of passing module names, I pass the filepath to &lt;code&gt;require_ok&lt;/code&gt;. Now this compile test is dynamic, it will always pick up any new modules added or removed from the codebase. Nice!&lt;/p&gt;
+
+&lt;h3 id=&#34;require-warnings:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;Require warnings&lt;/h3&gt;
+
+&lt;p&gt;One problem with using &lt;a href=&#34;http://perldoc.perl.org/functions/require.html&#34;&gt;require&lt;/a&gt; to load filepaths instead of module names is that it can generate &amp;ldquo;subroutine redefined&amp;rdquo; warnings if the same module is loaded twice by different files. Imagine this code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;require &#39;lib/Game.pm&#39;;
+require &#39;lib/Game/Asset/Player.pm&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If &lt;code&gt;Game.pm&lt;/code&gt; loads &lt;code&gt;Game::Asset::Player&lt;/code&gt;, Perl will emit the subroutine redefined warning when the second &lt;code&gt;require&lt;/code&gt; statement is executed. I can deal with this in a couple of ways: I could suppress the warning by adding &lt;code&gt;no warnings &#39;redefine&#39;;&lt;/code&gt; to my compile test file. But this would mask genuine warnings that could be helpful, like if I have circular dependencies in my codebase. Or I can convert the filepath into a module name, and then &lt;code&gt;require&lt;/code&gt; won&amp;rsquo;t complain, for example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;require &#39;Game&#39;;
+require &#39;Game::Asset::Player&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For the compile tests, I can use substitute regexes to convert the filepath into a module name. When the compile tests run they won&amp;rsquo;t generate spurious &amp;ldquo;subroutine redefined&amp;rdquo; warnings.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Test::More;
+use lib &#39;lib&#39;;
+use Path::Tiny;
+
+# try to import every .pm file in /lib
+my $dir = path(&#39;lib/&#39;);
+my $iter = $dir-&amp;gt;iterator({
+            recurse         =&amp;gt; 1,
+            follow_symlinks =&amp;gt; 0,
+           });
+while (my $path = $iter-&amp;gt;())
+{
+  next if $path-&amp;gt;is_dir || $path !~ /\.pm$/;
+  my $module = $path-&amp;gt;relative;
+  $module =~ s/(?:^lib\/|\.pm$)//g;
+  $module =~ s/\//::/g;
+  BAIL_OUT( &amp;quot;$module does not compile&amp;quot; ) unless require_ok( $module );
+}
+done_testing;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;additional-thoughts:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;Additional thoughts&lt;/h3&gt;
+
+&lt;p&gt;Another way to write compile tests is using &lt;a href=&#34;https://metacpan.org/pod/Class::Load&#34;&gt;Class::Load&lt;/a&gt; to do the module importing. It has a several useful functions for dynamically loading modules.&lt;/p&gt;
+
+&lt;p&gt;Compile tests are an interesting class of test. They&amp;rsquo;re an implementation of the axiom: &amp;ldquo;the codebase should always compile&amp;rdquo;. Depending on the application, there are other axioms you can test for. For example with a web application, every admin URL should only be accessible to authenticated and authorized users. So you could write a dynamic test that enumerates every admin URL and attempts to fetch it unauthorized (the test fails if any request is successful). For testing Catalyst web applications, you might find my module &lt;a href=&#34;https://metacpan.org/pod/Catalyst::Plugin::ActionPaths&#34;&gt;Catalyst::Plugin::ActionPaths&lt;/a&gt; useful. Testing axioms usually has a high reward for little or no maintenance cost. Seek them out!&lt;/p&gt;
+
+&lt;p&gt;If you ever need to suppress a particular warning, in newer versions of Perl the warnings pragma &lt;a href=&#34;http://perldoc.perl.org/warnings.html&#34;&gt;documentation&lt;/a&gt; lists all of the types of warnings it recognizes. This is especially useful when using experimental features like &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;subroutine signatures&lt;/a&gt;. You can read it for your version of Perl at the command line with:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc warnings
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

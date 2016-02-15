@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Perldoc on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/perldoc/</link>
+    <description>Recent content in Perldoc on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 20 Apr 2015 12:33:17 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/perldoc/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Writing DuckDuckGo instant answers is easy</title>
+      <link>http://perltricks.com/article/169/2015/4/20/Writing-DuckDuckGo-instant-answers-is-easy/</link>
+      <pubDate>Mon, 20 Apr 2015 12:33:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/169/2015/4/20/Writing-DuckDuckGo-instant-answers-is-easy/</guid>
+      <description>
+
+&lt;p&gt;&lt;strong&gt;Editor note:&lt;/strong&gt; some of the information in this article is out of date, see our new DuckDuckGo &lt;a href=&#34;http://perltricks.com/article/189/2015/8/22/Writing-DuckDuckGo-plugins-just-got-easier&#34;&gt;article&lt;/a&gt; for details.&lt;/p&gt;
+
+&lt;p&gt;A few weeks ago, I attended NYC &lt;a href=&#34;http://duckduckgo.ticketleap.com/quackhacknyc/&#34;&gt;Quack &amp;amp; Hack&lt;/a&gt;, and learned how to write DuckDuckGo instant answers. Instant answers are really cool: they are micro apps that trigger when a user searches for specific terms. For example if you search for &lt;a href=&#34;https://duckduckgo.com/?q=help+tmux&amp;amp;ia=answer&#34;&gt;help tmux&lt;/a&gt;, you&amp;rsquo;ll see a tmux cheatsheet displayed. This is a awesome - you can commit code that will go live on DuckDuckGo.com and the good news is that you don&amp;rsquo;t have to wait until the next Quack &amp;amp; Hack to learn how to write one yourself; DuckDuckGo provide great tools that make it easy.&lt;/p&gt;
+
+&lt;h3 id=&#34;setting-up-the-development-environment:5671e5b11157d2de7fcf618736bb0dd9&#34;&gt;Setting up the development environment&lt;/h3&gt;
+
+&lt;p&gt;DuckDuckGo support several different types of instant answers, but today I&amp;rsquo;m going to focus on creating a cheatsheet, which is displayed by the search engine whenever a user searches for a matching set of keywords.&lt;/p&gt;
+
+&lt;p&gt;To get going you&amp;rsquo;ll need Perl 5.18 or higher and have installed &lt;a href=&#34;https://metacpan.org/pod/App::duckpan&#34;&gt;App::DuckPAN&lt;/a&gt;, which you can do with &lt;code&gt;cpan&lt;/code&gt; or &lt;code&gt;cpanminus&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan App::DuckPAN
+# or
+$ cpanm App::DuckPAN
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You&amp;rsquo;ll also need a local copy of DuckDuckGo&amp;rsquo;s goodies instant answers repo &lt;a href=&#34;https://github.com/duckduckgo/zeroclickinfo-goodies&#34;&gt;repo&lt;/a&gt;, which you can clone with Git:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git clone https://github.com/duckduckgo/zeroclickinfo-goodies.git
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With both App::DuckPAN and the goodies repo installed, change into the zeroclickinfo-goodies repo, and launch the duckpan server:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cd zeroclickinfo-goodies
+$ duckpan server
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When you run &lt;code&gt;duckpan server&lt;/code&gt;, there will probably be a lot of output, but you should see this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Checking asset cache...
+Starting up webserver...
+You can stop the webserver with Ctrl-C
+HTTP::Server::PSGI: Accepting connections at http://0:5000/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you open your browser and navigate to &lt;code&gt;http://localhost:5000&lt;/code&gt;, you&amp;rsquo;ll be greeted with the DuckDuckGo search page (try &lt;code&gt;http://0:5000&lt;/code&gt; if localhost doesn&amp;rsquo;t work). Search for &amp;ldquo;help tmux&amp;rdquo; and you should see the same instant answer cheatsheet appear as on the live &lt;a href=&#34;https://duckduckgo.com/?q=help+tmux&amp;amp;ia=answer&#34;&gt;website&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;creating-the-instant-answer:5671e5b11157d2de7fcf618736bb0dd9&#34;&gt;Creating the instant answer&lt;/h3&gt;
+
+&lt;p&gt;So now you&amp;rsquo;ve got the development environment setup, you&amp;rsquo;re ready to create an instant answer. I&amp;rsquo;m going to create an instant answer for &lt;code&gt;perldoc&lt;/code&gt; (taken from my perldoc &lt;a href=&#34;#&#34;&gt;article&lt;/a&gt;). I can get a headstart on this by creating the skeleton instant answer code with &lt;code&gt;duckpan new&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ duckpan new PerldocCheatSheet
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This creates the basic files required for the instant answer:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Created file: lib/DDG/Goodie/PerldocCheatSheet.pm
+Created file: t/PerldocCheatSheet.t
+Successfully created Goodie: PerldocCheatSheet
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All of the logic for the instant answer is in &lt;code&gt;PerldocCheatSheet.pm&lt;/code&gt;, and &lt;code&gt;duckpan&lt;/code&gt; has already created a good skeleton:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package DDG::Goodie::PerldocCheatSheet;
+# ABSTRACT: Write an abstract here
+# Start at https://duck.co/duckduckhack/goodie_overview if you are new
+# to instant answer development
+
+use DDG::Goodie;
+
+zci answer_type =&amp;gt; &amp;quot;perldoc_cheat_sheeet&amp;quot;;
+zci is_cached   =&amp;gt; 1;
+
+# Metadata.  See https://duck.co/duckduckhack/metadata for help in filling out this section.
+name &amp;quot;PerldocCheatSheeet&amp;quot;;
+description &amp;quot;Succinct explanation of what this instant answer does&amp;quot;;
+primary_example_queries &amp;quot;first example query&amp;quot;, &amp;quot;second example query&amp;quot;;
+secondary_example_queries &amp;quot;optional -- demonstrate any additional triggers&amp;quot;;
+# Uncomment and complete: https://duck.co/duckduckhack/metadata#category
+# category &amp;quot;&amp;quot;;
+# Uncomment and complete: https://duck.co/duckduckhack/metadata#topics
+# topics &amp;quot;&amp;quot;;
+code_url &amp;quot;https://github.com/duckduckgo/zeroclickinfo-goodies/blob/master/lib/DDG/Goodie/PerldocCheatSheet.pm&amp;quot;;
+attribution github =&amp;gt; [&amp;quot;GitHubAccount&amp;quot;, &amp;quot;Friendly Name&amp;quot;],
+            twitter =&amp;gt; &amp;quot;twitterhandle&amp;quot;;
+
+# Triggers
+triggers any =&amp;gt; &amp;quot;triggerWord&amp;quot;, &amp;quot;trigger phrase&amp;quot;;
+
+# Handle statement
+handle remainder =&amp;gt; sub {
+
+    # optional - regex guard
+    # return unless qr/^\w+/;
+
+    return unless $_; # Guard against &amp;quot;no answer&amp;quot;
+
+    return $_;
+};
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ll fill in the answers for the abstract, &lt;a href=&#34;https://duck.co/duckduckhack/metadata&#34;&gt;metadata&lt;/a&gt; and &lt;a href=&#34;https://duck.co/duckduckhack/goodie_triggers&#34;&gt;triggers&lt;/a&gt;, and the &lt;code&gt;handle&lt;/code&gt; subroutine:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package DDG::Goodie::PerldocCheatSheet;
+# ABSTRACT: A cheat sheet for perldoc, the Perl documentation program
+
+use DDG::Goodie;
+
+zci answer_type =&amp;gt; &amp;quot;perldoc_cheat_sheet&amp;quot;;
+zci is_cached   =&amp;gt; 1;
+
+# Metadata
+name &amp;quot;PerldocCheatSheet&amp;quot;;
+source &amp;quot;http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster&amp;quot;;
+description &amp;quot;A cheat sheet for perldoc, the Perl documentation program&amp;quot;;
+primary_example_queries &amp;quot;help perldoc&amp;quot;, &amp;quot;perldoc cheatsheet&amp;quot;, &amp;quot;perldoc commands&amp;quot;, &amp;quot;perldoc ref&amp;quot;;
+category &amp;quot;programming&amp;quot;;
+topics qw/computing geek programming sysadmin/;
+code_url
+  &amp;quot;https://github.com/duckduckgo/zeroclickinfo-goodies/blob/master/lib/DDG/Goodie/PerldocCheatSheet.pm&amp;quot;;
+attribution github  =&amp;gt; [&amp;quot;dnmfarrell&amp;quot;, &amp;quot;David Farrell&amp;quot;],
+            twitter =&amp;gt; &amp;quot;perltricks&amp;quot;,
+            web     =&amp;gt; &#39;http://perltricks.com&#39;;
+
+# Triggers
+triggers startend =&amp;gt; (
+        &amp;quot;perldoc&amp;quot;,
+        &amp;quot;perldoc help&amp;quot;,
+        &amp;quot;help perldoc&amp;quot;,
+        &amp;quot;perldoc cheat sheet&amp;quot;,
+        &amp;quot;perldoc cheatsheet&amp;quot;,
+        &amp;quot;perldoc commands&amp;quot;,
+        &amp;quot;perldoc ref&amp;quot;);
+
+# Handle statement
+my $HTML = share(&amp;quot;perldoc_cheat_sheet.html&amp;quot;)-&amp;gt;slurp(iomode =&amp;gt; &#39;&amp;lt;:encoding(UTF-8)&#39;);
+my $TEXT= share(&amp;quot;perldoc_cheat_sheet.txt&amp;quot;)-&amp;gt;slurp(iomode =&amp;gt; &#39;&amp;lt;:encoding(UTF-8)&#39;);
+
+handle remainder =&amp;gt; sub {
+    return
+        heading =&amp;gt; &#39;Perldoc Cheat Sheet&#39;,
+        html    =&amp;gt; $HTML,
+        answer  =&amp;gt; $TEXT,
+};
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The handle subroutine will return a plain text and an HTML version of the cheat sheet to the user. The &lt;code&gt;share&lt;/code&gt; function loads static files from the &lt;code&gt;share/goodie/&lt;/code&gt; directory. These files should be created in the &lt;code&gt;share/goodie/perldoc_cheat_sheet/&lt;/code&gt; directory, and it is &lt;strong&gt;essential&lt;/strong&gt; that the filenames are lowercased versions of the instant answer name, separated by underscores. So &amp;ldquo;PerldocCheatSheet&amp;rdquo; becomes &amp;ldquo;perldoc_cheat_sheet&amp;rdquo;. You can view the files on &lt;a href=&#34;https://github.com/dnmfarrell/zeroclickinfo-goodies/tree/perldoc/share/goodie/perldoc_cheat_sheet&#34;&gt;GitHub&lt;/a&gt;. Note that the CSS file is not referenced directly by any code: it is automagically loaded by DuckDuckGo (this is why the directory and filename must be correct). I copied the CSS from the tmux &lt;a href=&#34;https://github.com/duckduckgo/zeroclickinfo-goodies/tree/master/share/goodie/tmux_cheat_sheet&#34;&gt;example&lt;/a&gt;, it provides two columns of text that will display side-by-side or wrap to a single column if the screen width is too narrow.&lt;/p&gt;
+
+&lt;h3 id=&#34;testing-the-instant-answer:5671e5b11157d2de7fcf618736bb0dd9&#34;&gt;Testing the instant answer&lt;/h3&gt;
+
+&lt;p&gt;The quickest way to test that the instant answer is working, is with the &lt;code&gt;duckpan query&lt;/code&gt; command. I can run it in the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ duckpan query
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This launches an interactive command line program. I can enter one of the triggers for my perldoc instant answer, and see if the server responds as expected:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Query: perldoc ref
+  You entered: perldoc ref
+---
+DDG::ZeroClickInfo  {
+    Parents       WWW::DuckDuckGo::ZeroClickInfo
+    public methods (4) : DOES, has_structured_answer, new, structured_answer
+    private methods (0)
+    internals: {
+        answer        &amp;quot;perldoc [option]
+
+Module Options
+--------------
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Looking good! (I&amp;rsquo;ve cut the output as it&amp;rsquo;s verbose). The next thing I can try is a browser test using &lt;code&gt;duckpan server&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ duckpan server
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then I point my browser at &lt;code&gt;http://localhost:5000&lt;/code&gt;, and enter a trigger query for the instant answer. That works as well. Finally, I need to complete a unit test script for the instant answer. I&amp;rsquo;ve already got a skeleton test script which was created by &lt;code&gt;duckpan new&lt;/code&gt; at the start:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Test::More;
+use DDG::Test::Goodie;
+
+zci answer_type =&amp;gt; &amp;quot;perldoc_cheat_sheet&amp;quot;;
+zci is_cached   =&amp;gt; 1;
+
+ddg_goodie_test(
+    [qw( DDG::Goodie::PerldocCheatSheeet )],
+    # At a minimum, be sure to include tests for all:
+    # - primary_example_queries
+    # - secondary_example_queries
+    &#39;example query&#39; =&amp;gt; test_zci(&#39;query&#39;),
+    # Try to include some examples of queries on which it might
+    # appear that your answer will trigger, but does not.
+    &#39;bad example query&#39; =&amp;gt; undef,
+);
+
+done_testing;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ll update the test file, and add some comments:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Test::More;
+use DDG::Test::Goodie;
+
+zci answer_type =&amp;gt; &amp;quot;perldoc_cheat_sheet&amp;quot;;
+zci is_cached   =&amp;gt; 1;
+
+# all responses for this goodie are the same
+my @test_zci = (
+  # regex for the plain text response
+  qr/^perldoc \[option\].*Module Options.*Search Options.*Common Options.*Help.*$/s,
+  # check the heading
+  heading =&amp;gt; &#39;Perldoc Cheat Sheet&#39;,
+  # check the html pattern
+  html    =&amp;gt; qr#$#s,
+);  
+
+ddg_goodie_test(
+    # name of goodie to test
+    [&#39;DDG::Goodie::PerldocCheatSheet&#39;],
+
+    # At a minimum, be sure to include tests for all:
+    # - primary_example_queries
+    # - secondary_example_queries
+    &#39;help perldoc&#39;        =&amp;gt; test_zci(@test_zci),
+    &#39;help perldoc&#39;        =&amp;gt; test_zci(@test_zci),
+    &amp;quot;perldoc&amp;quot;             =&amp;gt; test_zci(@test_zci),
+    &amp;quot;perldoc help&amp;quot;        =&amp;gt; test_zci(@test_zci),
+    &amp;quot;help perldoc&amp;quot;        =&amp;gt; test_zci(@test_zci),
+    &amp;quot;perldoc cheat sheet&amp;quot; =&amp;gt; test_zci(@test_zci),
+    &amp;quot;perldoc cheatsheet&amp;quot;  =&amp;gt; test_zci(@test_zci),
+    &amp;quot;perldoc commands&amp;quot;    =&amp;gt; test_zci(@test_zci),
+
+    # Try to include some examples of queries on which it might
+    # appear that your answer will trigger, but does not.
+    &#39;perl doc help&#39;     =&amp;gt; undef,
+    &#39;perl documentaton&#39; =&amp;gt; undef,
+    &#39;perl faq&#39;          =&amp;gt; undef,
+    &#39;perl help&#39;         =&amp;gt; undef,
+);
+
+done_testing;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Most of this is easy to follow; but there are a few gotchas; &lt;code&gt;@test_zci&lt;/code&gt; is a variable that stores the expected output from a successful trigger of the instant answer. It&amp;rsquo;s a bit of a hack: its passed to the &lt;code&gt;test_zci()&lt;/code&gt; function which expects a scalar which matches the plain text response, followed by 2 key/pairs, one for the heading and one for the HTML response (see the &lt;a href=&#34;https://duck.co/duckduckhack/test_files&#34;&gt;docs&lt;/a&gt; for more detail). I can run this script at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -I t/PerldocCheatSheet.t
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;t/PerldocCheatSheet.t .. ok    
+All tests successful.
+Files=1, Tests=12,  0 wallclock secs ( 0.02 usr  0.00 sys +  0.17 cusr  0.01 csys =  0.20 CPU)
+Result: PASS
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All the tests pass, so I&amp;rsquo;m ready to issue a pull request to the DuckDuckGo community!&lt;/p&gt;
+
+&lt;h3 id=&#34;where-to-go-for-help:5671e5b11157d2de7fcf618736bb0dd9&#34;&gt;Where to go for help&lt;/h3&gt;
+
+&lt;p&gt;Whilst the DuckDuckGo tools are great, there is also good &lt;a href=&#34;http://duckduckhack.com/&#34;&gt;documentation&lt;/a&gt; available and a friendly community supporting development when you need it. I spent some time on the Gitter &lt;a href=&#34;https://gitter.im/duckduckgo/zeroclickinfo-goodies?utm_source=badge&amp;amp;utm_medium=badge&amp;amp;utm_campaign=pr-badge&amp;amp;utm_content=badge&#34;&gt;chatroom&lt;/a&gt; for the instant answers repo, and the people there were friendly and responsive (and more importantly, they have commit bits :).&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Hello perldoc, productivity booster</title>
+      <link>http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/</link>
+      <pubDate>Thu, 26 Feb 2015 13:42:57 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/</guid>
+      <description>
+
+&lt;p&gt;Imagine this scenario: you&amp;rsquo;re using the DateTime module but you can&amp;rsquo;t remember the exact name of a function it provides. What do you do? You could open your browser, go to &lt;a href=&#34;https://metacpan.org/&#34;&gt;MetaCPAN&lt;/a&gt;, search for DateTime and look up the answer in the module&amp;rsquo;s documentation. A faster way would be to switch to the command line, and type &lt;code&gt;perldoc DateTime&lt;/code&gt; to display the module&amp;rsquo;s documentation right there in the terminal.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;perldoc&lt;/code&gt; is a command line program for reading Perl documentation. It comes with Perl, so if you&amp;rsquo;ve got Perl installed, perldoc should be available too. Using perldoc is easy: as you&amp;rsquo;ve already seen, to view the documentation of a module you&amp;rsquo;ve installed, at the command line type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc Module::Name
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;perldoc will search for the module and if it finds it, display the module&amp;rsquo;s documentation (written in Pod). Using perldoc you can learn more about any aspect of Perl almost instantly. Want to know more about Pod? Try &lt;code&gt;perldoc pod&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;dial-f-for-functions:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Dial -f for functions&lt;/h3&gt;
+
+&lt;p&gt;Perl has a huge number of built-in functions, about 224 depending on the Perl version. Who can remember exactly how they all work? I know I can&amp;rsquo;t. To lookup a Perl function, use perldoc with the &lt;code&gt;-f&lt;/code&gt; switch. For instance to look up the documentation on the &lt;code&gt;rindex&lt;/code&gt; function:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -f rindex
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Which will display:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rindex STR,SUBSTR,POSITION
+rindex STR,SUBSTR
+      Works just like index() except that it returns the position of the
+      last occurrence of SUBSTR in STR. If POSITION is specified,
+      returns the last occurrence beginning at or before that position.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Aha! This is all well and good, but what do you do if you can&amp;rsquo;t remember the function name? Well you could use &lt;a href=&#34;https://metacpan.org/pod/B::Keywords&#34;&gt;B::Keywords&lt;/a&gt;, but another way would be to check out &lt;code&gt;perlfunc&lt;/code&gt; the Perl documentation on built-in functions. To read it, with perldoc just type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc perlfunc
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;predefined-variables:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Predefined Variables&lt;/h3&gt;
+
+&lt;p&gt;As with functions, Perl has a large number of predefined variables that do everything from storing the program name to tracking the state of the regex engine. They&amp;rsquo;re really useful, but often have obscure names like &lt;code&gt;$^O&lt;/code&gt; (the OS name). So if you find yourself needing to check whether you&amp;rsquo;re looking at a list separator (&lt;code&gt;$&amp;quot;&lt;/code&gt;) or an output separator (&lt;code&gt;$/&lt;/code&gt;), just use perldoc with the &lt;code&gt;-v&lt;/code&gt; switch:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -v $/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Because some predefined variables have weird names, you may need to quote them on the command line for perldoc to work:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -v &#39;$&amp;quot;&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The predefined variables documentation is known as &lt;code&gt;perlvar&lt;/code&gt;. It&amp;rsquo;s well worth a read through at least once (&lt;code&gt;perldoc perlvar&lt;/code&gt;).&lt;/p&gt;
+
+&lt;h3 id=&#34;searching-the-documentation:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Searching the documentation&lt;/h3&gt;
+
+&lt;p&gt;Perl has a lot of great documentation, but it can be hard to remember the names of all of the entries. If you ever want to browse the table of contents, use &lt;code&gt;perl&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc perl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Many people recommend perltoc for this, but for finding relevant entries, I think the perl entry is easier to browse than perltoc.&lt;/p&gt;
+
+&lt;p&gt;Perl also has an extensive FAQ, (another entry that&amp;rsquo;s worth a read through). It has loads of answers to common queries. As usual you can read it with &lt;code&gt;perldoc faq&lt;/code&gt;, but you can also search it using the &lt;code&gt;-q&lt;/code&gt; switch. Want to know if there are any good IDEs for Perl? (a common newbie question):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -q ide
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;Is there an IDE or Windows Perl Editor?
+ Perl programs are just plain text, so any editor will do.
+
+ If you&#39;re on Unix, you already have an IDE--Unix itself. The Unix
+ philosophy is the philosophy of several small tools that each do one thing
+ and do it well. It&#39;s like a carpenter&#39;s toolbox.
+
+ If you want an IDE, check the following (in alphabetical order, not order
+ of preference):
+
+ Eclipse
+
+
+     The Eclipse Perl Integration Project integrates Perl editing/debugging
+     with Eclipse.
+
+ Komodo
+
+
+     ActiveState&#39;s cross-platform (as of October 2004, that&#39;s Windows,
+     Linux, and Solaris), multi-language IDE has Perl support, including a
+     regular expression debugger and remote debugging.
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;finding-module-install-locations:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Finding module install locations&lt;/h3&gt;
+
+&lt;p&gt;perldoc isn&amp;rsquo;t just about documentation. If you need to find out where a module is installed, using the &lt;code&gt;-l&lt;/code&gt; switch, perldoc will return the filepath of the module:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -l Test::More
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you get the path, you can open it in an editor directly:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ vi $(perldoc -l Test::More)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;One trick here: some modules don&amp;rsquo;t have any POD in them, for those modules, use &lt;code&gt;-lm&lt;/code&gt; to still return the path.&lt;/p&gt;
+
+&lt;h3 id=&#34;read-module-source-code-in-perldoc:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Read module source code in perldoc&lt;/h3&gt;
+
+&lt;p&gt;Finally, perldoc can also display module source code. Just use the &lt;code&gt;-m&lt;/code&gt; switch:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -m Test::More
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;wrap-up:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Wrap up&lt;/h3&gt;
+
+&lt;p&gt;This article has covered the most common features, but perldoc has a bunch of other capabilities that you can read about at the command line with &lt;code&gt;man perldoc&lt;/code&gt;. The Perl documentation is also &lt;a href=&#34;http://perldoc.perl.org/&#34;&gt;online&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Keep in mind that as you get more proficient with perldoc, you&amp;rsquo;ll need the online resources less and less. Get in the habit of switching to the command line, looking up something in perldoc and flipping right back to programming - it&amp;rsquo;s a productivity win.&lt;/p&gt;
+
+&lt;h3 id=&#34;perldoc-cheatsheet:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;perldoc cheatsheet&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;perldoc [option]
+
+Module Options                               
+--------------                               
+         Module documentation     
+-l       Module filepath          
+-lm      Module filepath (alt.)   
+-m       Module source
+
+
+Search Options
+--------------
+-f     Get a built-in function definition
+-v     Get a variable definition
+-q      Search the faq for a keyword
+
+
+Commonly Used Entries
+---------------------
+perl         Language overview, list of all other entries
+perltoc      Table of contents
+perlfunc     Built-in functions documentation
+perlvar      Predefined variables documentation
+perlref      References documentation
+perlre       Regex documentation
+faq          The Perl FAQ
+
+Help
+----
+man perldoc     List of all perldoc options
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

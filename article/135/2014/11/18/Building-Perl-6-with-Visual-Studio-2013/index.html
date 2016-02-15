@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Building Perl 6 with Visual Studio 2013 Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Compiling Rakudo on Windows is easier than you think"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Building Perl 6 with Visual Studio 2013</h1>
+            <p class="blog-post-meta">Nov 18, 2014 by <a href="/authors/sinan-unur">Sinan Unur</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/135/A8E8819E-6EC2-11E4-9A80-FF7CA241EDA8.png"/>
+            </div>
+              
+
+<p>I think the last time I tried playing around with anything related to Perl 6 was at least two years ago. Recently, <a href="https://fosdem.org/2015/schedule/event/get_ready_to_party/">an understated entry</a> in Fosdem &lsquo;15 schedule caught the Perl community&rsquo;s attention:</p>
+
+<blockquote>
+<p>The last pieces are finally falling into place. After years of design and implementation, 2015 will be the year that Perl 6 officially launches for production use.</p>
+</blockquote>
+
+<p>Since then, Microsoft made <a href="http://blog.nu42.com/2014/11/64-bit-perl-5201-with-visual-studio.html">Visual Studio 2013 freely available</a> for individuals and small teams. Up to this point, I had been using the compiler that comes with Windows SDK 7.1 with decent results, but, of course, couldn&rsquo;t resist the temptation to build Perl 5.20.1 with the new compiler.</p>
+
+<p>This was followed by an encouraging question from <a href="http://www.reddit.com/r/perl/comments/2m3t6s/%CE%BD42_64bit_perl_5201_with_visual_studio_2013/cm1iqnb">David Farrell</a>: &ldquo;Have you thought about compiling Rakudo?&rdquo;</p>
+
+<p>Well, I hadn&rsquo;t.</p>
+
+<p>I had been anticipating too many headaches from not using *nix tools, but I decided to give it a shot. Perl 6 really couldn&rsquo;t be ready enough that I could just get the source and build it, could it?</p>
+
+<p>I started with Rakudo Star - a Perl 6 distribution that bundles some useful modules and a package manager. I downloaded <a href="http://rakudo.org/downloads/star/">rakudo-star-2014.09.tar.gz</a>, extracted it and ran the configure script:</p>
+
+<pre><code class="language-prettyprint">C:\Src&gt; perl Configure.pl --gen-moar
+</code></pre>
+
+<p>This configures Perl 6 to use <a href="http://moarvm.com/">MoarVM</a>, one of several virtual machines that Perl 6 can be built for. From that point on, it was just a matter of following a few prompts and soon I had a <code>perl6</code> that was churning through the specification tests.</p>
+
+<p>Those did take a while. In the end there were about a dozen test failures which represent a tiny fraction of the total number of tests.</p>
+
+<h3 id="compiling-rakudo-from-source:8e521b9a6a55a3a00378444bf2aee097">Compiling Rakudo from source</h3>
+
+<p>Using the two months old Rakudo Star distribution left me wanting more. So I headed over to <a href="https://github.com/rakudo/rakudo/">Rakudo&rsquo;s GitHub repository</a> and proceeded to checkout and build the default branch.</p>
+
+<p>If you want to build Rakudo from source you will need <a href="http://git-scm.com/">Git</a> for this to work. There are several options available, including <a href="https://windows.github.com/">GitHub Windows</a> and <a href="http://git-scm.com/download/win">Git for Windows</a>. I prefer to use <a href="https://www.cygwin.com/">Cygwin</a> versions of *nixy utilities by adding Cygwin&rsquo;s executable locations <em>last</em> in my <code>%PATH%</code>.</p>
+
+<p>Once you have a version of Git installed, these are the steps to follow:</p>
+
+<p>Open a &ldquo;VS2013 x64 Native Tools Command Prompt&rdquo;. You can find the shortcuts under <code>C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\Tools\Shortcuts</code> (with Visual Studio 2015, the shortcut is under: <code>C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual Studio 2015\Visual Studio Tools\Windows Desktop Command Prompts</code>).</p>
+
+<p>Run the following commands to get the Rakudo source and build it for MoarVM:</p>
+
+<pre><code class="language-prettyprint">&gt; git clone https://github.com/rakudo/rakudo.git
+&gt; cd rakudo
+&gt; perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=C:/opt/Perl6
+</code></pre>
+
+<p>N.B. Make sure this is a native Windows <code>perl</code>, not a Cygwin version in case you have those on the path. If you want to be absolutely certain, specify the full path. E.g., in my case, <code>C:\opt\perl-5.20.1\bin\perl Configure.pl ...</code>. You may also have to adjust the <code>--prefix</code> path to suit your system.</p>
+
+<p>Running <code>Configure.pl</code> will pull in the rest of the components necessary to build Rakudo. The rest is easy:</p>
+
+<pre><code class="language-prettyprint">&gt; nmake
+&gt; nmake test
+&gt; nmake spectest
+&gt; nmake install
+</code></pre>
+
+<p>Run spectest only if you are really patient or curious. When those tests were done, I had seven spectest failures. I didn&rsquo;t care much about those at this point. My purpose was to have a <code>perl6</code> working well enough to let me try, (for the first time ever!), some Perl 6 examples.</p>
+
+<p>You can also add the <code>Perl6\bin</code> path to your user path. If everything worked as smoothly as it did for me, try:</p>
+
+<pre><code class="language-prettyprint">&gt; perl6 -v
+This is perl6 version 2014.10-114-gf8f6feb built on MoarVM version
+2014.10-17-g05b25a6
+</code></pre>
+
+<p>And just for fun:</p>
+
+<pre><code class="language-prettyprint">&gt; perl6 -e &quot;'Hello World!'.say&quot;
+Hello World!
+</code></pre>
+
+<h3 id="installing-perl-6-modules:8e521b9a6a55a3a00378444bf2aee097">Installing Perl 6 Modules</h3>
+
+<p>What is Perl without the ability to exploit other people&rsquo;s hard work for your gain?</p>
+
+<p>Perl 6, just like Perl 5, has a module system. You can find contributed modules at <a href="http://modules.perl6.org/">modules.perl6.org</a>, and install them using <a href="https://github.com/tadzik/panda/">panda</a>. Unfortunately bootstrapping panda didn&rsquo;t work for me due to <a href="https://github.com/tadzik/File-Find/blob/master/t/01-file-find.t">test failures with File::Find</a>.</p>
+
+<p>I am not sure if these indicate problems with the underlying library, or problems with the way tests are written. I suspect the latter, but that will have to wait. In the mean time, I will <a href="http://perl6.org/documentation/">explore the basic language</a> to get a better feel for Perl 6.</p>
+
+<p><strong>Update</strong> - added VS2015 instructions. 2016-01-04</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/windows">windows</a></div>
+              
+                <div class="tag"><a href="/tags/perl6">perl6</a></div>
+              
+                <div class="tag"><a href="/tags/rakudo">rakudo</a></div>
+              
+                <div class="tag"><a href="/tags/star">star</a></div>
+              
+                <div class="tag"><a href="/tags/visual_studio_2013">visual_studio_2013</a></div>
+              
+                <div class="tag"><a href="/tags/visual_studio_2015">visual_studio_2015</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

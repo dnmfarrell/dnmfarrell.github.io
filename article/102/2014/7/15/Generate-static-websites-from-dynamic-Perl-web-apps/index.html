@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Generate static websites from dynamic Perl web apps Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="App::Wallflower generates static apps from PSGI applications"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Generate static websites from dynamic Perl web apps</h1>
+            <p class="blog-post-meta">Jul 15, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/102/72C9C7DC-0AF2-11E4-B70D-23925E2B53EB.jpeg"/>
+            </div>
+              
+
+<p><em>Static websites aren&rsquo;t suitable for every situation, but they have several advantages over dynamic apps; they&rsquo;re more efficient, more secure and simpler to deploy. That said, developing and maintaining a static site is a pain, there&rsquo;s just too much repetitive boilerplate code. Enter <a href="https://metacpan.org/pod/wallflower">Wallflower</a>, it generates static websites from PSGI compatible Perl web applications. You get the best of both worlds: develop the routes, templates and unit tests in your favourite web framework but deploy it as a static website with Wallflower.</em></p>
+
+<h3 id="requirements:29419c887d0bf32d7cca4c904ddd08fe">Requirements</h3>
+
+<p>The CPAN Testers <a href="http://matrix.cpantesters.org/?dist=App-Wallflower+1.004">results</a> for the latest version (v1.004) of App::Wallflower show it runs on just about any Perl and operating system, including Windows. You can install it from CPAN by going to the command line and typing:</p>
+
+<pre><code class="language-prettyprint">$ cpan App::Wallflower
+</code></pre>
+
+<h3 id="wallflower-in-action:29419c887d0bf32d7cca4c904ddd08fe">Wallflower in action</h3>
+
+<p>Let&rsquo;s create a simple application using <a href="https://metacpan.org/pod/Dancer2">Dancer2</a>:</p>
+
+<pre><code class="language-prettyprint">$ dancer2 -a MyApp
+</code></pre>
+
+<p>This will create a skeleton application for us. Now change into the root application directory and create a new directory to hold the static files, we&rsquo;ll call it &ldquo;static&rdquo;:</p>
+
+<pre><code class="language-prettyprint">$ cd MyApp
+$ mkdir static
+</code></pre>
+
+<p>That&rsquo;s all we need to generate the static site with wallflower:</p>
+
+<pre><code class="language-prettyprint">$ wallflower --a bin/app.pl --d static
+</code></pre>
+
+<p>Wallflower will request the application root page (&lsquo;/&rsquo;) and spider all links it finds from there, copying the files to the static folder. This includes files referenced in your html and css, such as JavaScript files. If your app has links to all of its pages, this is all you need.</p>
+
+<h3 id="test-the-static-site-with-nginx:29419c887d0bf32d7cca4c904ddd08fe">Test the static site with nginx</h3>
+
+<p>Let&rsquo;s deploy the site with nginx locally (you&rsquo;ll need nginx installed for this). First create the virtual host file:</p>
+
+<pre><code class="language-prettyprint">server {
+    listen 80;
+    server_name localhost;
+    root /var/www/MyApp/static;
+    location / {
+        index index.html;
+        rewrite ^/$ /index.html break;
+    }
+}
+</code></pre>
+
+<p>Assuming a unix-like platform, save the virtual host file to &ldquo;/etc/nginx/sites-available/localhost&rdquo;. Next enter these commands:</p>
+
+<pre><code class="language-prettyprint">$ sudo mkdir /var/www/MyApp
+$ sudo cp static /var/www/MyApp
+$ cd /etc/nginx/sites-enabled
+$ sudo ln -s ../sites-available/localhost
+</code></pre>
+
+<p>Now we need to start nginx. On RHEL/Fedora/CentOS you can start nginx with:</p>
+
+<pre><code class="language-prettyprint">$ sudo nginx
+</code></pre>
+
+<p>On Ubuntu:</p>
+
+<pre><code class="language-prettyprint">sudo service nginx start
+</code></pre>
+
+<p>Now check out the site at <a href="http://localhost:">http://localhost:</a></p>
+
+<p><a href="/static/images/102/dancer2.png" title="The default Dancer app - statically deployed"><img src="/static/images/102/dancer2_small.png" alt="The default Dancer app - statically deployed" /></a></p>
+
+<p>Looks pretty good to me!</p>
+
+<h3 id="wallflower-tips:29419c887d0bf32d7cca4c904ddd08fe">Wallflower Tips</h3>
+
+<p>A few things I&rsquo;ve found whilst using Wallflower:</p>
+
+<ul>
+<li>Use absolute urls over relative ones. So if you host your font files in your css directory, use: &ldquo;/css/MyFont.ttf&rdquo; instead of &ldquo;MyFont.ttf&rdquo; in your css files.</li>
+<li>Think about files you use but aren&rsquo;t directly linked to in your app&rsquo;s HTML pages, the sitemap.xml file for example. Feed urls for these files to Wallflower with the -F option.</li>
+<li>Watch out for urls in commented code as Wallflower will copy these too!</li>
+<li>The Wallflower docs recommend using extensions in your urls to ensure the correct content-type is set. I found this wasn&rsquo;t required when I deployed the files with nginx.</li>
+</ul>
+
+<h3 id="conclusion:29419c887d0bf32d7cca4c904ddd08fe">Conclusion</h3>
+
+<p>Whether you prefer developing applications with Catalyst, Dancer or Mojolicious, Wallflower is a useful tool that can be incorporated into your development and deployment process. For further examples of Wallflower in action, check out the <a href="https://metacpan.org/pod/Wallflower::Tutorial">tutorial</a> and advent calendar <a href="http://www.perladvent.org/2012/2012-12-22.html">entry</a> by Wallflower creator Philippe Bruhat (BooK).</p>
+
+<p><em>Cover image <a href="http://creativecommons.org/licenses/by/4.0/">©</a> <a href="https://www.flickr.com/photos/ruthanddave/9432335346/in/photolist-9YgULK-6CwkPH-m68vYZ-4P7TsV-4Pc9dL-7UqEXc-8rbEQq-mPFbgf-Hw6fU-2JcQ24-7ZdMJc-5q1xn5-fnvbFu-fpNhu5-bY6j7J-6HC9cQ-7Y666Z-4RGjZ5-c5bJ5A-5Ma2Kx-7UshUJ-buamir-qLy2D-26mzb-nUfKdk-818aoT-4ne9U5-azaNvR-c7Ztsj-sbu9W-4hrgcG-8r8yrv-hdmVrd-a72iqb-4Kebyi-aEpfqd-6cdRLZ-7iqNqm-6XsteA-b8crZZ-ubPgJ-8pBxDZ-6R63RH-6AnSCX-byKj2-8b97G8-d6X7B-dddPtT-6pUqhf-ejhHg3|">Ruth Hartnup</a></em></p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/nginx">nginx</a></div>
+              
+                <div class="tag"><a href="/tags/mvc">mvc</a></div>
+              
+                <div class="tag"><a href="/tags/static">static</a></div>
+              
+                <div class="tag"><a href="/tags/web">web</a></div>
+              
+                <div class="tag"><a href="/tags/wallflower">wallflower</a></div>
+              
+                <div class="tag"><a href="/tags/psgi">psgi</a></div>
+              
+                <div class="tag"><a href="/tags/framework">framework</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

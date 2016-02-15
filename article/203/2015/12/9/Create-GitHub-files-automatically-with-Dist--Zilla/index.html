@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Create GitHub files automatically with Dist::Zilla Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Automate the boring stuff, help others"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Create GitHub files automatically with Dist::Zilla</h1>
+            <p class="blog-post-meta">Dec 9, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/203/081F6A04-9E7B-11E5-B6F6-9162ABEC0845.jpeg"/>
+            </div>
+              
+
+<p>I use <a href="https://metacpan.org/pod/Dist::Zilla">Dist::Zilla</a> to release my code to CPAN. I really like it as with a single command I can build, package and ship a distribution. But most of my code lives on GitHub. In fact, a quick check shows that I have 90 <a href="https://github.com/dnmfarrell">repos</a>, but only 13 distributions on <a href="https://metacpan.org/author/DFARRELL">CPAN</a>. So only 14% of my code makes it to CPAN.</p>
+
+<p>Traditionally Dist::Zilla makes a distinction between your code and the files needed for CPAN and PAUSE to work, (like package metadata, a readme etc). The basic use case goes like this: you write your class files, scripts and unit tests, and when you tell Dist::Zilla to release the distribution, it generates all of the extra files, creates a tarball and uploads it to <a href="https://pause.perl.org/pause/query">PAUSE</a>. The problem is though, some of those additional files would be nice to have in my GitHub repos too. I don&rsquo;t want to write another <code>readme.md</code>, or spend time copying the license file into the repo if Dist::ZIlla can already generate one. To solve this issue I use two Dist::Zilla plugins from <a href="https://metacpan.org/author/RTHOMPSON">Ryan Thompson</a>.</p>
+
+<h3 id="setup:3e7badd427fe2f7b2dcf3dadf6e1d80b">Setup</h3>
+
+<p>To use the code in this article, you&rsquo;ll need to install Dist::Zilla and the two plugin modules described below. You can do that with <code>cpan</code>:</p>
+
+<pre><code class="language-prettyprint">$ cpan Dist::Zilla \
+  Dist::Zilla::Plugin::ReadmeAnyFromPod  \
+  Dist::Zilla::Plugin::CopyFilesFromBuild
+</code></pre>
+
+<p>If you&rsquo;re installing Dist::Zilla consider using <a href="https://metacpan.org/pod/App::cpanminus">cpanminus</a> instead, with no tests for a much faster install:</p>
+
+<pre><code class="language-prettyprint">$ cpanm --notest Dist::Zilla \ 
+  Dist::Zilla::Plugin::ReadmeAnyFromPod \
+  Dist::Zilla::Plugin::CopyFilesFromBuild
+</code></pre>
+
+<h3 id="creating-a-readme-automatically:3e7badd427fe2f7b2dcf3dadf6e1d80b">Creating a readme automatically</h3>
+
+<p>Ryan&rsquo;s module <a href="https://metacpan.org/pod/Dist::Zilla::Plugin::ReadmeAnyFromPod">Dist::Zilla::Plugin::ReadmeAnyFromPod</a> can generate a readme automatically, in any common format. It uses the Pod text from the main modules in the distribution. I use it to create my GitHub readme files in Pod, by adding the following text to my <code>dist.ini</code>.</p>
+
+<pre><code>[ReadmeAnyFromPod]
+type = pod 
+filename = README.pod
+location = root
+</code></pre>
+
+<p>If I build the distribution with Dist::Zilla, it will generate a new readme for me, including the author, copyright and version information in addition to the documentation already in the main module.</p>
+
+<pre><code class="language-prettyprint">$ dzil build &amp;&amp; dzil clean
+</code></pre>
+
+<p>This line instructs Dist::Zilla to build the distribution, which generates the new <code>README.pod</code> and then clean up the build files that it generated, leaving a clean working directory.</p>
+
+<h3 id="adding-a-license:3e7badd427fe2f7b2dcf3dadf6e1d80b">Adding a license</h3>
+
+<p>I use another module from Ryan, <a href="https://metacpan.org/pod/Dist::Zilla::Plugin::CopyFilesFromBuild">Dist::Zilla::Plugin::CopyFilesFromBuild</a> to copy the software license from the Dist::Zilla build into my project directory:</p>
+
+<pre><code>[CopyFilesFromBuild]
+copy = LICENSE
+[GatherDir]
+exclude_filename = LICENSE
+</code></pre>
+
+<p>This will copy the license out of the build directory into the root project directory. The <code>exclude_filename</code> clause is there so that during the <em>next</em> build, Dist::Zilla does not include the generated license in the working directory of files. Running this in the same way as before, I can generate whatever license text I want for my distribution (the type of license is specified in the <code>dist.ini</code>).</p>
+
+<pre><code class="language-prettyprint">$ dzil build &amp;&amp; dzil clean
+</code></pre>
+
+<h3 id="helping-others:3e7badd427fe2f7b2dcf3dadf6e1d80b">Helping others</h3>
+
+<p>Dist::Zilla is great, but if you don&rsquo;t have it, installing a distribution from GitHub can really suck. Recently a friend was trying to deploy some code of mine to his Macbook with a vanilla Perl install. I didn&rsquo;t want to upload the code to CPAN and wait for PAUSE to index it. Installing Dist::Zilla on the his machine was not a great option either: Dist::Zilla is a beast. According to Devel::Modlist, Dist::Zilla has <strong>178</strong> non-core dependencies (including indirectly-used modules). That&rsquo;s the price you pay for automation and modularity - Dist::Zilla is working hard so us module authors don&rsquo;t have to. But for someone who barely knows Perl, installing Dist::Zilla in a virgin environment can be a nightmare.</p>
+
+<p>To get around this issue, I used <a href="https://metacpan.org/pod/Dist::Zilla::Plugin::CopyFilesFromBuild">Dist::Zilla::Plugin::CopyFilesFromBuild</a> again to copy the Makefile.PL and cpanfile into the project directory. My friend then cloned the directory with Git and used <a href="https://metacpan.org/pod/App::cpanminus">cpanminus</a> to install it. Easy! It worked so well, I&rsquo;m going to include a Makefile and cpanfile in my GitHub repos from now on.</p>
+
+<h3 id="a-sample-dist-zilla-config:3e7badd427fe2f7b2dcf3dadf6e1d80b">A sample Dist::Zilla config</h3>
+
+<p>Here&rsquo;s a <code>dist.ini</code> from a <a href="https://github.com/dnmfarrell/Settlers-Game">repo</a> of mine that uses the code in this article. As certain directives are required in order, it can be useful to see the entire context:</p>
+
+<pre><code>name    = Settlers-Game
+author  = David Farrell 
+license = FreeBSD
+copyright_holder = David Farrell
+copyright_year   = 2015
+version = 0.06
+
+[CPANFile]
+[License]
+[CopyFilesFromBuild]
+copy = cpanfile
+copy = LICENSE
+copy = Makefile.PL
+[GatherDir]
+exclude_filename = cpanfile
+exclude_filename = LICENSE
+exclude_filename = Makefile.PL
+[PkgVersion]
+[AutoPrereqs]
+[GithubMeta]
+[ChangelogFromGit]
+[MetaYAML]
+[MetaJSON]
+[MakeMaker]
+[ModuleBuild]
+[ManifestSkip]
+[Manifest]
+[PodWeaver]
+[ReadmeAnyFromPod]
+type = pod
+filename = README.pod
+location = root
+[PodSyntaxTests]
+[PodCoverageTests]
+[TestRelease]
+[Test::EOL]
+[UploadToCPAN]
+[ConfirmRelease]
+[Clean]
+</code></pre>
+
+<p>To use this config with Dist::Zilla you&rsquo;ll need some additional plugins:</p>
+
+<pre><code class="language-prettyprint">$ cpan Dist::Zilla::Plugin::Clean \
+  Dist::Zilla::Plugin::GithubMeta \
+  Dist::Zilla::Plugin::ChangelogFromGit \
+  Dist::Zilla::Plugin::PodWeaver
+</code></pre>
+
+<h3 id="conclusion:3e7badd427fe2f7b2dcf3dadf6e1d80b">Conclusion</h3>
+
+<p>Ok it&rsquo;s not <em>all</em> gravy. The copy file method has one downside: it overwrites the copied files every time they&rsquo;re generated. This isn&rsquo;t an issue for me; the commit diff only shows the changed lines, but some people may not like it.</p>
+
+<p>For more information on Dist::Zilla, check out the official <a href="http://dzil.org/tutorial/contents.html">documentation</a>. For a completely different approach to releasing code to CPAN, you may like<a href="https://metacpan.org/pod/%20Module::Release">Module::Release</a>. Oh and if you find yourself in a new development environment, needing to install dependencies for a local module, David Golden has a useful <a href="http://www.dagolden.com/index.php/1528/five-ways-to-install-modules-prereqs-by-hand/">post</a> that includes five different ways to do it.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/cpan">cpan</a></div>
+              
+                <div class="tag"><a href="/tags/module">module</a></div>
+              
+                <div class="tag"><a href="/tags/config">config</a></div>
+              
+                <div class="tag"><a href="/tags/pause">pause</a></div>
+              
+                <div class="tag"><a href="/tags/dzil">dzil</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

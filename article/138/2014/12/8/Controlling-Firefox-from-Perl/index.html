@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Controlling Firefox from Perl Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Form submission, scraping, JavaScript execution are all possible"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Controlling Firefox from Perl</h1>
+            <p class="blog-post-meta">Dec 8, 2014 by <a href="/authors/brian-d-foy">brian d foy</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/138/589C58AA-7EE4-11E4-9429-0240B3613736.png"/>
+            </div>
+              
+
+<p>I&rsquo;ve been playing with <a href="http://www.metacpan.org/module/WWW::Mechanize::Firefox">WWW::Mechanize::Firefox</a>. It&rsquo;s like the LWP-backended <a href="http://www.metacpan.org/module/WWW::Mechanize">WWW::Mechanize</a>, but with a browser doing all the work. Instead of doing it all in Perl, I can use it as the glue language that it is.</p>
+
+<p>Sometimes <a href="http://www.metacpan.org/module/WWW::Mechanize">WWW::Mechanize</a>, <a href="http://www.metacpan.org/module/LWP::UserAgent">LWP::UserAgent</a>, or <a href="http://www.metacpan.org/module/Mojo::UserAgent">Mojo::UserAgent</a> aren&rsquo;t enough. For basic web scraping and automation they work well, but fail miserably for anything that requires JavaScript. Some people have luck with SpiderMonkey (<a href="https://metacpan.org/search?q=spidermonkey&amp;">with several Perl interfaces</a>), but that still isn&rsquo;t the whole browser environment.</p>
+
+<p>Before you start, you need the <a href="https://www.mozilla.org">Firefox</a> browser (or one of its forks) with the <a href="https://addons.mozilla.org/en-us/firefox/addon/mozrepl/">MozRepl</a> add-on, which provides an interactive JavaScript console that you can telnet into. Once activated, you can connect to the console and can control the browser.</p>
+
+<p><a href="https://farm8.staticflickr.com/7503/15324164413_0a43aeb932.jpg" title="activate_mozrepl by brian d foy, on Flickr"><img src="https://farm8.staticflickr.com/7503/15324164413_0a43aeb932.jpg" alt="activate\_mozrepl" /></a></p>
+
+<p>I have to know JavaScript to control Firefox directly. I can telnet into the MozRepl server and issue commands. It&rsquo;s a bit more work than I&rsquo;d like to do.</p>
+
+<p><a href="https://farm9.staticflickr.com/8680/15941835341_f064e9e2a3.jpg" title="mozrepl_telnet by brian d foy, on Flickr"><img src="https://farm9.staticflickr.com/8680/15941835341_f064e9e2a3.jpg" alt="mozrepl\_telnet" /></a></p>
+
+<p>I&rsquo;m not going to control Firefox directly, though, because I&rsquo;m going to let some Perl modules do that for me. The basic interface of <a href="http://www.metacpan.org/module/WWW::Mechanize::Firefox">WWW::Mechanize::Firefox</a> is the same as <a href="http://www.metacpan.org/module/WWW::Mechanize">WWW::Mechanize</a>:</p>
+
+<pre><code class="language-prettyprint">#!/usr/local/perls/perl-5.20.0/bin/perl
+use v5.10;
+use WWW::Mechanize::Firefox;
+
+my $mech = WWW::Mechanize::Firefox-&gt;new;
+$mech-&gt;autoclose_tab( 0 );
+
+$mech-&gt;get( 'http://www.perltricks.com' );
+
+foreach my $link ( $mech-&gt;links ) {
+    state $count = 0;
+    say $count++, &quot;: &quot;, $link-&gt;url;
+    }
+</code></pre>
+
+<p>I get a list of the links on the PerlTricks main page:</p>
+
+<pre><code>0: http://perltricks.com/favicon.ico
+1: http://perltricks.com/feed/atom
+2: http://perltricks.com/feed/rss
+3: http://perltricks.com/static/css/bootstrap.min.css
+4: http://perltricks.com/static/css/carousel.css
+5: http://perltricks.com/static/css/perltricks.css
+6: https://twitter.com/intent/follow?screen_name=perltricks
+7: http://perltricks.com/feed/rss
+...
+</code></pre>
+
+<p>That&rsquo;s not even the good part yet.</p>
+
+<h3 id="executing-javascript:b571cb2b36a22a2464e2b146c6144eec">Executing JavaScript</h3>
+
+<p>Since I&rsquo;m connected to a JavaScript terminal, I can evaluate JavaScript code. The <code>eval</code> returns the result and its type:</p>
+
+<pre><code class="language-prettyprint">use v5.10;
+use WWW::Mechanize::Firefox;
+
+my $mech = WWW::Mechanize::Firefox-&gt;new;
+$mech-&gt;autoclose_tab( 0 );
+
+my( $result, $type ) = $mech-&gt;eval( '2+2' );
+
+say &quot;2+2 is $result (type $type)&quot;;
+</code></pre>
+
+<pre><code>2+2 is 4 (type number)
+</code></pre>
+
+<p>That evaluates the JavaScript in its own context, which isn&rsquo;t that interesting for me. I want to interact and control parts of a web page. To do that, I use the <code>eval_in_page</code>. That runs the JavaScript with everything else going on in the current tab, including all the JavaScript code it has loaded. Here&rsquo;s an example that uses the StackExchange JavaScript to change the view from the desktop mode to the mobile mode:</p>
+
+<pre><code class="language-prettyprint">use v5.10;
+use WWW::Mechanize::Firefox;
+
+my $mech = WWW::Mechanize::Firefox-&gt;new;
+$mech-&gt;autoclose_tab( 0 );
+
+$mech-&gt;get( 'http://www.stackoverflow.com/' );
+sleep 5;
+$mech-&gt;eval_in_page( 'StackExchange.switchMobile(&quot;on&quot;)' );
+</code></pre>
+
+<p>When I run this, the screen changes from the full site to the mobile site.</p>
+
+<p><a href="https://farm9.staticflickr.com/8640/15943126852_07692bfc09.jpg" title="screenshots by brian d foy, on Flickr"><img src="https://farm9.staticflickr.com/8640/15943126852_07692bfc09.jpg" alt="screenshots" /></a></p>
+
+<h3 id="some-problems:b571cb2b36a22a2464e2b146c6144eec">Some problems</h3>
+
+<p>This approach has some problem though, almost none of which come from Perl. If I want to automate something that makes many requests or runs for a long time, Firefox is likely to have problems. Over time, <a href="https://support.mozilla.org/en-US/kb/firefox-uses-too-much-memory-ram">it&rsquo;s memory footprint grows</a>, leading to poor performance and crashes. Sometimes the connection to the console breaks, taking down my program with it.</p>
+
+<p>Because of this, I limit my use of <a href="http://www.metacpan.org/module/WWW::Mechanize::Firefox">WWW::Mechanize::Firefox</a> to the parts of my problem that require JavaScript. I can extract the information I need then use <a href="http://www.metacpan.org/module/Mojo::UserAgent">Mojo::UserAgent</a> to handle the other parts.</p>
+
+<h3 id="similar-solutions:b571cb2b36a22a2464e2b146c6144eec">Similar solutions</h3>
+
+<p>The <a href="http://www.metacpan.org/module/WWW::Mechanize::Firefox">WWW::Mechanize::Firefox</a> isn&rsquo;t the only way to do this sort of thing. <a href="http://blogs.perl.org/users/robhammond/2013/02/web-scraping-with-perl-phantomjs.html">Rob Hammond posted on blogs.perl.org about PhantomJS</a>, which received some comments about <a href="http://www.metacpan.org/module/WWW::WebKit">WWW::WebKit</a>. There used to be a Win32::IE::Mechanize, but apparently it <a href="http://www.perlmonks.org/?node_id=1061372">doesn&rsquo;t work in IE 8</a>. <a href="http://www.seleniumhq.org">Selenium</a> and <a href="http://www.metacpan.org/module/Test::WWW::Selenium">Test::WWW::Selenium</a> is another tool that I could use, but that&rsquo;s more geared to browser acceptance testing and replays.</p>
+
+<p><em>Join the discussion on the Perl <a href="http://www.reddit.com/r/perl/comments/2onaz4/controlling_firefox_from_perl_by_brian_d_foy/">subreddit</a> about this article!</em></p>
+
+<p><strong>Update:</strong> <em>last paragraph updated to include Selenium reference. 2014-12-09</em></p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/javascript">javascript</a></div>
+              
+                <div class="tag"><a href="/tags/firefox">firefox</a></div>
+              
+                <div class="tag"><a href="/tags/mechanize">mechanize</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

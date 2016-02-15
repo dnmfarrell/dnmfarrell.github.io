@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Kitchen coding nightmares: JavaScript scope Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Some JavaScript gotchas and solutions"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Kitchen coding nightmares: JavaScript scope</h1>
+            <p class="blog-post-meta">Dec 17, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/204/60B8AF26-A444-11E5-A7E3-5B35815E78B2.png"/>
+            </div>
+              
+
+<p>Lately at the <a href="https://www.recurse.com/">Recurse Center</a> I&rsquo;ve been developing a JavaScript client for my <a href="https://github.com/dnmfarrell/Settlers-Game">Settlers game</a>. As a Perl developer working with JavaScript, it has been a fun experience. JavaScript feels very perly - both share a flexible syntax, first class functions and objects as hashes. And both languages have a lax interpreter which should have been put in strict mode in the first place (ha-ha!). One way in which JavaScript is very different from Perl is its scoping rules. I was burned by these more than once, and so if you&rsquo;re new to JavaScript, you might find the following summary and recommendations useful.</p>
+
+<h3 id="functional-scoping:6e2e047097a9f672ac378602b99db31f">Functional scoping</h3>
+
+<p>Variables are declared with the <code>var</code> keyword:</p>
+
+<pre><code class="language-prettyprint">var name = &quot;David&quot;;
+</code></pre>
+
+<p>Variables are functionally-scoped, which means that if declared within a function, the variable is private to the function block. Variables declared outside of functions are globally scoped. And there is no other type of block scoping (such as within if-else or for loops).</p>
+
+<pre><code class="language-prettyprint">var name = &quot;David&quot;;
+
+function log_name (name) // private
+{
+  console.log(name);
+}
+
+var names = [&quot;Jen&quot;, &quot;Jim&quot;, &quot;Jem&quot;, &quot;Jon&quot;];
+for (var i = 0; i &lt; names.length; i++)
+{
+  var name = names[i]; // overwriting the global
+}
+console.log(name); // Jon NOT David
+</code></pre>
+
+<h3 id="functions-as-variables:6e2e047097a9f672ac378602b99db31f">Functions as variables</h3>
+
+<p>Function names are stored as variables under the same scoping rules as ordinary variables. There are two ways to declare functions:</p>
+
+<pre><code class="language-prettyprint">function log_name () { }
+</code></pre>
+
+<p>and:</p>
+
+<pre><code class="language-prettyprint">var log_name = function () { }
+</code></pre>
+
+<p>Both of these are the same. Which means it&rsquo;s possible to inadvertently overwrite a function with another variable declaration:</p>
+
+<pre><code class="language-prettyprint">function name () { return &quot;David&quot;; }
+var name = &quot;John&quot;;
+name(); // error, name is not a function anymore
+</code></pre>
+
+<h3 id="hoisting:6e2e047097a9f672ac378602b99db31f">Hoisting</h3>
+
+<p>JavaScript interpreters have a initial-runtime phase, (similar to Perl&rsquo;s <code>BEGIN</code>), where all variable declarations are executed before other code. This is known as &ldquo;hoisting&rdquo;, but practically what it means is that you can use a variable before you declare it!</p>
+
+<pre><code class="language-prettyprint">console.log(name); // yep, this works
+var name = &quot;David&quot;;
+</code></pre>
+
+<h3 id="bind:6e2e047097a9f672ac378602b99db31f">Bind</h3>
+
+<p>JavaScript makes heavy use of anonymous functions and callbacks.To modify the scope of a function, JavaScript<sup>1</sup> provides <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind?redirectlocale=en-US&amp;redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FFunction%2Fbind">bind</a>. This is easier to understand by example. If I have a point object and I want a method to draw it to the canvas, by loading an image:</p>
+
+<pre><code class="language-prettyprint">Point.prototype.draw = function()
+{
+  var ctx = get_canvas_context(); // declared elsewhere
+  var img = new Image();
+  img.onload = function () {  // anonymous function
+    ctx.drawImage(img, this.x, this.y);   
+  }.bind(this);
+  img.src = &quot;/point.png&quot;;
+}
+</code></pre>
+
+<p>Here I use <code>bind</code> to inject the point object&rsquo;s scope into the anonymous function. Otherwise I wouldn&rsquo;t be able to access the <code>x</code> and <code>y</code> properties of the point as <code>this</code> would be referencing something else.</p>
+
+<p>For a more thorough explanation of JavaScript scope, I recommend Todd Motto&rsquo;s article, <a href="https://toddmotto.com/everything-you-wanted-to-know-about-javascript-scope/">Everything you wanted to know about JavaScript scope</a>.</p>
+
+<h3 id="coping-with-scoping:6e2e047097a9f672ac378602b99db31f">Coping with scoping</h3>
+
+<p>OK so that was the bad news; the good news is there are plenty of techniques for handling JavaScript&rsquo;s scoping rules. Depending on the context you may find some or all of these methods useful.</p>
+
+<h4 id="naming-conventions:6e2e047097a9f672ac378602b99db31f">Naming conventions</h4>
+
+<p>The first thing you can do to avoid clashes is adopt a naming convention. For example, name all functions with verb-noun constructs (like &ldquo;get_address&rdquo;) and all value variables with plain nouns (like &ldquo;addresses&rdquo;). This is not a complete solution, but at a minimum it will reduce the chances of a function being replaced by a value variable.</p>
+
+<h4 id="one-var-per-scope:6e2e047097a9f672ac378602b99db31f">One var per scope</h4>
+
+<p>Another technique for managing variable scope is to only allow one <code>var</code> statement per scope. So a typical program might look like this:</p>
+
+<pre><code class="language-prettyprint">// declare global scope variables
+var foo = &quot;/root/assets&quot;,
+    bar = 0;
+
+function execute (foo)
+{
+  var i, j, bar; // functional scope
+
+  for (i = 0; i &lt; foo.length; i++)
+  {
+    for (j = 0; j &lt; foo.length; j++)
+    {
+      // do something
+    }
+  }
+}
+</code></pre>
+
+<h4 id="use-strict:6e2e047097a9f672ac378602b99db31f">Use strict</h4>
+
+<p>This is a convention all Perl programmers should be comfortable with. Enable <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode">strict mode</a> in JavaScript. Just like with Perl, JavaScript&rsquo;s strict mode can catch <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode#Changes_in_strict_mode">several</a>cases of variable-related bugs. Enable it globally with:</p>
+
+<pre><code class="language-prettyprint">&quot;use strict&quot;;
+</code></pre>
+
+<p>Generally JavaScript experts <a href="http://yuiblog.com/blog/2010/12/14/strict-mode-is-coming-to-town/">recommend</a> using a functionally-scoped version of strict - in this case the declaration is placed inside a function block. This is useful to prevent script concatenation errors (where an imported script does not satisfy the strict rules).</p>
+
+<pre><code class="language-prettyprint">(function () {
+   &quot;use strict&quot;;
+   // this function is strict...
+}());
+</code></pre>
+
+<h4 id="objects-as-namespaces:6e2e047097a9f672ac378602b99db31f">Objects as namespaces</h4>
+
+<p>If you were thinking a simple way to solve all of the namespace clashes was with modules, allow me to be the first to tell you that JavaScript has no notion of modules (being a <a href="https://en.wikipedia.org/wiki/Prototype-based_programming">prototyped language</a>). There is no <code>import</code> keyword. In HTML any code that is loaded with a <code>script</code> tag is simply concatenated to the current scope.</p>
+
+<p>There are solutions to this limitation though. In <a href="http://www.amazon.com/JavaScript-Definitive-Guide-Activate-Guides/dp/0596805527/ref=dp_ob_title_bk">JavaScript the Definitive Guide</a>, author David Flanagan proposes using objects as namespaces (sixth edition, section 9.9.1). Each object&rsquo;s scope can be used to encapsulate the behavior and data specific to that domain. For example:</p>
+
+<pre><code class="language-prettyprint">// everything is scoped to point.*
+var point = {};
+point.Point = function (_x, _y) {
+  this.x = _x;
+  this.y = _y
+}
+
+point.Point.prototype.coordinates = function ()
+{
+  return [this.x, this.y];
+}
+
+// now lets try it out ...
+var p = new point.Point(1,3);
+console.log(p.coordinates());
+</code></pre>
+
+<p>To package code as modules, there is the <a href="http://www.adequatelygood.com/JavaScript-Module-Pattern-In-Depth.html">module pattern</a>. Finally although JavaScript has no native import method, there are several external libraries that can provide that behavior, like <a href="http://www.requirejs.org/">RequireJS</a>.</p>
+
+<h4 id="let:6e2e047097a9f672ac378602b99db31f">Let</h4>
+
+<p>The next major version of JavaScript, ES6 provides <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let">let</a>. This keyword provides block-level scoping of variables, similar to other mainstream languages. ES6 is not supported everywhere yet, but you can use a transpiler like <a href="https://babeljs.io/">Babel</a> to convert ES6 JavaScript back to ES5.</p>
+
+<h4 id="use-a-code-linter:6e2e047097a9f672ac378602b99db31f">Use a code linter</h4>
+
+<p>Browsers do not throw enough exceptions when processing JavaScript. Instead they try to soldier on and do what the programmer <em>meant</em> rather than what they typed. This is good<sup>2</sup> for users as they get a uninterrupted browsing experience, but for us programmers this is definitely a bad thing™. Browser robustness makes JavaScript difficult to debug, and which is where a code linter steps in - it analyzes code and reports any errors or warnings they find. For JavaScript I like <a href="http://jshint.com/">JSHint</a>.</p>
+
+<p><sup>1</sup> Introduced in ES5 JavaScript - which is supported by all modern browsers. For solutions for older JavaScript versions, use <code>call</code> or <code>apply</code>.</p>
+
+<p><sup>2</sup> It&rsquo;s probably a bad thing for users too - the overhead in processing syntactically wrong code degrades performance and worse, encourages more incorrect code to be written.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/perl">perl</a></div>
+              
+                <div class="tag"><a href="/tags/var">var</a></div>
+              
+                <div class="tag"><a href="/tags/es6">es6</a></div>
+              
+                <div class="tag"><a href="/tags/strict">strict</a></div>
+              
+                <div class="tag"><a href="/tags/requirejs">requirejs</a></div>
+              
+                <div class="tag"><a href="/tags/jshint">jshint</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

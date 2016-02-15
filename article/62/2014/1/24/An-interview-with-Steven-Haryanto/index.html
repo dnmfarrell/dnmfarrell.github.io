@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>An interview with Steven Haryanto Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="We catch up with the prolific CPAN module author"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">An interview with Steven Haryanto</h1>
+            <p class="blog-post-meta">Jan 24, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/62/EC2865E0-FF2E-11E3-811B-5C05A68B9E16.png"/>
+            </div>
+              <p><em>Steven Haryanto is a Perl programmer and <a href="https://metacpan.org/author/SHARYANTO">prolific CPAN author</a>. We recently caught up with him to discuss his development approach and the tools he uses to be be so productive. (Steven tells us that the photo above is representative of his hometown, Bandung).</em></p>
+
+<p><strong>According the recent <a href="http://neilb.org/cpan-report/">CPAN report</a>, you made 769 releases to CPAN last year. How did you become so productive!?</strong>
+ For what it&rsquo;s worth, I made over 900 releases in 2012, so 2013 is not *that* productive by comparison. Two things made it possible really: a dist build/release tool (I happen to use <a href="https://metacpan.org/pod/Dist::Zilla">Dist::Zilla</a>) and the fact that I produce lots of mistakes/bugs :-)</p>
+
+<p><strong>Of those releases, is there any one in particular that stands out as a significant milestone for you?</strong>
+ To be honest, no. Things are going mostly incrementally nowadays, which I&rsquo;m happy with. This means I haven&rsquo;t needed to rewrite or redesign a module from scratch so far (well there are a couple of partial rewrites, but not very major).</p>
+
+<p>The overwhelming majority of modules which I publish on CPAN are those which I use by myself or for work. Currently only a few of those have been confirmed to be used by at least one other person. This includes <a href="https://metacpan.org/pod/Org::Parser">Org::Parser</a>, <a href="https://metacpan.org/pod/Data:Sah">Data::Sah</a>, <a href="https://metacpan.org/pod/Gepok">Gepok</a>,<a href="https://metacpan.org/pod/Data::Dump::Color">Data::Dump::Color</a>, <a href="https://metacpan.org/pod/Progress::Any">Progress::Any</a>, <a href="https://metacpan.org/pod/Log::Any::App">Log::Any::App</a>, and <a href="https://metacpan.org/pod/Text::ANSITable">Text::ANSITable</a> (only the last one was created in 2013). In 2012 I released 166 new distributions and in 2013 only 71. So 2013 was more about updates and improvements instead of creating new things.</p>
+
+<p><strong>You&rsquo;ve talked in the past about &ldquo;distribution oriented development&rdquo;, do you still follow that approach, and why?</strong>
+ Yup, because making software modular keeps me from going insane, and modules and distributions are the units of modularity in Perl.</p>
+
+<p>Do you find developing as if you&rsquo;re going to release the module forces you to follow better coding practices? (Like writing tests, documentation, error checking).</p>
+
+<p>Definitely. The coding practices for a Perl module and distribution are relatively established, so following them is a no-brainer. The already existing tools help too, relieving me from having to reinvent wheels.</p>
+
+<p>What text editor / IDE do you use to code in Perl? Why do you use that tool, have you tried others and prefer it?</p>
+
+<p>As some of you might know, I&rsquo;m a fan of org-mode, so I&rsquo;m stuck with Emacs for the time being. Not a very advanced user of both, though. I&rsquo;ve also used Komodo IDE in the past, its regex debugger tool is neat. I&rsquo;ve tried Padre too a while back, but due to installation issues I haven&rsquo;t tried it again.</p>
+
+<p><strong>Org-mode looks cool! - as a Perl developer which feature(s) of org-mode do you use the most?</strong>
+ Nothing Perl-specific, actually. I use org-mode like most other people (non-Perl-programmers and non-programmers alike): to organize my todo lists and to take notes. I also happen to write <a href="https://metacpan.org/pod/Org::Parser">Org::Parser</a>, because no such module exists at the time, and this helps me create some scripts to process and summarize the Org documents which I write. For example I keep a daily statistics of the number of done/undone todo items, to record my progress. I do my time bookkeeping on an Org document using a simple, homegrown format. The todo reminder which I run from a shell startup file is also written in Perl.</p>
+
+<p>I&rsquo;m also starting to use Org to write software product documentation, and later export to HTML (and then to PDF). There will probably be another CPAN module or two once the workflow is more defined.</p>
+
+<blockquote>
+<p>I keep a daily statistics of the number of done/undone todo items, to record my progress</p>
+</blockquote>
+
+<p><strong>You&rsquo;ve also mentioned use of tmux / screen. Could you explain how those terminal tools help your development?</strong>
+ I rarely use them these days, except when on slow and unreliable connections, which fortunately is occurring less frequently where I live. Normally Konsole suffices. But I do maintain screen sessions on servers I&rsquo;m monitoring.</p>
+
+<p>Terminals is where I work most of the time though, so a lot of my CPAN modules are related to command-line application and terminals.</p>
+
+<p><strong>In your blog post (&rdquo;<a href="http://blogs.perl.org/users/steven_haryanto/2013/10/how-i-manage-my-perl-distributions.html">How I manage my distributions</a>&rdquo;) you said you use Dist::Zilla to manage your distributions. Could you elaborate on how Dist::Zilla helps you be more productive?</strong>
+ <a href="https://metacpan.org/pod/Dist::Zilla">Dist::Zilla</a> (or an equivalent tool) frees us from doing the boring and tedious parts of distribution building/releasing, allowing us to focus on writing code and encourages us to do more releases. Doing a new release can be done in a few seconds instead of a few minutes. With dozens or hundreds of distributions, it&rsquo;s simply impossible to do things manually.</p>
+
+<p><strong>What are your favourite Dist::Zilla plugins?</strong>
+ No one plugin in particular, perhaps <a href="https://metacpan.org/pod/Dist::Zilla::Plugin::OurPkgVersion">OurPkgVersion</a> (simply because its big brother, <a href="https://metacpan.org/pod/Dist::Zilla::Plugin::PkgVersion">PkgVersion,</a> modifies line numbers). <a href="https://metacpan.org/pod/Dist::Zilla::Plugin::Run">Run</a> is also nifty too. But the great thing about Dist::Zilla is that when the existing plugins don&rsquo;t cut it, you can simply create your own plugins to do the specific things you need. I&rsquo;ve written a few myself.</p>
+
+<blockquote>
+<p>the great thing about Dist::Zilla is that when the existing plugins don&rsquo;t cut it, you can simply create your own plugins to do the specific things you need.</p>
+</blockquote>
+
+<p><strong>Does your framework, Rinci help you with your development process?</strong>
+ Most certainly. Without the <a href="https://metacpan.org/pod/Perinci">Perinci</a> tools I wouldn&rsquo;t have written and released as many stuffs. They allow me to avoid or minimize doing boring and repetitive things which I hate doing, like writing POD, <a href="https://metacpan.org/pod/Getopt::Long::Spec">Getopt::Long spec</a>, command-line usage message, and so on. Like Dist::Zilla they let me focus on writing actual code instead.</p>
+
+<p><strong>Do you use any static code analysis tools like Perl::Critic?</strong>
+ Currently, no. I should though. Maybe the thought of having to do lots of initial configuration and tweaking makes me put it off.</p>
+
+<p><strong>You&rsquo;re previously <a href="http://blogs.perl.org/users/steven_haryanto/2012/11/the-sad-state-of-syntax-highlighting-libraries-on-cpan.html">noted</a> Perl&rsquo;s lack of a good syntax highlighting library. Do you think that&rsquo;s still the case today ?</strong>
+ Haven&rsquo;t checked back; I even forget why I need a syntax highlighting library in the first place. I think it&rsquo;s still the case and I&rsquo;ve come to accept it. At least there are other tools available, not everything needs to be done in Perl. <a href="https://metacpan.org/pod/PPI::HTML">PPI::HTML</a> is for highlighting Perl code and not other languages, right?</p>
+
+<p><strong>Any other thought about the Perl community or development that you think people should be aware of?</strong>
+ Since Perl is a swiss-army knife tool, including as a shell script replacement and for writing command-line programs, I wish authors would pay more attention to startup overhead. It seems lots of prominent CPAN authors are mostly concerned only with writing pretty OO code or PSGI webapps or long-running daemons, but the truth is Perl is more than that. So I will certainly encourage and promote good lightweight alternatives of popular libraries like <a href="https://metacpan.org/pod/Moose">Moose,</a> <a href="https://metacpan.org/pod/DateTime">DateTime,</a> and <a href="https://metacpan.org/pod/Log::Log4perl">Log::Log4perl</a>.</p>
+
+<blockquote>
+<p>I wish authors would pay more attention to startup overhead.</p>
+</blockquote>
+
+<p><strong>What&rsquo;s next for you in terms of your development process, what are you looking forward to trying?</strong>
+ I will keep churning out CPAN modules to do my part in giving back to the Perl community. My current focus areas are: Indonesian-related (language/locale) modules , making bad-ass command-line programs with Perl, as well as other tools/libraries to cut back the boilerplate and emphasize the DRY principle.</p>
+
+<p>One project in the works is <a href="http://cpanlists.org/">cpanlists.org</a> (not up yet), which will be a simple website and service to manage lists of authors and CPAN modules, along with comment and rating for each author/module. It&rsquo;s much like an Amazon Listmania list, and I&rsquo;ve blogged in the past about wanting to create something like it. I put it up mainly to publish my own notes as well as a proof-of-concept for Riap::HTTP, a protocol for a developer-friendly API service.</p>
+
+<p>People will be able to maintain a list of their favorite modules. This is already possible with ++ in MetaCPAN, but with MetaCPAN I can&rsquo;t add notes for each module or rate each module. To rate modules one must use a separate service (<a href="http://cpanratings.perl.org/">CPAN Ratings</a>). Also I want to create multiple lists aside from a single favorites list, for example: list of recommended modules to do X (e.g. logging or convert Markdown to POD), list of modules to avoid because of X (e.g. heavy startup overhead, high number of bugs), and so on.</p>
+
+<p>When lots of people create their lists, this will help users evaluate and choose the right CPAN modules for their needs.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/community">community</a></div>
+              
+                <div class="tag"><a href="/tags/cpan">cpan</a></div>
+              
+                <div class="tag"><a href="/tags/interview">interview</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

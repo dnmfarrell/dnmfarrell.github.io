@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Hello berrybrew, the Strawberry Perl version manager Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A fruitier perlbrew for Windows"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Hello berrybrew, the Strawberry Perl version manager</h1>
+            <p class="blog-post-meta">Oct 10, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/119/64514578-501F-11E4-99D5-54C0636C7830.png"/>
+            </div>
+              
+
+<p><a href="http://perlbrew.pl/">Perlbrew</a> and [plenv]() are tools for managing local Perl installations. They&rsquo;re useful as they let you install and use multiple versions of Perl without administrator privileges. I have a special appreciation for them as I once tried to upgrade my mac system Perl and instead wrecked it and had to reinstall OSX.</p>
+
+<p>When I&rsquo;m on Windows I use Strawberry Perl, so I wrote <a href="https://github.com/sillymoose/berrybrew">berrybrew</a> to help manage Perl on Windows. It&rsquo;s similar to Perlbrew and plenv; it will download, install and manage multiple versions of Strawberry Perl for you, no administrator privileges required.</p>
+
+<h3 id="installation:d5167bc4d58ffc1d5402991419a8e81b">Installation</h3>
+
+<p>berrybrew is written in C#. If you have git you can install berrybrew by cloning the GitHub <a href="https://github.com/sillymoose/berrybrew">repo</a> and either using the pre-compiled binary, or minting your own with Mono. The pre-compiled binary is <code>bin/berrybrew.exe</code> and should work out of the box on Windows 7 and 8 (it might work on Windows XP if you have .Net framework 2 or higher installed).</p>
+
+<p>To download the project with git and compile it with <a href="http://www.mono-project.com/">Mono</a> type the following commands at the terminal:</p>
+
+<pre><code class="language-prettyprint">&gt; git clone https://github.com/sillymoose/berrybrew
+&gt; mcs src/berrybrew.cs -lib:lib -r:ICSharpCode.SharpZipLib.dll -out:bin/berrybrew.exe
+</code></pre>
+
+<p>This will output a fresh binary in the <code>bin</code> directory.</p>
+
+<h3 id="features:d5167bc4d58ffc1d5402991419a8e81b">Features</h3>
+
+<p>The <code>available</code> command lists available Strawberry Perls and whether they&rsquo;re installed:</p>
+
+<pre><code class="language-prettyprint">&gt; berrybrew available
+
+The following Strawberry Perls are available:
+
+            5.20.1_64 [installed]
+            5.20.1_32 [installed]
+            5.18.4_64
+            5.18.4_32
+            5.16.3_64
+            5.16.3_32
+            5.14.4_64
+            5.14.4_32
+            5.12.3_32
+            5.10.1_32
+</code></pre>
+
+<p>The output shows that I have both versions of Perl 5.20.1 installed. I can install another version using the <code>install</code> command:</p>
+
+<pre><code class="language-prettyprint">&gt; berrybrew install 5.10.1_32
+Downloading http://strawberryperl.com/download/5.10.1.2/strawberry-perl-5.10.1.2-portable.zip to C:\Users\dfarrell\AppData\Local\Temp\gp5d33yg.qjo/strawberry-pe
+rl-5.10.1.2-portable.zip
+Confirming checksum ...
+Extracting C:\Users\dfarrell\AppData\Local\Temp\gp5d33yg.qjo/strawberry-perl-5.10.1.2-portable.zip
+
+The following Strawberry Perls are available:
+
+            5.20.1_64 [installed]
+            5.20.1_32 [installed]
+            5.18.4_64
+            5.18.4_32
+            5.16.3_64
+            5.16.3_32
+            5.14.4_64
+            5.14.4_32
+            5.12.3_32
+            5.10.1_32 [installed]
+</code></pre>
+
+<p>berrybrew will download a temporary zip archive, confirm the checksums match, and extract the files to <code>C:\berrybrew</code>. Finally I can use the newly installed Perl with the <code>switch</code> command:</p>
+
+<pre><code class="language-prettyprint">&gt; berrybrew switch 5.10.1_32
+Switched to 5.10.1_32, start a new terminal to use it.
+</code></pre>
+
+<p>This updates my user <code>%PATH%</code> environment variable to point at the new Perl binary. berrybrew will also warn if it finds another Perl binary in the system or user path (such as an ActiveState or vanilla Strawberry Perl). The system path can be problematic as Windows appends the user path to the system path which means it will search the system path first for any matching Perl binary and if it finds one, it will ignore the berrybrew binary. The system path also requires administrator privileges to update, which kind of goes against the spirit of berrybrew. One way to handle these would be to ask the user if they want to remove the other path, if they say yes, then berrybrew could prompt for administrator credentials, fire up another berrybrew process and remove them. For now it just warns the user and leaves the path variables untouched.</p>
+
+<h3 id="conclusion:d5167bc4d58ffc1d5402991419a8e81b">Conclusion</h3>
+
+<p>I plan to add a few more commands to berrybrew: <code>exec</code> to run a Perl program against every installed Perl, <code>uninstall</code> to remove a Perl and <code>config</code> to manage berrybrew&rsquo;s settings. Under the hood a feature I&rsquo;d love to add but am not sure how, is to refresh the current shell&rsquo;s environment variable block, so the user doesn&rsquo;t have to start a new cmd.exe when switching to a new Perl version.</p>
+
+<p>It&rsquo;s early days but if you have any suggestions for new features or feedback drop me an email or fork the project on <a href="https://github.com/sillymoose/berrybrew">GitHub</a>.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/windows">windows</a></div>
+              
+                <div class="tag"><a href="/tags/perlbrew">perlbrew</a></div>
+              
+                <div class="tag"><a href="/tags/config">config</a></div>
+              
+                <div class="tag"><a href="/tags/berrybrew">berrybrew</a></div>
+              
+                <div class="tag"><a href="/tags/strawberry_perl">strawberry_perl</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

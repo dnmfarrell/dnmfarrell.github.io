@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Become a better programmer with exercism.io Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="The open source programming puzzler that will level-up your Perl programming"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Become a better programmer with exercism.io</h1>
+            <p class="blog-post-meta">May 19, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/90/ECF71624-FF2E-11E3-A119-5C05A68B9E16.png"/>
+            </div>
+              
+
+<p><em>For the past week I&rsquo;ve been trying out <a href="http://exercism.io/">exercism.io</a> the programming exercises app. I heard about it back in December when Gabor <a href="http://blogs.perl.org/users/gabor_szabo/2013/12/perl-exercism.html">blogged</a> about it, but didn&rsquo;t try it until now. I wish I hadn&rsquo;t waited so long, as exercism is a lot of fun.</em></p>
+
+<h3 id="how-exercism-works:b8fc90b81a72b2595146025a61f1ef5d">How exercism works</h3>
+
+<p>exercism comes with a command line app that downloads programming exercises and submits your coded answers to the exercism website. Every programming exercise comes with a readme and a test file. To complete the exercise you need to write a Perl module that passes all of the tests.</p>
+
+<p>When you are done and have submitted your Perl module via the command line app, you and other programmers can &ldquo;nitpick&rdquo; your code and comment on it. Once you feel you have gotten enough comments, you can finalize your submission and view other programmer&rsquo;s solutions for the same exercise. The kicker is that you only receive one programming exercise at a time, and cannot access another exercise until you complete the current one.</p>
+
+<p>Perl&rsquo;s TIMTOWTDI nature means that there are several correct solutions for the exercises and you can often learn something from viewing other programmers&rsquo; solutions. For example in one exercise I used a regular expression only to find that the simpler <a href="http://perldoc.perl.org/perlop.html#Quote-and-Quote-like-Operators">transliteration</a> operator worked just as well. The exercise difficulty varies from easy to hard, but the real challenge is finding a clean, generalized solution for the spec.</p>
+
+<h3 id="try-it-out:b8fc90b81a72b2595146025a61f1ef5d">Try it out</h3>
+
+<p>Grab the <a href="https://github.com/exercism/cli/releases/latest">latest binary</a> for your platform and extract it. Fire up the command line and type:</p>
+
+<pre><code class="language-prettyprint">$ exercism demo
+</code></pre>
+
+<p>This will fetch the first exercise (&ldquo;Bob&rdquo; at the time of writing). You can find the test file and readme at &ldquo;perl5/bob/&rdquo;. Opening the readme you&rsquo;ll see:</p>
+
+<pre><code class="language-prettyprint"># Bob
+
+Bob is a lackadaisical teenager. In conversation, his responses are very limited.
+
+Bob answers 'Sure.' if you ask him a question.
+
+He answers 'Woah, chill out!' if you yell at him.
+
+He says 'Fine. Be that way!' if you address him without actually saying anything.
+
+He answers 'Whatever.' to anything else.
+
+## Instructions
+
+Run the test file, and fix each of the errors in turn. When you get the first test to pass, go to the first pending or skipped test, and make that pass as well. When all of the tests are passing, feel free to submit. 
+
+Remember that passing code is just the first step. The goal is to work towards a solution that is as readable and expressive as you can make it. 
+
+Please make your solution as general as possible. Good code doesn't just pass the test suite, it works with any input that fits the specification.
+
+Have fun!
+
+## Source
+
+Inspired by the 'Deaf Grandma' exercise in Chris Pine's Learn to Program tutorial. [view source](http://pine.fm/LearnToProgram/?Chapter=06)
+</code></pre>
+
+<p>To run the test file change into the exercise directory and use prove:</p>
+
+<pre><code class="language-prettyprint">$ cd perl5/bob
+$ prove bob.t
+</code></pre>
+
+<p>That will get this output:</p>
+
+<pre><code class="language-prettyprint">bob.t .. 1/22 Bailout called.  Further testing stopped:  You need to create a module called Bob.pm with a function called hey() that gets one parameter: The text Bob hears.
+
+#   Failed test 'missing Bob.pm'
+#   at bob.t line 37.
+FAILED--Further testing stopped: You need to create a module called Bob.pm with a function called hey() that gets one parameter: The text Bob hears.
+</code></pre>
+
+<p>Let&rsquo;s create a basic Bob.pm module:</p>
+
+<pre><code class="language-prettyprint">package Bob;
+use warnings;
+use strict;
+
+sub hey {
+    my $input = shift;
+}
+
+1;
+</code></pre>
+
+<p>This is a shell of the solution. Our &ldquo;hey&rdquo; subroutine returns the first input it receives. Re-running prove, we get this output:</p>
+
+<pre><code class="language-prettyprint">$ prove bob.t
+bob.t .. 1/22 
+#   Failed test 'stating something: Tom-ay-to, tom-aaaah-to.'
+#   at bob.t line 52.
+#          got: 'Tom-ay-to, tom-aaaah-to.'
+#     expected: 'Whatever.'
+
+...
+
+# Looks like you failed 19 tests of 22.
+bob.t .. Dubious, test returned 19 (wstat 4864, 0x1300)
+Failed 19/22 subtests 
+
+Test Summary Report
+-------------------
+bob.t (Wstat: 4864 Tests: 22 Failed: 19)
+  Failed tests:  4-22
+  Non-zero exit status: 19
+Files=1, Tests=22,  1 wallclock secs ( 0.02 usr  0.00 sys +  0.04 cusr  0.00 csys =  0.06 CPU)
+Result: FAIL
+</code></pre>
+
+<p>You can see that Bailout is no longer being called, so our basic module passed the first few tests, but failed 19 of 22. I&rsquo;ve abbreviated the output to show only the first failing test. The output tells us everything we need to know: our &ldquo;hey&rdquo; subroutine did not return the content required by the spec. I&rsquo;ll leave the exercise here - if you&rsquo;re feeling suitably inspired see if you can complete it.</p>
+
+<h3 id="help-represent-perl:b8fc90b81a72b2595146025a61f1ef5d">Help represent Perl</h3>
+
+<p>One of the exercism&rsquo;s strengths is it has the same programming exercises in different programming languages, so you can develop your polyglot skills. Looking at the <a href="https://github.com/exercism">source</a>, it appears that JavaScript, Python, Ruby and Haskell are leading the pack with about 55 exercises available each. Perl is well-represented with 36 exercises and the other languages have about 20 or fewer.</p>
+
+<p>This week I ported a couple of the missing exercises to the Perl <a href="https://github.com/exercism/xperl5">repo</a>. To port a missing exercise you have to provide the test file and module solution. This is easier than it sounds as you can just translate the exercise code from another language into Perl. Across all the languages there are about 80 different exercises. I&rsquo;ve created a <a href="https://questhub.io/realm/perl/quest/53795a10bbd0be180400014f">quest</a> which lists the missing exercises.</p>
+
+<p>It only take about 30 minutes to port one exercise: if 2% of the readers of this article port one exercise each today, Perl will immediately have more exercises than any other language. There is also an empty Perl 6 <a href="https://github.com/exercism/xperl6">repo</a>; porting the Perl 5 exercises to Perl 6 could make for a juicy hackathon target.</p>
+
+<h3 id="conclusion:b8fc90b81a72b2595146025a61f1ef5d">Conclusion</h3>
+
+<p>Playing with exercism has been loads of fun and I&rsquo;ve learned a few Perl tricks (hah!) along the way. The source is MIT licensed and the committers are friendly. It would be great to see more Perlers participating or porting an exercise or too. Feel free to clone or or stencil the <a href="https://questhub.io/realm/perl/quest/53795a10bbd0be180400014f">quest</a>. Let&rsquo;s show people what our language can do!</p>
+
+<p>Enjoyed this article? Help us out and <a href="https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F90%2F2014%2F5%2F18%2FBecome-a-better-programmer-with-exercism-io&amp;text=Become+a+better+programmer+with+exercism.io&amp;tw_p=tweetbutton&amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F90%2F2014%2F5%2F18%2FBecome-a-better-programmer-with-exercism-io&amp;via=perltricks">tweet</a> about it!</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/community">community</a></div>
+              
+                <div class="tag"><a href="/tags/windows">windows</a></div>
+              
+                <div class="tag"><a href="/tags/app">app</a></div>
+              
+                <div class="tag"><a href="/tags/open_source">open_source</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

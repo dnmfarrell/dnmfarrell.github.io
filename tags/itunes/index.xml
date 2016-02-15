@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Itunes on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/itunes/</link>
+    <description>Recent content in Itunes on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 29 Aug 2014 15:03:09 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/itunes/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Facing the music with Perl</title>
+      <link>http://perltricks.com/article/111/2014/8/29/Facing-the-music-with-Perl/</link>
+      <pubDate>Fri, 29 Aug 2014 15:03:09 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/111/2014/8/29/Facing-the-music-with-Perl/</guid>
+      <description>&lt;p&gt;My digital music libraries were messed up. Spread across several devices and a couple of flirtations with iTunes Match and iCloud, I didn&amp;rsquo;t have everything in one place—ironically. Not only that, but Apple had replaced some files with what it considered better versions. Although I don&amp;rsquo;t want to perform the experiment to confirm it, I&amp;rsquo;m sure that the new files had different metadata. I needed to sort it out to start on a better system. I thought the task would be arduous, and it was until I settled on a simpler problem that a couple of Perl modules solved quickly.&lt;/p&gt;
+
+&lt;p&gt;For my first step, I needed to find all the music I had. I had backed up my files before I let Apple replace them with better versions. But I seemed to have made several backups, each with a different subset of my music. One backup would have most of the Led Zepplin but none of the Beatles, while another had no Zepplin and some of the Beatles. Another had all of the Beatles but no Cat Stevens.&lt;/p&gt;
+
+&lt;p&gt;I started by collecting all the unique files from the directories in which I had found music. This program has some of my favorite things about Perl, especially since I still have the wounds from moving files around during my C phase.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+use strict;
+use warnings;
+
+use Digest::MD5 qw(md5_hex);
+use File::Copy  qw(copy);
+use File::Find;
+use File::Map   qw(map_file);
+use File::Path  qw(make_path);
+use File::Spec::Functions qw(catfile);
+
+my $wanted = sub {
+    state $Seen  = {};
+
+    my $full_name = $File::Find::name;
+    return if -d $full_name;
+
+    map_file my $map, $full_name, &#39;+&amp;lt;&#39;;
+    my $digest_hex = md5_hex( $map );
+    return if $Seen-&amp;gt;{ $digest_hex }++;
+    
+    my( $extension )     = $full_name  =~ /(\.[^.]+)\z/;
+    my( $n, $m, $o, $p ) = $digest_hex =~ /\A (..) (..) (..) (..)/x;
+
+    my $basename = $_;
+    my $dir = catfile( $new_dir, $n, $m, $o, $p );
+    my $new_file = catfile( $dir, $basename );
+    return if -e $new_file;
+
+    make_path( $dir ) unless -d $dir;
+
+    copy(
+        $full_name, 
+        catfile( $dir, $basename )
+        );
+    };
+
+find( $wanted, @ARGV );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.metacpan.org/module/File::Find&#34;&gt;File::Find&lt;/a&gt; provides the code to traverse the file structure for me. I give find the list of starting directories, in this case those in &lt;code&gt;@ARGV&lt;/code&gt;, and a callback subroutine as a reference. The meat of my program is in that &lt;code&gt;$wanted&lt;/code&gt; subroutine. The hardest part of this code is remembering that &lt;code&gt;$File::Find::name&lt;/code&gt; is the full path and &lt;code&gt;$_&lt;/code&gt; is the filename only. I put those into variables to remind me which is which.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.metacpan.org/pod/File::Map&#34;&gt;File::Map&lt;/a&gt; allows me to access a file&amp;rsquo;s data directly from disk as a memory map rather than reading it into memory. I don&amp;rsquo;t need to change the file to get its digest (using &lt;a href=&#34;http://www.metacpan.org/pod/Digest::MD5&#34;&gt;Digest::MD5&lt;/a&gt;), so memory mapping is a big win across tens of thousands of music files. If I have seen that digest before, I move on to the next file. Otherwise I do some string manipulations to create new file paths, putting the pieces together with the cross-plaform &lt;a href=&#34;http://www.metacpan.org/pod/File::Spec&#34;&gt;File::Spec&lt;/a&gt;. I copy the file to the new location with &lt;a href=&#34;http://www.metacpan.org/pod/File::Copy&#34;&gt;File::Copy&lt;/a&gt;. I specifically make a copy so I leave the original files where they are for now. I anticipate messing up at least a couple of times. The new path is four levels deep with each deeper level based on the next two characters in the file&amp;rsquo;s digest. That way, no directory gets too big, slowing down all directory operations.&lt;/p&gt;
+
+&lt;p&gt;Some rough calculations showed me that no particular music library was more than 85% complete. This was where the real fun began, but also my embarrassing tales of woe. Out of the newly copied files, I needed to select the ones I wanted to keep.&lt;/p&gt;
+
+&lt;p&gt;First, I merely cleaned out my iTunes library and reimported everything to see what I was working with. Most music I had in duplicates, and some in triplicates. iTunes Match had upgraded MP3 files to M4A (encoded in Apple&amp;rsquo;s AAC codec) and had done the same for M4P files, the DRM-ed versions of music I had purchased. Each version had a different digest, so several versions of the same content survived.&lt;/p&gt;
+
+&lt;p&gt;I struggled with the next part of the problem because I have too much computer power at my disposal. I could collect all of the metadata for each file and store it in a database. I could throw it into a NoSQL thingy. I even thought about redis. Any one of these technologies are fun diversions but they require too much work. I started and abandoned several approaches, including a brief attempt to use AppleScript to interact with iTunes directly. Oh, the insanity.&lt;/p&gt;
+
+&lt;p&gt;Working from the digested directory each time was a bad decision. I&amp;rsquo;d have to collect the metadata then group files by album or artist. iTunes had already done that for me, although I didn&amp;rsquo;t realize this for a week. When I imported the music, it copied the files into folders named after the artist and album (something I could have done instead of using the digests). Most of my work would be limited to the files in a single directory. I don&amp;rsquo;t need a data structure to hold all of that. I certainly didn&amp;rsquo;t need a database.&lt;/p&gt;
+
+&lt;p&gt;If I could enter a directory, examine each file in that directory, then process them on the way out of that directory, removing the duplicate files becomes much easier. I remembered that &lt;a href=&#34;http://www.metacpan.org/pod/File::Find&#34;&gt;File::Find&lt;/a&gt; has a &lt;code&gt;post_process&lt;/code&gt; option that allows me to do this, although I haven&amp;rsquo;t used it in years:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use File::Find qw(find);
+
+find( 
+    { 
+    wanted      =&amp;gt; $wanted,   #code refs
+    postprocess =&amp;gt; $post,
+    },
+    @ARGV,
+    );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;While I was in each directory, I could collect information on each file. Each file is already sorted by artist and album but I still need to choose which one of the duplicate files to keep. After a bit of thought, the solution turned out to be simple. I could sort on file extension, looking up the ordering in a hash. When I have two files with the same extension I&amp;rsquo;ll choose the one with the higher bitrate. When the bitrates match, I&amp;rsquo;ll choose the one with the shortest filename. With the various music libraries, I had some files like &lt;em&gt;Susie Q.m4a&lt;/em&gt; and &lt;em&gt;Susie Q 1.m4a&lt;/em&gt;; essentially the same file except for some slight metadata differences. I used &lt;a href=&#34;http://www.metacpan.org/pod/Music::Tag&#34;&gt;Music::Tag&lt;/a&gt; to get the metadata since it automatically delegated to plugins for the various file formats.&lt;/p&gt;
+
+&lt;p&gt;After sorting, I mark for deletion everything except the first element in the list. I don&amp;rsquo;t delete them right away; I print the list to a file which I can use later to delete files. I&amp;rsquo;ve been around too long to delete files right away.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/Users/brian/bin/perls/perl5.18.1
+use v5.18;
+use Digest::MD5 qw( md5_hex );
+use Data::Dumper;
+use File::Basename qw( basename );
+use File::Find;
+use File::Map   qw( map_file );
+use File::Copy  qw( copy );
+use File::Path  qw( make_path );
+use File::Spec::Functions  qw(abs2rel rel2abs splitdir);
+use Music::Tag;
+
+my $extensions_order = {
+    m4a =&amp;gt; -2,        
+    mp3 =&amp;gt; -1,
+    m4p =&amp;gt;  0,
+    };
+
+open my $fh, &#39;&amp;gt;&#39;, &#39;delete_files.txt&#39;;
+
+my $hash = {};
+
+my( $wanted, $post ) = make_subs( $dir, $hash );
+
+find( 
+    { 
+    wanted      =&amp;gt; $wanted,
+    postprocess =&amp;gt; $post,
+    },
+    @ARGV,
+    );
+    
+sub make_subs {
+    my( $dir, $hash ) = @_;
+    
+    sub { # wanted
+        # my $path     = $File::Find::name;
+        # my $filename = $_;
+        
+        state $count = 0;
+
+        return if( -d $File::Find::name or -l $File::Find::name );
+        return if $_ eq &#39;.DS_Store&#39;;
+
+        my $filename = basename( $File::Find::name );
+        my $relative = abs2rel( $File::Find::name, $dir );
+        
+        my $basename_no_ext = $filename =~ s/\.[^.]+\z//r;
+
+        my( $extension ) = $filename =~ m/ \. ( [^.]+ ) \z /x;
+        return unless exists $extensions_order-&amp;gt;{$extension};
+
+        my $this_file = {};
+
+        my $info = eval { Music::Tag-&amp;gt;new( $filename )-&amp;gt;get_tag };
+        
+        my $title = eval{ $info-&amp;gt;title };
+        if( $@ ) { 
+            warn &amp;quot;Title had a problem: $@&amp;quot;;
+            }
+
+        $this_file-&amp;gt;{tag} = {
+            title   =&amp;gt; $title,
+            bitrate =&amp;gt; eval{ $info-&amp;gt;bitrate },
+            };    
+        $this_file-&amp;gt;{file} = {
+            extension =&amp;gt; $extension,
+            basename  =&amp;gt; $filename,
+            relative  =&amp;gt; $relative,
+            no_ext    =&amp;gt; $basename_no_ext,
+            &#39;File::Find::name&#39; =&amp;gt; $File::Find::name,
+            &#39;_&#39; =&amp;gt; $_,
+            };    
+        
+        push @{ $hash-&amp;gt;{$File::Find::dir}{$title} }, $this_file;
+
+        $hash-&amp;gt;{extensions}{$extension}++;
+        },
+        
+    sub { # postprocess        
+        my $this = $hash-&amp;gt;{$File::Find::dir};
+
+        TITLE: foreach my $title ( sort keys %$this ) {
+            my $songs = $this-&amp;gt;{ $title };
+            next if @$songs == 1; # no duplicates, no problem
+
+            my @sorted = sort {
+              state $e = $extensions_order;
+                
+              $e-&amp;gt;{ $a-&amp;gt;{file}{extension} } &amp;lt;=&amp;gt; $e-&amp;gt;{ $b-&amp;gt;{file}{extension} }
+                    or
+              length $a-&amp;gt;{file}{basename} &amp;lt;=&amp;gt; length $b-&amp;gt;{file}{basename}
+                    or
+              $b-&amp;gt;{tag}{bitrate} &amp;lt;=&amp;gt; $a-&amp;gt;{tag}{bitrate}
+              } @$songs;
+
+            # everything without the chosen key will be deleted
+            $sorted[0]{chosen}++;
+            
+            SONG: foreach my $song ( @sorted ) {
+                $hash-&amp;gt;{seen}++;
+                next unless exists $extensions_order-&amp;gt;{
+                    $song-&amp;gt;{file}{extension} };
+                $hash-&amp;gt;{examined}++;
+                next if $song-&amp;gt;{chosen};
+                
+                # ignore other files, such as videos and e-books
+                next unless exists $extensions_order-&amp;gt;{
+                    $song-&amp;gt;{file}{extension} };
+
+                $hash-&amp;gt;{deleted}++;
+                print { $fh } &amp;quot;delete:\t$song-&amp;gt;{file}{relative}\n&amp;quot;;
+                }
+            }
+
+        delete $hash-&amp;gt;{$File::Find::dir};
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And that was it. This left behind a couple of problems, such as messed up metadata, but I wasn&amp;rsquo;t going to be able to solve that programmatically anyway. Getting a complete set of files with no duplicates solved most of the problem and leaves me with the joy of flipping through physical albums that only us grey beards remember.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

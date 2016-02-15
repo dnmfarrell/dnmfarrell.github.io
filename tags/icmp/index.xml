@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Icmp on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/icmp/</link>
+    <description>Recent content in Icmp on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 15 Aug 2015 15:05:31 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/icmp/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Port scanning with Perl, Part II</title>
+      <link>http://perltricks.com/article/188/2015/8/15/Port-scanning-with-Perl--Part-II/</link>
+      <pubDate>Sat, 15 Aug 2015 15:05:31 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/188/2015/8/15/Port-scanning-with-Perl--Part-II/</guid>
+      <description>
+
+&lt;p&gt;In &lt;a href=&#34;http://perltricks.com/article/183/2015/7/20/Port-scanning-with-Perl&#34;&gt;part I&lt;/a&gt; of this article, I showed how to develop a basic forking &lt;a href=&#34;https://gist.github.com/dnmfarrell/3db321fc11b0d85f729d&#34;&gt;port scanner&lt;/a&gt; with Perl. In this article, I&amp;rsquo;ll add some enhancements to make this a truly useful tool.&lt;/p&gt;
+
+&lt;h3 id=&#34;scan-a-range-of-ports:09a1df73d25966850efdcad9f84747ad&#34;&gt;Scan a range of ports&lt;/h3&gt;
+
+&lt;p&gt;The first feature I want to add is the ability to scan user-defined port ranges, instead of the default list of named ports. Because I&amp;rsquo;m using &lt;a href=&#34;https://metacpan.org/pod/Getopt::Long&#34;&gt;Getopt::Long&lt;/a&gt; to parse command line arguments, I can add &lt;code&gt;range&lt;/code&gt; to the parameter options:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;GetOptions (
+  &#39;ip=s&#39;        =&amp;gt; \ my $target_ip,
+  &#39;range=s&#39;     =&amp;gt; \ my $port_range,
+  &#39;h|help|?&#39;    =&amp;gt; sub { pod2usage(2) },
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The port processing &lt;a href=&#34;https://gist.github.com/dnmfarrell/3db321fc11b0d85f729d#file-port_scanner-L53-L57&#34;&gt;code&lt;/a&gt; becomes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# use named ports if no range was provided
+my @ports = shuffle do {
+  unless ($port_range)
+  {
+    map { $port_directory{$_}-&amp;gt;{port} }
+      grep { $port_directory{$_}-&amp;gt;{name} !~ /^unknown$/
+             &amp;amp;&amp;amp; $port_directory{$_}-&amp;gt;{proto} eq $protocol } keys %port_directory;
+  }
+  else
+  {
+    my ($min, $max) = $port_range =~ /([0-9]+)-([0-9]+)/
+      or die &amp;quot;port-range must be formatted like this: 100-1000\n&amp;quot;;
+    $min..$max;
+  }
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I check for the presence of the &lt;code&gt;$port_range&lt;/code&gt; variable, and if it&amp;rsquo;s present I try to parse the minimum and maximum ports using a regex capture. I like this code pattern:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my ($min, $max) = $port_range =~ /([0-9]+)-([0-9]+)/
+      or die &amp;quot;port-range must be formatted like this: 100-1000\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Because either the port range will be successfully parsed into &lt;code&gt;$min&lt;/code&gt; and &lt;code&gt;$max&lt;/code&gt; or an exception with be thrown. By passing a string ending in a newline to &lt;code&gt;die&lt;/code&gt;, it won&amp;rsquo;t print out a line reference, which makes for cleaner &amp;ldquo;usage&amp;rdquo; style messages.&lt;/p&gt;
+
+&lt;h3 id=&#34;tune-processes-and-frequency:09a1df73d25966850efdcad9f84747ad&#34;&gt;Tune processes and frequency&lt;/h3&gt;
+
+&lt;p&gt;The simple &lt;a href=&#34;https://gist.github.com/dnmfarrell/3db321fc11b0d85f729d&#34;&gt;port scanner&lt;/a&gt; initiates 50 processes, divides the ports to be scanned evenly between all processes, with each process sending one request per second. There are a few issues with this. Firstly if the user wants to scan all 65,535 ports the program will run for at least 20 minutes, which is quite slow. Secondly, some hosts have dynamic firewalls which will start dropping packets if they detect a port scan, so the user may want to be stealthy and slow down the scan speed &lt;em&gt;further&lt;/em&gt;. Ideally then, we should let the user define how many processes to run and how much to delay between each sent packet.&lt;/p&gt;
+
+&lt;p&gt;To capture those arguments, I can add &lt;code&gt;procs&lt;/code&gt; and &lt;code&gt;delay&lt;/code&gt; to &lt;code&gt;GetOptions&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;GetOptions (
+  &#39;delay=f&#39;     =&amp;gt; \(my $delay = 1),
+  &#39;ip=s&#39;        =&amp;gt; \ my $target_ip,
+  &#39;range=s&#39;     =&amp;gt; \ my $port_range,
+  &#39;procs=i&#39;     =&amp;gt; \(my $procs = 50),
+  &#39;h|help|?&#39;    =&amp;gt; sub { pod2usage(2) },
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code does a few neat things: by using the &lt;code&gt;=i&lt;/code&gt; definition, &lt;code&gt;GetOptions&lt;/code&gt; will do integer type checking for the number of processors. Likewise &lt;code&gt;=f&lt;/code&gt; will enforce a floating-point number type. The other thing this code does is declare and set a default value for the variables within the &lt;code&gt;GetOptions&lt;/code&gt; function.&lt;/p&gt;
+
+&lt;p&gt;To support &lt;code&gt;sleep&lt;/code&gt; for floating point seconds, I need to import the &lt;a href=&#34;https://metacpan.org/pod/Time::HiRes&#34;&gt;Time::HiRes&lt;/a&gt; module (part of the Perl core):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::HiRes &#39;sleep&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now the forking &lt;a href=&#34;https://gist.github.com/dnmfarrell/3db321fc11b0d85f729d#file-port_scanner-L68-L91&#34;&gt;code&lt;/a&gt; can become:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;for (1..$procs)
+{
+  my @ports_to_scan = splice @ports, 0, $batch_size;
+  my $parent = fork;
+  die &amp;quot;unable to fork!\n&amp;quot; unless defined ($parent);
+
+  if ($parent)
+  {
+    push(@child_pids, $parent);
+    next;
+  }
+
+  # child waits until the parent signals to continue
+  my $continue = 0;
+  local $SIG{CONT} = sub { $continue = 1};
+  until ($continue) {}
+
+  for my $target_port (@ports_to_scan)
+  {
+    sleep($delay);
+    send_packet($protocol, $target_port, $flags);
+  }
+  exit 0; # exit child
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And the scanner will now fork &lt;code&gt;$procs&lt;/code&gt; number of processes, and sleep &lt;code&gt;$delay&lt;/code&gt; seconds between each sent packet. This should give users the ability to fine-tune the frequency of packets sent and the run time of the scan.&lt;/p&gt;
+
+&lt;h3 id=&#34;reporting:09a1df73d25966850efdcad9f84747ad&#34;&gt;Reporting&lt;/h3&gt;
+
+&lt;p&gt;The simple scanner prints out every scanned port and the port status. This can be too much information - in most cases the user is interested in vulnerable open ports and doesn&amp;rsquo;t care about filtered or closed ones. On the other hand, the output is missing key information that would be required for a security audit: datetime of execution, program version, parameters used, overall runtime etc. So I need to add this information to the output.&lt;/p&gt;
+
+&lt;p&gt;To calculate the program runtime duration, and print the start datetime I can use the &lt;a href=&#34;https://metacpan.org/pod/Time::Piece&#34;&gt;Time::Piece&lt;/a&gt; module. The module is part of core Perl so there is no need to install it, plus you can do &lt;a href=&#34;http://perltricks.com/article/59/2014/1/10/Solve-almost-any-datetime-need-with-Time--Piece&#34;&gt;almost anything&lt;/a&gt; with it.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
+
+my $start_time = localtime;
+
+...
+
+my $end_time = localtime;
+my $duration = $end_time - $start_time;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When you import Time::Piece it overrides the localtime and gmtime built in functions to construct Time::Piece objects. Subtracting the start and end times returns a Time::Seconds object which is our runtime duration. Both object types nicely format when printed, so that&amp;rsquo;s all we need to do here. Simple!&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ll add a &lt;code&gt;verbose&lt;/code&gt; option to &lt;code&gt;GetOptions&lt;/code&gt;. If this is present, we&amp;rsquo;ll print out all port results, else just the open ones:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;GetOptions (
+  &#39;delay=f&#39;     =&amp;gt; \(my $delay = 1),
+  &#39;ip=s&#39;        =&amp;gt; \ my $target_ip,
+  &#39;range=s&#39;     =&amp;gt; \ my $port_range,
+  &#39;procs=i&#39;     =&amp;gt; \(my $procs = 50),
+  &#39;verbose&#39;     =&amp;gt; \ my $verbose,
+  &#39;h|help|?&#39;    =&amp;gt; sub { pod2usage(2) },
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note how for boolean parameters no type declaration is given to &lt;code&gt;GetOptions&lt;/code&gt; (e.g. no &lt;code&gt;=i&lt;/code&gt;). This means that on the command line the user just has to type either &lt;code&gt;--verbose&lt;/code&gt; or &lt;code&gt;-v&lt;/code&gt; and &lt;code&gt;$verbose&lt;/code&gt; will be given a true value.&lt;/p&gt;
+
+&lt;p&gt;Instead of printing out port results in the &lt;code&gt;read_packet()&lt;/code&gt; &lt;a href=&#34;https://gist.github.com/dnmfarrell/3db321fc11b0d85f729d#file-port_scanner-L145&#34;&gt;subroutine&lt;/a&gt;, I&amp;rsquo;m going to return the port number and status back to the calling code and defer the printing until later. This simple change has a two benefits: it&amp;rsquo;s more flexible: I can add more packet parsing routines to &lt;code&gt;read_packet()&lt;/code&gt; without having to add multiple print statements and I can sort the port scan results before printing them. The program can scan ports in a random order but the output should be orderly!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;for (sort { $a &amp;lt;=&amp;gt; $b } keys %port_scan_results)
+{
+  printf &amp;quot; %5u %-15s %-40s\n&amp;quot;, $_, $port_scan_results{$_}, ($port_directory{&amp;quot;$_/$protocol&amp;quot;}-&amp;gt;{name} || &#39;&#39;)
+    if $port_scan_results{$_} =~ /open/ || $verbose;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This approach has one downside - the results will not be printed to the terminal until all responses have been received or the packet capture times out. What would be &lt;em&gt;really&lt;/em&gt; nice would be to print the sorted results as they are received. For example if we were scanning ports 1 to 100 and had received responses for ports 1 through 10, print those results and wait until we receive a response for port 11. This improvement is left as an exercise for the reader (pull requests welcome!).&lt;/p&gt;
+
+&lt;h3 id=&#34;support-different-types-of-scan:09a1df73d25966850efdcad9f84747ad&#34;&gt;Support different types of scan&lt;/h3&gt;
+
+&lt;p&gt;The simple scanner does a TCP &amp;ldquo;SYN&amp;rdquo; scan. This is a good default, but there are many different &lt;a href=&#34;http://nmap.org/book/man-port-scanning-techniques.html&#34;&gt;types&lt;/a&gt; of port scans we can undertake, which can yield better results against different systems. For example in my testing I&amp;rsquo;ve found the TCP SYN scan relatively useless against Chromebooks and mobile devices.&lt;/p&gt;
+
+&lt;p&gt;As with the other updates, I&amp;rsquo;m going to add new parameters to the &lt;code&gt;GetOptions&lt;/code&gt; function. I want to capture the protocol to use (e.g. TCP, UDP, ICMP) and any flags that should be added to the sent packet. These two variables should give us enough flexibility to support a variety of scans.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;GetOptions (
+  &#39;delay=f&#39;     =&amp;gt; \(my $delay = 1),
+  &#39;ip=s&#39;        =&amp;gt; \ my $target_ip,
+  &#39;range=s&#39;     =&amp;gt; \ my $port_range,
+  &#39;procs=i&#39;     =&amp;gt; \(my $procs = 50),
+  &#39;type=s&#39;      =&amp;gt; \(my $protocol = &#39;tcp&#39;),
+  &#39;flag=s&#39;      =&amp;gt; \ my @flags,
+  &#39;verbose&#39;     =&amp;gt; \ my $verbose,
+  &#39;h|help|?&#39;    =&amp;gt; sub { pod2usage(2) },
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You might be wondering how it&amp;rsquo;s possible to read the &lt;code&gt;flag&lt;/code&gt; string parameter into the &lt;code&gt;@flags&lt;/code&gt; array. In this scenario, I want to be able to accept one or more flag arguments, so the user can pass them to the port scanner like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./port_scanner -flag fin -flag psh -flag urg
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or more tersely:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./port_scanner -f fin -f psh -f urg
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;These values will be captured into &lt;code&gt;@flags&lt;/code&gt;. By the way, those three flags are part of a TCP port scanning technique called the &amp;ldquo;Xmas&amp;rdquo; scan. To process the flags I&amp;rsquo;ll use this code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;die &amp;quot;flags are for tcp only!\n&amp;quot; if $protocol ne &#39;tcp&#39; &amp;amp;&amp;amp; @flags;
+$flags[0] = &#39;syn&#39; unless @flags || $protocol eq &#39;udp&#39;;
+my $flags = { map { $_ =&amp;gt; 1 } @flags };
+$flags = {} if exists $flags-&amp;gt;{null};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Flags can only be passed for TCP scans, so the first thing thing I&amp;rsquo;m checking here is if we received any flags and the requested protocol is &lt;em&gt;not&lt;/em&gt; TCP, which will raise an exception. The code then reads &lt;code&gt;@flags&lt;/code&gt; into a hashref, defaulting to SYN if the protocol is TCP and no flags were passed. We also support a special type of scan the &amp;ldquo;null&amp;rdquo; scan where no flags are passed at all.&lt;/p&gt;
+
+&lt;p&gt;Now the &lt;a href=&#34;https://gist.github.com/dnmfarrell/3db321fc11b0d85f729d#file-port_scanner-L125-L139&#34;&gt;send_packet&lt;/a&gt; subroutine can be updated to handle different protocols and scans:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub send_packet
+{
+  my ($protocol, $target_port, $flags) = @_;
+
+  Net::RawIP-&amp;gt;new({ ip =&amp;gt; {
+                      saddr =&amp;gt; $local_ip,
+                      daddr =&amp;gt; $target_ip,
+                    },
+                    $protocol =&amp;gt; {
+                      source =&amp;gt; $local_port,
+                      dest   =&amp;gt; $target_port,
+                      %$flags,
+                    },
+                  })-&amp;gt;send;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The updated subroutine transparently passes the arguments received to &lt;a href=&#34;https://metacpan.org/pod/Net::RawIP&#34;&gt;Net::RawIP&lt;/a&gt;, which handles the details. The remaining ip and port variables are globals and already defined by this point in the code.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://gist.github.com/dnmfarrell/3db321fc11b0d85f729d#file-port_scanner-L145-L171&#34;&gt;read_packet&lt;/a&gt; subroutine also needs to be updated to parse different packet types:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub read_packet
+{
+  my $raw_data = shift;
+  my $ip_data = NetPacket::Ethernet::strip($raw_data);
+  my $ip_packet = NetPacket::IP-&amp;gt;decode($ip_data);
+
+  if ($ip_packet-&amp;gt;{proto} == 6)
+  {
+    my $tcp = NetPacket::TCP-&amp;gt;decode(NetPacket::IP::strip($ip_data));
+    my $port = $tcp-&amp;gt;{src_port};
+
+    if ($tcp-&amp;gt;{flags} &amp;amp; SYN)
+    {
+      return ($port, &#39;open&#39;);
+    }
+    elsif ($tcp-&amp;gt;{flags} &amp;amp; RST)
+    {
+      return ($port, &#39;closed&#39;);
+    }
+    return ($port, &#39;unknown&#39;);
+  }
+  elsif ($ip_packet-&amp;gt;{proto} == 17)
+  {
+    my $udp = NetPacket::UDP-&amp;gt;decode(NetPacket::IP::strip($ip_data));
+    my $port = $udp-&amp;gt;{src_port};
+    return ($port, &#39;open&#39;);
+  }
+  else
+  {
+    warn &amp;quot;Received unknown packet protocol: $ip_packet-&amp;gt;{proto}\n&amp;quot;;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If we receive a TCP packet, the code examines the packet flags to determine the status of the port. A port is considered open if we receive an ACK/SYN response, which can be tested for by checking the presence of the &lt;code&gt;SYN&lt;/code&gt; flag. An &lt;code&gt;RST&lt;/code&gt; flag indicates the port is closed. Note that to test for presence of the flag we use bitwise &lt;code&gt;&amp;amp;&lt;/code&gt; against the flag constants exported by &lt;a href=&#34;https://metacpan.org/pod/NetPacket::TCP&#34;&gt;NetPacket::TCP&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;UDP is a simpler affair as it doesn&amp;rsquo;t support flags. If we receive a UDP datagram, we treat the port as open.&lt;/p&gt;
+
+&lt;h4 id=&#34;icmp:09a1df73d25966850efdcad9f84747ad&#34;&gt;ICMP&lt;/h4&gt;
+
+&lt;p&gt;Even though we&amp;rsquo;re not sending ICMP messages, we may receive them from the target host. Sometimes hosts return an ICMP message of type &amp;ldquo;destination port unreachable&amp;rdquo; instead of replying with a TCP/UDP packet. The ICMP message will include the IP header of the sender&amp;rsquo;s original message, but IP headers do not include destination ports, so how could we determine the destination port from the ICMP response? One way could be to include the destination port in the data portion of the IP packet. Once we receive the ICMP response, we parse out the IP header and extract the destination port from the data component of the message.&lt;/p&gt;
+
+&lt;p&gt;That&amp;rsquo;s not all we can do with ICMP responses. An ICMP response can also indicate that a dynamic firewall has started dropping our packets as we&amp;rsquo;ve exceed a rate-limit. It would be nice if an ICMP message was received, the port scanner automatically increased the delay between sending messages. To communicate this update to the sub-processes, we could install a signal handler. In order to &amp;ldquo;see&amp;rdquo; ICMP message responses, the pcap filter would need to be updated to remove the port clause. This introduces a new problem: we may receive messages from the target host that are unrelated to our scan. For now I&amp;rsquo;ve avoided handling ICMP.&lt;/p&gt;
+
+&lt;h3 id=&#34;running-the-new-port-scanner:09a1df73d25966850efdcad9f84747ad&#34;&gt;Running the new port scanner&lt;/h3&gt;
+
+&lt;p&gt;So that&amp;rsquo;s it! The full code can be found &lt;a href=&#34;https://github.com/dnmfarrell/Penetration-Testing-With-Perl/blob/master/port_scanner&#34;&gt;here&lt;/a&gt;. Now let&amp;rsquo;s see some examples of how to run the code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# tcp syn scan of common ports, 100 processes sending packets every 0.25 sec:
+$ sudo $(which perl) -i 192.168.1.5 -p 100 -d 0.25
+
+# same as before but print all closed and filtered ports too
+$ sudo $(which perl) -i 192.168.1.5 -p 100 -d 0.25 -v
+
+# udp scan
+$ sudo $(which perl) -i 192.168.1.5 -t udp
+
+# tcp fin scan
+$ sudo $(which perl) -i 192.168.1.5 -f fin
+
+# tcp null scan
+$ sudo $(which perl) -i 192.168.1.5 -f null
+
+# tcp xmas scan
+$ sudo $(which perl) -i 192.168.1.5- f fin -f psh -f urg
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:09a1df73d25966850efdcad9f84747ad&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;We&amp;rsquo;ve built something that&amp;rsquo;s beginning to resemble a professional tool: a customizable, high performance TCP/UDP port scanner with useful reporting. By developing our own solution and not relying on tools like nmap, we can achieve a deeper understanding of how networking works and the skills required to scan a host.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Host discovery with broadcast and echo</title>
+      <link>http://perltricks.com/article/180/2015/7/6/Host-discovery-with-broadcast-and-echo/</link>
+      <pubDate>Mon, 06 Jul 2015 12:27:10 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/180/2015/7/6/Host-discovery-with-broadcast-and-echo/</guid>
+      <description>
+
+&lt;p&gt;Network host discovery is the attempt to elicit the addresses of the hosts connected to a network. Last week I &lt;a href=&#34;http://perltricks.com/article/179/2015/7/1/Basic-network-hacking-with-Perl&#34;&gt;wrote&lt;/a&gt; about a unicast approach with Perl that enumerated through every address in the network subnet, messaging each address in turn to see if any hosts respond. This week I&amp;rsquo;ve been working on an alternative approach using broadcast and echo.&lt;/p&gt;
+
+&lt;h3 id=&#34;icmp-and-echo:1ce3cb0a78c3ebf18e0e797ceac88b1e&#34;&gt;ICMP and echo&lt;/h3&gt;
+
+&lt;p&gt;Internet Control Message Protocol (ICMP) is a networking protocol used by networking devices to coordinate with each other. ICMP messages contain a type and a code which have predefined &lt;a href=&#34;https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol#Control_messages&#34;&gt;meanings&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;An ICMP message of type 8 means echo request and hosts are expected to respond with an ICMP message of type 0 (echo reply). To discover hosts on a network, I can send an echo request to the network and capture the IP address of any echo replies received. Instead of cycling through every possible IP address in the subnet, I can send the echo request to the broadcast IP: &lt;code&gt;255.255.255.255&lt;/code&gt; and the message will automatically be sent to every host on the network.&lt;/p&gt;
+
+&lt;p&gt;If you&amp;rsquo;re running a modern Linux, you can test this out at the command line using &lt;code&gt;ping&lt;/code&gt; (other versions may work without the &amp;ldquo;-b&amp;rdquo; switch):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ping -b 255.255.255.255
+WARNING: pinging broadcast address
+PING 255.255.255.255 (255.255.255.255) 56(84) bytes of data.
+64 bytes from 192.168.1.4: icmp_seq=1 ttl=64 time=92.9 ms
+64 bytes from 192.168.1.4: icmp_seq=2 ttl=64 time=2.04 ms
+64 bytes from 192.168.1.4: icmp_seq=3 ttl=64 time=136 ms
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here you see one other host on my network is responding at the address &lt;code&gt;192.168.1.4&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;implementing-echo-in-perl:1ce3cb0a78c3ebf18e0e797ceac88b1e&#34;&gt;Implementing echo in Perl&lt;/h3&gt;
+
+&lt;p&gt;It&amp;rsquo;s possible to implement ping using nothing but core Perl modules. That is, if Perl is installed, this &lt;a href=&#34;https://github.com/dnmfarrell/Penetration-Testing-With-Perl/blob/master/livehost_echo&#34;&gt;script&lt;/a&gt; should work:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
+use strict;
+use warnings;
+use Socket;
+use Net::Ping;
+
+# the checksum must be correct else hosts will ignore the request
+my $msg_checksum = Net::Ping-&amp;gt;checksum(pack(&amp;quot;C2 n3&amp;quot;,8,0,0,0,1));
+my $msg = pack(&amp;quot;C2 n3&amp;quot;, 8, 0, $msg_checksum, 0, 1);
+
+socket(my $socket, AF_INET, SOCK_RAW, getprotobyname(&#39;icmp&#39;));
+setsockopt($socket, SOL_SOCKET, SO_BROADCAST, 1);
+send($socket, $msg, 0, sockaddr_in(0, inet_aton(&#39;255.255.255.255&#39;)));
+bind($socket,sockaddr_in(0,inet_aton(0)));
+
+while (1)
+{
+  my $addr = recv($socket, my $data, 1024, 0);
+  my ($tmp, $tos, $len, $id, $offset, $tt, $proto, $checksum,
+    $src_ip, $dest_ip, $options) = unpack(&#39;CCnnnCCnNNa*&#39;, $data);
+
+  if ($dest_ip != 4294967295) # destination != 255.255.255.255
+  {
+    my ($port, $peer) = sockaddr_in($addr);
+    printf &amp;quot;%s bytes from %s\n&amp;quot;, length($data), inet_ntoa($peer);
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This script starts by importing the &lt;code&gt;Socket&lt;/code&gt; and &lt;code&gt;Net::Ping&lt;/code&gt; modules - both part of the Perl core distribution. It uses the &lt;code&gt;checksum&lt;/code&gt; function from &lt;code&gt;Net::Ping&lt;/code&gt; to calculate the message checksum. The checksum is important because if it is incorrect, hosts will not reply. The script packs the code, the type, checksum and offset into &lt;code&gt;$msg&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The script then creates a broadcast socket, and sends the message to the broadcast address (&lt;code&gt;255.255.255.255&lt;/code&gt;). The socket is then bound to the network address, and the script enters a while loop attempting to read data from the socket using &lt;code&gt;recv&lt;/code&gt;. Any received data is unpacked and the packet address saved in &lt;code&gt;$addr&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The source and destination IP fields in the unpacked message are stored as 32 bit integers, so the script ignores packets whose destination matches the integer of the broadcast address, as this message was sent by the script. After that the script decodes the packet address and prints the results.&lt;/p&gt;
+
+&lt;p&gt;Running this script on my network, I can see the same host as was returned by &lt;code&gt;ping&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ sudo ./livehost_echo                                 
+28 bytes from 192.168.1.4
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;fingerprinting-hosts:1ce3cb0a78c3ebf18e0e797ceac88b1e&#34;&gt;Fingerprinting hosts&lt;/h3&gt;
+
+&lt;p&gt;The primary issue with this technique is it can only discover hosts that respond to broadcast requests, and many do not. For example Chromebooks, smart phones and Linux machines usually don&amp;rsquo;t reply (OSX machines and many versions of Windows do though). This can be an advantage though: because the response rate to broadcast is different to unicast, the echo script can be used in conjunction with unicast to fingerprint hosts. If a machine responds to a unicast message but not a broadcast, we learn something about the identity of that host. For example if I use the &lt;a href=&#34;https://github.com/dnmfarrell/Penetration-Testing-With-Perl/blob/master/livehost_scanner&#34;&gt;livehost_scanner&lt;/a&gt; script on my home network:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sudo $(which perl) livehost_scanner                                                                                                                  
+Gateway IP: 192.168.1.1
+Starting scan
+192.168.1.1 10:0d:7f:81:31:c2
+192.168.1.2 5c:c5:d4:47:0a:13 (this machine)
+192.168.1.7 38:e7:d8:00:9a:d5
+192.168.1.4 e0:ac:cb:5e:d5:da
+192.168.1.10 cc:3d:82:60:4b:95
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can see that there 2 other livehosts (excluding the router) which show up, but didn&amp;rsquo;t respond to an echo request. The echo script could be adapted to send other types of ICMP messages such as timestamp and subnet mask which can be used to further &lt;a href=&#34;http://www.sans.org/security-resources/idfaq/icmp_misuse.php&#34;&gt;identify&lt;/a&gt; a host.&lt;/p&gt;
+
+&lt;h3 id=&#34;further-thoughts:1ce3cb0a78c3ebf18e0e797ceac88b1e&#34;&gt;Further thoughts&lt;/h3&gt;
+
+&lt;p&gt;The echo script uses the broadcast technique which only works on IPv4 networks. IPv6 networks support multicast instead, but that would require changes to the script. Interestingly the number of potential addresses in a single IPv6 subnet, (I think) renders the unicast technique redundant.&lt;/p&gt;
+
+&lt;p&gt;Another other problem with the echo script is that because it opens a raw socket, it requires root privileges to run. The &lt;code&gt;ping&lt;/code&gt; utility on the other hand is installed with setuserid permissions and runs as root regardless of the user&amp;rsquo;s own privileges.&lt;/p&gt;
+
+&lt;h3 id=&#34;useful-resources:1ce3cb0a78c3ebf18e0e797ceac88b1e&#34;&gt;Useful resources&lt;/h3&gt;
+
+&lt;p&gt;In preparing this script I learned a lot about sockets and network programming. Lincoln Stein&amp;rsquo;s &lt;a href=&#34;http://www.amazon.com/Network-Programming-Perl-Lincoln-Stein/dp/0201615711/ref=la_B000APT5P6_1_1&#34;&gt;Network Programming with Perl&lt;/a&gt; was an invaluable resource for understanding sockets and the arcane invocations to use with them. If you&amp;rsquo;re considering working with sockets, the &lt;a href=&#34;https://metacpan.org/pod/IO::Socket&#34;&gt;IO::Socket&lt;/a&gt; module has a cleaner interface than the &lt;a href=&#34;https://metacpan.org/pod/Socket&#34;&gt;Socket&lt;/a&gt; module (and is also part of core). The source code for the excellent &lt;a href=&#34;https://metacpan.org/pod/NetPacket&#34;&gt;NetPacket&lt;/a&gt; distribution was useful in understanding how to parse packets.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Kitkat on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/kitkat/</link>
+    <description>Recent content in Kitkat on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 16 Jun 2014 12:57:21 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/kitkat/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How to build Perl on Android 4.4</title>
+      <link>http://perltricks.com/article/97/2014/6/16/How-to-build-Perl-on-Android-4-4/</link>
+      <pubDate>Mon, 16 Jun 2014 12:57:21 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/97/2014/6/16/How-to-build-Perl-on-Android-4-4/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;The recent release of Perl 5.20 came with the exciting news that Perl was now installable on Android, Google&amp;rsquo;s mobile operating system. But before you get grand visions of flying phone-controlled drones via &lt;a href=&#34;https://metacpan.org/pod/UAV::Pilot&#34;&gt;UAV::Pilot&lt;/a&gt;, know that right now, how to get a working Perl binary is just about all that&amp;rsquo;s documented. This article shows you how to get that far - solving the rest is left for the pioneers!&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:914b0b08540fea0f7c86094ce2509280&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;To build Perl on Android you&amp;rsquo;ll need a unix-like environment (Cygwin may work too). This article describes installing Perl on an Android Virtual Device (AVD), so you do not need an Android phone to try Perl on Android.&lt;/p&gt;
+
+&lt;h3 id=&#34;preparation:914b0b08540fea0f7c86094ce2509280&#34;&gt;Preparation&lt;/h3&gt;
+
+&lt;p&gt;Download the Android &amp;ldquo;SDK Tools Only&amp;rdquo; &lt;a href=&#34;https://developer.android.com/sdk/index.html&#34;&gt;tarball&lt;/a&gt;, and the NDK &lt;a href=&#34;https://developer.android.com/tools/sdk/ndk/index.html&#34;&gt;tarball&lt;/a&gt;. At the command line, change to the directory where you downloaded the tarballs to and untar both tarballs:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ tar xvf android-ndk-r9d-linux-x86_64.tar.bz2
+$ tar xvf android-sdk_r22.6.2-linux.tgz
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To save typing later, add &amp;ldquo;android-sdk-*/tools&amp;rdquo; and &amp;ldquo;android-sdk-*/platform-tools&amp;rdquo; to $PATH (you&amp;rsquo;ll need to provide the absolute paths to the directories). For example if I had extracted android-sdk-tools to my user directory, on Linux I could add it to PATH with the following command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ export PATH=$PATH:$HOME/android-sdk-linux/tools:$HOME/android-sdk-linux/platform-tools
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With your PATH updated, launch the Android SDK Manager:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ android
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will open a GUI menu from where you can download and install the required Android tools and libraries. Using the menu, install Android SDK Tools, Android SDK Platform-tools, Android SDK Build-tools and Android 4.2.2.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_sdk_manager.png&#34; title=&#34;The Android SDK Manager&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_sdk_manager_small.png&#34; alt=&#34;The Android SDK Manager&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;You&amp;rsquo;ll also need a copy of the Perl 5.20.0 &lt;a href=&#34;http://www.cpan.org/src/5.0/perl-5.20.0.tar.gz&#34;&gt;tarball&lt;/a&gt;. Untar this at the command line too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ tar xvf perl-5.20.0.tar.gz
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;setup-the-android-emulator:914b0b08540fea0f7c86094ce2509280&#34;&gt;Setup the Android emulator&lt;/h3&gt;
+
+&lt;p&gt;Now we&amp;rsquo;re going to create an Android Virtual Device that can be used by the emulator to run Android on your machine. At the command line type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ android avd
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will launch the Android Virtual Device Manager:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_avd_1.png&#34; title=&#34;The Android Virtual Device Manager&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_avd_1_small.png&#34; alt=&#34;The Android Virtual Device Manager&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Click &amp;ldquo;new&amp;rdquo; to create a new AVD. I created one with the following settings:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_avd_2.png&#34; title=&#34;Create a new AVD&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_avd_2.png&#34; alt=&#34;Create a new AVD&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Make sure you select &amp;ldquo;ARM (androideabi-v7a)&amp;rdquo; as the CPU/ABI option. Keep in mind your platform&amp;rsquo;s hardware when choosing these settings. I found higher resolution devices ran very slowly on my old MacBook. The &amp;ldquo;use snapshot&amp;rdquo; option is a timesaver that saves the virtual device&amp;rsquo;s state post-boot, so saves you from waiting for the virtual device to boot up again after the first time. Once you&amp;rsquo;ve created the AVD, you should see it listed in the AVD Manager window:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_avd_4.png&#34; title=&#34;The AVD has been created&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_avd_4_small.png&#34; alt=&#34;The AVD has been created&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Having created a new AVD, you can close the AVD Manager window.&lt;/p&gt;
+
+&lt;h3 id=&#34;installation:914b0b08540fea0f7c86094ce2509280&#34;&gt;Installation&lt;/h3&gt;
+
+&lt;p&gt;The following commands will create environment variables we&amp;rsquo;ll need for the install. Be sure to adjust the path for ANDROID_NDK to the location where you untarred the Android NDK archive earlier.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ export ANDROID_NDK=$HOME/android-ndk-r9d
+$ export TARGET_ARCH=arm-linux-androideabi
+$ export ANDROID_TOOLCHAIN=/tmp/my-toolchain-arm-linux-androideabi
+$ export SYSROOT=$ANDROID_TOOLCHAIN/sysroot
+$ export TARGETDIR=/mnt/asec/perl
+$ export PATH=$PATH:$ANDROID_NDK/toolchains/$TARGET_ARCH-4.8/prebuilt/linux-x86_64/bin
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To create the toolchain, run this command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt; $ $ANDROID_NDK/build/tools/make-standalone-toolchain.sh --platform=android-9 --install-dir=$ANDROID_TOOLCHAIN --system=`uname | tr &#39;[A-Z]&#39; &#39;[a-z]&#39;`-x86_64 --toolchain=arm-linux-androideabi-4.8
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Launch your AVD with the emulator (replace kitkat with the name of the avd you created. If you can&amp;rsquo;t remember the name, just run &amp;ldquo;android avd&amp;rdquo; again:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ emulator @kitkat&amp;amp;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You should see your emulated device start booting in a new window:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_boot.png&#34; title=&#34;The loaded AVD&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_boot.png&#34; alt=&#34;The loaded AVD&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Once it&amp;rsquo;s booted, it will look like this:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_loaded.png&#34; title=&#34;The AVD is booting&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_loaded.png&#34; alt=&#34;The AVD is booting&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;With the fully booted AVD still running, return to the command line and type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ adb devices
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will print out the names of all the connected Android devices.For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;List of devices attached 
+emulator-5554   device
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we&amp;rsquo;ve got the device name, we&amp;rsquo;ll use adb to run shell commands on our emulated device. It&amp;rsquo;s important that the AVD is booted and running:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;adb -s emulator-5554 shell &amp;quot;echo sh -c &#39;\&amp;quot;mkdir $TARGETDIR\&amp;quot;&#39; | su --&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now change into the untarred perl-5.20.0 directory, and run configure (replace &amp;ldquo;emulator-5554&amp;rdquo; with your device name):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./Configure -des -Dusedevel -Dusecrosscompile -Dtargetrun=adb -Dcc=arm-linux-androideabi-gcc -Dsysroot=$SYSROOT -Dtargetdir=$TARGETDIR -Dtargethost=emulator-5554
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You can now run make and make test to build and test Perl on the device:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ make
+$ make test
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Bear in mind that the make test can take a long time - on my machine it ran for 4 hours. It will appear like the process has hung, this is because adb only prints out the results once the command has completed. Make isntall does not work, but this does not matter, as you can still run the Perl binary and use core modules. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ adb -s emulator-5554 shell &amp;quot;/mnt/asec/perl/perl -v&amp;quot;
+This is perl 5, version 20, subversion 0 (v5.20.0) built for linux-androideabi
+
+Copyright 1987-2014, Larry Wall
+
+Perl may be copied only under the terms of either the Artistic License or the
+GNU General Public License, which may be found in the Perl 5 source kit.
+
+Complete documentation for Perl, including FAQ lists, should be found on
+this system using &amp;quot;man perl&amp;quot; or &amp;quot;perldoc perl&amp;quot;.  If you have access to the
+Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Core modules are located in /mnt/asec/perl/lib. To load them, just use the -I switch. For example this one liner:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;adb -s emulator-5554 shell &#39;/mnt/asec/perl/perl -I/mnt/asec/perl/lib -MHTTP::Tiny -E &amp;quot;say  HTTP::Tiny-&amp;gt;new-&amp;gt;get(q{http://perltricks.com})-&amp;gt;{content}&amp;quot;&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or if running a script:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;adb -s emulator-5554 shell &#39;/mnt/asec/perl/perl -I/mnt/asec/perl/lib my_script.pl&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;Be warned - if you stop the AVD, Perl will be removed.&lt;/strong&gt; You can Google for solutions on how to persist changes across AVD reboots - I have not done this yet. Let me know if you find a reliable solution!&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:914b0b08540fea0f7c86094ce2509280&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;This is not the only way to get Perl running on Android. For a different approach, checkout the &lt;a href=&#34;https://github.com/damonkohler/sl4a&#34;&gt;Scripting Layer 4 Android&lt;/a&gt; project, however it is under-documented and the project may have stagnated.&lt;/p&gt;
+
+&lt;p&gt;This article would not have been possible without the excellent Android perldoc page by Brian Fraser. You can read it on &lt;a href=&#34;https://github.com/Perl/perl5/blob/blead/README.android&#34;&gt;Github&lt;/a&gt; or with Perl 5.20.0 installed you can read it with perldoc:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc android
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Thanks Brian!&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F97%2F2014%2F6%2F16%2FHow-to-build-Perl-on-Android-4-4&amp;amp;text=How+to+build+Perl+on+Android+4.4&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F97%2F2014%2F6%2F16%2FHow-to-build-Perl-on-Android-4-4&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

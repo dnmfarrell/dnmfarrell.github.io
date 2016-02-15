@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Typeglob on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/typeglob/</link>
+    <description>Recent content in Typeglob on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 25 Nov 2013 03:28:00 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/typeglob/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Add Moose-style attribute accessors to your Perl classes</title>
+      <link>http://perltricks.com/article/49/2013/11/25/Add-Moose-style-attribute-accessors-to-your-Perl-classes/</link>
+      <pubDate>Mon, 25 Nov 2013 03:28:00 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/49/2013/11/25/Add-Moose-style-attribute-accessors-to-your-Perl-classes/</guid>
+      <description>
+
+&lt;p&gt;*Let&amp;rsquo;s face it, writing attribute accessors for out-of-the-box Perl classes is repetitive and not much fun. Of course you could use &lt;a href=&#34;https://metacpan.org/pod/Moose&#34;&gt;Moose&lt;/a&gt; or even &lt;a href=&#34;https://metacpan.org/pod/Class::Accessor&#34;&gt;Class::Accessor&lt;/a&gt; to ease the burden but sometimes you want to roll your own solution, &lt;em&gt;sans&lt;/em&gt; dependencies.*&lt;/p&gt;
+
+&lt;h3 id=&#34;a-typical-class:cb4e7ecf133cb0c0eb41f1244b5516b6&#34;&gt;A typical class&lt;/h3&gt;
+
+&lt;p&gt;The Point class below has two attributes (x, y) and get/set methods for each attribute written in the vanilla Perl object oriented style.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Point;
+
+sub new {
+    my ($class, $x, $y) = @_;
+    my $self = {
+        x =&amp;gt; $x,
+        y =&amp;gt; $y,
+    };
+    return bless $self, $class;
+}
+
+sub get_x {
+    return $_[0]-&amp;gt;{x};
+}
+
+sub set_x {
+    return $_[0]-&amp;gt;{x} = $_[1];
+}
+
+sub get_y {
+    return $_[0]-&amp;gt;{y};
+}
+
+sub set_y {
+    return $_[0]-&amp;gt;{y} = $_[1];
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;the-alternative:cb4e7ecf133cb0c0eb41f1244b5516b6&#34;&gt;The alternative&lt;/h3&gt;
+
+&lt;p&gt;Last week Rob Hoelz wrote a &lt;a href=&#34;http://hoelz.ro/blog/oh-my-glob&#34;&gt;fascinating post&lt;/a&gt; on Perl typeglobs, and we can use the a typeglob to help with our Point class attribute accessors. This is the updated class:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Point;
+
+my @attributes;
+BEGIN {
+    @attributes = qw/x y/;
+    no strict &#39;refs&#39;;
+    for my $accessor ( @attributes ) {
+        *{$accessor} = sub {
+            @_ &amp;gt; 1 ? $_[0]-&amp;gt;{$accessor} = $_[1] : $_[0]-&amp;gt;{$accessor} };
+    }
+}
+
+sub new {
+    my ($class, $args) = @_;
+    my $self = bless {}, $class;
+    for my $key ( @attributes ) {
+        $self-&amp;gt;{$key} = $args-&amp;gt;{$key} if exists $args-&amp;gt;{$key}
+    }
+    return $self;
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Gone are the individual get/set accessors and in their place is a BEGIN block. The block turns off strict references (for the block only) and for every attribute creates a typeglob reference to an anonymous get/set subroutine. The constructor has been updated to take a hashref of arguments ($args) and sets the values of any attribute that is found in $args.&lt;/p&gt;
+
+&lt;p&gt;What&amp;rsquo;s nice about this approach is that adding additional attributes can be done simply by adding the attribute names to @attributes, whereas in the original Point class we would have needed to add two new methods and update the constructor method every time a new attribute was added. Additionally this approach supports the Moose-style syntax: when an argument is provided it sets the attribute value, else it gets it. E.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$point-&amp;gt;x; #get x
+$point-&amp;gt;x(5); #set x to 5
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Whilst this approach does offer faster extensibility and a nicer syntax than vanilla object oriented Perl, it&amp;rsquo;s also restrictive. For example it would be difficult to add attribute-specific behavior without adding some ugly if-else code. Therefore it probably works best for scenarios involving simple classes with many attributes.&lt;/p&gt;
+
+&lt;h3 id=&#34;sources:cb4e7ecf133cb0c0eb41f1244b5516b6&#34;&gt;Sources&lt;/h3&gt;
+
+&lt;p&gt;Thanks to David Golden whose awesome &lt;a href=&#34;https://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt; source code inspired this article.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

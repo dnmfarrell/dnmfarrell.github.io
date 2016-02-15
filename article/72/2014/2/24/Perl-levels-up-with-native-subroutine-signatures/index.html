@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Perl levels up with native subroutine signatures Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="The syntax, the benefits and what&#39;s coming next"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Perl levels up with native subroutine signatures</h1>
+            <p class="blog-post-meta">Feb 24, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p><em>It&rsquo;s been a long time coming, but subroutine signatures have just been added to Perl. Although Perl version 5.20 is not due until the Spring, you can use subroutine signatures with the latest Perl development release now.</em></p>
+
+<h3 id="requirements:76bdd2424109ffd28684aebfa664547d">Requirements</h3>
+
+<p>You&rsquo;ll need to install a copy of the latest Perl development release (v5.19.9). You can get this with Perlbrew:</p>
+
+<pre><code class="language-prettyprint">$ perlbrew install perl-5.19.9
+$ perlbrew switch perl-5.19.9
+</code></pre>
+
+<p>Or you can download and build Perl v5.19.9 from <a href="http://www.cpan.org/src/README.html">cpan.org</a>.</p>
+
+<p>Once 5.19.9 is installed, you&rsquo;ll need the <a href="https://metacpan.org/pod/experimental">experimental</a> distribution. Install it via cpan at the command line:</p>
+
+<pre><code class="language-prettyprint">$ cpan experimental
+</code></pre>
+
+<h3 id="subroutine-signatures-explained:76bdd2424109ffd28684aebfa664547d">Subroutine signatures explained</h3>
+
+<p>A subroutine signature is a formal list of parameters for a subroutine. You can declare a subroutine signature like this:</p>
+
+<pre><code class="language-prettyprint">use experimental 'signatures';
+
+sub echo ($message) {
+    print &quot;$message\n&quot;;
+}
+</code></pre>
+
+<p>In this example &ldquo;($message)&rdquo; is the subroutine signature. That indicates that all calls to the echo subroutine must pass one parameter. When the subroutine is called, the parameter is assigned to $message and available for use within the scope of the subroutine.</p>
+
+<h3 id="default-values:76bdd2424109ffd28684aebfa664547d">Default values</h3>
+
+<p>A signature can also declare default values for its parameters. Let&rsquo;s add a default message to the echo subroutine:</p>
+
+<pre><code class="language-prettyprint">use experimental 'signatures';
+
+sub echo ($message = 'Hello World!') {
+    print &quot;$message\n&quot;;
+}
+</code></pre>
+
+<p>Now the value of $message will default to &ldquo;Hello World!&rdquo; when the subroutine is called without arguments.</p>
+
+<p>Subroutine signatures can also declare optional and slurpy parameters. If you&rsquo;d like to see examples, check out the new subroutine signatures entry in Perl&rsquo;s <a href="http://search.cpan.org/~tonyc/perl-5.19.9/pod/perlsub.pod#Signatures">official documentation.</a></p>
+
+<h3 id="argument-checking:76bdd2424109ffd28684aebfa664547d">Argument checking</h3>
+
+<p>Adding a signature to a subroutine enables argument checking for all calls to that subroutine. For example this code generates an error when run:</p>
+
+<pre><code class="language-prettyprint">use experimental 'signatures';
+
+sub echo ($message) {
+    print &quot;$message\n&quot;;
+}
+
+echo(); # missing argument
+</code></pre>
+
+<pre><code class="language-prettyprint">$ perl echo.pl
+Too few arguments for subroutine at echo.pl line 3.
+</code></pre>
+
+<p>Perl will also raise an error if too many arguments are passed:</p>
+
+<pre><code class="language-prettyprint">use experimental 'signatures';
+
+sub echo ($message) {
+    print &quot;$message\n&quot;;
+}
+
+echo('hello', 'world'); # too many arguments
+</code></pre>
+
+<pre><code class="language-prettyprint">$ perl echo.pl
+Too many arguments for subroutine at echo.pl line 3.
+</code></pre>
+
+<p>This is helpful- it avoids the need to write boilerplate argument checking code inside subroutines. Beware though; as there is no value check, the following will not raise an arguments error:</p>
+
+<pre><code class="language-prettyprint">use experimental 'signatures';
+
+sub echo ($message) {
+    print &quot;$message\n&quot;;
+}
+
+echo(undef); #undef is an argument
+</code></pre>
+
+<h3 id="less-ugly-code:76bdd2424109ffd28684aebfa664547d">Less ugly code</h3>
+
+<p>You can banish those unsightly variable assignments from your subroutines. Say goodbye (and good riddance) to this:</p>
+
+<pre><code class="language-prettyprint">sub ugly_code {
+    my ($arg1, $arg2, arg3) = @_;
+    ...
+}
+</code></pre>
+
+<p>And say hello to this:</p>
+
+<pre><code class="language-prettyprint">sub fine_code ($arg1, $arg2, arg3){
+    ...
+}
+</code></pre>
+
+<h3 id="further-enhancements-are-coming:76bdd2424109ffd28684aebfa664547d">Further enhancements are coming</h3>
+
+<p>The native subroutine signatures implementation is a minimalist one compared to the feature-full <a href="https://metacpan.org/pod/Method::Signatures">Method::Signatures</a> module. Peter Martini the main sponsor of Perl&rsquo;s native subroutine signatures, has confirmed plans to add type checking, aliases, read-only copies, and named parameters in the future. He expects each of these features to bring speed improvements too.</p>
+
+<h3 id="revisiting-an-old-python-and-perl-comparison:76bdd2424109ffd28684aebfa664547d">Revisiting an old Python and Perl comparison</h3>
+
+<p>On page 5 of <a href="http://www.amazon.com/gp/product/193518220X/ref=as_li_qf_sp_asin_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=193518220X&amp;linkCode=as2&amp;tag=perltrickscom-20">The Quick Python Book, Second Edition</a> (affiliate link), the author compares equivalent Perl and Python functions for readability. In the author&rsquo;s view, the Python code is more readable than the Perl code. It&rsquo;s a straw man argument as the Perl example is written in &ldquo;baby Perl&rdquo;, but let&rsquo;s revisit the example using Perl&rsquo;s native subroutine signatures feature. This is the Python example, unmodified:</p>
+
+<pre><code class="language-prettyprint">def pairwise_sum(list1, list2):
+    result = []
+    for i in range(len(list1)):
+        result.append(list1[i] + list2[i])
+    return result
+</code></pre>
+
+<p>And this is the original Perl code example:</p>
+
+<pre><code class="language-prettyprint">sub pairwise_sum {
+    my($arg1, $arg2) = @_;
+    my(@result) = ();
+    @list1 = @$arg1;
+    @list2 = @$arg2;
+    for($i=0; $i &lt; length(@list1); $i++) {
+        push(@result, $list1[$i] + $list2[$i]);
+    }
+    return(\@result);
+}
+</code></pre>
+
+<p>Here is a refactored Perl version:</p>
+
+<pre><code class="language-prettyprint">sub pairwise_sum {
+    my ($arg1, $arg2) = @_;
+    return map { $arg1-&gt;[$_] + $arg2-&gt;[$_] } 0 .. $#$arg1;
+}
+</code></pre>
+
+<p>This code is cleaner and shorter than the original Perl code. It&rsquo;s also shorter than the Python example. But is it cleaner? Using subroutine signatures, we can do better:</p>
+
+<pre><code class="language-prettyprint">sub pairwise_sum ($arg1, $arg2) {
+    return map { $arg1-&gt;[$_] + $arg2-&gt;[$_] } 0 .. $#$arg1;
+}
+</code></pre>
+
+<p>You can see that using subroutine signatures has saved us a line of code for parameter assignment. Now there can be no argument: the Perl code is shorter and cleaner than the Python example. Nice!</p>
+
+<h3 id="conclusion:76bdd2424109ffd28684aebfa664547d">Conclusion</h3>
+
+<p>Subroutine signatures is a leap-forward for Perl technically and a boost for the Perl community. It&rsquo;s motivating to see significant language advancements and there are more on the way. With <a href="http://perltricks.com/article/68/2014/2/13/Cool-new-Perl-feature-postfix-dereferencing">postfix dereferencing</a>, new <a href="http://blogs.perl.org/users/matthew_horsfall/2014/02/perl-519x-performance-improvements.html">performance enhancements</a> and now subroutine signatures, Perl version 5.20 is going to be the most significant release since 5.10. Roll on Spring 2014!</p>
+
+<p><em>2014-02-24: article updated to correct the error checking implementation, Perl code example and clarify Peter Martini&rsquo;s role in the Perl core signatures development.</em></p>
+
+<p>Enjoyed this article? Help us out and <a href="https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F72%2F2014%2F2%2F24%2FPerl-levels-up-with-native-subroutine-signatures&amp;text=Perl+levels+up+with+native+subroutine+signatures&amp;tw_p=tweetbutton&amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F72%2F2014%2F2%2F24%2FPerl-levels-up-with-native-subroutine-signatures&amp;via=perltricks">retweet</a> it!</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/modernperl">modernperl</a></div>
+              
+                <div class="tag"><a href="/tags/subroutine">subroutine</a></div>
+              
+                <div class="tag"><a href="/tags/method">method</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

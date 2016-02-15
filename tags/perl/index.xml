@@ -1,0 +1,1359 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Perl on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/perl/</link>
+    <description>Recent content in Perl on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 17 Dec 2015 14:13:13 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/perl/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Kitchen coding nightmares: JavaScript scope</title>
+      <link>http://perltricks.com/article/204/2015/12/17/Kitchen-coding-nightmares--JavaScript-scope/</link>
+      <pubDate>Thu, 17 Dec 2015 14:13:13 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/204/2015/12/17/Kitchen-coding-nightmares--JavaScript-scope/</guid>
+      <description>
+
+&lt;p&gt;Lately at the &lt;a href=&#34;https://www.recurse.com/&#34;&gt;Recurse Center&lt;/a&gt; I&amp;rsquo;ve been developing a JavaScript client for my &lt;a href=&#34;https://github.com/dnmfarrell/Settlers-Game&#34;&gt;Settlers game&lt;/a&gt;. As a Perl developer working with JavaScript, it has been a fun experience. JavaScript feels very perly - both share a flexible syntax, first class functions and objects as hashes. And both languages have a lax interpreter which should have been put in strict mode in the first place (ha-ha!). One way in which JavaScript is very different from Perl is its scoping rules. I was burned by these more than once, and so if you&amp;rsquo;re new to JavaScript, you might find the following summary and recommendations useful.&lt;/p&gt;
+
+&lt;h3 id=&#34;functional-scoping:6e2e047097a9f672ac378602b99db31f&#34;&gt;Functional scoping&lt;/h3&gt;
+
+&lt;p&gt;Variables are declared with the &lt;code&gt;var&lt;/code&gt; keyword:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;var name = &amp;quot;David&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Variables are functionally-scoped, which means that if declared within a function, the variable is private to the function block. Variables declared outside of functions are globally scoped. And there is no other type of block scoping (such as within if-else or for loops).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;var name = &amp;quot;David&amp;quot;;
+
+function log_name (name) // private
+{
+  console.log(name);
+}
+
+var names = [&amp;quot;Jen&amp;quot;, &amp;quot;Jim&amp;quot;, &amp;quot;Jem&amp;quot;, &amp;quot;Jon&amp;quot;];
+for (var i = 0; i &amp;lt; names.length; i++)
+{
+  var name = names[i]; // overwriting the global
+}
+console.log(name); // Jon NOT David
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;functions-as-variables:6e2e047097a9f672ac378602b99db31f&#34;&gt;Functions as variables&lt;/h3&gt;
+
+&lt;p&gt;Function names are stored as variables under the same scoping rules as ordinary variables. There are two ways to declare functions:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;function log_name () { }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;var log_name = function () { }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Both of these are the same. Which means it&amp;rsquo;s possible to inadvertently overwrite a function with another variable declaration:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;function name () { return &amp;quot;David&amp;quot;; }
+var name = &amp;quot;John&amp;quot;;
+name(); // error, name is not a function anymore
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;hoisting:6e2e047097a9f672ac378602b99db31f&#34;&gt;Hoisting&lt;/h3&gt;
+
+&lt;p&gt;JavaScript interpreters have a initial-runtime phase, (similar to Perl&amp;rsquo;s &lt;code&gt;BEGIN&lt;/code&gt;), where all variable declarations are executed before other code. This is known as &amp;ldquo;hoisting&amp;rdquo;, but practically what it means is that you can use a variable before you declare it!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;console.log(name); // yep, this works
+var name = &amp;quot;David&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;bind:6e2e047097a9f672ac378602b99db31f&#34;&gt;Bind&lt;/h3&gt;
+
+&lt;p&gt;JavaScript makes heavy use of anonymous functions and callbacks.To modify the scope of a function, JavaScript&lt;sup&gt;1&lt;/sup&gt; provides &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind?redirectlocale=en-US&amp;amp;redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FFunction%2Fbind&#34;&gt;bind&lt;/a&gt;. This is easier to understand by example. If I have a point object and I want a method to draw it to the canvas, by loading an image:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Point.prototype.draw = function()
+{
+  var ctx = get_canvas_context(); // declared elsewhere
+  var img = new Image();
+  img.onload = function () {  // anonymous function
+    ctx.drawImage(img, this.x, this.y);   
+  }.bind(this);
+  img.src = &amp;quot;/point.png&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here I use &lt;code&gt;bind&lt;/code&gt; to inject the point object&amp;rsquo;s scope into the anonymous function. Otherwise I wouldn&amp;rsquo;t be able to access the &lt;code&gt;x&lt;/code&gt; and &lt;code&gt;y&lt;/code&gt; properties of the point as &lt;code&gt;this&lt;/code&gt; would be referencing something else.&lt;/p&gt;
+
+&lt;p&gt;For a more thorough explanation of JavaScript scope, I recommend Todd Motto&amp;rsquo;s article, &lt;a href=&#34;https://toddmotto.com/everything-you-wanted-to-know-about-javascript-scope/&#34;&gt;Everything you wanted to know about JavaScript scope&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;coping-with-scoping:6e2e047097a9f672ac378602b99db31f&#34;&gt;Coping with scoping&lt;/h3&gt;
+
+&lt;p&gt;OK so that was the bad news; the good news is there are plenty of techniques for handling JavaScript&amp;rsquo;s scoping rules. Depending on the context you may find some or all of these methods useful.&lt;/p&gt;
+
+&lt;h4 id=&#34;naming-conventions:6e2e047097a9f672ac378602b99db31f&#34;&gt;Naming conventions&lt;/h4&gt;
+
+&lt;p&gt;The first thing you can do to avoid clashes is adopt a naming convention. For example, name all functions with verb-noun constructs (like &amp;ldquo;get_address&amp;rdquo;) and all value variables with plain nouns (like &amp;ldquo;addresses&amp;rdquo;). This is not a complete solution, but at a minimum it will reduce the chances of a function being replaced by a value variable.&lt;/p&gt;
+
+&lt;h4 id=&#34;one-var-per-scope:6e2e047097a9f672ac378602b99db31f&#34;&gt;One var per scope&lt;/h4&gt;
+
+&lt;p&gt;Another technique for managing variable scope is to only allow one &lt;code&gt;var&lt;/code&gt; statement per scope. So a typical program might look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;// declare global scope variables
+var foo = &amp;quot;/root/assets&amp;quot;,
+    bar = 0;
+
+function execute (foo)
+{
+  var i, j, bar; // functional scope
+
+  for (i = 0; i &amp;lt; foo.length; i++)
+  {
+    for (j = 0; j &amp;lt; foo.length; j++)
+    {
+      // do something
+    }
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;use-strict:6e2e047097a9f672ac378602b99db31f&#34;&gt;Use strict&lt;/h4&gt;
+
+&lt;p&gt;This is a convention all Perl programmers should be comfortable with. Enable &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode&#34;&gt;strict mode&lt;/a&gt; in JavaScript. Just like with Perl, JavaScript&amp;rsquo;s strict mode can catch &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode#Changes_in_strict_mode&#34;&gt;several&lt;/a&gt;cases of variable-related bugs. Enable it globally with:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;quot;use strict&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Generally JavaScript experts &lt;a href=&#34;http://yuiblog.com/blog/2010/12/14/strict-mode-is-coming-to-town/&#34;&gt;recommend&lt;/a&gt; using a functionally-scoped version of strict - in this case the declaration is placed inside a function block. This is useful to prevent script concatenation errors (where an imported script does not satisfy the strict rules).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;(function () {
+   &amp;quot;use strict&amp;quot;;
+   // this function is strict...
+}());
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;objects-as-namespaces:6e2e047097a9f672ac378602b99db31f&#34;&gt;Objects as namespaces&lt;/h4&gt;
+
+&lt;p&gt;If you were thinking a simple way to solve all of the namespace clashes was with modules, allow me to be the first to tell you that JavaScript has no notion of modules (being a &lt;a href=&#34;https://en.wikipedia.org/wiki/Prototype-based_programming&#34;&gt;prototyped language&lt;/a&gt;). There is no &lt;code&gt;import&lt;/code&gt; keyword. In HTML any code that is loaded with a &lt;code&gt;script&lt;/code&gt; tag is simply concatenated to the current scope.&lt;/p&gt;
+
+&lt;p&gt;There are solutions to this limitation though. In &lt;a href=&#34;http://www.amazon.com/JavaScript-Definitive-Guide-Activate-Guides/dp/0596805527/ref=dp_ob_title_bk&#34;&gt;JavaScript the Definitive Guide&lt;/a&gt;, author David Flanagan proposes using objects as namespaces (sixth edition, section 9.9.1). Each object&amp;rsquo;s scope can be used to encapsulate the behavior and data specific to that domain. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;// everything is scoped to point.*
+var point = {};
+point.Point = function (_x, _y) {
+  this.x = _x;
+  this.y = _y
+}
+
+point.Point.prototype.coordinates = function ()
+{
+  return [this.x, this.y];
+}
+
+// now lets try it out ...
+var p = new point.Point(1,3);
+console.log(p.coordinates());
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To package code as modules, there is the &lt;a href=&#34;http://www.adequatelygood.com/JavaScript-Module-Pattern-In-Depth.html&#34;&gt;module pattern&lt;/a&gt;. Finally although JavaScript has no native import method, there are several external libraries that can provide that behavior, like &lt;a href=&#34;http://www.requirejs.org/&#34;&gt;RequireJS&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;let:6e2e047097a9f672ac378602b99db31f&#34;&gt;Let&lt;/h4&gt;
+
+&lt;p&gt;The next major version of JavaScript, ES6 provides &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let&#34;&gt;let&lt;/a&gt;. This keyword provides block-level scoping of variables, similar to other mainstream languages. ES6 is not supported everywhere yet, but you can use a transpiler like &lt;a href=&#34;https://babeljs.io/&#34;&gt;Babel&lt;/a&gt; to convert ES6 JavaScript back to ES5.&lt;/p&gt;
+
+&lt;h4 id=&#34;use-a-code-linter:6e2e047097a9f672ac378602b99db31f&#34;&gt;Use a code linter&lt;/h4&gt;
+
+&lt;p&gt;Browsers do not throw enough exceptions when processing JavaScript. Instead they try to soldier on and do what the programmer &lt;em&gt;meant&lt;/em&gt; rather than what they typed. This is good&lt;sup&gt;2&lt;/sup&gt; for users as they get a uninterrupted browsing experience, but for us programmers this is definitely a bad thing™. Browser robustness makes JavaScript difficult to debug, and which is where a code linter steps in - it analyzes code and reports any errors or warnings they find. For JavaScript I like &lt;a href=&#34;http://jshint.com/&#34;&gt;JSHint&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;sup&gt;1&lt;/sup&gt; Introduced in ES5 JavaScript - which is supported by all modern browsers. For solutions for older JavaScript versions, use &lt;code&gt;call&lt;/code&gt; or &lt;code&gt;apply&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;sup&gt;2&lt;/sup&gt; It&amp;rsquo;s probably a bad thing for users too - the overhead in processing syntactically wrong code degrades performance and worse, encourages more incorrect code to be written.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Gzipping data directly from Perl</title>
+      <link>http://perltricks.com/article/162/2015/3/27/Gzipping-data-directly-from-Perl/</link>
+      <pubDate>Fri, 27 Mar 2015 12:48:28 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/162/2015/3/27/Gzipping-data-directly-from-Perl/</guid>
+      <description>
+
+&lt;p&gt;Perl can read and write gzipped streams through its IO layers. &lt;a href=&#34;https://metacpan.org/author/NWCLARK&#34;&gt;Nicholas Clark&lt;/a&gt; recently updated &lt;a href=&#34;https://metacpan.org/pod/PerlIO::gzip&#34;&gt;PerlIO::gzip&lt;/a&gt; (with patches from &lt;a href=&#34;https://metacpan.org/author/ZEFRAM&#34;&gt;Zefram&lt;/a&gt;), after nine years since the last release. Now it works with Perl v5.20 and the upcoming v5.22, although it still has problems on Windows. But as we are used to, there is more then one way to do it.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-pipe-way:73581e43f14f9bf5179ccccf00045752&#34;&gt;The pipe way&lt;/h3&gt;
+
+&lt;p&gt;Perl is versatile, and being the Unix duct tape that it is, reading or writing from the standard filehandles is easy. You might know about the three-argument &lt;a href=&#34;http://perldoc.perl.org/functions/open.html&#34;&gt;open&lt;/a&gt;, but I can give it as many arguments as I like. For a piped open, I can set the mode as the second argument and the command as a list as I would for &lt;a href=&#34;http://perldoc.perl.org/functions/system.html&#34;&gt;system&lt;/a&gt; (see the &amp;ldquo;Secure Programming Chapter&amp;rdquo; of &lt;a href=&#34;http://www.masteringperl.org&#34;&gt;Mastering Perl&lt;/a&gt;). I remember where to put the &lt;code&gt;-&lt;/code&gt; on the side of the &lt;code&gt;|&lt;/code&gt; where the command would go:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ENV{PATH} = &#39;&#39;;
+
+open my $z, &#39;-|&#39;, &#39;/usr/bin/gunzip&#39;, &#39;-c&#39;, &#39;moby_dick.txt.gz&#39;;
+
+while( &amp;lt;$z&amp;gt; ) {
+    print;
+    }
+
+close $z 
+    or die &amp;quot;There was a problem with the pipe open!&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I could go the other way too by printing through a pipe to a command that will &lt;em&gt;gzip&lt;/em&gt; the data for me. The &lt;code&gt;-&lt;/code&gt; flips to the other side of the &lt;code&gt;|&lt;/code&gt; and I use shell redirection to move the result of &lt;em&gt;gzip&lt;/em&gt; into a file. I don&amp;rsquo;t use the list form since I want the &lt;code&gt;&amp;gt;&lt;/code&gt; in the command to be special (if only &lt;em&gt;gzip&lt;/em&gt; had a switch to set the output filename):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ENV{PATH} = &#39;&#39;;
+
+open my $z, &#39;|-&#39;, &#39;/usr/bin/gzip &amp;gt; data.gz&#39;;
+
+while(  ) {
+    print { $z } $_;
+    }
+
+close $z 
+    or die &amp;quot;There was a problem with the pipe open!&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s the general form that I can use with any sort of command. It has the drawbacks of multiple processes and the reliance of an external command in a particular place. If I can do it directly in the Perl process, I don&amp;rsquo;t have those drawbacks. Fortunately, I can, because Perl is like that.&lt;/p&gt;
+
+&lt;h3 id=&#34;reading-gzipped-data:73581e43f14f9bf5179ccccf00045752&#34;&gt;Reading gzipped data&lt;/h3&gt;
+
+&lt;p&gt;To read a gzippped file in Perl, I can use the &lt;code&gt;gzip&lt;/code&gt; I/O layer (see &lt;a href=&#34;http://perldoc.perl.org/perlopentut.html&#34;&gt;perlopen&lt;/a&gt;). Once I open the file, I can read its lines (assuming it&amp;rsquo;s text) like I would a &amp;ldquo;normal&amp;rdquo; text file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;&amp;lt;:gzip&#39; $filename 
+    or die &amp;quot;Could not read from $filename: $!&amp;quot;;
+
+while( &amp;lt;$fh&amp;gt; ) {
+    print;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or, I can read octets if the data aren&amp;rsquo;t text:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;&amp;lt;:gzip&#39; $filename 
+    or die &amp;quot;Could not read from $filename: $!&amp;quot;;
+
+while( read( $fh, $buffer, 1024 ) ) {
+    ...; # do something with $buffer (... is a v5.12 feature!)
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If I can&amp;rsquo;t use the I/O layers, perhaps because the operating system does not support it or it&amp;rsquo;s broken on my version of Perl, I can use the &lt;a href=&#34;http://www.metacpan.org/pod/IO::Compress&#34;&gt;IO::Compress&lt;/a&gt; modules instead. This example uses its object interface to create the write filehandle:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use IO::Compress::Gunzip;
+
+my $z = IO::Compress::Gunzip-&amp;gt;new( $filename )
+    or die &amp;quot;Could not read from $filename: $GunzipError&amp;quot;;
+
+while( &amp;lt;$z&amp;gt; ) {
+    print;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The I/O layer is faster than the module, but the PerlIO documentation notes that we shouldn&amp;rsquo;t trust our data to it. People have been using it without major problems, but you could be that one person who loses all their data. Sinan Ünür writes about the performance in &lt;a href=&#34;http://www.nu42.com/2013/02/large-gzipped-files-long-lines.html&#34;&gt;Large gzipped files, long lines, extracting columns etc&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;writing-gzipped-data:73581e43f14f9bf5179ccccf00045752&#34;&gt;Writing gzipped data&lt;/h3&gt;
+
+&lt;p&gt;I can also directly write gzipped data to a file. It&amp;rsquo;s similar my previous examples with the filehandles moved around. This one uses the I/O layer:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;&amp;gt;:gzip&#39; $filename 
+    or die &amp;quot;Could not write to $filename: $!&amp;quot;;
+
+while(  ) {
+    print { $fh } $_;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And this one uses &lt;a href=&#34;http://www.metacpan.org/pod/IO::Compress::Gzip&#34;&gt;IO::Compress::Gzip&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use IO::Compress::Gzip;
+
+my $z = IO::Compress::Gzip-&amp;gt;new( $filename )
+    or die &amp;quot;Could not write to $filename: $GzipError&amp;quot;;
+
+while(  ) {
+    print { $z } $_;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;an-advanced-tip:73581e43f14f9bf5179ccccf00045752&#34;&gt;An advanced tip&lt;/h3&gt;
+
+&lt;p&gt;I can read multiple streams of gzipped data with a single filehandle. The &lt;code&gt;MultiStream&lt;/code&gt; option in &lt;a href=&#34;http://www.metacpan.org/pod/IO::Compress::Gunzip&#34;&gt;IO::Compress::Gunzip&lt;/a&gt; allows the decompressor to reset itself when it thinks it has detected a new stream and continue to provide output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use IO::Uncompress::Gunzip qw($GunzipError);
+
+my $z = IO::Uncompress::Gunzip-&amp;gt;new( *STDIN, MultiStream =&amp;gt; 1 )
+    or die &amp;quot;Could not make uncompress object: $GunzipError&amp;quot;;
+    
+while( &amp;lt;$z&amp;gt; ) {
+    print;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With this I can read several gzipped files at the same time:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ cat *.gz |  ./multistream.pl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This sort of thing is quite handy for rotated logs when I want to read them all and don&amp;rsquo;t care that they were split up.&lt;/p&gt;
+
+&lt;h3 id=&#34;and-a-small-bonus:73581e43f14f9bf5179ccccf00045752&#34;&gt;And, a small bonus&lt;/h3&gt;
+
+&lt;p&gt;If you want to know more about the gzip compression, &lt;a href=&#34;http://jvns.ca/blog/2013/10/24/day-16-gzip-plus-poetry-equals-awesome/%0A&#34;&gt;Julia Evans created a nice animation of gzip working in real time on &lt;em&gt;The Raven&lt;/em&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;You can see a bit more abstract &lt;a href=&#34;http://www.data-compression.com/lempelziv.html%0A&#34;&gt;animation&lt;/a&gt; at www.data-compression.com. You can see how this single-pass method works and how it can work from a possibly infinite stream like I provide in this article.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Build a Twitter bot with Perl</title>
+      <link>http://perltricks.com/article/154/2015/2/23/Build-a-Twitter-bot-with-Perl/</link>
+      <pubDate>Mon, 23 Feb 2015 14:12:06 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/154/2015/2/23/Build-a-Twitter-bot-with-Perl/</guid>
+      <description>
+
+&lt;p&gt;Following on from last week&amp;rsquo;s Reddit bot &lt;a href=&#34;http://perltricks.com/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl&#34;&gt;article&lt;/a&gt;, let&amp;rsquo;s look at how to build a Twitter bot using Perl. As you&amp;rsquo;d expect, Perl makes it easy to do, but before we get to the code, let&amp;rsquo;s talk about advantages.&lt;/p&gt;
+
+&lt;p&gt;Adding tweet automation to an existing app can bring several benefits. Firstly it&amp;rsquo;s a time saver, allowing you to focus on other higher-value activities. Automation provides protection from manual transcription errors like misspelled words and broken urls. Automation also means it&amp;rsquo;s cheaper to increase your tweet volume and all else being equal, a higher tweet volume will lead to more Twitter followers. Sound good? Excellent, let&amp;rsquo;s get to the code then!&lt;/p&gt;
+
+&lt;h3 id=&#34;writing-tweets:12c8fd35ec6bfe5464697c6b32eba8bb&#34;&gt;Writing tweets&lt;/h3&gt;
+
+&lt;p&gt;The core code for writing tweets is very simple. I&amp;rsquo;m using the &lt;a href=&#34;https://metacpan.org/pod/Net::Twitter::Lite&#34;&gt;Net::Twitter::Lite&lt;/a&gt; distribution, which supports the latest version of the Twitter &lt;a href=&#34;https://dev.twitter.com/rest/public&#34;&gt;API&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Net::Twitter::Lite::WithAPIv1_1;
+
+sub tweet
+{
+  my ($text) = @_;
+
+  my $twitter = Net::Twitter::Lite::WithAPIv1_1-&amp;gt;new(
+    access_token_secret =&amp;gt; $ENV{TWITTER_ACCESS_SECRET},
+    consumer_secret     =&amp;gt; $ENV{TWITTER_CONSUMER_SECRET},
+    access_token        =&amp;gt; $ENV{TWITTER_ACCESS_TOKEN},
+    consumer_key        =&amp;gt; $ENV{TWITTER_CONSUMER_KEY},
+    user_agent          =&amp;gt; &#39;TwitterBotExample&#39;,
+    ssl =&amp;gt; 1,
+  );
+  $twitter-&amp;gt;update($text);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code imports &lt;code&gt;Net::Twitter::Lite::WithAPIv1_1&lt;/code&gt; to use the new Twitter API. The subroutine &lt;code&gt;tweet&lt;/code&gt; takes some text as an argument. It then creates a new &lt;code&gt;Net::Twitter::Lite::WithAPIv1_1&lt;/code&gt; object, using environment vars as credentials. If you don&amp;rsquo;t have these credentials already, it&amp;rsquo;s free to register an application for your own Twitter account and &lt;a href=&#34;https://dev.twitter.com/oauth/overview/application-owner-access-tokens&#34;&gt;generate the tokens&lt;/a&gt;. Finally the subroutine calls the &lt;code&gt;update&lt;/code&gt; method to tweet the text.&lt;/p&gt;
+
+&lt;p&gt;Now I can send one tweet by adding this line to my code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;tweet(&amp;quot;This is a computer speaking!&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;safety-first:12c8fd35ec6bfe5464697c6b32eba8bb&#34;&gt;Safety first&lt;/h3&gt;
+
+&lt;p&gt;So far so good huh? However this code isn&amp;rsquo;t very safe. What if &lt;code&gt;$text&lt;/code&gt; is not provided as an argument, or our environment variables are not declared, or the call to Twitter fails? I&amp;rsquo;ll add some checks to handle these scenarios:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Net::Twitter::Lite::WithAPIv1_1;
+use Try::Tiny;
+
+sub tweet
+{
+  my ($text) = @_;
+
+  die &#39;tweet requires text as an argument&#39; unless $text;
+
+  unless ($ENV{TWITTER_CONSUMER_KEY}
+          &amp;amp;&amp;amp; $ENV{TWITTER_CONSUMER_SECRET}
+          &amp;amp;&amp;amp; $ENV{TWITTER_ACCESS_TOKEN}
+          &amp;amp;&amp;amp; $ENV{TWITTER_ACCESS_SECRET})
+  {
+    die &#39;Required Twitter Env vars are not all defined&#39;;
+  }
+
+  try
+  {
+    my $twitter = Net::Twitter::Lite::WithAPIv1_1-&amp;gt;new(
+      access_token_secret =&amp;gt; $ENV{TWITTER_ACCESS_SECRET},
+      consumer_secret     =&amp;gt; $ENV{TWITTER_CONSUMER_SECRET},
+      access_token        =&amp;gt; $ENV{TWITTER_ACCESS_TOKEN},
+      consumer_key        =&amp;gt; $ENV{TWITTER_CONSUMER_KEY},
+      user_agent          =&amp;gt; &#39;TwitterBotExample&#39;,
+      ssl =&amp;gt; 1,
+    );
+    $twitter-&amp;gt;update($text);
+  }
+  catch
+  {
+    die join(&#39; &#39;, &amp;quot;Error tweeting $text&amp;quot;,
+                   $_-&amp;gt;code, $_-&amp;gt;message, $_-&amp;gt;error);
+  };
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code is largely the same as before, except now it checks for the required variables before processing. The code also imports &lt;a href=&#34;https://metacpan.org/pod/Try::Tiny&#34;&gt;Try::Tiny&lt;/a&gt; as I added a try/catch block around the twitter code. The catch block will activate if the Twitter interaction throws an exception. Because Net::Twitter::Lite throws structured exceptions, the catch block builds an exception string by extracting information from the structured exception, then calls &lt;code&gt;die&lt;/code&gt; itself.&lt;/p&gt;
+
+&lt;p&gt;You might be wondering if it&amp;rsquo;s necessary to call &lt;code&gt;die&lt;/code&gt; at all. Can&amp;rsquo;t we just return &lt;code&gt;undef&lt;/code&gt; instead and keep our code running? The advantage of calling &lt;code&gt;die&lt;/code&gt; is that the caller of the &lt;code&gt;tweet&lt;/code&gt; subroutine is better placed to decide how to handle the issue, and so we defer that decision to them. If the calling code doesn&amp;rsquo;t handle &lt;code&gt;die&lt;/code&gt; correctly, we know the program will exit. But if we returned &lt;code&gt;undef&lt;/code&gt;, we would have no such assurances. This doesn&amp;rsquo;t mean however that the code &lt;em&gt;has&lt;/em&gt; to exit. Let&amp;rsquo;s assume I had hundreds of tweets to send out, maybe I just want to log the error somewhere and keep going:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;foreach my $text (@tweet_texts)
+{
+  try
+  {
+    tweet($text);
+  }
+  catch
+  {
+    log_error($_);
+  };
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If I was printing a sequence of tweets, where ordering is important, I could still log the error but then call &lt;code&gt;die&lt;/code&gt; to exit the program:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;foreach my $text (@sequence_of_texts)
+{
+  try
+  {
+    tweet($text);
+  }
+  catch
+  {
+    log_error($_);
+    die $_; # exit the program
+  };
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;better-text-handling:12c8fd35ec6bfe5464697c6b32eba8bb&#34;&gt;Better text handling&lt;/h3&gt;
+
+&lt;p&gt;So now the code is safer, how else can it be improved? One famous restriction is that a tweet cannot be longer than 140 characters. Right now if the &lt;code&gt;tweet()&lt;/code&gt; subroutine received a text string longer than 140 characters, the Twitter API would reject it, raise and exception and the code would die. I think we can do better than that.&lt;/p&gt;
+
+&lt;p&gt;When I think about the contents of tweets that I send, I&amp;rsquo;m usually tweeting links to articles about Perl. Invariably they will include some text, a url and a hashtag. It&amp;rsquo;s useful to break these out into separate arguments to &lt;code&gt;tweet()&lt;/code&gt; because to make everything fit, you could truncate the text, but you wouldn&amp;rsquo;t want to truncate a url or hashtag as it might change the meaning and/or break the url.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Net::Twitter::Lite::WithAPIv1_1;
+use Try::Tiny;
+
+sub tweet
+{
+  my ($text, $url, $hashtag) = @_;
+
+  unless ($text &amp;amp;&amp;amp; $url &amp;amp;&amp;amp; $hashtag)
+  {
+    die &#39;tweet requires text, url and hashtag arguments&#39;;
+  }
+
+  unless ($ENV{TWITTER_CONSUMER_KEY}
+          &amp;amp;&amp;amp; $ENV{TWITTER_CONSUMER_SECRET}
+          &amp;amp;&amp;amp; $ENV{TWITTER_ACCESS_TOKEN}
+          &amp;amp;&amp;amp; $ENV{TWITTER_ACCESS_SECRET})
+  {
+    die &#39;Required Twitter Env vars are not all defined&#39;;
+  }
+
+  # build tweet, max 140 chars
+  my $tweet;
+  
+  if (length(&amp;quot;$text $hashtag&amp;quot;) &amp;lt; 118)
+  {
+    $tweet = &amp;quot;$text $url $hashtag&amp;quot;;
+  }
+  elsif (length($text) &amp;lt; 118)
+  {
+    $tweet = &amp;quot;$text $url&amp;quot;;
+  }
+  else # shorten text, drop the hashtag
+  {
+    $tweet = substr($text, 0, 113) . &amp;quot;... &amp;quot; . $url;
+  }
+
+  try
+  {
+    my $twitter = Net::Twitter::Lite::WithAPIv1_1-&amp;gt;new(
+      access_token_secret =&amp;gt; $ENV{TWITTER_ACCESS_SECRET},
+      consumer_secret     =&amp;gt; $ENV{TWITTER_CONSUMER_SECRET},
+      access_token        =&amp;gt; $ENV{TWITTER_ACCESS_TOKEN},
+      consumer_key        =&amp;gt; $ENV{TWITTER_CONSUMER_KEY},
+      user_agent          =&amp;gt; &#39;TwitterBotExample&#39;,
+      ssl =&amp;gt; 1,
+    );
+    $twitter-&amp;gt;update($tweet);
+  }
+  catch
+  {
+    die join(&#39; &#39;, &amp;quot;Error tweeting $text $url $hashtag&amp;quot;,
+                   $_-&amp;gt;code, $_-&amp;gt;message, $_-&amp;gt;error);
+  };
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Twitter treats urls as having a length of 12 characters. Now the code checks the length of our arguments, truncating &lt;code&gt;$text&lt;/code&gt; if necessary. The hashtag will be included only if there is enough space.&lt;/p&gt;
+
+&lt;p&gt;This code works for me, but you may want to do things a little differently. The Twitter credentials could be stored in a &lt;a href=&#34;http://perltricks.com/article/29/2013/9/17/How-to-Load-YAML-Config-Files&#34;&gt;configuration&lt;/a&gt; file, instead of environment variables. The &lt;code&gt;$hashtag&lt;/code&gt; argument could be an arrayref of hashtags, that are incrementally added to the tweet text, instead of a single text string which restricts it to an all-or-nothing basis.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Build a Reddit bot with Perl</title>
+      <link>http://perltricks.com/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl/</link>
+      <pubDate>Mon, 09 Feb 2015 13:41:04 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl/</guid>
+      <description>
+
+&lt;p&gt;One of my goals for this year was to post more links to the Perl &lt;a href=&#34;http://www.reddit.com/r/perl&#34;&gt;subreddit&lt;/a&gt;. I&amp;rsquo;m usually good at linking to PerlTricks articles, but not so good at linking to other content. And that&amp;rsquo;s a shame because there are a lot of active Perl blogs out there (I know of at least 25-30).&lt;/p&gt;
+
+&lt;p&gt;A busier Perl subreddit is good for the community; more links on /r/perl should lead to more visitors, and more activity on the subreddit and so on - a virtuous circle. So I built a bot to automate the posting of links. In this article I&amp;rsquo;m going to show you how I did it.&lt;/p&gt;
+
+&lt;h3 id=&#34;reddit-api:f338286cb816fcc4501664bb4edd9fd0&#34;&gt;Reddit API&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need a Reddit account to use the API. I like to use &lt;a href=&#34;https://metacpan.org/pod/Reddit::Client&#34;&gt;Reddit::Client&lt;/a&gt; as it works well, has good documentation and maintains a session cache. This is a subroutine for posting links to Reddit:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use warnings;
+use strict;
+use Reddit::Client;
+
+sub post_reddit_link
+{
+    my ($title, $url, $subreddit) = @_; 
+
+    my $reddit       = Reddit::Client-&amp;gt;new(
+        session_file =&amp;gt; &#39;logs/session_data.json&#39;,
+        user_agent   =&amp;gt; &#39;perly_bot/v0.01&#39;,
+    );  
+
+    unless ( $reddit-&amp;gt;is_logged_in ) { 
+        $reddit-&amp;gt;login( $ENV{REDDIT_USERNAME}, 
+                        $ENV{REDDIT_PASSWORD} );
+        $reddit-&amp;gt;save_session();
+    }   
+    
+    $reddit-&amp;gt;submit_link(
+            subreddit =&amp;gt; $subreddit,
+            title     =&amp;gt; $title,
+            url       =&amp;gt; $url
+    );
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code should be fairly self-explanatory. The &lt;code&gt;post_reddit_link&lt;/code&gt; subroutine accepts three parameters: the subreddit to post to, the title of the post, and the URL of the link. It initializes a new Reddit::Client object, passing the path of the session file and the user agent string to use when calling the Reddit API. The session file is just a cache for storing a session cookie.&lt;/p&gt;
+
+&lt;p&gt;Next, the subroutine checks if the &lt;code&gt;$reddit&lt;/code&gt; object has an active session or not, triggering a login request if necessary. I like to store credentials in environment variables: that way the code and any config files can still be hosted on a public repository, without risk of sharing your login details with anyone. The last bit of code calls &lt;code&gt;submit_link&lt;/code&gt; method to post the link to the Reddit API.&lt;/p&gt;
+
+&lt;p&gt;This code will work in ideal scenarios, but what if something goes wrong? For example, Reddit imposes restrictions on the posting of links: the same link cannot be posted twice to the same subreddit, proxy domains are banned and links cannot be posted too frequently. In order to capture the error messages, I&amp;rsquo;m going to wrap the &lt;code&gt;submit_link&lt;/code&gt; method in a try/catch block.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use warnings;
+use strict;
+use Reddit::Client;
+use Try::Tiny;
+use Time::Piece;
+
+open my $ERROR_LOG, &#39;&amp;gt;&amp;gt;&#39;, &#39;logs/error.log&#39; or die $!;
+
+sub post_reddit_link
+{
+    my ($title, $url, $subreddit) = @_; 
+
+    my $reddit       = Reddit::Client-&amp;gt;new(
+        session_file =&amp;gt; &#39;logs/session_data.json&#39;,
+        user_agent   =&amp;gt; &#39;perly_bot/v0.01&#39;,
+    );  
+
+    unless ( $reddit-&amp;gt;is_logged_in ) { 
+        $reddit-&amp;gt;login( $ENV{REDDIT_USERNAME}, 
+                        $ENV{REDDIT_PASSWORD} );
+        $reddit-&amp;gt;save_session();
+    }   
+    
+    try {
+        $reddit-&amp;gt;submit_link(
+            subreddit =&amp;gt; $subreddit,
+            title     =&amp;gt; $title,
+            url       =&amp;gt; $url
+        );
+    } catch {
+        log_error(&amp;quot;Error posting $title $url $_&amp;quot;);
+    };
+}
+
+sub log_error
+{
+    my $datetime = localtime;
+    say $ERROR_LOG $datetime_now-&amp;gt;datetime . &amp;quot;\t$_[0]&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In addition to the try/catch, I&amp;rsquo;ve added a &lt;code&gt;log_error&lt;/code&gt; subroutine which will write error messages to the error log.&lt;/p&gt;
+
+&lt;h3 id=&#34;reading-blog-feeds:f338286cb816fcc4501664bb4edd9fd0&#34;&gt;Reading blog feeds&lt;/h3&gt;
+
+&lt;p&gt;Now I have a subroutine for posting links to Reddit, I need a way to monitor blog feeds and post links to new articles. Most blogs provide feed data via RSS or atom data, for example &lt;a href=&#34;http://blogs.perl.org&#34;&gt;blogs.perl.org&lt;/a&gt; uses atom. I can monitor this feed using &lt;a href=&#34;https://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/XML::Atom::Client&#34;&gt;XML::Atom::Client&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use XML::Atom::Client;
+use HTTP::Tiny;
+
+sub check_feed
+{
+    my ($url) = @_;
+
+    my $ua = HTTP::Tiny-&amp;gt;new;
+    my $response = $ua-&amp;gt;get($url);
+    if ( $response-&amp;gt;{success} )
+    {
+        my $posts = 
+          XML::Atom::Feed-&amp;gt;new( Stream =&amp;gt; \$response-&amp;gt;{content} );
+
+        foreach my $post ( $posts-&amp;gt;entries )
+        {
+            post_reddit_link(
+                $post-&amp;gt;title,
+                $post-&amp;gt;link-&amp;gt;href,
+                &#39;perl&#39;
+            );
+        }
+    }
+    else
+    {
+        log_error(
+&amp;quot;Error requesting $url. $response-&amp;gt;{status} $response-&amp;gt;{reason}&amp;quot;
+        );
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code declares a subroutine called &lt;code&gt;check_feed&lt;/code&gt; which accepts a URL as parameter. It fetches the URL content using HTTP::Tiny, and if successful, loops through every blog post in an atom feed, calling &lt;code&gt;post_reddit_link&lt;/code&gt; on each post. As it stands, this code is going to cause problems. We only want to post relevant and new content to the Perl subreddit, but this code will post a link for every blog post returned by the feed URL.&lt;/p&gt;
+
+&lt;p&gt;To check for relevant content, I can use a regex to match against keywords. If the text contains words like &amp;ldquo;Perl&amp;rdquo; or &amp;ldquo;CPAN&amp;rdquo;, I assume it&amp;rsquo;s Perl related. This is the regex:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#  must contain a Perl keyword to be considered relevant
+my $looks_perly = qr/\b(?:perl|cpan|cpanminus|moose|metacpan|modules?)\b/i;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To filter out stale content, I need to set a threshold for how long posts should be considered fresh. I can then subtract the publication date of the blog post from the current datetime to see if the publication date exceeds my threshold or not. I&amp;rsquo;m going to use 24 hours as my threshold:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
+use Time::Seconds;
+
+my $datetime_post = 
+  Time::Piece-&amp;gt;strptime($post-&amp;gt;published, &#39;%Y-%m-%dT%H:%M:%SZ&#39;);
+my $datetime_now = localtime;
+
+if ( $datetime_post &amp;gt; $datetime_now - ONE_DAY )
+{
+   ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code uses the &lt;code&gt;strptime&lt;/code&gt; function in Time::Piece to extract the publication datetime of the post. It then compares the datetime of the post with the current datetime minus 24 hours (&amp;ldquo;ONE_DAY&amp;rdquo; is a constant for 24 hours that is exported by Time::Seconds).&lt;/p&gt;
+
+&lt;h3 id=&#34;wrap-up:f338286cb816fcc4501664bb4edd9fd0&#34;&gt;Wrap up&lt;/h3&gt;
+
+&lt;p&gt;Putting it all together, the code looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use warnings;
+use strict;
+use Reddit::Client;
+use Try::Tiny;
+use Time::Piece;
+use Time::Seconds;
+use XML::Atom::Client;
+use HTTP::Tiny;
+
+open my $ERROR_LOG, &#39;&amp;gt;&amp;gt;&#39;, &#39;logs/error.log&#39; or die $!;
+
+#  must contain a Perl keyword to be considered relevant
+my $looks_perly = qr/\b(?:perl|cpan|cpanminus|moose|metacpan|modules?)\b/i;
+
+# post links for new posts on blogs.perl.org
+check_feed(&#39;http://blogs.perl.org/atom.xml&#39;);
+
+sub post_reddit_link
+{
+    my ($title, $url, $subreddit) = @_;
+
+    my $reddit       = Reddit::Client-&amp;gt;new(
+        session_file =&amp;gt; &#39;logs/session_data.json&#39;,
+        user_agent   =&amp;gt; &#39;perly_bot/v0.01&#39;,
+    );
+
+    unless ( $reddit-&amp;gt;is_logged_in ) {
+        $reddit-&amp;gt;login( $ENV{REDDIT_USERNAME},
+                        $ENV{REDDIT_PASSWORD} );
+        $reddit-&amp;gt;save_session();
+    }
+
+    try {
+        $reddit-&amp;gt;submit_link(
+            subreddit =&amp;gt; $subreddit,
+            title     =&amp;gt; $title,
+            url       =&amp;gt; $url
+        );
+    } catch {
+        log_error(&amp;quot;Error posting $title $url $_&amp;quot;);
+    };
+}
+
+sub log_error
+{
+    my $datetime = localtime;
+    say $ERROR_LOG $datetime-&amp;gt;datetime . &amp;quot;\t$_[0]&amp;quot;;
+}
+
+sub check_feed
+{
+    my ($url) = @_;
+
+    my $ua = HTTP::Tiny-&amp;gt;new;
+    my $response = $ua-&amp;gt;get($url);
+
+    if ( $response-&amp;gt;{success} )
+    {
+        my $posts =
+          XML::Atom::Feed-&amp;gt;new( Stream =&amp;gt; \$response-&amp;gt;{content} );
+
+        foreach my $post ( $posts-&amp;gt;entries )
+        {
+            my $datetime_post =
+              Time::Piece-&amp;gt;strptime($post-&amp;gt;published, &#39;%Y-%m-%dT%H:%M:%SZ&#39;);
+            my $datetime_now = localtime;
+
+            # if fresh post and contains Perl keyword
+            if (   $datetime_post &amp;gt; $datetime_now - ONE_DAY
+                &amp;amp;&amp;amp; $post-&amp;gt;summary =~ $looks_perly)
+            {
+                post_reddit_link(
+                    $post-&amp;gt;title,
+                    $post-&amp;gt;link-&amp;gt;href,
+                    &#39;perl&#39;
+                );
+            }
+        }
+    }
+    else
+    {
+        log_error(
+&amp;quot;Error requesting $url. $response-&amp;gt;{status} $response-&amp;gt;{reason}&amp;quot;
+        );
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When run, this script will check blogs.perl.org for new posts, and submit them to /r/perl.&lt;/p&gt;
+
+&lt;p&gt;There&amp;rsquo;s a lot more that could be done with this script: for instance it only supports atom feeds, but many blog feeds use RSS. The URLs to check must be hard coded into the script - it would be better to take them from a configurable list. Finally, there is no URL caching, so running this script twice in 24 hours will lead to it attempting to post the same links to Reddit twice. For an extended example that addresses these issues and more, check out my Perly-Bot GitHub &lt;a href=&#34;https://github.com/dnmfarrell/Perly-Bot&#34;&gt;repo&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Automated Internet Explorer screenshots using Win32::OLE</title>
+      <link>http://perltricks.com/article/139/2014/12/11/Automated-Internet-Explorer-screenshots-using-Win32--OLE/</link>
+      <pubDate>Thu, 11 Dec 2014 14:44:25 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/139/2014/12/11/Automated-Internet-Explorer-screenshots-using-Win32--OLE/</guid>
+      <description>
+
+&lt;h3 id=&#34;background:97eeb34526f592925997048598be600f&#34;&gt;Background&lt;/h3&gt;
+
+&lt;p&gt;Some time ago I &lt;a href=&#34;http://blog.nu42.com/2012/06/using-win32ole-with-events-to-capture.html&#34;&gt;wrote&lt;/a&gt; about using Perl&amp;rsquo;s Win32::OLE to drive Internet Explorer in response to a &lt;a href=&#34;http://stackoverflow.com/a/11220026/100754&#34;&gt;question&lt;/a&gt; on Stackoverflow.&lt;/p&gt;
+
+&lt;p&gt;At the time I was still clinging to Windows XP. Since then, I have upgraded to Windows 8.1 Pro 64-bit, and instead of using &lt;a href=&#34;http://www.activestate.com/activeperl/ppm-perl-modules&#34;&gt;PPMs&lt;/a&gt; for &lt;a href=&#34;http://www.activestate.com/activeperl&#34;&gt;ActivePerl&lt;/a&gt;, I have been using &lt;a href=&#34;http://blog.nu42.com/2014/11/64-bit-perl-5201-with-visual-studio.html&#34;&gt;Visual Studio 2013&lt;/a&gt; to build &lt;code&gt;perl&lt;/code&gt;, and the modules I need.&lt;/p&gt;
+
+&lt;p&gt;I have been using Perl&amp;rsquo;s &lt;a href=&#34;https://metacpan.org/pod/Win32::OLE&#34;&gt;Win32::OLE&lt;/a&gt; to drive Internet Explorer for various purposes for almost 10 years now. There is really not much to it other than having to read copious amounts of Microsoft documentation. It always amazes me how, after all these years, there is no language or environment as well documented as Perl, not just in terms of the amount of information provided, but also the ease with which you can find clear, correct, and useful information.&lt;/p&gt;
+
+&lt;p&gt;In any case, while the organization of the information leaves a lot to be desired, a good starting point for finding information on driving Internet Explorer via OLE is the InternetExplorer object &lt;a href=&#34;http://msdn.microsoft.com/en-us/library/aa752084%28v=vs.85%29&#34;&gt;documentation&lt;/a&gt; on MSDN. If you want to interact with the content within an InternetExplorer object, you can consult the MSHTML Scripting Object Interfaces &lt;a href=&#34;http://msdn.microsoft.com/en-us/library/hh801967%28v=vs.85%29.aspx&#34;&gt;topic&lt;/a&gt;. It also helps to know a little bit about the &lt;a href=&#34;http://msdn.microsoft.com/en-us/library/19z074ky.aspx&#34;&gt;OLE&lt;/a&gt; interface.&lt;/p&gt;
+
+&lt;p&gt;Reading brian d foy&amp;rsquo;s article on &lt;a href=&#34;https://perltricks.com/article/138/2014/12/7/Controlling-Firefox-from-Perl&#34;&gt;controlling Firefox from Perl&lt;/a&gt;, I noticed that &lt;a href=&#34;https://metacpan.org/search?q=Win32-IE-Mechanize&#34;&gt;Win32::IE::Mechanize&lt;/a&gt; has disappeared from CPAN. The &lt;a href=&#34;http://www.perlmonks.org?node_id=1061372&#34;&gt;discussion on PerlMonks&lt;/a&gt; did not make much sense to me, as I remember very clearly using Win32::OLE to drive Internet Explorer 8 for a massive scraping job.&lt;/p&gt;
+
+&lt;p&gt;I decided to look at my old screenshot utility, and see what changes were needed to get it to run on Windows 8, using Internet Explorer 10. My &lt;a href=&#34;https://gist.github.com/nanis/3dac6b386bd056095e12&#34;&gt;revised working script is available in a GitHub gist&lt;/a&gt;. Here, I am going to cover the highlights.&lt;/p&gt;
+
+&lt;h3 id=&#34;tracing-execution:97eeb34526f592925997048598be600f&#34;&gt;Tracing execution&lt;/h3&gt;
+
+&lt;p&gt;The idea is to use the &lt;a href=&#34;http://msdn.microsoft.com/en-us/library/aa768283%28v=vs.85%29.aspx&#34;&gt;DWebBrowserEvents2&lt;/a&gt; to figure out the right time to capture the browser window. I decided to see if my answer from 2012 still worked. I pointed it to my personal website, and it failed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Win32::OLE(0.1712) error 0x80020009: &amp;quot;Exception occurred&amp;quot;
+    in METHOD/PROPERTYGET &amp;quot;StatusText&amp;quot; at iescreenshot.pl line 38.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The cause of the problem lay in accessing the &lt;code&gt;StatusText&lt;/code&gt; property of the &lt;a href=&#34;http://msdn.microsoft.com/en-us/library/aa752084%28v=vs.85%29&#34;&gt;Internet Explorer object&lt;/a&gt;. Apparently, IE10 no longer exposes this property. Well, I had only used it so as to give some idea of what was happening. I decided instead to write a quick logging function which could be used with all events:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub log_browser_event {
+    my $event = shift;
+    no warnings &#39;uninitialized&#39;;
+    my $args = eval { join(&#39; &#39; =&amp;gt; map valof($_), @_) };
+    say &amp;quot;$event: $args&amp;quot;;
+    return;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Not an example of perfect code, but, I am trying to keep this short and sweet.&lt;/p&gt;
+
+&lt;h3 id=&#34;event-handling:97eeb34526f592925997048598be600f&#34;&gt;Event handling&lt;/h3&gt;
+
+&lt;p&gt;We are only interested in two events: &lt;a href=&#34;http://msdn.microsoft.com/en-us/library/aa768282%28v=vs.85%29.aspx&#34;&gt;DocumentComplete&lt;/a&gt;, so we know when to take a screenshot, and &lt;a href=&#34;http://msdn.microsoft.com/en-us/library/aa768340%28v=vs.85%29.aspx&#34;&gt;onQuit&lt;/a&gt;, so we can quit cleanly if the user closes the browser window before we get to that point.&lt;/p&gt;
+
+&lt;p&gt;You initialize OLE events using the call:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Win32::OLE-&amp;gt;WithEvents(
+    $object,
+    $handler,
+    $interface
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then, presumably, your &lt;code&gt;$handler&lt;/code&gt; has some giant switch statement, dispatching on the basis of the actual events received. Instead, I opted for a dispatch table:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;const my %BrowserEvents =&amp;gt; (
+    DocumentComplete =&amp;gt; sub {
+        $do_take_screenshot = 1;
+        Win32::MessageLoop-&amp;gt;QuitMessageLoop;
+    },
+    OnQuit =&amp;gt; sub {
+        $do_take_screenshot = 0;
+        Win32::MessageLoop-&amp;gt;QuitMessageLoop;
+    },
+    _ =&amp;gt; sub { },
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Notice the use of &lt;a href=&#34;https://metacpan.org/pod/Win32::MessageLoop&#34;&gt;Win32::MessageLoop-&amp;gt;QuitMessageLoop&lt;/a&gt; instead of &lt;code&gt;Win32::OLE-&amp;gt;QuitMessageLoop&lt;/code&gt; to avoid spurious sleep calls.&lt;/p&gt;
+
+&lt;p&gt;Then, I initialize the OLE events interface using:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Win32::OLE-&amp;gt;WithEvents(
+    $browser,
+    sub { $handler-&amp;gt;(\%BrowserEvents, @_) },
+    &#39;DWebBrowserEvents2&#39;
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;$handler&lt;/code&gt; in this case just logs the event, and consults the dispatch table to see if we are interested in the event:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub WebBrowserEventHandler {
+    my $handlers = shift;
+    my $browser = shift;
+    my $event = shift;
+
+    log_browser_event($event, @_);
+
+    my $handler = exists $handlers-&amp;gt;{$event}
+                ? $handlers-&amp;gt;{$event}
+                : $handlers-&amp;gt;{_}
+    ;
+    $handler-&amp;gt;($browser, $event, @_);
+    return;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Upon receiving either &lt;code&gt;DocumentComplete&lt;/code&gt; or &lt;code&gt;onQuit&lt;/code&gt;, we terminate the message loop, which returns control to the navigation function. At that point, the only thing left is to check if we should capture a screenshot. After that, the program terminates.&lt;/p&gt;
+
+&lt;h3 id=&#34;capturing-the-internet-explorer-window:97eeb34526f592925997048598be600f&#34;&gt;Capturing the Internet Explorer window&lt;/h3&gt;
+
+&lt;p&gt;When I ran this revised script, and tried to take screenshots using &lt;a href=&#34;https://metacpan.org/pod/Imager::Screenshot&#34;&gt;Imager::Screenshot&lt;/a&gt;, I got screenshots with only the frame of the browser, and none of the content. I am not sure what&amp;rsquo;s going on, and I will try to diagnose that issue later. For now, since I was using the venerable &lt;a href=&#34;https://metacpan.org/pod/Win32::GuiTest&#34;&gt;Win32::GuiTest&lt;/a&gt; module anyway, I decided to use the &lt;code&gt;Win32::GuiTest::DibSect&lt;/code&gt; class it provides:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub take_screenshot {
+    my $browser = shift;
+
+    wait_until_ready($browser);
+
+    my $hwnd = $browser-&amp;gt;{HWND};
+    my $title = $browser-&amp;gt;{Document}{title};
+    $title =~ s/[^A-Za-z0-9_-]+/-/g;
+
+    my $ds = Win32::GuiTest::DibSect-&amp;gt;new;
+
+    my $fgwnd = GetForegroundWindow();
+    SetForegroundWindow $hwnd;
+    $ds-&amp;gt;CopyWindow($hwnd);
+    SetForegroundWindow $fgwnd;
+
+    $ds-&amp;gt;SaveAs(&amp;quot;$title.bmp&amp;quot;);
+    $ds-&amp;gt;Destroy;
+
+    return;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;waiting-for-the-document-to-be-rendered:97eeb34526f592925997048598be600f&#34;&gt;Waiting for the document to be rendered&lt;/h3&gt;
+
+&lt;p&gt;With that in place, I was still getting the occasional screenshot with a blank document area. If I understand this correctly, the fact that the &lt;code&gt;DocumentReady&lt;/code&gt; event fired does not mean the document has been fully rendered. It just means that you can manipulate the DOM. So, I added a simple spin loop for the browser to stop being &lt;a href=&#34;http://msdn.microsoft.com/en-us/library/aa752050%28v=vs.85%29&#34;&gt;busy&lt;/a&gt;. This is by no means foolproof, but it has worked for most sites have tried. Sites with a lot of AJAXy stuff tend to have issues with this. There are site-specific ways of dealing with that, but that&amp;rsquo;s beyond the scope of this article.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub wait_until_ready {
+    my $browser = shift;
+    {
+        local $| = 1;
+        while ($browser-&amp;gt;Busy) {
+            print &#39;.&#39;;
+            sleep 1;
+        }
+    }
+    return;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;At this point, you can run the script from the command line with a simple &lt;code&gt;perl iescreenshot.pl perltricks.com&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-webdriver-api:97eeb34526f592925997048598be600f&#34;&gt;The WebDriver API&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://msdn.microsoft.com/en-us/library/ie/dn725045%28v=vs.85%29.aspx&#34;&gt;WebDriver API&lt;/a&gt; might obviate the need for using any other solution to drive Internet Explorer, but, until that is available everywhere, &lt;a href=&#34;https://metacpan.org/pod/Win32::OLE&#34;&gt;Win32::OLE&lt;/a&gt; is more than adequate.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:97eeb34526f592925997048598be600f&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Using &lt;a href=&#34;https:/metacpan.org/pod/Win32::OLE&#34;&gt;Win32::OLE&lt;/a&gt; to drive Internet Explorer has been very helpful to me in the past. Taking a screenshot is just a simple, proof-of-concept exercise. The beauty of using Perl is that once you reach a page containing the information you want, you can use Perl&amp;rsquo;s excellent HTML parsing modules to get exactly what you want out of it, and then, say, save it to an Excel worksheet, generate PDF document, or just stuff it in a database somewhere.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Get started with Perl 6 one liners</title>
+      <link>http://perltricks.com/article/136/2014/11/20/Get-started-with-Perl-6-one-liners/</link>
+      <pubDate>Thu, 20 Nov 2014 14:04:56 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/136/2014/11/20/Get-started-with-Perl-6-one-liners/</guid>
+      <description>
+
+&lt;p&gt;One thing that sets Perl apart from other languages is the ability to write small programs in a single line of code, known as a &amp;ldquo;one liner&amp;rdquo;. It&amp;rsquo;s often faster to type a program directly into the terminal than to write a throwaway script. And one liners are powerful too; they&amp;rsquo;re complete Perl programs that can load external libraries but also integrate into the terminal. You can pipe data in or out of a one liner.&lt;/p&gt;
+
+&lt;p&gt;Like its predecessor, Perl 6 supports one liners. And in the same way Perl 6 cleaned up Perl 5&amp;rsquo;s warts elsewhere, the one liner syntax is also better. It&amp;rsquo;s cleaner with fewer special variables and options to memorize. This article aims to get you up-and-running with Perl 6 one liners.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-basics:f134c951b57c0f63005d49172b15ce32&#34;&gt;The basics&lt;/h3&gt;
+
+&lt;p&gt;To get started with one liners, all you really need to understand is the &lt;code&gt;-e&lt;/code&gt; option. This tells Perl to execute what follows as a program. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;perl6 -e &#39;say &amp;quot;Hello, World!&amp;quot;&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s step through this code.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;perl6&lt;/code&gt; invokes the Perl 6 program&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-e&lt;/code&gt; tells Perl 6 to execute&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;&#39;say &amp;quot;Hello, World!&amp;quot;&#39;&lt;/code&gt; is the program. Every program must be surrounded in single quotes (except on Windows, see (&lt;a href=&#34;https://github.com/sillymoose/Perl6-One-Liners#converting-for-windows&#34;&gt;converting for Windows&lt;/a&gt;).&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;To run a one-liner, just type it into the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -e &#39;say &amp;quot;Hello, World!&amp;quot;&#39;
+Hello, World!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;file-processing:f134c951b57c0f63005d49172b15ce32&#34;&gt;File processing&lt;/h3&gt;
+
+&lt;p&gt;If you want to load a file, just add the path to the file after the program code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -e &#39;for (lines) { say $_ }&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This program prints every line in &lt;code&gt;/path/to/file.txt&lt;/code&gt;. You may know that &lt;code&gt;$_&lt;/code&gt; is the default variable, which in this case is the current line being looped through. &lt;code&gt;lines&lt;/code&gt; is a list that is automatically created for you whenever you pass a filepath to a one-liner. Now let&amp;rsquo;s re-write that one liner, step-by-step. These one liners are all equivalent:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -e &#39;for (lines) { say $_ }&#39; /path/to/file.txt
+&amp;gt; perl6 -e &#39;for (lines) { $_.say }&#39; /path/to/file.txt
+&amp;gt; perl6 -e &#39;for (lines) { .say }&#39; /path/to/file.txt
+&amp;gt; perl6 -e &#39;.say for (lines)&#39; /path/to/file.txt
+&amp;gt; perl6 -e &#39;.say for lines&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Just like &lt;code&gt;$_&lt;/code&gt; is the default variable, methods called on the default variable can omit the variable name. They become default methods. So &lt;code&gt;$_.say&lt;/code&gt; becomes &lt;code&gt;.say&lt;/code&gt;. This brevity pays off with one liners - it&amp;rsquo;s less typing!&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;-n&lt;/code&gt; option changes the behavior of the program: it executes the code once for every line of the file. To uppercase and print every line of &lt;code&gt;/path/to/file.txt&lt;/code&gt; you can type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -ne &#39;.uc.say&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;-p&lt;/code&gt; option is just like &lt;code&gt;-n&lt;/code&gt; except that it will automatically print &lt;code&gt;$_&lt;/code&gt;. This means that another way we could uppercase a file would be:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -pe &#39;$_ = $_.uc&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or by applying a shortcut, this does the same thing:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -pe &#39;.=uc&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;-n&lt;/code&gt; and &lt;code&gt;-p&lt;/code&gt; options are really useful and often spare the programmer from extra typing.&lt;/p&gt;
+
+&lt;h3 id=&#34;load-modules:f134c951b57c0f63005d49172b15ce32&#34;&gt;Load modules&lt;/h3&gt;
+
+&lt;p&gt;The final thing you should know is how to load a module. This is really powerful as you can extend Perl 6&amp;rsquo;s capabilities by importing external libraries. The &lt;code&gt;-M&lt;/code&gt; switch stands for load module:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -M URI::Encode -e &#39;say encode_uri(&amp;quot;/10 ways to crush it with Perl 6&amp;quot;)&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code &lt;code&gt;-M URI::Encode&lt;/code&gt; loads the URI::Encode module, which exports the &lt;code&gt;encode_uri&lt;/code&gt; subroutine. It prints:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;%2F10%20ways%20to%20crush%20it%20with%20Perl%206
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;What if you have a module that is not installed in a standard location? In this case using &lt;code&gt;-M&lt;/code&gt; alone won&amp;rsquo;t work, as Perl won&amp;rsquo;t find the module. For these scenarios, just pass use the &lt;code&gt;-I&lt;/code&gt; switch to include the directory:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -I lib -M URI::Encode -e &#39;say encode_uri(&amp;quot;www.example.com/10 ways to crush it with Perl 6&amp;quot;)&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now Perl 6 will search for URI::Encode in &lt;code&gt;lib&lt;/code&gt; as well as the standard install locations.&lt;/p&gt;
+
+&lt;p&gt;Finally, if you want a summary of all of these options, just use the &lt;code&gt;-h&lt;/code&gt; option:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -h
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will print:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;    With no arguments, enters a REPL. With a &amp;quot;[programfile]&amp;quot; or the &amp;quot;-e&amp;quot; option, compiles the given program and by default also executes the compiled code.
+ 
+    -c                   check syntax only (runs BEGIN and CHECK blocks)
+    --doc                extract documentation and print it as text
+    -e program           one line of program
+    -h, --help           display this help text
+    -n                   run program once for each line of input
+    -p                   same as -n, but also print $_ at the end of lines
+    -I path              adds the path to the module search path
+    -M module            loads the module prior to running the program
+    --target=[stage]     specify compilation stage to emit
+    --optimize=[level]   use the given level of optimization (0..3)
+    -t, --trace=[flags]  enable trace flags, see &#39;parrot --help-debug&#39;
+    --encoding=[mode]    specify string encoding mode
+    -o, --output=[name]  specify name of output file
+    -v, --version        display version information
+    --stagestats         display time spent in the compilation stages
+    --ll-exception       display a low level backtrace on errors
+    --profile            print profile information to standard error
+    --doc=[module]       Use Pod::To::[module] to render inline documentation.
+     
+    Note that only boolean single-letter options may be bundled.
+
+    Output from --profile can be visualized by kcachegrind.
+
+    To modify the include path, you can set the PERL6LIB environment variable:
+
+    PERL6LIB=&amp;quot;lib&amp;quot; perl6 example.pl
+
+    For more information, see the perl6(1) man page.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:f134c951b57c0f63005d49172b15ce32&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;This article was adapted from my open source &lt;a href=&#34;https://github.com/sillymoose/Perl6-One-Liners&#34;&gt;book&lt;/a&gt;, which has lots of example Perl 6 one liners, many of which were contributed by the Perl 6 community. If you&amp;rsquo;re interested in learning more Perl 6, I&amp;rsquo;d recommend visiting the official &lt;a href=&#34;http://perl6.org/&#34;&gt;website&lt;/a&gt;, which has links to the IRC channel and official documentation.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Boost your Perl productivity with auto-compile checking</title>
+      <link>http://perltricks.com/article/133/2014/11/10/Boost-your-Perl-productivity-with-auto-compile-checking/</link>
+      <pubDate>Mon, 10 Nov 2014 14:01:51 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/133/2014/11/10/Boost-your-Perl-productivity-with-auto-compile-checking/</guid>
+      <description>
+
+&lt;p&gt;The Perl command line option &lt;code&gt;-c&lt;/code&gt; causes Perl to check the syntax of the program, but not execute it (apart from code in BEGIN, CHECK and UNITCHECK blocks - watch out for those). For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -c lib/Devel/DidYouMean.pm
+lib/Devel/DidYouMean.pm syntax OK
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is useful but it&amp;rsquo;s kind of clunky to type it every time you want to check the syntax of a program or file.&lt;/p&gt;
+
+&lt;h3 id=&#34;continuous-syntax-checking:8b44f8b5a95c23d489bedfd99622b8bb&#34;&gt;Continuous syntax checking&lt;/h3&gt;
+
+&lt;p&gt;One of my favourite &lt;a href=&#34;https://metacpan.org/pod/Catalyst::Manual::Tutorial::02_CatalystBasics#The-Simplest-Way&#34;&gt;features&lt;/a&gt; when developing Catalyst web apps is using the test server to automatically check the syntax of the web app as I develop it. This saves me time as I know immediately if the web app compiles or not and don&amp;rsquo;t waste time opening up a browser only to get an error. if you&amp;rsquo;re working on a Unix-based operating system you can achieve a similar effect for any Perl program (not just web apps). The &lt;code&gt;watch&lt;/code&gt; program can automatically run the check command. Just start a new terminal, and enter:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ watch &#39;perl -c lib/Devel/DidYouMean.pm&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Giving this output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Every 2s perl -c lib/Devel/DidYouMean.pm           Sat Nov  8 2014
+
+lib/Devel/DidYouMean.pm syntax OK
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In this case I&amp;rsquo;m watching the file &lt;code&gt;lib/Devel/DidYouMean.pm&lt;/code&gt; but you can provide any path to a Perl file that you want to check for syntax errors. By default &lt;code&gt;watch&lt;/code&gt; will run the command every 2 seconds. So if I save a bad update to the file, the watching terminal window will show the error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Every 2.0s: perl -c lib/Devel/DidYouMean.pm           Sat Nov  8 2014
+
+syntax error at lib/Devel/DidYouMean.pm line 122, near &amp;quot;} keys&amp;quot;
+
+lib/Devel/DidYouMean.pm had compilation errors.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This enables me to catch the error before running the program, saving time.&lt;/p&gt;
+
+&lt;h3 id=&#34;checking-syntax-in-a-text-editor:8b44f8b5a95c23d489bedfd99622b8bb&#34;&gt;Checking syntax in a text-editor&lt;/h3&gt;
+
+&lt;p&gt;Using &lt;code&gt;watch&lt;/code&gt; is useful, but I find it can be annoying to have to check a separate terminal window to know if my program compiles or not. Another way to do this is to run the command from within your text-editor. I&amp;rsquo;ll show how you how to do this in vim, but it should be possible to do this in any text-editor that has save events which you can hook in to (e.g. examples for &lt;a href=&#34;http://www.klaascuvelier.be/2013/06/sublime-command-on-save/&#34;&gt;Sublime Text&lt;/a&gt; and &lt;a href=&#34;http://flycheck.readthedocs.org/en/latest/&#34;&gt;Emacs&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;Add the following line to your .vimrc file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;autocmd BufWritePost *.pm,*.t,*.pl echom system(&amp;quot;perl -Ilib -c &amp;quot; . &#39;&amp;quot;&#39; . expand(&amp;quot;%:p&amp;quot;). &#39;&amp;quot;&#39; )
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;What this command does is every time a file ending in .pm, .t, or.pl is saved, vim will run the check syntax command on the file, echoing the results to the current window. Reload your .vimrc with this vim command: &lt;code&gt;:so $MYVIMRC&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Now you don&amp;rsquo;t have to bother setting up a separate terminal window and watching the file; vim will notify you immediately if any Perl file is saved with compilation errors. Much more convenient!&lt;/p&gt;
+
+&lt;h3 id=&#34;alternative-methods-in-vim:8b44f8b5a95c23d489bedfd99622b8bb&#34;&gt;Alternative Methods in Vim&lt;/h3&gt;
+
+&lt;p&gt;Several readers got in touch to recommend the Syntastic &lt;a href=&#34;https://github.com/scrooloose/syntastic&#34;&gt;plugin&lt;/a&gt; for Vim (&lt;a href=&#34;https://github.com/scrooloose/syntastic&#34;&gt;manual&lt;/a&gt;). One nice thing about Syntastic is you can chain compile checks: first run &lt;code&gt;perl -c&lt;/code&gt;, if it passes, then run &lt;a href=&#34;https://metacpan.org/pod/Perl::Critic&#34;&gt;Perl::Critic&lt;/a&gt; and so on. Syntastic also integrates syntax checkers for many other languages, so if Vim is your editor of choice, you might want to check it out.&lt;/p&gt;
+
+&lt;p&gt;A simpler alternative to Syntastic is to use Vim&amp;rsquo;s built-in compiler support. With a Perl file in the current buffer, type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;:compiler perl
+:make
+:cope
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will run Perl&amp;rsquo;s syntax checks checks on the current buffer. Vim reads the output into an error list, which the &lt;code&gt;:cope&lt;/code&gt; command displays. You can jump to the line referenced by a specific error by pressing the enter key (&lt;a href=&#34;http://vimdoc.sourceforge.net/htmldoc/quickfix.html#quickfix-window&#34;&gt;manual&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Updates:&lt;/strong&gt; &lt;em&gt;BEGIN, CHECK, UNITCHECK blocks caution added. Emacs link and addition Vim methods added. 2014-11-10&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Vim autocmd example updated to handle filepaths containing spaces. Thanks to Henry An for the suggestion. 2015-01-22&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/runneralan/10092757714/in/photolist--88qSeT-88u7R1-dqTSLE-atoyrp-bD3QaN-93yNyq-8QYfKX-diG9h4-bD3NV9-88u847-gnS2f3-55QWyu-dqTHcF-9AJTkV-88qSdr-7h39AP-7nPgCT-88qSfv-5MyRfE-bRXxYv-bD3PXU-88u7pC-imjBX2-8xz38b-32eo27-a8YVvZ-8WJgFA-93ySDG-57KLMs-oYUnQ1-88qRL4-fturhH-88qRMx-cUx3nS-4GMFL2-88qSrv-5RhqjZ-ftuqAr-ehAoHf-ftJLsq-88u7fU-5R22Pk-5CNDM-bv2wve-9vnwcd-6dyA62-ejP2nf-329MpH-88u7ds&#34;&gt;Alan Kotok&lt;/a&gt; image has been digitally altered&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Neutralize Shellshock by patching Bash with Perl</title>
+      <link>http://perltricks.com/article/118/2014/10/5/Neutralize-Shellshock-by-patching-Bash-with-Perl/</link>
+      <pubDate>Sun, 05 Oct 2014 18:13:45 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/118/2014/10/5/Neutralize-Shellshock-by-patching-Bash-with-Perl/</guid>
+      <description>
+
+&lt;p&gt;The safest way to protect a system from Shellshock is to upgrade to a patched version of Bash. However if you&amp;rsquo;re like me, you may find that a hectic Linux distro release &lt;a href=&#34;https://fedoraproject.org/wiki/Fedora_Release_Life_Cycle&#34;&gt;schedule&lt;/a&gt; has left your current distribution unsupported. Rather than run the risk of attack, you can patch Bash yourself. Unfortunately some versions of Bash have as many as 52 different &lt;a href=&#34;http://ftp.gnu.org/gnu/bash/bash-4.2-patches/&#34;&gt;patches&lt;/a&gt; that must be downloaded and applied. So I wrote a Perl called &lt;a href=&#34;https://github.com/sillymoose/bashfix&#34;&gt;bashfix&lt;/a&gt; to automate it.&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:ed436a09d47927d2158a5380875afa81&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;Bashfix has a minimal set of requirements, so you should be able to run it on any Linux platform out of the box:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Perl 5.8 or higher and no extra modules required&lt;/li&gt;
+&lt;li&gt;Linux with Bash version 3.* or 4.*&lt;/li&gt;
+&lt;li&gt;The following C binaries: wget, curl, bison, byacc, gettext, patch, autoconf&lt;/li&gt;
+&lt;li&gt;An internet connection to download Bash and associated patches from GNU&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;synopsis:ed436a09d47927d2158a5380875afa81&#34;&gt;Synopsis&lt;/h3&gt;
+
+&lt;p&gt;Using bashfix is fairly straightforward:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git clone https://github.com/sillymoose/bashfix.git
+$ cd bashfix
+$ chmod +x bashfix.pl
+$ ./bashfix.pl
+Bash version 4.2.13 detected
+Created working directory /tmp/PIRKRioxmM
+Downloading Bash
+Downloading Patches
+Bash patched to level 52
+Bash fully patched!
+Configuring Bash ...
+Building and testing Bash ...
+Success. New Bash binary built!
+Making backup copy of /usr/bin/bash at /usr/bin/bash.bak
+Making backup copy of /bin/bash at /bin/bash.bak
+Bash version 4.2.52 is now installed
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Bashfix checks that you have Bash installed, and the necessary prerequisites. It then downloads the Bash source for the same Bash version that is already installed on the system (you can patch an old Bash version to be Shellshock-proof). Note that different versions of Bash have different numbers of patches: 4.2 has 52 patches, whilst 4.1 has only 16. After that, bashfix configures, builds and tests Bash, making a backup of your existing Bash binary, before installing the newly patched version.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:ed436a09d47927d2158a5380875afa81&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;I&amp;rsquo;ve tested &lt;a href=&#34;https://github.com/sillymoose/bashfix&#34;&gt;bashfix&lt;/a&gt; on different versions of Fedora and CentOS, and expect that it works with any RHEL flavoured distro. With other Linux distros or Unix systems, your mileage may vary. If you encounter any issues - get in touch and let me know! Check out our recent &lt;a href=&#34;http://perltricks.com/article/115/2014/9/26/Shellshock-and-Perl&#34;&gt;article&lt;/a&gt; on Shellshock and Perl if you&amp;rsquo;d like to know more about the exploit.&lt;/p&gt;
+
+&lt;p&gt;Thanks to Steve Jenkins whose detailed blog &lt;a href=&#34;http://stevejenkins.com/blog/2014/09/how-to-manually-update-bash-to-patch-shellshock-bug-on-older-fedora-based-systems/&#34;&gt;post&lt;/a&gt; on patching Fedora Bash was the inspiration for this script.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Shellshock and Perl</title>
+      <link>http://perltricks.com/article/115/2014/9/26/Shellshock-and-Perl/</link>
+      <pubDate>Fri, 26 Sep 2014 13:28:54 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/115/2014/9/26/Shellshock-and-Perl/</guid>
+      <description>
+
+&lt;p&gt;Recently the tech media have been foaming at the mouth over a serious Bash &lt;a href=&#34;https://securityblog.redhat.com/2014/09/24/bash-specially-crafted-environment-variables-code-injection-attack/&#34;&gt;bug&lt;/a&gt; called Shellshock. The media &lt;a href=&#34;http://www.wired.com/2014/09/internet-braces-crazy-shellshock-worm/&#34;&gt;hype machine&lt;/a&gt; was in full-swing, replete with the absurd doomsday-like predictions that are rolled out every time a significant security vulnerability is found (remember heartbleed the &amp;ldquo;&lt;a href=&#34;http://mashable.com/2014/04/09/heartbleed-nightmare/&#34;&gt;ultimate web nightmare&lt;/a&gt;&amp;rdquo;?). Whilst it&amp;rsquo;s wise to ignore the hype, don&amp;rsquo;t ignore the issue; Shellshock is a serious risk that allows remote code injection and execution using Bash environment variables. This is also important for Perl as Perl has several touchpoints with the system shell, from the built-in functions &lt;a href=&#34;http://perldoc.perl.org/functions/exec.html&#34;&gt;exec&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/functions/system.html&#34;&gt;system&lt;/a&gt; to the &lt;code&gt;%ENV&lt;/code&gt; global variable.&lt;/p&gt;
+
+&lt;h3 id=&#34;is-system-x-affected:cbf69df2f76f739d1dc6efa240f30cc7&#34;&gt;Is system &amp;ldquo;x&amp;rdquo; affected?&lt;/h3&gt;
+
+&lt;p&gt;If the platform is a Unix-based operating system and Bash is the default terminal, it might be at risk. Redhat Linux, CentOS and Fedora, openSUSE, arch Linux as well as Mac OSX are vulnerable out of the box. A surprising number of platforms are not; freeBSD uses &lt;a href=&#34;https://www.freebsd.org/doc/en/articles/linux-users/shells.html&#34;&gt;tsch&lt;/a&gt;, and modern versions of Debian and Ubuntu use &lt;a href=&#34;https://wiki.ubuntu.com/DashAsBinSh&#34;&gt;dash&lt;/a&gt; by default.&lt;/p&gt;
+
+&lt;p&gt;Every version of Bash through 4.3 is vulnerable to Shellshock. To find out your Bash version, fire up the terminal and enter this command to print the version:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ echo $BASH_VERSION
+4.2.47(1)-release
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Seeing as my version of Bash is below 4.3, my system is possible vulnerable to Shellshock.&lt;/p&gt;
+
+&lt;h3 id=&#34;how-does-shellshock-work:cbf69df2f76f739d1dc6efa240f30cc7&#34;&gt;How does Shellshock work?&lt;/h3&gt;
+
+&lt;p&gt;Shellshock exploits a flaw in how Bash parses environment variables; Bash allows functions to be stored in environment variables, but the issue is Bash will execute any code placed after the function in the environment variable value. Let&amp;rsquo;s craft an example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ export SHELLSHOCK=&amp;quot;() { ignore; };echo danger&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code creates a new environment variable called &lt;code&gt;SHELLSHOCK&lt;/code&gt; (it&amp;rsquo;s customary to have environment variable names in uppercase). The value of the new variable is an anonymous function which does nothing: &lt;code&gt;() { ignore; };&lt;/code&gt; followed by: &lt;code&gt;echo danger&lt;/code&gt; and it&amp;rsquo;s the latter portion of this code which is the risk. Every time Bash processes its environment variables, that code will be executed. For example if I run that statement and then type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ bash -c &amp;quot;echo Hello, World&amp;quot;
+danger
+Hello, World
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You can see that the word danger was printed, indicating my code embedded in the &lt;code&gt;SHELLSHOCK&lt;/code&gt; variable was executed automatically by Bash. In the case of &lt;code&gt;echo danger&lt;/code&gt; it&amp;rsquo;s harmless, but an attacker could craft a malicious payload that caused irreparable harm, such as identity theft, data destruction or hardware damage.&lt;/p&gt;
+
+&lt;p&gt;In order for the Shellshock exploit to work, the attacker would need to achieve two things. First deliver an environment variable containing malicious code to the target host. Second, get the target host to start a new Bash process. The obvious target candidate for this are web servers hosting CGI scripts. CGI works by passing the request parameters as environment variables (such as the user agent name), if the target CGI script starts a new Bash process, the attack will work. You might be wondering why a script would start a new Bash process, which leads me on to how all of this relates to Perl in the first place.&lt;/p&gt;
+
+&lt;h3 id=&#34;perl-shock:cbf69df2f76f739d1dc6efa240f30cc7&#34;&gt;Perl shock&lt;/h3&gt;
+
+&lt;p&gt;The first thing to say is that Perl has nothing to do with Shellshock, but there are a number of places where Perl may invoke the system shell, and it&amp;rsquo;s these cases to be wary of. On Unix based systems Perl uses the shell binary located at &lt;code&gt;/bin/sh&lt;/code&gt;, which is usually a symlink to the default shell binary (such as Bash). This means if Bash is the default shell on your system, when Perl calls out to &lt;code&gt;/bin/sh&lt;/code&gt; a new Bash process will start, and the environment variables will be processed, thus Perl could be a trigger for invoking a Shellshock attack.&lt;/p&gt;
+
+&lt;p&gt;The Perl built-in functions &lt;code&gt;exec&lt;/code&gt; and &lt;code&gt;system&lt;/code&gt; will invoke a new shell process when used. You can also use backticks to invoke a system command. Other Perl functions &lt;em&gt;may&lt;/em&gt; invoke the shell, for example &lt;code&gt;open&lt;/code&gt; can be used to run system commands.&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s see an example of Perl triggering Shellshock by invoking the shell via Perl:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -e &#39;system &amp;quot;echo test&amp;quot;&#39;
+test
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Hmm what happened here? The command ran fine but &amp;ldquo;danger&amp;rdquo; was not printed - Shellshock failed. It turns out that Perl doesn&amp;rsquo;t &lt;em&gt;always&lt;/em&gt; invoke the shell using: &lt;code&gt;/bin/sh -c&lt;/code&gt;. Instead to be more efficient, Perl will usually call &lt;a href=&#34;http://www.csl.mtu.edu/cs4411.ck/www/NOTES/process/fork/exec.html&#34;&gt;execvp&lt;/a&gt;. According to &lt;a href=&#34;http://perldoc.perl.org/functions/system.html&#34;&gt;perldoc&lt;/a&gt;, only when the system command contains &lt;a href=&#34;http://www.sal.ksu.edu/faculty/tim/unix_sg/shell/metachar.html&#34;&gt;metacharacters&lt;/a&gt;, will Perl invoke the shell directly. Let&amp;rsquo;s test that:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -e &#39;system &amp;quot;echo test &amp;gt;&amp;gt; test.log&amp;quot;&#39;
+danger
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Aha, this worked! We used the metacharacters &lt;code&gt;&amp;gt;&amp;gt;&lt;/code&gt; to redirect the output of &lt;code&gt;echo&lt;/code&gt; into a log file, and Perl invoked the shell directly.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-best-defense-is-a-great-offense:cbf69df2f76f739d1dc6efa240f30cc7&#34;&gt;The best defense is a great offense&lt;/h3&gt;
+
+&lt;p&gt;Instead of worrying about whether our system calls contain metacharacters, we can go one better and delete the &lt;code&gt;SHELLSHOCK&lt;/code&gt; environment variable before executing any system command. Perl stores the environment variables in &lt;code&gt;%ENV&lt;/code&gt;, so I&amp;rsquo;ll start by delete the variable from there:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -e &#39;delete $ENV{SHELLSHOCK};system &amp;quot;echo test &amp;gt;&amp;gt; shellshock.log&amp;quot;&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In this one liner, I&amp;rsquo;m front-running the risky &lt;code&gt;system&lt;/code&gt;command with a &lt;code&gt;delete&lt;/code&gt; of the &lt;code&gt;SHELLSHOCK&lt;/code&gt; environment variable. I can see this thwarted Shellshock as &amp;ldquo;danger&amp;rdquo; was not printed out. Of course in this test environment I know the name of the dangerous environment variable, but usually I won&amp;rsquo;t, so to find it, you&amp;rsquo;d have to iterate through the &lt;code&gt;%ENV&lt;/code&gt; hash and delete (or substitute) any suspicious variable. This one liner prints risky environment variables by using a regex to identify any environment variable that contains code after a function declaration:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -E &#39;for (keys %ENV) { say if $ENV{$_} =~ /};.+/ }&#39;
+SHELLSHOCK
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As you can see, it correctly identified the &lt;code&gt;SHELLSHOCK&lt;/code&gt; environment variable and printed it to command line. From here it&amp;rsquo;s a trivial step to delete the variable instead of printing it:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -e &#39;for (keys %ENV) { delete $ENV{$_} if $ENV{$_} =~ /};./ }&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is just a proof-of-concept and may not handle all maliciously crafted Shell environment variables, but with more research, a robust regex could be deployed that completely nullified Shellshock.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:cbf69df2f76f739d1dc6efa240f30cc7&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;To recap, a successful Shellshock attack would need to pass an environment variable containing malicious code to a CGI script on a web server (like Apache), hosted on a vulnerable system, and the CGI script would have to invoke the Shell. For Perl CGI scripts, the system invocation would need to include metacharacters. This seems like a tall order, not yet understood by everyone; like the security &lt;a href=&#34;http://blog.erratasec.com/2014/09/bash-shellshock-bug-is-wormable.html#.VCVkj_ldVqU&#34;&gt;blogger&lt;/a&gt; who mistakenly labelled a cPanel CGI script as vulnerable. Although CGI was popular back in the day, all the modern Perl web frameworks use &lt;a href=&#34;http://www.fastcgi.com/drupal/node/6?q=node/15&#34;&gt;FastCGI&lt;/a&gt; and are immune to Shellshock. Modern web servers do not enable CGI by default and some like nginx do not even ship with CGI capability.&lt;/p&gt;
+
+&lt;p&gt;The safest way to handle Shellshock on a vulnerable system is to patch Bash to the latest version. Although I&amp;rsquo;ve shown it&amp;rsquo;s possible to thwart the attack using Perl, there may be other unanticipated attack vectors that remain open.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Correction:&lt;/strong&gt; &lt;em&gt;removed erroneous description of $SHELL as it is the current user&amp;rsquo;s default login shell, not the default shell. Removed reference to .bashrc as Bash will only process .bashrc during interactive shell startup. 2014-09-27&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image Ebola virus particles &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/niaid/8425030684/in/photolist-dQuu6J-o15Y5n-oq5wzY-oD1uxC-oq68Cn-8r1Hp8-oDe3A2-oDe3za-dPiDp3-ossh3B-2j1bum-jQvxq9-oq59Z4-oq5muj-omJEd1-omJzrD-4JZtfw-aronSf-8GSyC4-68Zxqv-9y7vkf-dPzNiw-5WLSVq-6hZDW8-nds12g-5Wtkeh-6hNQv2-6irCWw-6iQKwC-bS1gap-Jx5bZ-bjfWK2-bjfWiv-dQSzhC-6iUKSo-6ik4Ki-6i3YrM-cXXqXy-64vTm8-cCwK63-8LVkQh-sxxGP-dTpMUd-Dj4uW-6mhvwX-6iGBED-9rwqiP-8R5WMy-9yXaMc-6isfVm&#34;&gt;NIAID&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Create static web apps with Wget</title>
+      <link>http://perltricks.com/article/103/2014/7/22/Create-static-web-apps-with-Wget/</link>
+      <pubDate>Tue, 22 Jul 2014 12:44:13 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/103/2014/7/22/Create-static-web-apps-with-Wget/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Last week we covered &lt;a href=&#34;https://metacpan.org/pod/distribution/App-Wallflower/bin/wallflower&#34;&gt;Wallflower&lt;/a&gt; an awesome utility for generating static websites from Perl web applications. This week we&amp;rsquo;re covering an alternative method, that uses &lt;a href=&#34;https://en.wikipedia.org/wiki/Wget&#34;&gt;Wget&lt;/a&gt;. One benefit of this method is it can be used on any dynamic web application, not just Perl ones.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:11eb354f02100c5b1eef8d7dfa4efa33&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need Wget installed - if you&amp;rsquo;re using Linux it should already be installed. OSX users can install it with &lt;a href=&#34;http://brew.sh/&#34;&gt;Homebrew&lt;/a&gt; and there is a Windows &lt;a href=&#34;http://gnuwin32.sourceforge.net/packages/wget.htm&#34;&gt;version&lt;/a&gt; available. To follow this example you&amp;rsquo;ll also need Dancer2 installed, which you can get via cpan:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Dancer2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;create-the-application:11eb354f02100c5b1eef8d7dfa4efa33&#34;&gt;Create the application&lt;/h3&gt;
+
+&lt;p&gt;We&amp;rsquo;ll use Dancer2 to create a basic skeleton app:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ dancer2 -a MyApp
++ MyApp
++ MyApp/config.yml
++ MyApp/MANIFEST.SKIP
++ MyApp/Makefile.PL
++ MyApp/views
++ MyApp/views/index.tt
++ MyApp/views/layouts
++ MyApp/views/layouts/main.tt
++ MyApp/t
++ MyApp/t/002_index_route.t
++ MyApp/t/001_base.t
++ MyApp/bin
++ MyApp/bin/app.pl
++ MyApp/lib
++ MyApp/lib/MyApp.pm
++ MyApp/environments
++ MyApp/environments/production.yml
++ MyApp/environments/development.yml
++ MyApp/public
++ MyApp/public/500.html
++ MyApp/public/404.html
++ MyApp/public/favicon.ico
++ MyApp/public/dispatch.cgi
++ MyApp/public/dispatch.fcgi
++ MyApp/public/css
++ MyApp/public/css/error.css
++ MyApp/public/css/style.css
++ MyApp/public/javascripts
++ MyApp/public/javascripts/jquery.js
++ MyApp/public/images
++ MyApp/public/images/perldancer.jpg
++ MyApp/public/images/perldancer-bg.jpg
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Lets start the app:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./MyApp/bin/app.pl
+&amp;gt;&amp;gt; Dancer2 v0.143000 server 435 listening on http://0.0.0.0:3000
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;create-the-static-site:11eb354f02100c5b1eef8d7dfa4efa33&#34;&gt;Create the static site&lt;/h3&gt;
+
+&lt;p&gt;We&amp;rsquo;ll point Wget at the site in recursive mode, so that it pulls all the files we need (up to a depth of 5 by default).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ wget -r 0:3000 -d 0:3000 --page-requisites
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here we pass Wget the following options:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&amp;rdquo;-r 0:3000&amp;rdquo; to recursively follow links from 0:3000&lt;/li&gt;
+&lt;li&gt;-&amp;ldquo;d 0:3000&amp;rdquo; to only save static files from the local domain&lt;/li&gt;
+&lt;li&gt;&amp;rdquo;&amp;ndash;page-requisites&amp;rdquo; to pull all required files for a page, even if beyond our depth limit&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;By default Wget will create a directory named after the domain (&amp;ldquo;0:3000&amp;rdquo;) and place all static files there. And that&amp;rsquo;s it, all the files for our static site have been generated.&lt;/p&gt;
+
+&lt;h3 id=&#34;wget-vs-wallflower:11eb354f02100c5b1eef8d7dfa4efa33&#34;&gt;Wget vs Wallflower&lt;/h3&gt;
+
+&lt;p&gt;So if both apps can generate static sites, which one is better? If you&amp;rsquo;re working with a non-Perl site, then Wget is obviously the way to go. In terms of speed, Wget is faster if you combine the command with xargs and request the urls in parallel:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cat urls.txt | xargs -P16 wget -i
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To take advantage of the parallel GET requests, you&amp;rsquo;ll need to serve the application on a web server though.&lt;/p&gt;
+
+&lt;p&gt;Wallflower has nice option (&amp;ldquo;-F&amp;rdquo;) to take a list of URLs to download, which can be useful if the entire site cannot be downloaded by following links from the root application page. &lt;a href=&#34;https://metacpan.org/pod/Wallflower&#34;&gt;App::Wallflower&lt;/a&gt; is the source library for Wallflower, and extendible through Perl code, so you can further tailor the process to meet your needs. This can be used for post-processing actions like generating a sitemap.xml or advanced setups like a hybrid application, where the public pages of the site are static, but the secure parts remain dynamic. With Wallflower all of this can be scripted in Perl, with Wget you&amp;rsquo;d need to a combination of shell scripts and Perl, which is less convenient.&lt;/p&gt;
+
+&lt;p&gt;As was recommended in last week&amp;rsquo;s &lt;a href=&#34;http://perltricks.com/article/102/2014/7/15/Generate-static-websites-from-dynamic-Perl-web-apps#h3Wallflower%20Tips&#34;&gt;article&lt;/a&gt; make sure you&amp;rsquo;re using absolute urls in your template code to avoid deployment issues with your static files.&lt;/p&gt;
+
+&lt;h3 id=&#34;thanks:11eb354f02100c5b1eef8d7dfa4efa33&#34;&gt;Thanks&lt;/h3&gt;
+
+&lt;p&gt;&lt;em&gt;Thanks to Steve Schnepp for contacting us with this tip. Thanks to Philippe Bruhat for creating Wallflower and providing additional technical guidance.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;*&lt;strong&gt;Correction:&lt;/strong&gt; technical comparison of Wallflower and Wget updated following clarification from module author. 2014-08-02*&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

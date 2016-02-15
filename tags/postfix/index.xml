@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Postfix on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/postfix/</link>
+    <description>Recent content in Postfix on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 13 Feb 2014 05:00:02 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/postfix/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Cool new Perl feature: postfix dereferencing</title>
+      <link>http://perltricks.com/article/68/2014/2/13/Cool-new-Perl-feature--postfix-dereferencing/</link>
+      <pubDate>Thu, 13 Feb 2014 05:00:02 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/68/2014/2/13/Cool-new-Perl-feature--postfix-dereferencing/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Postfix dereferencing is a cool new feature coming in the next major Perl release. Although Perl version 5.20 is not due until the Spring, you can use the postfix dereferencing feature with the Perl developer release now.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:bb6fe9e47ed1deee9bc3f07fed49dd5e&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need to install a copy of the latest Perl developer release (v5.19.8). You can get this with Perlbrew:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perlbrew install perl-5.19.8
+$ perlbrew switch perl-5.19.8
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or you can download and build Perl v5.19.8 from &lt;a href=&#34;http://www.cpan.org/src/README.html&#34;&gt;cpan.org&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Once 5.19.8 is installed, you&amp;rsquo;ll need the &lt;a href=&#34;https://metacpan.org/pod/experimental&#34;&gt;experimental&lt;/a&gt; distribution. Install it via cpan at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan experimental
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;circumfix-dereferencing-primer:bb6fe9e47ed1deee9bc3f07fed49dd5e&#34;&gt;Circumfix dereferencing primer&lt;/h3&gt;
+
+&lt;p&gt;In Perl we&amp;rsquo;re used to using the circumfix operation to dereference variables. The circumfix operation involves wrapping our reference in curly braces and prepending the appropriate variable sigil. For example, to dereference an array:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $array_ref = [1, 2, 3];
+push @{$array_ref}, 4;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here we declare an array reference, then use the circumfix operation (&amp;ldquo;@{}&amp;rdquo;) to dereference the array, enabling us to push the scalar onto the array. Stylistically the circumfix operation is ugly. Perl syntax is already awash with sigils and curly braces and we don&amp;rsquo;t need any more. Circumfix dereferences can also be hard to read in the case of deeply nested references, as the dereferencing sigil is on the left, whilst the chain of dereferencing arrows grow to the right:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $deep_array_ref = [[[[[1,2,3]]]]];
+push @{$deep_array_ref-&amp;gt;[0][0][0][0]}, 4;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;enter-postfix-dereferencing:bb6fe9e47ed1deee9bc3f07fed49dd5e&#34;&gt;Enter postfix dereferencing&lt;/h3&gt;
+
+&lt;p&gt;Postfix dereferencing is a new feature and a drop-in replacement for circumfix dereferencing. Instead of wrapping the reference with a circumfix operation, we append a dereferencing sigil to the end of the reference. Let&amp;rsquo;s revisit the previous two examples using postfix dereferencing:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use experimental &#39;postderef&#39;;
+
+my $array_ref = [1, 2, 3];
+push $array_ref-&amp;gt;@*, 4;
+
+my $deep_array_ref = [[[[[1,2,3]]]]];
+push $deep_array_ref-&amp;gt;[0][0][0][0]-&amp;gt;@*, 4;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here we dereferenced the arrays using the postfix operation (&amp;ldquo;-&amp;gt;@*&amp;rdquo;). You can even get the array&amp;rsquo;s last element index:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use experimental &#39;postderef&#39;;
+
+my $array_ref = [1, 2, 3];
+my $last_element_index = $array_ref-&amp;gt;$#*;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is cleaner than circumfix as there are no extra curly braces, it&amp;rsquo;s more intuitive as it follows left-to-right precedence and nested references are easier to read as we don&amp;rsquo;t have to track back to the beginning of the reference to locate the sigil. We have a winner!&lt;/p&gt;
+
+&lt;h3 id=&#34;postfix-dereference-works-anywhere-circumfix-does:bb6fe9e47ed1deee9bc3f07fed49dd5e&#34;&gt;Postfix dereference works anywhere circumfix does&lt;/h3&gt;
+
+&lt;p&gt;Arrays aren&amp;rsquo;t the only beneficiary of this new feature. Postfix dereferencing works with scalars, hashes, coderefs and globs too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use experimental &#39;postderef&#39;;
+use feature &#39;say&#39;;
+
+my $scalar   = &#39;hello world!&#39;;
+my %hash     = ( hello =&amp;gt; &#39;world!&#39; );
+my $code     = sub { say &#39;hello world!&#39; };
+
+my $sundry_ref = [  \$scalar,
+                    \%hash,
+                     $code ];
+
+# scalar
+say $sundry_ref-&amp;gt;[0]-&amp;gt;$*;
+
+# hash
+for (keys $sundry_ref-&amp;gt;[1]-&amp;gt;%*) { say &amp;quot;$_ $sundry_ref-&amp;gt;[1]{$_}&amp;quot; }
+
+# coderef
+$sundry_ref-&amp;gt;[2]-&amp;gt;&amp;amp;*;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:bb6fe9e47ed1deee9bc3f07fed49dd5e&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Postfix dereferencing syntax is cleaner and easier to follow than circumfix. If you haven&amp;rsquo;t seen it already, check out Perl pumpking, Ricardo Signes &lt;a href=&#34;http://www.youtube.com/watch?v=Sp102BECq8s&amp;amp;t=63m11s&#34;&gt;presenting&lt;/a&gt; postfix dereferencing at NYC.pm (the rest of the talk is great too).&lt;/p&gt;
+
+&lt;p&gt;For more postfix dereferencing examples, take a look at the Perl &lt;a href=&#34;https://github.com/Perl/perl5/blob/blead/t/op/postfixderef.t&#34;&gt;source test file&lt;/a&gt; and the new &lt;a href=&#34;http://search.cpan.org/~shay/perl-5.19.5/pod/perlref.pod#Postfix_Dereference_Syntax&#34;&gt;perlref&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F68%2F2014%2F2%2F13%2FCool-new-Perl-feature-postfix-dereferencing&amp;amp;text=Cool%20new%20Perl%20feature%3A%20postfix%20dereferencing&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F68%2F2014%2F2%2F13%2FCool-new-Perl-feature-postfix-dereferencing&amp;amp;via=perltricks&#34;&gt;retweet it!&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Xml on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/xml/</link>
+    <description>Recent content in Xml on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 09 Feb 2015 13:41:04 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/xml/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Build a Reddit bot with Perl</title>
+      <link>http://perltricks.com/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl/</link>
+      <pubDate>Mon, 09 Feb 2015 13:41:04 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl/</guid>
+      <description>
+
+&lt;p&gt;One of my goals for this year was to post more links to the Perl &lt;a href=&#34;http://www.reddit.com/r/perl&#34;&gt;subreddit&lt;/a&gt;. I&amp;rsquo;m usually good at linking to PerlTricks articles, but not so good at linking to other content. And that&amp;rsquo;s a shame because there are a lot of active Perl blogs out there (I know of at least 25-30).&lt;/p&gt;
+
+&lt;p&gt;A busier Perl subreddit is good for the community; more links on /r/perl should lead to more visitors, and more activity on the subreddit and so on - a virtuous circle. So I built a bot to automate the posting of links. In this article I&amp;rsquo;m going to show you how I did it.&lt;/p&gt;
+
+&lt;h3 id=&#34;reddit-api:f338286cb816fcc4501664bb4edd9fd0&#34;&gt;Reddit API&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need a Reddit account to use the API. I like to use &lt;a href=&#34;https://metacpan.org/pod/Reddit::Client&#34;&gt;Reddit::Client&lt;/a&gt; as it works well, has good documentation and maintains a session cache. This is a subroutine for posting links to Reddit:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use warnings;
+use strict;
+use Reddit::Client;
+
+sub post_reddit_link
+{
+    my ($title, $url, $subreddit) = @_; 
+
+    my $reddit       = Reddit::Client-&amp;gt;new(
+        session_file =&amp;gt; &#39;logs/session_data.json&#39;,
+        user_agent   =&amp;gt; &#39;perly_bot/v0.01&#39;,
+    );  
+
+    unless ( $reddit-&amp;gt;is_logged_in ) { 
+        $reddit-&amp;gt;login( $ENV{REDDIT_USERNAME}, 
+                        $ENV{REDDIT_PASSWORD} );
+        $reddit-&amp;gt;save_session();
+    }   
+    
+    $reddit-&amp;gt;submit_link(
+            subreddit =&amp;gt; $subreddit,
+            title     =&amp;gt; $title,
+            url       =&amp;gt; $url
+    );
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code should be fairly self-explanatory. The &lt;code&gt;post_reddit_link&lt;/code&gt; subroutine accepts three parameters: the subreddit to post to, the title of the post, and the URL of the link. It initializes a new Reddit::Client object, passing the path of the session file and the user agent string to use when calling the Reddit API. The session file is just a cache for storing a session cookie.&lt;/p&gt;
+
+&lt;p&gt;Next, the subroutine checks if the &lt;code&gt;$reddit&lt;/code&gt; object has an active session or not, triggering a login request if necessary. I like to store credentials in environment variables: that way the code and any config files can still be hosted on a public repository, without risk of sharing your login details with anyone. The last bit of code calls &lt;code&gt;submit_link&lt;/code&gt; method to post the link to the Reddit API.&lt;/p&gt;
+
+&lt;p&gt;This code will work in ideal scenarios, but what if something goes wrong? For example, Reddit imposes restrictions on the posting of links: the same link cannot be posted twice to the same subreddit, proxy domains are banned and links cannot be posted too frequently. In order to capture the error messages, I&amp;rsquo;m going to wrap the &lt;code&gt;submit_link&lt;/code&gt; method in a try/catch block.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use warnings;
+use strict;
+use Reddit::Client;
+use Try::Tiny;
+use Time::Piece;
+
+open my $ERROR_LOG, &#39;&amp;gt;&amp;gt;&#39;, &#39;logs/error.log&#39; or die $!;
+
+sub post_reddit_link
+{
+    my ($title, $url, $subreddit) = @_; 
+
+    my $reddit       = Reddit::Client-&amp;gt;new(
+        session_file =&amp;gt; &#39;logs/session_data.json&#39;,
+        user_agent   =&amp;gt; &#39;perly_bot/v0.01&#39;,
+    );  
+
+    unless ( $reddit-&amp;gt;is_logged_in ) { 
+        $reddit-&amp;gt;login( $ENV{REDDIT_USERNAME}, 
+                        $ENV{REDDIT_PASSWORD} );
+        $reddit-&amp;gt;save_session();
+    }   
+    
+    try {
+        $reddit-&amp;gt;submit_link(
+            subreddit =&amp;gt; $subreddit,
+            title     =&amp;gt; $title,
+            url       =&amp;gt; $url
+        );
+    } catch {
+        log_error(&amp;quot;Error posting $title $url $_&amp;quot;);
+    };
+}
+
+sub log_error
+{
+    my $datetime = localtime;
+    say $ERROR_LOG $datetime_now-&amp;gt;datetime . &amp;quot;\t$_[0]&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In addition to the try/catch, I&amp;rsquo;ve added a &lt;code&gt;log_error&lt;/code&gt; subroutine which will write error messages to the error log.&lt;/p&gt;
+
+&lt;h3 id=&#34;reading-blog-feeds:f338286cb816fcc4501664bb4edd9fd0&#34;&gt;Reading blog feeds&lt;/h3&gt;
+
+&lt;p&gt;Now I have a subroutine for posting links to Reddit, I need a way to monitor blog feeds and post links to new articles. Most blogs provide feed data via RSS or atom data, for example &lt;a href=&#34;http://blogs.perl.org&#34;&gt;blogs.perl.org&lt;/a&gt; uses atom. I can monitor this feed using &lt;a href=&#34;https://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/XML::Atom::Client&#34;&gt;XML::Atom::Client&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use XML::Atom::Client;
+use HTTP::Tiny;
+
+sub check_feed
+{
+    my ($url) = @_;
+
+    my $ua = HTTP::Tiny-&amp;gt;new;
+    my $response = $ua-&amp;gt;get($url);
+    if ( $response-&amp;gt;{success} )
+    {
+        my $posts = 
+          XML::Atom::Feed-&amp;gt;new( Stream =&amp;gt; \$response-&amp;gt;{content} );
+
+        foreach my $post ( $posts-&amp;gt;entries )
+        {
+            post_reddit_link(
+                $post-&amp;gt;title,
+                $post-&amp;gt;link-&amp;gt;href,
+                &#39;perl&#39;
+            );
+        }
+    }
+    else
+    {
+        log_error(
+&amp;quot;Error requesting $url. $response-&amp;gt;{status} $response-&amp;gt;{reason}&amp;quot;
+        );
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code declares a subroutine called &lt;code&gt;check_feed&lt;/code&gt; which accepts a URL as parameter. It fetches the URL content using HTTP::Tiny, and if successful, loops through every blog post in an atom feed, calling &lt;code&gt;post_reddit_link&lt;/code&gt; on each post. As it stands, this code is going to cause problems. We only want to post relevant and new content to the Perl subreddit, but this code will post a link for every blog post returned by the feed URL.&lt;/p&gt;
+
+&lt;p&gt;To check for relevant content, I can use a regex to match against keywords. If the text contains words like &amp;ldquo;Perl&amp;rdquo; or &amp;ldquo;CPAN&amp;rdquo;, I assume it&amp;rsquo;s Perl related. This is the regex:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#  must contain a Perl keyword to be considered relevant
+my $looks_perly = qr/\b(?:perl|cpan|cpanminus|moose|metacpan|modules?)\b/i;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To filter out stale content, I need to set a threshold for how long posts should be considered fresh. I can then subtract the publication date of the blog post from the current datetime to see if the publication date exceeds my threshold or not. I&amp;rsquo;m going to use 24 hours as my threshold:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
+use Time::Seconds;
+
+my $datetime_post = 
+  Time::Piece-&amp;gt;strptime($post-&amp;gt;published, &#39;%Y-%m-%dT%H:%M:%SZ&#39;);
+my $datetime_now = localtime;
+
+if ( $datetime_post &amp;gt; $datetime_now - ONE_DAY )
+{
+   ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code uses the &lt;code&gt;strptime&lt;/code&gt; function in Time::Piece to extract the publication datetime of the post. It then compares the datetime of the post with the current datetime minus 24 hours (&amp;ldquo;ONE_DAY&amp;rdquo; is a constant for 24 hours that is exported by Time::Seconds).&lt;/p&gt;
+
+&lt;h3 id=&#34;wrap-up:f338286cb816fcc4501664bb4edd9fd0&#34;&gt;Wrap up&lt;/h3&gt;
+
+&lt;p&gt;Putting it all together, the code looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use warnings;
+use strict;
+use Reddit::Client;
+use Try::Tiny;
+use Time::Piece;
+use Time::Seconds;
+use XML::Atom::Client;
+use HTTP::Tiny;
+
+open my $ERROR_LOG, &#39;&amp;gt;&amp;gt;&#39;, &#39;logs/error.log&#39; or die $!;
+
+#  must contain a Perl keyword to be considered relevant
+my $looks_perly = qr/\b(?:perl|cpan|cpanminus|moose|metacpan|modules?)\b/i;
+
+# post links for new posts on blogs.perl.org
+check_feed(&#39;http://blogs.perl.org/atom.xml&#39;);
+
+sub post_reddit_link
+{
+    my ($title, $url, $subreddit) = @_;
+
+    my $reddit       = Reddit::Client-&amp;gt;new(
+        session_file =&amp;gt; &#39;logs/session_data.json&#39;,
+        user_agent   =&amp;gt; &#39;perly_bot/v0.01&#39;,
+    );
+
+    unless ( $reddit-&amp;gt;is_logged_in ) {
+        $reddit-&amp;gt;login( $ENV{REDDIT_USERNAME},
+                        $ENV{REDDIT_PASSWORD} );
+        $reddit-&amp;gt;save_session();
+    }
+
+    try {
+        $reddit-&amp;gt;submit_link(
+            subreddit =&amp;gt; $subreddit,
+            title     =&amp;gt; $title,
+            url       =&amp;gt; $url
+        );
+    } catch {
+        log_error(&amp;quot;Error posting $title $url $_&amp;quot;);
+    };
+}
+
+sub log_error
+{
+    my $datetime = localtime;
+    say $ERROR_LOG $datetime-&amp;gt;datetime . &amp;quot;\t$_[0]&amp;quot;;
+}
+
+sub check_feed
+{
+    my ($url) = @_;
+
+    my $ua = HTTP::Tiny-&amp;gt;new;
+    my $response = $ua-&amp;gt;get($url);
+
+    if ( $response-&amp;gt;{success} )
+    {
+        my $posts =
+          XML::Atom::Feed-&amp;gt;new( Stream =&amp;gt; \$response-&amp;gt;{content} );
+
+        foreach my $post ( $posts-&amp;gt;entries )
+        {
+            my $datetime_post =
+              Time::Piece-&amp;gt;strptime($post-&amp;gt;published, &#39;%Y-%m-%dT%H:%M:%SZ&#39;);
+            my $datetime_now = localtime;
+
+            # if fresh post and contains Perl keyword
+            if (   $datetime_post &amp;gt; $datetime_now - ONE_DAY
+                &amp;amp;&amp;amp; $post-&amp;gt;summary =~ $looks_perly)
+            {
+                post_reddit_link(
+                    $post-&amp;gt;title,
+                    $post-&amp;gt;link-&amp;gt;href,
+                    &#39;perl&#39;
+                );
+            }
+        }
+    }
+    else
+    {
+        log_error(
+&amp;quot;Error requesting $url. $response-&amp;gt;{status} $response-&amp;gt;{reason}&amp;quot;
+        );
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When run, this script will check blogs.perl.org for new posts, and submit them to /r/perl.&lt;/p&gt;
+
+&lt;p&gt;There&amp;rsquo;s a lot more that could be done with this script: for instance it only supports atom feeds, but many blog feeds use RSS. The URLs to check must be hard coded into the script - it would be better to take them from a configurable list. Finally, there is no URL caching, so running this script twice in 24 hours will lead to it attempting to post the same links to Reddit twice. For an extended example that addresses these issues and more, check out my Perly-Bot GitHub &lt;a href=&#34;https://github.com/dnmfarrell/Perly-Bot&#34;&gt;repo&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>HTML pro-parsing tips</title>
+      <link>http://perltricks.com/article/101/2014/7/10/HTML-pro-parsing-tips/</link>
+      <pubDate>Thu, 10 Jul 2014 12:33:45 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/101/2014/7/10/HTML-pro-parsing-tips/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Perl has some fantastic modules for parsing HTML and one of the best is XML::LibXML. It&amp;rsquo;s an interface to the libxml2 C library; super fast but also super-picky. I&amp;rsquo;ve often found XML::LibXML croaking on relatively simple - but incorrectly formed HTML. If you find this, do not give up! This article shares 3 simple techniques for overcoming malformed HTML when parsing with XML::LibXML.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;tip-1-turn-on-recovery-mode:9d73a78b2b77c7daf47ac5782dcbfdfb&#34;&gt;Tip 1: turn on recovery mode&lt;/h3&gt;
+
+&lt;p&gt;If XML::LibXML is croaking on a later part of the HTML, try turning on recovery mode, which will return all of the correctly parsed HTML up until XML::LibXML encountered the error.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use XML::LibXML;
+
+my $xml = XML::LibXML-&amp;gt;new( recover =&amp;gt; 1 );
+my $dom = $xml-&amp;gt;load_html( string =&amp;gt; $html );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With recovery mode set to 1, the parser will still warn about parsing errors. To suppress the warnings, set recover to 2.&lt;/p&gt;
+
+&lt;h3 id=&#34;tip-2-sanitize-the-input-first-with-html-scrubber:9d73a78b2b77c7daf47ac5782dcbfdfb&#34;&gt;Tip 2: sanitize the input first with HTML::Scrubber&lt;/h3&gt;
+
+&lt;p&gt;Sometimes recovery mode alone is not enough - XML::LibXML will croak at the first whiff of HTML if there are two doctype declarations for example. In these situations, consider sanitizing the HTML with &lt;a href=&#34;https://metacpan.org/pod/HTML::Scrubber&#34;&gt;HTML::Scrubber&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;HTML::Scrubber provides both whitelist and blacklist functions to include or exclude HTML tags and attributes. It&amp;rsquo;s a powerful combination which allows you to create a custom filter to scrub the HTML that you want to parse.&lt;/p&gt;
+
+&lt;p&gt;By default HTML::Scrubber removes all tags, but in the case of a duplicate doctype declaration, you just need that one tag removed. Let&amp;rsquo;s remove all div tags too for good measure:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use HTML::Scrubber;
+
+my $scrubber = HTML::Scrubber-&amp;gt;new( deny =&amp;gt; [ &#39;doctype&#39;, &#39;div&#39; ],
+                                    allow=&amp;gt; &#39;*&#39; );
+my $scrubbed_html = $scrubber-&amp;gt;scrub($html);
+my $dom = XML::LibXML-&amp;gt;load_html( string =&amp;gt; $scrubbed_html );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &amp;ldquo;deny&amp;rdquo; rule sets the scrubber blacklist (what to exclude) and the &amp;ldquo;allow&amp;rdquo; rule specifies the whitelist (what to include). Here we passed an asterisk (&amp;rdquo;*&amp;rdquo;) to allow, which means allow everything, but because we&amp;rsquo;re denying div and doctype tags, they&amp;rsquo;ll be removed.&lt;/p&gt;
+
+&lt;h3 id=&#34;tip-3-extract-a-subset-of-data-with-a-regex-capture:9d73a78b2b77c7daf47ac5782dcbfdfb&#34;&gt;Tip 3: extract a subset of data with a regex capture&lt;/h3&gt;
+
+&lt;p&gt;If the subset HTML you want to parse has a unique identifier (such as an id attribute), consider using a regex capture to extract it from the HTML document. You can then scrub or immediately parse this subset with XML::LibXML.&lt;/p&gt;
+
+&lt;p&gt;For example recently I had to extract an HTML table from a badly-formed web page. Fortunately the table had an id attribute, which made extracting it with a regex a piece-of-cake:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;if ( $html =~ /(&amp;lt;table id=&amp;quot;t2&amp;quot;&amp;gt;.*?&amp;lt;\/table&amp;gt;)/s ) {
+    my $dom = XML::LibXML-&amp;gt;load_html( string =&amp;gt; $1 );
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note the use of the &amp;ldquo;s&amp;rdquo; modifier in the regex to match multiline. Many HTML pages contain newlines and you don&amp;rsquo;t want your match fail because of that.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:9d73a78b2b77c7daf47ac5782dcbfdfb&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Hopefully these tips will make parsing HTML with XML::LibXML easier. My GitHub account has a web scraper &lt;a href=&#34;https://gist.github.com/sillymoose/998b9199007589199dce#file-get_swift_code-pl-L42&#34;&gt;script&lt;/a&gt; that uses some of these tips. If you&amp;rsquo;re looking for an entirely different approach to parsing HTML, check out &lt;a href=&#34;https://metacpan.org/pod/XML::Rabbit&#34;&gt;XML::Rabbit&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/HTML::TreeBuilder&#34;&gt;HTML::TreeBuilder&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F101%2F2014%2F7%2F10%2FHTML-pro-parsing-tips&amp;amp;text=HTML+pro-parsing+tips&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F101%2F2014%2F7%2F10%2FHTML-pro-parsing-tips&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Parsing data couldn&#39;t be easier with XML::Dataset</title>
+      <link>http://perltricks.com/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</link>
+      <pubDate>Fri, 09 May 2014 03:14:01 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;It&amp;rsquo;s hard to believe that when it comes to XML parsing CPAN hasn&amp;rsquo;t already got you covered, but &lt;a href=&#34;https://metacpan.org/pod/XML::Dataset&#34;&gt;XML::Dataset&lt;/a&gt; is a new module that fills a useful void. XML::Dataset let&amp;rsquo;s you declare a plaintext data collection schema, and then goes and extracts the data for you, super fast. Read on to see how it works.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;The CPAN Testers results &lt;a href=&#34;http://matrix.cpantesters.org/?dist=XML-Dataset+0.006&#34;&gt;show&lt;/a&gt; that XML::Dataset v0.06 will run on any platform with Perl (down to 5.8.9). To install the module with CPAN, open up the terminal and type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan XML::Dataset
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;your-data-extracted:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;Your data, extracted&lt;/h3&gt;
+
+&lt;p&gt;To use XML::Dataset you&amp;rsquo;ll need some stringified XML source data and a data profile. A profile is just a plaintext schema which specifies the data you&amp;rsquo;d like to extract. Let&amp;rsquo;s look at an example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use XML::Dataset;
+use Data::Printer;
+
+my $sample_data = q(&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;
+&amp;lt;colleagues&amp;gt;
+    &amp;lt;colleague&amp;gt;
+        &amp;lt;title&amp;gt;The Boss&amp;lt;/title&amp;gt;
+        &amp;lt;phone&amp;gt;+1 202-663-9108&amp;lt;/phone&amp;gt;
+    &amp;lt;/colleague&amp;gt;
+    &amp;lt;colleague&amp;gt;
+        &amp;lt;title&amp;gt;Admin Assistant&amp;lt;/title&amp;gt;
+        &amp;lt;phone&amp;gt;+1 347-999-5454&amp;lt;/phone&amp;gt;
+        &amp;lt;email&amp;gt;inbox@the_company.com&amp;lt;/email&amp;gt;
+    &amp;lt;/colleague&amp;gt;
+    &amp;lt;colleague&amp;gt;
+        &amp;lt;title&amp;gt;Minion&amp;lt;/title&amp;gt;
+        &amp;lt;phone&amp;gt;+1 792-123-4109&amp;lt;/phone&amp;gt;
+    &amp;lt;/colleague&amp;gt;
+&amp;lt;/colleagues&amp;gt;);
+
+my $sample_data_profile
+    = q(colleagues
+            colleague
+                title   = dataset:colleagues
+                email   = dataset:colleagues
+                phone   = dataset:colleagues);
+
+p parse_using_profile($sample_data, $sample_data_profile);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above declares a simple XML dataset ($sample_data) and a data profile to extract the required data ($sample_data_profile). XML::Dataset requires every indented newline in the data profile to map to another nested level of the data set. Once we reach the data attributes we want to extract, we simply assign a dataset to them (dataset:colleagues).&lt;/p&gt;
+
+&lt;p&gt;XML::Dataset exports the &amp;ldquo;parse_using_profile&amp;rdquo; function which extracts the data using our data profile and returns a Perl data structure. We use &lt;a href=&#34;https://metacpan.org/pod/Data::Printer&#34;&gt;Data::Printer&lt;/a&gt; to print out the results. Running this code we get this output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ {
+    colleagues   [
+        [0] {
+            phone   &amp;quot;+1 202-663-9108&amp;quot;,
+            title   &amp;quot;The Boss&amp;quot;
+        },
+        [1] {
+            email   &amp;quot;inbox@the_company.com&amp;quot;,
+            phone   &amp;quot;+1 347-999-5454&amp;quot;,
+            title   &amp;quot;Admin Assistant&amp;quot;
+        },
+        [2] {
+            phone   &amp;quot;+1 792-123-4109&amp;quot;,
+            title   &amp;quot;Minion&amp;quot;
+        },
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that XML::Dataset had no problem extracting the one email address that was present in the data, even though the other colleagues did not have that attribute. What if we wanted to collect emails and phone numbers, but in separate datasets? All we need to do is update $sample_data_profile with two datasets:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $sample_data_profile
+    = q(colleagues
+            colleague
+                title   = dataset:emails dataset:phones
+                email   = dataset:emails
+                phone   = dataset:phones);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Re-running the code, XML::Dataset now produces two datasets for us:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ {
+    emails   [
+        [0] {
+            title   &amp;quot;The Boss&amp;quot;
+        },
+        [1] {
+            email   &amp;quot;inbox@the_company.com&amp;quot;,
+            title   &amp;quot;Admin Assistant&amp;quot;
+        },
+        [2] {
+            title   &amp;quot;Minion&amp;quot;
+        }
+    ],
+    phones   [
+        [0] {
+            phone   &amp;quot;+1 202-663-9108&amp;quot;,
+            title   &amp;quot;The Boss&amp;quot;
+        },
+        [1] {
+            phone   &amp;quot;+1 347-999-5454&amp;quot;,
+            title   &amp;quot;Admin Assistant&amp;quot;
+        },
+        [2] {
+            phone   &amp;quot;+1 792-123-4109&amp;quot;,
+            title   &amp;quot;Minion&amp;quot;
+        }
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;a-real-example:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;A real example&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s write a program to parse a a more realistic data set. Many websites provide a sitemap that lists all of the content on the website, and when it was last updated. This information is used by search engines to optimize their crawling routines. The sitemap has a defined xml format, so it&amp;rsquo;s a cinch to parse it with XML::Dataset:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use XML::Dataset;
+use Data::Printer;
+use HTTP::Tiny;
+
+my $url = &#39;http://perltricks.com/static/sitemap.xml&#39;;
+
+my $sitemap_data 
+    = HTTP::Tiny-&amp;gt;new-&amp;gt;get($url)-&amp;gt;{content};
+
+my $sitemap_data_profile
+    = q(urlset
+            url
+                loc     = dataset:sitemap_locations_modified
+                lastmod = dataset:sitemap_locations_modified);
+
+p parse_using_profile($sitemap_data, $sitemap_data_profile);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above downloads the PerlTricks.com sitemap using &lt;a href=&#34;https://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt; and extracts every URL and last modified timestamp from the sitemap. Running the code, we get this output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ {
+    sitemap_locations_modified   [
+        [0]  {
+            lastmod   &amp;quot;2014-05-09&amp;quot;,
+            loc       &amp;quot;http://perltricks.com/&amp;quot;
+        },
+        [1]  {
+            lastmod   &amp;quot;2013-03-24&amp;quot;,
+            loc       &amp;quot;http://perltricks.com/article/1/2013/3/24/3-quick-ways-to-find-out-the-version-number-of-an-installed-Perl-module-from-the-terminal&amp;quot;
+        },
+        [2]  {
+            lastmod   &amp;quot;2013-03-27&amp;quot;,
+            loc       &amp;quot;http://perltricks.com/article/3/2013/3/27/How-to-cleanly-uninstall-a-Perl-module&amp;quot;
+        },
+        ...
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;No problem! We could re-use that same program to download and parse any sitemap on the Internet.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;XML::Dataset is fantastic for extracting fixed data schemas from XML. The plaintext data profiles are so easy to use, a non-programmer could write them. XML::Dataset is also fast: under the hood it uses XML::LibXML (and a few optimizations) and could be adapted for well-formatted HTML. It has great &lt;a href=&#34;https://metacpan.org/pod/XML::Dataset&#34;&gt;documentation&lt;/a&gt; and offers some advanced features like partial dataset parse dispatching. Module author James Spurin deserves credit for producing a quality module and a welcome addition to CPAN&amp;rsquo;s XML namespace.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Do you have a much-loved CPAN module that you&amp;rsquo;d like us to cover? Drop us an &lt;a href=&#34;mailto:perltricks.com@gmail.com&#34;&gt;email&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;https://creativecommons.org/licenses/by/2.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/dullhunk/3948166814/in/photolist-71TorC-5RcLVC-5RcLk1-5R8vpe-5RcMC9-5R8w7D-5R8v7e-5RcM9Q-5RcLeL-5R8upk-5RcMso-5RcL7J-72QCEU-7KoKym-72QCsE-6FtTJ-6m6pyB-5AJCpY-6FvjN-6FuLy-6FtQL-6Fv4J-5BHeXd-6FuUe-6FtXH-6Fu9t-6FuAs-5AJCs3-5AJCsd-5AJCro-tS2dS-6kzkkD-6kDvjQ-6kDAtY-6kDvzS-6kD45L-6kzqYM-6kDvsE-6kDuys-6kDvcE-6m6prT-6kDupU-6kDuWw-6kDv6j-6kzkd2-6kDALo-5AJCsA-CJhVy-5AJCrN-5MzAkw&#34;&gt;Duncun Hull&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

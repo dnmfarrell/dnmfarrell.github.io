@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Documentation on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/documentation/</link>
+    <description>Recent content in Documentation on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 26 Feb 2015 13:42:57 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/documentation/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Hello perldoc, productivity booster</title>
+      <link>http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/</link>
+      <pubDate>Thu, 26 Feb 2015 13:42:57 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/</guid>
+      <description>
+
+&lt;p&gt;Imagine this scenario: you&amp;rsquo;re using the DateTime module but you can&amp;rsquo;t remember the exact name of a function it provides. What do you do? You could open your browser, go to &lt;a href=&#34;https://metacpan.org/&#34;&gt;MetaCPAN&lt;/a&gt;, search for DateTime and look up the answer in the module&amp;rsquo;s documentation. A faster way would be to switch to the command line, and type &lt;code&gt;perldoc DateTime&lt;/code&gt; to display the module&amp;rsquo;s documentation right there in the terminal.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;perldoc&lt;/code&gt; is a command line program for reading Perl documentation. It comes with Perl, so if you&amp;rsquo;ve got Perl installed, perldoc should be available too. Using perldoc is easy: as you&amp;rsquo;ve already seen, to view the documentation of a module you&amp;rsquo;ve installed, at the command line type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc Module::Name
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;perldoc will search for the module and if it finds it, display the module&amp;rsquo;s documentation (written in Pod). Using perldoc you can learn more about any aspect of Perl almost instantly. Want to know more about Pod? Try &lt;code&gt;perldoc pod&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;dial-f-for-functions:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Dial -f for functions&lt;/h3&gt;
+
+&lt;p&gt;Perl has a huge number of built-in functions, about 224 depending on the Perl version. Who can remember exactly how they all work? I know I can&amp;rsquo;t. To lookup a Perl function, use perldoc with the &lt;code&gt;-f&lt;/code&gt; switch. For instance to look up the documentation on the &lt;code&gt;rindex&lt;/code&gt; function:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -f rindex
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Which will display:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rindex STR,SUBSTR,POSITION
+rindex STR,SUBSTR
+      Works just like index() except that it returns the position of the
+      last occurrence of SUBSTR in STR. If POSITION is specified,
+      returns the last occurrence beginning at or before that position.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Aha! This is all well and good, but what do you do if you can&amp;rsquo;t remember the function name? Well you could use &lt;a href=&#34;https://metacpan.org/pod/B::Keywords&#34;&gt;B::Keywords&lt;/a&gt;, but another way would be to check out &lt;code&gt;perlfunc&lt;/code&gt; the Perl documentation on built-in functions. To read it, with perldoc just type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc perlfunc
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;predefined-variables:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Predefined Variables&lt;/h3&gt;
+
+&lt;p&gt;As with functions, Perl has a large number of predefined variables that do everything from storing the program name to tracking the state of the regex engine. They&amp;rsquo;re really useful, but often have obscure names like &lt;code&gt;$^O&lt;/code&gt; (the OS name). So if you find yourself needing to check whether you&amp;rsquo;re looking at a list separator (&lt;code&gt;$&amp;quot;&lt;/code&gt;) or an output separator (&lt;code&gt;$/&lt;/code&gt;), just use perldoc with the &lt;code&gt;-v&lt;/code&gt; switch:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -v $/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Because some predefined variables have weird names, you may need to quote them on the command line for perldoc to work:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -v &#39;$&amp;quot;&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The predefined variables documentation is known as &lt;code&gt;perlvar&lt;/code&gt;. It&amp;rsquo;s well worth a read through at least once (&lt;code&gt;perldoc perlvar&lt;/code&gt;).&lt;/p&gt;
+
+&lt;h3 id=&#34;searching-the-documentation:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Searching the documentation&lt;/h3&gt;
+
+&lt;p&gt;Perl has a lot of great documentation, but it can be hard to remember the names of all of the entries. If you ever want to browse the table of contents, use &lt;code&gt;perl&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc perl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Many people recommend perltoc for this, but for finding relevant entries, I think the perl entry is easier to browse than perltoc.&lt;/p&gt;
+
+&lt;p&gt;Perl also has an extensive FAQ, (another entry that&amp;rsquo;s worth a read through). It has loads of answers to common queries. As usual you can read it with &lt;code&gt;perldoc faq&lt;/code&gt;, but you can also search it using the &lt;code&gt;-q&lt;/code&gt; switch. Want to know if there are any good IDEs for Perl? (a common newbie question):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -q ide
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;Is there an IDE or Windows Perl Editor?
+ Perl programs are just plain text, so any editor will do.
+
+ If you&#39;re on Unix, you already have an IDE--Unix itself. The Unix
+ philosophy is the philosophy of several small tools that each do one thing
+ and do it well. It&#39;s like a carpenter&#39;s toolbox.
+
+ If you want an IDE, check the following (in alphabetical order, not order
+ of preference):
+
+ Eclipse
+
+
+     The Eclipse Perl Integration Project integrates Perl editing/debugging
+     with Eclipse.
+
+ Komodo
+
+
+     ActiveState&#39;s cross-platform (as of October 2004, that&#39;s Windows,
+     Linux, and Solaris), multi-language IDE has Perl support, including a
+     regular expression debugger and remote debugging.
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;finding-module-install-locations:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Finding module install locations&lt;/h3&gt;
+
+&lt;p&gt;perldoc isn&amp;rsquo;t just about documentation. If you need to find out where a module is installed, using the &lt;code&gt;-l&lt;/code&gt; switch, perldoc will return the filepath of the module:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -l Test::More
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you get the path, you can open it in an editor directly:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ vi $(perldoc -l Test::More)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;One trick here: some modules don&amp;rsquo;t have any POD in them, for those modules, use &lt;code&gt;-lm&lt;/code&gt; to still return the path.&lt;/p&gt;
+
+&lt;h3 id=&#34;read-module-source-code-in-perldoc:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Read module source code in perldoc&lt;/h3&gt;
+
+&lt;p&gt;Finally, perldoc can also display module source code. Just use the &lt;code&gt;-m&lt;/code&gt; switch:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -m Test::More
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;wrap-up:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Wrap up&lt;/h3&gt;
+
+&lt;p&gt;This article has covered the most common features, but perldoc has a bunch of other capabilities that you can read about at the command line with &lt;code&gt;man perldoc&lt;/code&gt;. The Perl documentation is also &lt;a href=&#34;http://perldoc.perl.org/&#34;&gt;online&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Keep in mind that as you get more proficient with perldoc, you&amp;rsquo;ll need the online resources less and less. Get in the habit of switching to the command line, looking up something in perldoc and flipping right back to programming - it&amp;rsquo;s a productivity win.&lt;/p&gt;
+
+&lt;h3 id=&#34;perldoc-cheatsheet:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;perldoc cheatsheet&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;perldoc [option]
+
+Module Options                               
+--------------                               
+         Module documentation     
+-l       Module filepath          
+-lm      Module filepath (alt.)   
+-m       Module source
+
+
+Search Options
+--------------
+-f     Get a built-in function definition
+-v     Get a variable definition
+-q      Search the faq for a keyword
+
+
+Commonly Used Entries
+---------------------
+perl         Language overview, list of all other entries
+perltoc      Table of contents
+perlfunc     Built-in functions documentation
+perlvar      Predefined variables documentation
+perlref      References documentation
+perlre       Regex documentation
+faq          The Perl FAQ
+
+Help
+----
+man perldoc     List of all perldoc options
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Perl distributions, modules, packages explained</title>
+      <link>http://perltricks.com/article/96/2014/6/13/Perl-distributions--modules--packages-explained/</link>
+      <pubDate>Fri, 13 Jun 2014 12:26:00 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/96/2014/6/13/Perl-distributions--modules--packages-explained/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;It can be confusing for new Perl programmers to understand the terminology used to describe Perl distributions and their accompanying files. This article explains the core concepts.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;package-module-distribution:17113ac399bf5596ee1d46e47a6ce58b&#34;&gt;Package, Module, Distribution&lt;/h3&gt;
+
+&lt;p&gt;A Perl package is just a section of code defined in a .pm file, like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Data::Connector;
+
+sub connect {
+    # do something
+    ...
+}
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The start of the package begins with the &amp;ldquo;package&amp;rdquo; declaration. A package is a lot like a class, except that it can denote a collection of subroutines and variables, and not necessarily be instantiated as an object. Usually a .pm file will have one package declaration per file, but you can have multiple packages in a .pm file, similar to Java and C# where you can have multiple classes in a single file.&lt;/p&gt;
+
+&lt;p&gt;A module is a .pm file (&amp;ldquo;pm&amp;rdquo; means Perl Module). When you import a module with &amp;ldquo;require&amp;rdquo; or &amp;ldquo;use&amp;rdquo;, you are literally referencing the file name and not the package(s) contained in the file. For example to import the &amp;ldquo;Data::Connector&amp;rdquo; package defined above, we could save it in a file called &amp;ldquo;Whatever.pm&amp;rdquo; and later reference it in a script like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Whatever;
+
+# call connect subroutine declared in Data::Connector package
+Data::Connector::connect();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All .pm files must end with a &amp;ldquo;true&amp;rdquo; value per Perl&amp;rsquo;s requirements, so most authors either place &amp;ldquo;1;&amp;rdquo; or &amp;ldquo;__PACKAGE__;&amp;rdquo; as the last line of the .pm file. In Perl a true value is any value that is not: null, zero or a zero-length string.&lt;/p&gt;
+
+&lt;p&gt;A distribution is a collection of files that usually includes a Perl module and several other files. There is no strict standard as to which files must be included in a distribution, however for the distribution to be indexed on CPAN and install-able by the CPAN command line client, the distribution needs to include some core files. Distributions have versions - so a Perl module on CPAN will have one distribution for every version of the module. These are the main files and directories you&amp;rsquo;ll encounter in distributions:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;README - a brief description of how to install the distribution, sometimes includes a license and examples of how to use the module(s).&lt;/li&gt;
+&lt;li&gt;LICENSE - the license for the code - a non-commercial license like the GPL, artistic, BSD etc are common.&lt;/li&gt;
+&lt;li&gt;META.yml/ META.json - files that contain the metadata describing the distribution: the author, license, version, pre-requisite modules for use etc. They are auto-generated as part of the distribution build process and can be ignored.&lt;/li&gt;
+&lt;li&gt;Makefile.PL and or Build.PL - these are Perl files that are used to install the module(s) in the distribution. Worth looking at when you&amp;rsquo;re having installation issues.&lt;/li&gt;
+&lt;li&gt;MANIFEST - a list of the files included in the distribution.&lt;/li&gt;
+&lt;li&gt;lib - a directory containing Perl modules - usually the core code of the distribution.&lt;/li&gt;
+&lt;li&gt;t - the test files directory. These are run when the module is installed. If you have failing tests on installation, it can be helpful to review the test files in the t/ directory to find out the specifics of the test.&lt;/li&gt;
+&lt;li&gt;bin - if the distribution contains an app, (Perl script) it will be in here. Often the app uses modules contained in the lib directory.&lt;/li&gt;
+&lt;li&gt;Changes - a list of changes from distribution version to version.&lt;/li&gt;
+&lt;li&gt;xt - the extended test files directory, usually used for author tests that you don&amp;rsquo;t need to run.&lt;/li&gt;
+&lt;li&gt;eg - a directory of example Perl scripts, using the module(s) contained in the distribution.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;These are the typical directories and files found in a Perl distribution but as there is no fixed standard, distribution authors are free to include and exclude the files they wish. For a good example, check out the files provided by David Golden in a distribution of the the popular &lt;a href=&#34;https://metacpan.org/source/DAGOLDEN/HTTP-Tiny-0.043&#34;&gt;HTTP::Tiny&lt;/a&gt; module.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:17113ac399bf5596ee1d46e47a6ce58b&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Once you get to grips with Perl packages, modules and distributions it&amp;rsquo;s far easier to start hacking on Perl modules that don&amp;rsquo;t work the way you want them to. For example, in the case of a module that won&amp;rsquo;t install, you can download the distribution from CPAN (at the command line &amp;ldquo;cpan -g Module::Name&amp;rdquo;), untar it, and patch the failing tests, or examine the source code in the lib directory and resolve a bug or two. Before long you&amp;rsquo;ll be releasing your own distributions to CPAN!&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F96%2F2014%2F6%2F13%2FPerl-distributions-modules-packages-explained&amp;amp;text=Perl+distributions%2C+modules%2C+packages+explained&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F96%2F2014%2F6%2F13%2FPerl-distributions-modules-packages-explained&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Installing Perl modules with C library dependencies</title>
+      <link>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</link>
+      <pubDate>Mon, 15 Apr 2013 18:37:26 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</guid>
+      <description>
+
+&lt;p&gt;Some Perl modules have specific C library dependencies that need to be met or else they won&amp;rsquo;t install. These issues can be tricky to solve as CPAN is not able to automatically install or report on non-Perl dependencies and Google isn&amp;rsquo;t good at returning useful results for these types of issues (&lt;a href=&#34;https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod&#34;&gt;Net::SSLeay&lt;/a&gt; is a common example of a tricky module to install). Usually you will only find out about missing dependencies when trying to install the module, as the install will fail. What you need to do at this point is &lt;strong&gt;identify&lt;/strong&gt; and &lt;strong&gt;install&lt;/strong&gt; the missing C libraries.&lt;/p&gt;
+
+&lt;h3 id=&#34;identifying-c-library-dependencies:12040641a686db63029ae6c41a9f1d99&#34;&gt;Identifying C Library dependencies&lt;/h3&gt;
+
+&lt;p&gt;Here are some places to check for dependencies:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Install error message&lt;/strong&gt; - scan the command line output from the failed install: often Perl developers will write specific error messages that indicate the missing C library.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Module documentation&lt;/strong&gt; - check the main POD page for the module on &lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; it may indicate which C libraries are required.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Distribution files&lt;/strong&gt; - check the README and INSTALL files that come with the distribution for the module you are trying to install. If available they will be in the root directory of the tarball. You can browse these files online at &lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; by searching for the module, then clicking the &amp;lsquo;browse&amp;rsquo; link on the module&amp;rsquo;s main page.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Search your package manager&lt;/strong&gt; - look at the technologies and keywords associated with the module. For example &lt;a href=&#34;https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod&#34;&gt;Net::SSLeay&lt;/a&gt; probably has something to do with SSL, so search for Perl-related SSL packages (example below).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;installing-c-library-dependencies:12040641a686db63029ae6c41a9f1d99&#34;&gt;Installing C library dependencies&lt;/h3&gt;
+
+&lt;p&gt;Once you have identified the missing C libraries, you need to install them. If you are on Linux, this can be done using a package manager and searching for and installing the package containing the C library:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# yum package manager
+$ sudo yum search ssl
+...
+sudo yum install openssl-perl.x86_64 perl-Net-SSLeay.x86_64 perl-Crypt-SSLeay.x86_64
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you are not on Linux, try downloading the library directly from the C library&amp;rsquo;s homepage - these are easy to find via Google and usually have specific Windows / OSX distributions.&lt;/p&gt;
+
+&lt;p&gt;Once you have installed the requisite libraries, try installing the Perl module again with CPAN.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Check your module POD using perldoc</title>
+      <link>http://perltricks.com/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</link>
+      <pubDate>Mon, 01 Apr 2013 22:45:35 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</guid>
+      <description>&lt;p&gt;Perl ships with a command-line program called perldoc that makes it easier to search and read Perl&amp;rsquo;s vast documentation in the POD markup language. If perldoc is called with the -F flag, it will display the POD markup of an input file - this can be useful when your are developing a new Perl distribution and want to check the appearance of the POD in your module before it appears on CPAN for all to see.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# Pass a local file to perldoc
+
+perldoc -F ProxyManager.pm
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will then display the POD markup:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;ProxyManager(3)                                            
+
+NAME
+       Net::OpenVPN::ProxyManager - connect to proxy servers using OpenVPN.
+
+SYNOPSIS
+       use Net::OpenVPN::ProxyManager;
+       my $pm = Net::OpenVPN::ProxyManager-&amp;gt;new;
+
+       # Create a config object to capture proxy server details
+       my $config_object = $pm-&amp;gt;create_config({remote =&amp;gt; &#39;100.120.3.34 53&#39;, proto =&amp;gt; &#39;udp&#39;});
+
+       # Launch OpenVPN and connect to the proxy
+       $pm-&amp;gt;connect($config_object);
+       # do some stuff
+
+       # Disconnect from the proxy server
+       $pm-&amp;gt;disconnect();
+
+DESCRIPTION
+       Net::OpenVPN::ProxyManager is an object oriented module that provides methods to simplify the management of proxy connections that support OpenVPN.
+
+This is a base generic class, see Net::OpenVPN::ProxyManager::HMA for additional methods to interact with hidemyass.com proxy servers.
+
+METHODS
+   new
+       The constructor accepts an anonymous hash for two optional parameters: config_path and warning_flag. config_path is the path that ProxyManager.pm will use to create the config file when the create_config method is called. By default config_path is set to &#39;/tmp/openvpn-config.conf&#39;.
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

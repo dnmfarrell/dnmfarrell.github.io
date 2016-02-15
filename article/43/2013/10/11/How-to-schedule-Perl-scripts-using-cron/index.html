@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>How to schedule Perl scripts using cron Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Cron is a job scheduling program available on UNIX-like platforms. Most system commands can be scheduled including the execution of Perl programs. Once a job is setup, cron will run it as scheduled even if the user is not logged in, which can be a great way to automate sysadmin tasks or repetitive jobs. This article describes how to run Perl scripts with cron."/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">How to schedule Perl scripts using cron</h1>
+            <p class="blog-post-meta">Oct 11, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>Cron is a job scheduling program available on UNIX-like platforms. Most system commands can be scheduled including the execution of Perl programs. Once a job is setup, cron will run it as scheduled even if the user is not logged in, which can be a great way to automate sysadmin tasks or repetitive jobs. This article describes how to run Perl scripts with cron.</p>
+
+<h3 id="perl-script-tips:033cbfb4558019e15a0feee3315d7625">Perl script tips</h3>
+
+<p>When preparing a script to be run by cron, there a few things to keep in mind. You may want to add a shebang line to the of the script for the Perl binary you want to execute. For example:</p>
+
+<pre><code class="language-prettyprint">#!/usr/local/bin/perl
+</code></pre>
+
+<p>If you plan to run the script on different platforms, you can omit the shebang line, as the location of the Perl binary may vary from platform to platform (more on this later).</p>
+
+<p>Also ensure that any paths used in the script are absolute paths (such as for opening filehandles, database connection strings and external program paths).</p>
+
+<h3 id="setup-a-crontab:033cbfb4558019e15a0feee3315d7625">Setup a crontab</h3>
+
+<p>To schedule a job with cron, the job needs to be added to the user&rsquo;s crontab. To do this open a terminal and type the following:</p>
+
+<pre><code class="language-prettyprint">crontab -e
+</code></pre>
+
+<p>This will open the crontab in a text editor. To add a job, a line must be added in the following format:</p>
+
+<pre><code class="language-prettyprint">* * * * * command to be executed
+| | | | |
+| | | | |
+| | | | +----- day of week  (0 - 6, Sunday=0)
+| | | +------- month        (1 - 12)
+| | +--------- day of month (1 - 31)
+| +----------- hour         (0 - 23)
++------------- min          (0 - 59)
+
+An asterisk (*) means all.
+</code></pre>
+
+<p>Here are some example crontab entries:</p>
+
+<pre><code class="language-prettyprint"># execute every minute
+* * * * * perl /path/to/Beacon.pl
+
+# execute every 5 minutes
+*/5 * * * * perl /path/to/Beacon.pl
+
+# execute every hour at 0 minutes past the hour
+0 * * * * perl /path/to/Beacon.pl
+
+# execute every 12 hours at half past the hour
+30 */12 * * * perl /path/to/Beacon.pl
+</code></pre>
+
+<p>If your script does not contain a shebang line, provide the absolute path to the Perl binary in the crontab. For example:</p>
+
+<pre><code class="language-prettyprint">30 */12 * * * /usr/local/bin/perl /path/to/Beacon.pl
+</code></pre>
+
+<p>Save the crontab and exit the text editor. To check the job has been scheduled, you can check your crontab with this command from the terminal:</p>
+
+<pre><code class="language-prettyprint">crontab -l
+</code></pre>
+
+<p>This will print your current crontab to the terminal.</p>
+
+<h3 id="troubleshooting-cron:033cbfb4558019e15a0feee3315d7625">Troubleshooting cron</h3>
+
+<p>Working with cron is usually straightforward, but if you are having difficulty getting the Perl script to run, check the following:</p>
+
+<ul>
+<li>Check the cron log to be sure that cron is running the job as you expect. It is usually found here: /var/log/cron</li>
+<li>Check that you are providing the correct absolute path to the Perl binary. Either in the shebang line inside the script or in crontab (if you are not sure what this is type &ldquo;which perl&rdquo; at the terminal).</li>
+<li>Make sure the script permissions allow execution (e.g. &ldquo;chmod +x /path/to/file&rdquo;)</li>
+<li>If you are running additional programs within the Perl script, consider adding their binary paths to the crontab as cron does not have the same PATH as the user.</li>
+<li>If you need to run a script as root, just create a crontab for root using sudo: &ldquo;sudo crontab -e&rdquo;</li>
+</ul>
+
+<p>A good list of general cron tips can be found <a href="http://askubuntu.com/questions/23009/reasons-why-crontab-does-not-work">here</a>.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/configuration">configuration</a></div>
+              
+                <div class="tag"><a href="/tags/linux">linux</a></div>
+              
+                <div class="tag"><a href="/tags/unix">unix</a></div>
+              
+                <div class="tag"><a href="/tags/sysadmin">sysadmin</a></div>
+              
+                <div class="tag"><a href="/tags/mac">mac</a></div>
+              
+                <div class="tag"><a href="/tags/config">config</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

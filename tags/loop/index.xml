@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Loop on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/loop/</link>
+    <description>Recent content in Loop on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 16 Jun 2013 21:32:18 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/loop/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Perl hash basics: create, update, loop, delete and sort</title>
+      <link>http://perltricks.com/article/27/2013/6/16/Perl-hash-basics--create--update--loop--delete-and-sort/</link>
+      <pubDate>Sun, 16 Jun 2013 21:32:18 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/27/2013/6/16/Perl-hash-basics--create--update--loop--delete-and-sort/</guid>
+      <description>
+
+&lt;p&gt;Hashes are one of Perl&amp;rsquo;s core data types. This article describes the main functions and syntax rules for for working with hashes in Perl.&lt;/p&gt;
+
+&lt;h3 id=&#34;declaration-and-initialization:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Declaration and initialization&lt;/h3&gt;
+
+&lt;p&gt;A hash is an unsorted collection of key value pairs. Within a hash a key is a unique string that references a particular value. A hash can be modified once initialized. Because a hash is unsorted, if it&amp;rsquo;s contents are required in a particular order then they must be sorted on output. Perl uses the &amp;lsquo;%&amp;rsquo; symbol as the variable sigil for hashes. This command will &lt;strong&gt;declare an empty hash&lt;/strong&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %hash;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Similar to the syntax for arrays, hashes can also be declared using a list of comma separated values:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %weekly_temperature = (&#39;monday&#39;, 65, &#39;tuesday&#39;, 68, &#39;wednesday&#39;, 71, &#39;thursday&#39;, 53, &#39;friday&#39;, 60);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the code above, Perl takes the first entry in the list as a key (&amp;lsquo;monday&amp;rsquo;), and the second entry as that key&amp;rsquo;s value (65). The third entry in the list (&amp;lsquo;tuesday&amp;rsquo;) would then be declared as a key, and the fourth entry (68) as its value and so on.&lt;/p&gt;
+
+&lt;p&gt;The &lt;strong&gt;&amp;lsquo;fat comma&amp;rsquo;&lt;/strong&gt; operator looks like an arrow (&amp;lsquo;=&amp;gt;&amp;rsquo;) and allows the declaration of key value pairs instead of using a comma. This makes for cleaner and more readable code. Additionally there is no need to quote strings for keys when using the fat comma. Using the fat comma, the same declaration of %weekly_temperature would look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %weekly_temperature = (
+    monday    =&amp;gt; 65, 
+    tuesday   =&amp;gt; 68,
+    wednesday =&amp;gt; 71, 
+    thursday  =&amp;gt; 53, 
+    friday    =&amp;gt; 60,
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;access-a-value:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Access a value&lt;/h3&gt;
+
+&lt;p&gt;To access the value of a key value pair, Perl requires the key encased in curly brackets.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %weekly_temperature = (
+    monday    =&amp;gt; 65, 
+    tuesday   =&amp;gt; 68,
+    wednesday =&amp;gt; 71, 
+    thursday  =&amp;gt; 53, 
+    friday    =&amp;gt; 60,
+);
+my $monday_temp = $weekly_temperature{monday};
+#65
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that strings do not need to be quoted when placed between the curly brackets for hash keys and that the scalar sigil (&amp;lsquo;$&amp;rsquo;) is used when accessing a single scalar value instead of (&amp;lsquo;%&amp;rsquo;).&lt;/p&gt;
+
+&lt;h3 id=&#34;take-a-slice-of-a-hash:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Take a slice of a hash&lt;/h3&gt;
+
+&lt;p&gt;A slice is a list of values. In Perl a slice can be read into an array, assigned to individual scalars, or used as an input to a function or subroutine. Slices are useful when you only want to extract a handful of values from a hash. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %weekly_temperature = (
+    monday    =&amp;gt; 65,
+    tuesday   =&amp;gt; 68,
+    wednesday =&amp;gt; 71,
+    thursday  =&amp;gt; 53,
+    friday    =&amp;gt; 60,
+);
+
+my ($tuesday_temp, $friday_temp) = @weekly_temperature{(&#39;tuesday&#39;, &#39;friday&#39;)};
+
+print &amp;quot;$tuesday_temp\n&amp;quot;;
+#68
+
+print &amp;quot;$friday_temp\n&amp;quot;;
+#60
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above declares the &amp;lsquo;weekly_temperature&amp;rsquo; hash as usual. What&amp;rsquo;s unusual here is that to get the slice of values, the array sigil (&amp;lsquo;@&amp;rsquo;) is used by pre-pending it to the hash variable name. With this change the has will then lookup a list of values.&lt;/p&gt;
+
+&lt;h3 id=&#34;access-all-values-with-the-values-function:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Access all values with the values function&lt;/h3&gt;
+
+&lt;p&gt;The values function returns a list of the values contained in a hash. It&amp;rsquo;s possible to loop through the list of returned values and perform operations on them (e.g. print). For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %weekly_temperature = (
+    monday    =&amp;gt; 65, 
+    tuesday   =&amp;gt; 68,
+    wednesday =&amp;gt; 71, 
+    thursday  =&amp;gt; 53, 
+    friday    =&amp;gt; 60,
+);
+foreach my $value (values %weekly_temperature){
+    print $value . &amp;quot;\n&amp;quot;;
+}
+#71 
+#53 
+#60
+#65 
+#68
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A couple more tips when working with key value pairs of a hash: the code is more readable if you vertically align the fat comma (&amp;lsquo;=&amp;gt;&amp;rsquo;) operators and unlike C, Perl allows the last element to have a trailing comma, which makes it easier to add elements later without generating a compile error.&lt;/p&gt;
+
+&lt;h3 id=&#34;access-all-keys-with-the-keys-function:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Access all keys with the keys function&lt;/h3&gt;
+
+&lt;p&gt;The keys function returns a list of the keys contained in a hash. A common way to access all the key value pairs of a hash is to use loop through the list returned by the keys function. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %consultant_salaries = (
+    associate        =&amp;gt; 25000,
+    senior_associate =&amp;gt; 40000,
+    manager          =&amp;gt; 80000,
+    director         =&amp;gt; 120000,
+    partner          =&amp;gt; 250000,
+);
+foreach my $grade (keys %consultant_salaries) {
+    print &amp;quot;$grade: $consultant_salaries{$grade}\n&amp;quot;;
+}
+#associate: 25000
+#partner: 250000
+#director: 120000
+#manager: 80000
+#senior_associate: 40000
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the above code we used the keys function to return a list of keys, looped though the list with foreach, and then printed the key and the value of each pair. Note that the print order of the pairs is different from intialization - that&amp;rsquo;s because hashes store their pairs in a random internal order. Also we used an interpreted quoted string using speech marks (&amp;ldquo;). This allows us to mix variables with plain text and escape characters like newline (&amp;rsquo;\n&amp;rsquo;) for convenient printing.&lt;/p&gt;
+
+&lt;h3 id=&#34;access-all-key-value-pairs-with-the-each-function:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Access all key value pairs with the each function&lt;/h3&gt;
+
+&lt;p&gt;The each function returns all keys and values of a hash, one at a time:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %consultant_salaries = (
+    associate        =&amp;gt; 25000,
+    senior_associate =&amp;gt; 40000,
+    manager          =&amp;gt; 80000,
+    director         =&amp;gt; 120000,
+    partner          =&amp;gt; 250000,
+);
+while (my ($key, $value) = each %consultant_salaries) {
+    print &amp;quot;$key: $value\n&amp;quot;;
+}
+#associate: 25000
+#partner: 250000
+#director: 120000
+#manager: 80000
+#senior_associate: 40000
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;add-a-new-key-value-pair:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Add a new key value pair&lt;/h3&gt;
+
+&lt;p&gt;To add a new pair to a hash, use this syntax:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# declare the hash as usual
+my %fruit_pairs = (apples =&amp;gt; &#39;oranges&#39;);
+
+# add a new key value pair
+$fruit_pairs{oranges} = &#39;lemons&#39;;
+
+# prove the new pair exists by printing the hash
+while (my ($key, $value) = each %fruit_pairs) {
+    print &amp;quot;$key: $value\n&amp;quot;;
+}
+#apples: oranges
+#oranges: lemons
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;delete-a-key-value-pair:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Delete a key value pair&lt;/h3&gt;
+
+&lt;p&gt;To remove a key value pair from a hash use the delete function. Delete requires the key of the pair in order to delete it from the hash:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %fruit_pairs = (apples =&amp;gt; &#39;oranges&#39;);
+
+# use the delete function with the pair&#39;s key
+delete $fruit_pairs{apples};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;update-a-value-of-a-pair:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Update a value of a pair&lt;/h3&gt;
+
+&lt;p&gt;To update the value of a pair, simply assign it a new value using the same syntax as to add a new key value pair. The difference here is that the key already exists in the hash:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %fruit_pairs = (apples =&amp;gt; &#39;oranges&#39;);
+# assign a new value to the pair
+$fruit_pairs{apples} = &#39;bananas&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;empty-a-hash:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Empty a hash&lt;/h3&gt;
+
+&lt;p&gt;To empty a hash, re-declare it with no members:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %fruit_pairs = (apples =&amp;gt; &#39;oranges&#39;);
+
+# empty the hash
+%fruit_pairs = ();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;increment-decrement-a-value:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;increment / decrement a value&lt;/h3&gt;
+
+&lt;p&gt;Quick answer: use the same syntax for assigning / updating a value with the increment or decrement operator:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %common_word_count = (
+    the =&amp;gt; 54,
+    and =&amp;gt; 98,
+    a   =&amp;gt; 29,
+);
+
+# increment the value of the pair with the key &#39;the&#39; by 1
+$common_word_count{the}++;
+
+# decrement the key value pair with the key &#39;a&#39;
+$common_word_count{a}--;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;sort-a-hash-alphabetically:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Sort a hash alphabetically&lt;/h3&gt;
+
+&lt;p&gt;Although the internal ordering of a hash is random, it is possible to sort the output from a hash into a more useful sequence. Perl provides the sort function to (obviously) sort lists of data. By default it sorts alphabetically:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %common_word_count = (
+    the =&amp;gt; 54,
+    and =&amp;gt; 98,
+    a   =&amp;gt; 29,
+);
+# use sort with keys to sort the keys of a hash
+foreach my $key (sort keys %common_word_count){
+   print &amp;quot;$key\n&amp;quot;;
+}
+#a
+#and
+#the
+
+# to sort values use keys to lookup the values and a compare block to compare them
+foreach my $key (sort {$common_word_count{$a} cmp $common_word_count{$b}} keys %common_word_count){
+       print &amp;quot;$key: $common_word_count{$key}\n&amp;quot;;
+}
+#a: 29
+#the: 54
+#and: 98
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s review the code above. The compare block receives the hash keys using the keys function. It then compares the values of each key using $a and $b as special variables to lookup and compare the values of the two keys. This sorted list of keys is then passed to the foreach command and looped through as usual. Note how the order is printed in value order - however it is still alphabetical ordering.&lt;/p&gt;
+
+&lt;h3 id=&#34;sort-a-hash-numerically:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Sort a hash numerically&lt;/h3&gt;
+
+&lt;p&gt;Numerically sorting a hash requires using a compare block as in the previous example, but substituting the &amp;lsquo;cmp&amp;rsquo; operator for the numerical comparison operator (&amp;rsquo;&amp;lt;=&amp;gt;&amp;rsquo;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %common_word_count = (
+            the =&amp;gt; 54,
+            and =&amp;gt; 98,
+            a   =&amp;gt; 29,
+);
+
+foreach my $key (sort {$common_word_count{$a} &amp;lt;=&amp;gt; $common_word_count{$b}} keys %common_word_count) {
+    print &amp;quot;$key: $common_word_count{$key}\n&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;get-the-hash-size:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Get the hash size&lt;/h3&gt;
+
+&lt;p&gt;To get the size of a hash, simply call the keys function in a scalar context. This can be done by assigning the return value of keys to a scalar variable:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %common_word_count = (
+            the =&amp;gt; 54,
+            and =&amp;gt; 98,
+            a   =&amp;gt; 29,
+);
+
+my $count =  keys %common_word_count;
+print &amp;quot;$count\n&amp;quot;;
+#3
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Perl for loops</title>
+      <link>http://perltricks.com/article/17/2013/4/12/Perl-for-loops/</link>
+      <pubDate>Fri, 12 Apr 2013 10:03:44 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/17/2013/4/12/Perl-for-loops/</guid>
+      <description>
+
+&lt;p&gt;Perl&amp;rsquo;s for loops are a powerful feature that, like the rest of Perl can be as concise, flexible and versatile required. This article covers the core features for Perl&amp;rsquo;s for loops.&lt;/p&gt;
+
+&lt;h3 id=&#34;c-style-for-loops:cec02722abe304de2cce1d85500b5003&#34;&gt;C-style for loops&lt;/h3&gt;
+
+&lt;p&gt;The C-style for loop follows programming tradition and requires three parameters (count; logical test; count modifier). It looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature qw/say/;
+# print numbers 0 to 9
+for (my $i = 0; $i &amp;lt; 10; $i++) {
+    say $i;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s review the code above. First of all we import the feature &amp;lsquo;say&amp;rsquo; which works like the print command except that it appends a newline to the printed string. Before the loop begins, Perl initialises the scalar variable $i as zero. Perl will then check the logical condition ($i &amp;lt; 10). If the condition is true, Perl will execute all the code between the braces { } once. Perl will also increment $i by 1 because the count modifier condition is set to $i++. Having finished one iteration, Perl will then check the logical condition again. After one iteration, $i is equal to 1, so Perl will loop through the code again. This will continue until $i is equal to 10 and the logical condition returns false, at which point Perl will then move on to process any code below the loop. The loop above used an increment modifier ($i++), however it can decrement as well:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature qw/say/;
+# print numbers 10 to 1
+for (my $i = 10; $i &amp;gt; 0; $i--) {
+    say $i;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In fact we can use any modifier we choose, for example to print only odd numbers, we can use Perl&amp;rsquo;s add-to operator $i += 2 which is a shortcut for ($i = $i + 2).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature qw/say/;
+# print only odd numbers 1 - 9
+for (my $i = 1; $i &amp;lt; 10; $i += 2) {
+    say $i;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The C-style for loop can be used to access elements of an array.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature qw/say/;
+my @weather_elements = (&#39;wind&#39;, &#39;rain&#39;, &#39;snow&#39;, &#39;cloud&#39;, &#39;sunshine&#39;);
+for (my $i = 0; $i &amp;lt; @weather_elements; $i++) {
+    say $weather_elements[$i];
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that the count is started at zero because Perl array indexes are zero-based, and the array is used as one-side of the logical condition ($i &amp;lt; @weather_elements) because in this context Perl will helpfully return the length of the array (5).&lt;/p&gt;
+
+&lt;h3 id=&#34;for-loops-with-arrays:cec02722abe304de2cce1d85500b5003&#34;&gt;for loops with arrays&lt;/h3&gt;
+
+&lt;p&gt;There are simpler ways than using the C-style for loop to iterate through every element of an array in Perl. If an array is passed to a for loop, it will iterate through every element of the array until it reaches the end. For example this is the same loop as above, written using the array technique:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature qw/say/;
+my @weather_elements = (&#39;wind&#39;, &#39;rain&#39;, &#39;snow&#39;, &#39;cloud&#39;, &#39;sunshine&#39;);
+for my $weather_element (@weather_elements) {
+    say $weather_element;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the code above Perl iterates through the array, assigning the value of the current element to $weather_element. Once the loop finishes $weather_element goes out of scope and will be garbage collected.&lt;/p&gt;
+
+&lt;p&gt;We can simplify this code further. If no scalar variable is included in the argument, Perl will use $_ as the temporary variable:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature qw/say/;
+my @weather_elements = (&#39;wind&#39;, &#39;rain&#39;, &#39;snow&#39;, &#39;cloud&#39;, &#39;sunshine&#39;);
+for (@weather_elements) {
+    say $_;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Instead of using &amp;lsquo;for&amp;rsquo;, some Perl programmers use a &amp;lsquo;foreach&amp;rsquo; loop, although in Perl &amp;lsquo;for&amp;rsquo; and &amp;lsquo;foreach&amp;rsquo; are synonyms and can be used interchangeably. I like &amp;lsquo;foreach&amp;rsquo; because it clarifies the programmer&amp;rsquo;s intentions. For example this code will do the same thing as the previous code example above:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature qw/say/;
+my @weather_elements = (&#39;wind&#39;, &#39;rain&#39;, &#39;snow&#39;, &#39;cloud&#39;, &#39;sunshine&#39;);
+foreach (@weather_elements) {
+    say $_;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The for / foreach loop also accepts a list instead of an array:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature qw/say/;
+foreach (&#39;wind&#39;, &#39;rain&#39;, &#39;snow&#39;, &#39;cloud&#39;, &#39;sunshine&#39;) {
+    say $_;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;for-loops-with-ranges:cec02722abe304de2cce1d85500b5003&#34;&gt;for loops with ranges&lt;/h3&gt;
+
+&lt;p&gt;Sometimes you just need Perl to &amp;lsquo;do something n number of times&amp;rsquo;. A quick way to do this is using a range i..n. For example, if we wanted to print 6 random lottery numbers:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature qw/say/;
+for (1..6) {
+    say int(rand(58)) + 1;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;for-loop-functions-redo-next-and-last:cec02722abe304de2cce1d85500b5003&#34;&gt;for loop functions: redo, next and last&lt;/h3&gt;
+
+&lt;p&gt;Perl provides several functions which can be used to control the for loop iterations. &lt;strong&gt;redo&lt;/strong&gt; instructs Perl to re-run the current iteration. Let&amp;rsquo;s modify the lottery numbers example above to redo the loop if we generate an unlucky number 13.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;for (1..6) {
+    my $number = int(rand(58)) + 1;
+    redo if $number == 13;
+    say $number;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the example above, if a number 13 is generated, the redo function will restart the iteration and the code will never reach the say $number statement.&lt;/p&gt;
+
+&lt;p&gt;The &lt;strong&gt;next&lt;/strong&gt; function stops the current iteration and moves to the next iteration. This can be useful when we have additional processing that we want to be done only for certain elements. For example if we were surveying a group of people about their education, it only makes sense to ask what school the person attended, if they have a degree:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature qw/say/;
+for (1..5){
+        print &amp;quot;Please type your name and press enter: &amp;quot;;
+        my $name = &amp;lt;&amp;gt;;
+        say $name;
+        print &amp;quot;Do you have a bachelors degree? (y/n) &amp;quot;;
+        my $degree_flag = &amp;lt;&amp;gt;;
+        say $degree_flag;
+        chomp $degree_flag;
+        next if $degree_flag eq &#39;n&#39;;
+        print &amp;quot;Which school did you get the degree from?&amp;quot;;
+        my $school = &amp;lt;&amp;gt;;
+        say $school;
+        # continues ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;strong&gt;last&lt;/strong&gt; function allows the current iteration to finish and then exits loop entirely. This is often used when doing pattern matching as once a match has been found, there is no need to check other possibilities:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $variable_type = &#39;$scalar&#39;;
+my @perlvariable_regexes = (&#39;^\$&#39;, &#39;^@&#39;, &#39;^%&#39;);
+foreach (@perlvariable_regexes ){
+    if ($variable_type =~ m/$_/) {
+        say &amp;quot;match found with $_&amp;quot;;
+        last;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For further detail on Perl&amp;rsquo;s for loops, check out the &lt;a href=&#34;http://perldoc.perl.org/perlsyn.html#For-Loops&#34;&gt;official Perl documentation&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

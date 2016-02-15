@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Implementing the singleton pattern in Perl Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Learn when and how to use this classic &#34;gang of four&#34; code pattern"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Implementing the singleton pattern in Perl</h1>
+            <p class="blog-post-meta">Dec 11, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p><em>The Singleton is a well-known object oriented design pattern that allows only one object of a class to be created. It&rsquo;s often cited as the most popular design pattern from the original &ldquo;gang of four&rdquo; book. But when should you use it in Perl and how?</em></p>
+
+<h3 id="when-to-use-it:0167b5bd23ddde1acd6ae736ea130c72">When to use it</h3>
+
+<p>The Singleton is such a popular pattern it is sometimes called an anti-pattern as the legitimate cases to use it are relatively rare. Consider using the Singleton when one of the following needs arises:</p>
+
+<ul>
+<li>You have a single resource that needs to be reused across several different parts of a system. A logger is a good example of this (<a href="https://metacpan.org/pod/Log::Log4perl">Log::log4perl</a> implements the Singleton pattern).</li>
+<li>You need to ensure only one instance exists as the class cannot perform correctly if there is more than one instance of it (e.g. a file system, a game loop).</li>
+<li>You need a singleton as a component of another design pattern (Abstract Factory, Builder, Prototype)</li>
+</ul>
+
+<p>If you do not have one of the above needs, you may not need to use the Singleton pattern. Using Singletons encourages the coupling of code, which can make unit testing, sub-classing and debugging harder.</p>
+
+<h3 id="implementation-of-a-singleton-class:0167b5bd23ddde1acd6ae736ea130c72">Implementation of a Singleton Class</h3>
+
+<p>Instead of implementing a &ldquo;new&rdquo; constructor, the Singleton class implements an &ldquo;get_instance&rdquo; method which will return a new object if it doesn&rsquo;t already exist, else it returns the existing instance. The Singleton class is shown below:</p>
+
+<pre><code class="language-prettyprint">package Singleton;
+
+my $instance = undef;
+
+sub get_instance {
+    $instance = bless {}, shift unless $instance;
+    return $instance;
+}
+
+1;
+</code></pre>
+
+<p>To test the Singleton get_instance method we can run the following script:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use Singleton; 
+
+my $singleton_1 = Singleton-&gt;get_instance;
+$singleton_1-&gt;{favourite_animal} = 'llama'; # of course!
+
+my $singleton_2 = Singleton-&gt;get_instance;
+
+print $singleton_2-&gt;{favourite_animal} . &quot;\n&quot;;
+</code></pre>
+
+<p>This script constructs a new object using &ldquo;get_instance&rdquo; and assigns it to a variable called &ldquo;$singleton_1&rdquo;. It adds an attribute to the object (&ldquo;favourite_animal&rdquo;). The script then calls the &ldquo;get_instance&rdquo; method again and assigns the resulting object to a new variable called &ldquo;$singleton_2&rdquo;. Printing the &ldquo;favourite_animal&rdquo; key-value attribute of the object returns the same value that was set using &ldquo;$singleton_1&rdquo;, proving that we have one underlying instance and both variables (&ldquo;$singleton_1&rdquo; and &ldquo;$singleton_2&rdquo;) point to it.</p>
+
+<h3 id="further-reading:0167b5bd23ddde1acd6ae736ea130c72">Further reading</h3>
+
+<ul>
+<li>brian d foy&rsquo;s <a href="http://www.theperlreview.com/Articles/v0i1/singletons.pdf">Perl Review article</a> on the Singleton pattern is a more in-depth consideration of the Singleton pattern in Perl.</li>
+<li><a href="https://en.wikipedia.org/wiki/Singleton_pattern">Wikpedia&rsquo;s Singleton entry</a> has useful background and discussion on the pattern.</li>
+<li><a href="http://www.amazon.com/gp/product/B000SEIBB8/ref=as_li_qf_sp_asin_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=B000SEIBB8&amp;linkCode=as2&amp;tag=perltrickscom-20">Design Patterns: Elements of Reusable Object-Oriented Software</a> - The classic &ldquo;gang of four&rdquo; book that popularized the concept of Design Patterns, including the Singleton (affiliate link).</li>
+<li>The Perl Design Patterns site has a <a href="http://perldesignpatterns.com/?SingletonPattern">Singleton entry</a>, with alternative implementations.</li>
+</ul>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/object_oriented">object_oriented</a></div>
+              
+                <div class="tag"><a href="/tags/object">object</a></div>
+              
+                <div class="tag"><a href="/tags/pattern">pattern</a></div>
+              
+                <div class="tag"><a href="/tags/gof">gof</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

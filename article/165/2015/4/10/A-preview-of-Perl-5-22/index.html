@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>A preview of Perl 5.22 Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="New features, deprecations become fatal, and cleaner syntax"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">A preview of Perl 5.22</h1>
+            <p class="blog-post-meta">Apr 10, 2015 by <a href="/authors/brian-d-foy">brian d foy</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>Perl v5.22 is bringing myriad new features and ways of doing things, making its <em>perldelta</em> file much more interesting than most releases. While I normally wait until after the first stable release to go through these features over at <a href="http://www.effectiveperlprogramming.com">The Effective Perler</a>, here&rsquo;s a preview of some of the big news.</p>
+
+<h3 id="a-safer-argv:85ae9380e810afb42a55fa70c8155be3">A safer ARGV</h3>
+
+<p>The line input operator, <code>&lt;&gt;</code> looks at the <code>@ARGV</code> array for filenames to open and read through the <code>ARGV</code> filehandle. It has the same meta-character problem as the two-argument <code>open</code>. Special characters in the filename might do shell things. To get around this unintended feature (which I think might be useful if that&rsquo;s what you want), there&rsquo;s a new line-input operator, <code>&lt;&lt;&gt;&gt;</code>, that doesn&rsquo;t treat any character as special:</p>
+
+<pre><code class="language-prettyprint">while( &lt;&lt;&gt;&gt; ) {  # new, safe line input operator
+    ...;
+    }
+</code></pre>
+
+<h3 id="cgi-pm-and-module-build-disappear-from-core:85ae9380e810afb42a55fa70c8155be3">CGI.pm and Module::Build disappear from core</h3>
+
+<p>The Perl maintainers have been stripping modules from the Standard Library. Sometimes that&rsquo;s because no one uses (or should use) that module anymore, no one wants to maintain that module, or it&rsquo;s better to get it from CPAN where the maintainer can update it faster than the Perl release cycle. You can still find these modules on CPAN, though.</p>
+
+<p>The CGI.pm module, only one of Lincoln Stein&rsquo;s amazing contributions to the Perl community, is from another era. It was light years ahead of its Perl 4 predecessor, <em>cgi.pl</em>. It did everything, including HTML generation. This was the time before robust templating systems came around, and CGI.pm was good. But, they&rsquo;ve laid it to rest.</p>
+
+<p>Somehow, Module::Build fell out of favor. Before then, building and installing Perl modules depended on a non-perl tool, <em>make</em>. That&rsquo;s a portability problem. However, we already know they have Perl, so if there were a pure Perl tool that could do the same thing we could solve the portability problem. We could also do much more fancy things. It was the wave of the future. I didn&rsquo;t really buy into Module::Build although I had used it for a distributions, but I&rsquo;m still a bit sad to see it go. It had some technical limitations and was unmaintained for a bit, and now it&rsquo;s been cut loose. David Golden explains more about that in <a href="http://www.dagolden.com/index.php/2140/paying-respect-to-modulebuild/">Paying respect to Module::Build</a>.</p>
+
+<p>This highlights a long-standing and usually undiscovered problem with modules that depend on modules in the Standard Library. For years, most authors did not bother to declare those dependencies because Perl was there and its modules must be there too. When those modules move to a CPAN-only state, they end up with an undeclared dependencies. This also shows up in some linux distributions that violate the Perl license by removing some modules or putting them in a different package. Either way, always declare a dependency on everything you use despite its provenance.</p>
+
+<h3 id="hexadecimal-floating-point-values:85ae9380e810afb42a55fa70c8155be3">Hexadecimal floating point values</h3>
+
+<p>Have you always felt too constrained by ten digits, but were also stuck with non-integers? Now your problems are solved with hexadecimal floating point numbers.</p>
+
+<p>We already have the exponential notation with uses the <code>e</code> to note the exponent, as in <code>1.23e4</code>. But that <code>e</code> is a hexadecimal digit, so we can&rsquo;t use that to denote the exponent. Instead, we use <code>p</code> and an exponent that&rsquo;s a power of two:</p>
+
+<pre><code class="language-prettyprint">use v5.22;
+
+my $num = 0.deadbeefp2;
+</code></pre>
+
+<h3 id="variable-aliases:85ae9380e810afb42a55fa70c8155be3">Variable aliases</h3>
+
+<p>We can now assign to the reference version of a non-reference variable. This creates an alias for the referenced value.</p>
+
+<pre><code class="language-prettyprint">use v5.22;
+use feature qw(refaliasing);
+
+\%other_hash = \%hash;
+</code></pre>
+
+<p>I think we&rsquo;ll discover many interesting uses for this, and probably some dangerous ones, but the use case in the docs looks interesting. We can now assign to something other than a scalar for the <code>foreach</code> control variable:</p>
+
+<pre><code class="language-prettyprint">use v5.22;
+use feature qw(refaliasing);
+
+foreach \my %hash ( @array_of_hashes ) { # named hash control variable
+    foreach my $key ( keys %hash ) { # named hash now!
+        ...;
+        }
+    }
+</code></pre>
+
+<p>I don&rsquo;t think I&rsquo;ll use that particular pattern since I&rsquo;m comfortable with references, but if you really hate the dereferencing arrow, this might be for you. Note that v5.12 allows us to write <code>keys $hash_ref</code> without the dereferencing <code>%</code>. See my <a href="http://www.effectiveperlprogramming.com/">Effective Perl</a> items <a href="http://www.effectiveperlprogramming.com/2010/11/use-array-references-with-the-array-operators/">Use array references with the array operators</a>, but also <a href="http://www.effectiveperlprogramming.com/2012/03/dont-use-auto-dereferencing-with-each/">Don’t use auto-dereferencing with each or keys</a>.</p>
+
+<h3 id="repetition-in-list-assignment:85ae9380e810afb42a55fa70c8155be3">Repetition in list assignment</h3>
+
+<p>Perl can assign one list of scalars to another. In <a href="http://www.learning-perl.com">Learning Perl</a> we show assigning to <code>undef</code>. I could make dummy variables:</p>
+
+<pre><code class="language-prettyprint">my($name, $card_num, $addr, $home, $work, $count) = split /:/;
+</code></pre>
+
+<p>But if I don&rsquo;t need all of those variable, I can put placeholder <code>undef</code>s in the assignment list:</p>
+
+<pre><code class="language-prettyprint">my(undef, $card_num, undef, undef, undef, $count) = split /:/;
+</code></pre>
+
+<p>Those consecutive <code>undef</code>s can be a problem, as well as ugly. I don&rsquo;t have to count out separate <code>undef</code>s now:</p>
+
+<pre><code class="language-prettyprint">use v5.22;
+
+my(undef, $card_num, (undef)x3, $count) = split /:/;
+</code></pre>
+
+<h3 id="list-pipe-opens-on-win32:85ae9380e810afb42a55fa70c8155be3">List pipe opens on Win32</h3>
+
+<p>The three-argument <code>open</code> can take a pipe mode, which didn&rsquo;t previously work on Windows. Now it does, to the extent that the list form of <code>system</code> works on Win32:</p>
+
+<pre><code class="language-prettyprint">open my $fh, '-|', 'some external command' or die;
+</code></pre>
+
+<p>I always have to check my notes to remember that the <code>-</code> in the pipe mode goes on the side of the pipe that has the pipe. Those in the unix world know <code>-</code> as a special filename for standard input in many commands.</p>
+
+<h3 id="various-small-fixes:85ae9380e810afb42a55fa70c8155be3">Various small fixes</h3>
+
+<p>We also get many smaller fixes I think are worth a shout out. Many of these are clean ups to warts and special cases:</p>
+
+<ul>
+<li>The <code>/x</code> regex operator flag now ignores Unicode space characters instead of just ASCII whitespace. If you tried to do that with multiple <code>/x</code> on an operator, you can&rsquo;t do that anymore either (it didn&rsquo;t work before anyway but it wasn&rsquo;t an error).</li>
+<li>A literal <code>{</code> in a pattern should now be escaped. I mostly do that anyway.</li>
+<li>A bad <code>close</code> now sets <code>$!</code>. We don&rsquo;t have to fiddle with <code>$?</code> to find out what happened.</li>
+<li><code>defined(@array)</code> and <code>defined(%hash)</code> are now fatal. They&rsquo;ve been deprecated for a long time, and now they are gone. This does not apply to assignments, though, such as <code>defined(@array = ...)</code>.</li>
+<li>Using a named array or hash in a place where Perl expects a reference is now fatal.</li>
+<li>Omitting % and @ on hash and array names is no longer permitted. No more <code>my %hash = (...); my @keys = keys hash</code> where Perl treats the bareword <code>hash</code> as <code>%hash</code>. This is a Perl 4 feature that is no longer.</li>
+</ul>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/5">5</a></div>
+              
+                <div class="tag"><a href="/tags/22">22</a></div>
+              
+                <div class="tag"><a href="/tags/features">features</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Why I Started Geekuni Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Learn more about Geekuni, the online learning environment"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Why I Started Geekuni</h1>
+            <p class="blog-post-meta">Feb 18, 2015 by <a href="/authors/andrew-solomon">Andrew Solomon</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/150/B86DC024-B658-11E4-8BDD-633BD495B04B.png"/>
+            </div>
+              
+
+<p><a href="https://www.geekuni.com">Geekuni</a> is an online learning environment I created to help people learn Perl programming. Geekuni is different from many other online learning courses because the student&rsquo;s work is evaluated by a Tutor-bot, giving them instant feedback. The focus is on learning by doing rather than theory.</p>
+
+<h3 id="background:49a25d35ef5a8b2e35e61e8950a03392">Background</h3>
+
+<p>Before becoming a Perl developer, I was an academic. I spent most of my time researching the <a href="https://en.wikipedia.org/wiki/Travelling_salesman_problem">Travelling Salesman Problem</a> until one day I was assigned the job of teaching 350 first-year students the Unix command-line interface.</p>
+
+<p>There was nothing especially difficult about the class; I provided a course sheet explaining the common Unix commands like <code>ls</code> and <code>cat</code>. The class had an exam at the end of the semester. The problem was that the failure rate was staggering. My students were spending most of their time writing Java on Windows so for many, my exam was their only use of Unix.</p>
+
+<p>For the next semester I put together lots of student exercises to do and a little Perl script to automatically check the students&rsquo; work. Whenever a student attempted an exercise, they&rsquo;d run my script which would tell them whether they&rsquo;d got it right, and if not they could try again until they passed. To my surprise, the students completed all of the exercises within the first three weeks and I had to beef-up the course material to keep them engaged. By the end of semester they were writing sophisticated shell scripts, executing processes and using programs like Sed and Awk. The course pass rate was over 90%.</p>
+
+<p>After I left academia I worked as a Perl developer and started developing a more sophisticated Tutor-bot. My key insight was that students learn programming best by doing, and most of the evaluation and feedback process could be automated. Over time this project developed into Geekuni.</p>
+
+<h3 id="geekuni-s-technology-stack:49a25d35ef5a8b2e35e61e8950a03392">Geekuni&rsquo;s technology stack</h3>
+
+<p>The public <a href="https://geekuni.com">site</a> is a web application where users can view the course outlines and create an account. It&rsquo;s based on <a href="https://metacpan.org/pod/Starman">Starman</a> and <a href="https://metacpan.org/pod/Dancer2">Dancer2</a> . Templating is provided by the <a href="https://metacpan.org/pod/Template::Toolkit">Template::Toolkit</a> integrated with <a href="http://getbootstrap.com/">Bootstrap</a>. The application classes are written in <a href="https://metacpan.org/pod/Moo">Moo</a> and <a href="https://metacpan.org/pod/DBIx::Class">DBIx::Class</a> provides the DB interface.</p>
+
+<p>The course notes and exercises are hosted on <a href="https://moodle.org/">Moodle</a>, probably the most established open source Learning Management System used in universities across the world. With help from one of Moodle&rsquo;s core developers, Jamie Pratt, I put together plugins which help the student start an <a href="http://aws.amazon.com/">AWS</a> instance to get feedback from the Tutor-bot.</p>
+
+<p>Each student&rsquo;s AWS instance is called an &ldquo;eBox&rdquo;. I manage them using <a href="https://metacpan.org/pod/Net::Amazon::EC2">Net::Amazon::EC2</a>. The eBox integrates with the Moodle API to provide feedback on student submissions. It uses <a href="https://metacpan.org/pod/PPI">PPI</a> to parse the student&rsquo;s code, and then it traverses down a dependency <a href="https://metacpan.org/pod/distribution/Graph/lib/Graph.pod">Graph</a> to identify the essence of any problem the student needs to resolve.</p>
+
+<h3 id="looking-forwards:49a25d35ef5a8b2e35e61e8950a03392">Looking forwards</h3>
+
+<p>My former employer NET-A-PORTER has used the course material from Geekuni for their internal Perl training courses. I&rsquo;d love to help other organizations and individuals use Geekuni for their own training. Much of my current focus is on solving practical day-to-day issues - as an academic I used to study the Travelling Salesman Problem, and now I&rsquo;m working the on the &ldquo;Tutor-bot Scaling problem&rdquo;!</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/geekuni">geekuni</a></div>
+              
+                <div class="tag"><a href="/tags/moodle">moodle</a></div>
+              
+                <div class="tag"><a href="/tags/online_learning">online_learning</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

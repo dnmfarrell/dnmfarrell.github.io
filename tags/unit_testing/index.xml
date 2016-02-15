@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Unit_testing on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/unit_testing/</link>
+    <description>Recent content in Unit_testing on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 17 Jun 2015 13:09:04 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/unit_testing/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Separate data and behavior with table-driven testing</title>
+      <link>http://perltricks.com/article/178/2015/6/17/Separate-data-and-behavior-with-table-driven-testing/</link>
+      <pubDate>Wed, 17 Jun 2015 13:09:04 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/178/2015/6/17/Separate-data-and-behavior-with-table-driven-testing/</guid>
+      <description>&lt;p&gt;How can I easily run the same tests on different data without duplicating a lot of code? If I follow my usual pattern, I start off with a couple of tests where I write some code then cut-and-paste that a couple of times. I add a few more tests before I realize I have a mess. If I had the foresight to know that I would make a mess (again), I would have started with a table of data and a little bit of code that went through it.&lt;/p&gt;
+
+&lt;p&gt;Consider a silly and small example of testing &lt;code&gt;sprintf&lt;/code&gt;-like behavior of &lt;a href=&#34;https://metacpan.org/pod/String::Sprintf&#34;&gt;String::Sprintf&lt;/a&gt;. I can use this module to create my own format specifiers, such as one to commify a number. I stole this mostly from its documentation, although I threw in the &lt;a href=&#34;http://www.effectiveperlprogramming.com/2015/04/use-v5-20-subroutine-signatures/&#34;&gt;v5.20 signatures feature&lt;/a&gt; and the &lt;a href=&#34;http://www.effectiveperlprogramming.com/2010/09/use-the-r-substitution-flag-to-work-on-a-copy/&#34;&gt;v5.14 non-destructive substitution operator&lt;/a&gt; because I love those features:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.20;
+use feature qw(signatures);
+no warnings qw(experimental::signatures);
+
+use String::Sprintf;
+
+my $f = String::Sprintf-&amp;gt;formatter(
+  N =&amp;gt; sub {
+    my($width, $value, $values, $letter) = @_;
+    return commify(sprintf &amp;quot;%${width}f&amp;quot;, $value);
+  });
+
+say &amp;quot;Numbers are: &amp;quot; . 
+  $f-&amp;gt;sprintf(
+    &#39;%10.2N, %10.2N&#39;, 
+    12345678.901, 87654.321
+  );
+
+sub commify ( $n ) {
+  $n =~ s/(\.\d+)|(?&amp;lt;=\d)(?=(?:\d\d\d)+\b)/$1 || &#39;,&#39;/rge;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;Numbers are: 12,345,678.90,   87,654.32
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The mess I might make to test this starts with a single input and output with the &lt;a href=&#34;https://metacpan.org/pod/Test::More&#34;&gt;Test::More&lt;/a&gt; function &lt;code&gt;is&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.20;
+use feature qw(signatures);
+no warnings qw(experimental::signatures);
+
+use Test::More;
+    
+sub commify ( $n ) {
+  $n =~ s/(\.\d+)|(?&amp;lt;=\d)(?=(?:\d\d\d)+\b)/$1 || &#39;,&#39;/rge;
+}
+
+my $class = &#39;String::Sprintf&#39;;  
+use_ok( $class );
+    
+my $f = String::Sprintf-&amp;gt;formatter(
+  N =&amp;gt; sub {
+    my($width, $value, $values, $letter) = @_;
+    return commify(sprintf &amp;quot;%${width}f&amp;quot;, $value);
+  });
+    
+isa_ok(  $f, $class );
+can_ok( $f, &#39;sprintf&#39; );
+
+is(  $f-&amp;gt;sprintf( &#39;%.2N&#39;, &#39;1234.56&#39; ), &#39;1,234.56&#39; );
+
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I decide to test another value, and I think the easiest thing to do is to duplicate that line with &lt;code&gt;is&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;is(  $f-&amp;gt;sprintf( &#39;%.2N&#39;, &#39;1234.56&#39; ), &#39;1,234.56&#39; );
+is(  $f-&amp;gt;sprintf( &#39;%.2N&#39;, &#39;1234&#39; ),    &#39;1,234.00&#39; );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The particular thing to test isn&amp;rsquo;t the point of this article. It&amp;rsquo;s all the stuff around it that I want to highlight. Or, more correctly, I want to de-emphasize all this stuff around it. I had to duplicate the test although most of the structure is the same.&lt;/p&gt;
+
+&lt;p&gt;I can convert those tests to a structure to hold the data and another structure for the behavior:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @data = (
+    [ ( 1234.56, &#39;1,234.56&#39; ) ],
+    [ ( 1234,    &#39;1,234.00&#39; ) ],
+);
+
+foreach my $row ( @data ) {
+  is(  $f-&amp;gt;sprintf( &#39;%.2N&#39;, $row-&amp;gt;[0] ), $row-&amp;gt;[1] );
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can add many more rows to &lt;code&gt;@data&lt;/code&gt; but the meat of the code, that &lt;code&gt;foreach&lt;/code&gt; loop, doesn&amp;rsquo;t change.&lt;/p&gt;
+
+&lt;p&gt;I can improve this though. So far I only test that one &lt;code&gt;sprintf&lt;/code&gt; template. I can add that to &lt;code&gt;@data&lt;/code&gt; too, and use that to make a label for the test:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $ndot2_f = &#39;%.2N&#39;;
+
+my @data = (
+    [ $ndot2_f,( 1234.56, &#39;1,234.56&#39; ) ],
+    [ $ndot2_f, ( 1234,    &#39;1,234.00&#39; ) ],
+);
+
+foreach my $row ( @data ) {
+  is( $f-&amp;gt;sprintf( $row-&amp;gt;[0], $row-&amp;gt;[1] ), $row-&amp;gt;[2],
+       &amp;quot;$row-&amp;gt;[1] with format $row-&amp;gt;[0] returns $row-&amp;gt;[2]&amp;quot;
+   );
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can add another test with a different format. If I had kept going the way I started, this would look like a new test because the format changed. Now the format is just part of the input:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $ndot2_f = &#39;%.2N&#39;;
+
+my @data = (
+    [ $ndot2_f, ( 1234.56, &#39;1,234.56&#39; ) ],
+    [ $ndot2_f, ( 1234,    &#39;1,234.00&#39; ) ],
+    [ &#39;%.0N&#39;  , ( 1234.49, &#39;1,234&#39;    ) ],
+);
+
+foreach my $row ( @data ) {
+  is( $f-&amp;gt;sprintf( $row-&amp;gt;[0], $row-&amp;gt;[1] ), $row-&amp;gt;[2],
+       &amp;quot;$row-&amp;gt;[1] with format $row-&amp;gt;[0] returns $row-&amp;gt;[2]&amp;quot;
+  );
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As I go on things get more complicated. If a test fails, I want some extra information about which one failed. I&amp;rsquo;ll change up how I go through the table. In this case, I&amp;rsquo;ll use the &lt;a href=&#34;http://www.effectiveperlprogramming.com/2010/05/perl-5-12-lets-you-use-each-on-an-array/&#34;&gt;v5.12 feature&lt;/a&gt; that allows &lt;code&gt;each&lt;/code&gt; on an array so I get back the index and the value:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;while( my( $index, $row ) = each @data ) {
+  is( $f-&amp;gt;sprintf( $row-&amp;gt;[0], $row-&amp;gt;[1] ), $row-&amp;gt;[2],
+       &amp;quot;$index: $row-&amp;gt;[1] with format $row-&amp;gt;[0] returns $row-&amp;gt;[2]&amp;quot;
+  );
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;My code for the test behavior changed but I didn&amp;rsquo;t have to mess with the input data at all. The particular code in this case doesn&amp;rsquo;t matter. This table-driven testing separates the inputs and the tests; that&amp;rsquo;s what you should pay attention to.&lt;/p&gt;
+
+&lt;p&gt;It can get even better. So far, I&amp;rsquo;ve put all the input data in the test file itself, but now that it&amp;rsquo;s separate from the test code, I can grab the input from somewhere else. That might be a tab-separated values file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;%.2N   1234.56 1,234.56 
+%.2N    1234    1,234.00
+%.0N    1234.49 1,234
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I create &lt;code&gt;@data&lt;/code&gt; in the test file by reading and parsing the external file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $test_data_fh, &#39;&amp;lt;&#39;, $test_file_name or die ...;
+
+my @data;
+while( &amp;lt;$test_data_fh&amp;gt; ) {
+  chomp;
+  push @data, split /\t/;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now none of the data are in the test file. And, there&amp;rsquo;s nothing special about a simple text file. I could do a little bit more work to take the data from an Excel file (perhaps the most useful wizard skill in business) or even a database:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use DBI;
+    
+my $dbh = DBI-&amp;gt;connect( ... );
+my $sth = $dbh-&amp;gt;prepare( &#39;SELECT * FROM tests&#39; );
+    
+$sth-&amp;gt;execute();
+    
+while( my $row = $sth-&amp;gt;fetchrow_arrayref ) {
+  state $index = 0;
+
+  is( $f-&amp;gt;sprintf( $row-&amp;gt;[0], $row-&amp;gt;[1] ), $row-&amp;gt;[2],
+       $index++ . &amp;quot;: $row-&amp;gt;[1] with format $row-&amp;gt;[0] returns $row-&amp;gt;[2]&amp;quot;
+  );
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s the idea. I separate the data and the tests to give myself some flexibility. How I access the data and how I test depend on my particular problems.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

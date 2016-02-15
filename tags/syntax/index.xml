@@ -1,0 +1,1028 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Syntax on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/syntax/</link>
+    <description>Recent content in Syntax on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 28 Aug 2015 02:10:48 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/syntax/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Check your DuckDuckGo cheatsheets with Perl</title>
+      <link>http://perltricks.com/article/190/2015/8/28/Check-your-DuckDuckGo-cheatsheets-with-Perl/</link>
+      <pubDate>Fri, 28 Aug 2015 02:10:48 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/190/2015/8/28/Check-your-DuckDuckGo-cheatsheets-with-Perl/</guid>
+      <description>
+
+&lt;p&gt;With DuckDuckGo&amp;rsquo;s global &lt;a href=&#34;https://duck.co/blog&#34;&gt;Quack &amp;amp; Hack&lt;/a&gt; just around the corner, I&amp;rsquo;ve pulled together a &lt;a href=&#34;https://github.com/dnmfarrell/DDG-cheatsheet-check&#34;&gt;script&lt;/a&gt; for checking &lt;a href=&#34;http://perltricks.com/article/189/2015/8/22/Writing-DuckDuckGo-plugins-just-got-easier&#34;&gt;cheatsheets&lt;/a&gt;. The script checks the cheatsheet is valid JSON and has the required entries and values.&lt;/p&gt;
+
+&lt;h3 id=&#34;setup:ba1b9af695697190964a2575a16eb6fa&#34;&gt;Setup&lt;/h3&gt;
+
+&lt;p&gt;To run the script, download it from &lt;a href=&#34;https://github.com/dnmfarrell/DDG-cheatsheet-check/blob/master/cheatsheet_check&#34;&gt;Github&lt;/a&gt;. It requires the &lt;a href=&#34;https://metacpan.org/pod/JSON&#34;&gt;JSON&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt; Perl modules which you can install with &lt;code&gt;cpan&lt;/code&gt; at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan JSON HTTP::Tiny
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Be sure to give execute permissions to the script too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ chmod 744 cheatsheet_check
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;usage:ba1b9af695697190964a2575a16eb6fa&#34;&gt;Usage&lt;/h3&gt;
+
+&lt;p&gt;Once you have a cheatsheet in JSON that you want to check, just pass the filepath to &lt;code&gt;cheatsheet_check&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./cheatsheet_check /path/to/cheatsheet.json
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Example output for the &lt;code&gt;perldoc&lt;/code&gt; cheatsheet:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    # Subtest: file
+    ok 1 - file exists
+    ok 2 - filename is appropriate
+    ok 3 - file content can be read
+    ok 4 - content is valid JSON
+    1..4
+ok 1 - file
+    # Subtest: headers
+    ok 1 - has id
+    ok 2 - has name
+    ok 3 - has description
+    1..3
+ok 2 - headers
+    # Subtest: metadata
+    ok 1 - has metadata
+    ok 2 - has metadata sourceName
+    ok 3 - has metadata sourceUrl
+    ok 4 - sourceUrl is not undef
+    ok 5 - fetch sourceUrl
+    1..5
+ok 3 - metadata
+    # Subtest: sections
+    ok 1 - has section_order
+    ok 2 - section_order is an array of section names
+    ok 3 - has sections
+    ok 4 - sections is a hash of section key/pairs
+    ok 5 - &#39;Usage&#39; exists in sections
+    ok 6 - &#39;Module Options&#39; exists in sections
+    ok 7 - &#39;Search Options&#39; exists in sections
+    ok 8 - &#39;Common Options&#39; exists in sections
+    ok 9 - &#39;Search Options&#39; exists in section_order
+    ok 10 - &#39;Search Options&#39; is an array
+    ok 11 - &#39;Search Options&#39; entry: 0 has a key
+    ok 12 - &#39;Search Options&#39; entry: 0 has a val
+    ok 13 - &#39;Search Options&#39; entry: 1 has a key
+    ok 14 - &#39;Search Options&#39; entry: 1 has a val
+    ok 15 - &#39;Search Options&#39; entry: 2 has a key
+    ok 16 - &#39;Search Options&#39; entry: 2 has a val
+    ok 17 - &#39;Common Options&#39; exists in section_order
+    ok 18 - &#39;Common Options&#39; is an array
+    ok 19 - &#39;Common Options&#39; entry: 0 has a key
+    ok 20 - &#39;Common Options&#39; entry: 0 has a val
+    ok 21 - &#39;Common Options&#39; entry: 1 has a key
+    ok 22 - &#39;Common Options&#39; entry: 1 has a val
+    ok 23 - &#39;Common Options&#39; entry: 2 has a key
+    ok 24 - &#39;Common Options&#39; entry: 2 has a val
+    ok 25 - &#39;Common Options&#39; entry: 3 has a key
+    ok 26 - &#39;Common Options&#39; entry: 3 has a val
+    ok 27 - &#39;Common Options&#39; entry: 4 has a key
+    ok 28 - &#39;Common Options&#39; entry: 4 has a val
+    ok 29 - &#39;Module Options&#39; exists in section_order
+    ok 30 - &#39;Module Options&#39; is an array
+    ok 31 - &#39;Module Options&#39; entry: 0 has a key
+    ok 32 - &#39;Module Options&#39; entry: 0 has a val
+    ok 33 - &#39;Module Options&#39; entry: 1 has a key
+    ok 34 - &#39;Module Options&#39; entry: 1 has a val
+    ok 35 - &#39;Module Options&#39; entry: 2 has a key
+    ok 36 - &#39;Module Options&#39; entry: 2 has a val
+    ok 37 - &#39;Module Options&#39; entry: 3 has a key
+    ok 38 - &#39;Module Options&#39; entry: 3 has a val
+    ok 39 - &#39;Usage&#39; exists in section_order
+    ok 40 - &#39;Usage&#39; is an array
+    ok 41 - &#39;Usage&#39; entry: 0 has a key
+    ok 42 - &#39;Usage&#39; entry: 0 has a val
+    ok 43 - &#39;Usage&#39; entry: 1 has a key
+    ok 44 - &#39;Usage&#39; entry: 1 has a val
+    1..44
+ok 4 - sections
+1..4
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will run over 20 different tests against the cheatsheet. The script checks that the JSON is valid, that the required headers are present (e.g. id, name and description). It checks that the metadata is valid and points to a live URL. Finally it checks that the sections are valid and correctly mapped.&lt;/p&gt;
+
+&lt;h3 id=&#34;wrap-up:ba1b9af695697190964a2575a16eb6fa&#34;&gt;Wrap up&lt;/h3&gt;
+
+&lt;p&gt;Remember, even if the cheatsheet passes all the tests, you still need to check it looks right in the browser. &lt;a href=&#34;https://metacpan.org/pod/App::DuckPAN&#34;&gt;App::DuckPAN&lt;/a&gt; can help with that. This Saturday I&amp;rsquo;ll be hanging out at the NYC Quack &amp;amp; Hack at &lt;a href=&#34;http://www.meetup.com/Quack-Hack-New-York-City/events/224567174/&#34;&gt;Orbital&lt;/a&gt;. I look forward to seeing everyone there!&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update:&lt;/strong&gt; added HTTP::Tiny dependency. 2015-08-28&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Display beautiful Perl code in HTML without JavaScript</title>
+      <link>http://perltricks.com/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</link>
+      <pubDate>Mon, 13 Jan 2014 01:34:32 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Would you like to display beautiful syntax-highlighted Perl code on the web without using JavaScript? Maybe you&amp;rsquo;d like to use an existing &lt;a href=&#34;http://google-code-prettify.googlecode.com/svn/trunk/styles/index.html&#34;&gt;CSS markup theme&lt;/a&gt; without having to write in-line CSS in your Perl code? If yes, take a look at &lt;a href=&#34;https://metacpan.org/pod/PPI::Prettify&#34;&gt;PPI::Prettify&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;background:74c69b2f99de951b26ebaa1f686e5212&#34;&gt;Background&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://code.google.com/p/google-code-prettify/&#34;&gt;prettify.js&lt;/a&gt; library does a wonderful job of robustly syntax coloring a large number of different languages for displaying code on the web. It&amp;rsquo;s used on blogs.perl.org; we use it on PerlTricks.com. But because Perl is an ambiguous language, prettify.js often doesn&amp;rsquo;t tokenize all of the code correctly. What&amp;rsquo;s worse is if a user has JavaScript disabled, the code will not be highlighted at all. That&amp;rsquo;s why I wrote &lt;a href=&#34;https://metacpan.org/pod/PPI::Prettify&#34;&gt;PPI::Prettify&lt;/a&gt;. It runs in the backend using PPI::Document so it&amp;rsquo;s faster more accurate than prettify.js, but outputs the same HTML codes as prettify.js does, enabling you to re-use any of the existing CSS themes available (&lt;a href=&#34;http://google-code-prettify.googlecode.com/svn/trunk/styles/index.html&#34;&gt;here&lt;/a&gt;, &lt;a href=&#34;%0Ahttp://jmblog.github.io/color-themes-for-google-code-prettify/&#34;&gt;here&lt;/a&gt; and &lt;a href=&#34;%0Ahttp://stanleyhlng.com/prettify-js/#theme-bootstrap-light&#34;&gt;here&lt;/a&gt; for example).&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:74c69b2f99de951b26ebaa1f686e5212&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need PPI::Prettify and can install it via CPAN at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan PPI::Prettify
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In terms of OS compatibility, PPI::Prettify is pure-Perl so you should be able to run it on any platform that has Perl installed.&lt;/p&gt;
+
+&lt;h3 id=&#34;tokenizing-inline-perl-code:74c69b2f99de951b26ebaa1f686e5212&#34;&gt;Tokenizing inline Perl code&lt;/h3&gt;
+
+&lt;p&gt;PPI::Prettify exports a prettify() method that takes a string of Perl code, and returns it tokenized with &amp;lt;span&amp;gt; tags. To be safe, PPI::Prettify employs HTML encoding on all token content. Let&amp;rsquo;s whip up a quick script to demo prettify():&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use warnings;
+use strict;
+use PPI::Prettify;
+
+read(main::DATA, my $code, 500);
+
+print prettify({ code =&amp;gt; $code });
+
+__DATA__
+# a simple OO class
+
+package Shape;
+
+sub new {
+    my ($class, $args) = @_;
+    my $self = {
+        color  =&amp;gt; $args-&amp;gt;{color} || &#39;black&#39;,
+        length =&amp;gt; $args-&amp;gt;{length} || 1,
+        width  =&amp;gt; $args-&amp;gt;{width} || 1,
+    };
+    return bless $self, $class;
+}
+
+sub get_area {
+    my $self = shift;
+    return $self-&amp;gt;{length} * $self-&amp;gt;{width};
+}
+
+sub get_color {
+    my $self = shift;
+    return $self-&amp;gt;{color};
+}
+
+sub set_color {
+    my ($self, $color) = @_;
+    $self-&amp;gt;{color} = $color;
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The script uses the &lt;a href=&#34;http://perltricks.com/article/24/2013/5/11/Perl-tokens-you-should-know&#34;&gt;__DATA__&lt;/a&gt; token to create a filehandle to some inline Perl code (The code is a simple OO example taken from our article &lt;a href=&#34;http://perltricks.com/article/25/2013/5/20/Old-School-Object-Oriented-Perl&#34;&gt;Old School Object Oriented Perl&lt;/a&gt;). The read function slurps the filehandle contents into $code. We then use the prettify() function to tokenize and markup the Perl code.&lt;/p&gt;
+
+&lt;p&gt;Running that script returns the Perl code surrounded by &amp;lt;span&amp;gt; tags. This is a summary of the markup produced by prettify():&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;lt;pre class=&amp;quot;prettyprint&amp;quot;&amp;gt;&amp;lt;span class=&amp;quot;com&amp;quot;&amp;gt;# a simple OO class
+&amp;lt;/span&amp;gt;&amp;lt;span class=&amp;quot;pln&amp;quot;&amp;gt;
+&amp;lt;/span&amp;gt;&amp;lt;span class=&amp;quot;kwd&amp;quot;&amp;gt;package&amp;lt;/span&amp;gt;&amp;lt;span class=&amp;quot;pln&amp;quot;&amp;gt; &amp;lt;/span&amp;gt;&amp;lt;span class=&amp;quot;atn&amp;quot;&amp;gt;Shape&amp;lt;/span&amp;gt;&amp;lt;span class=&amp;quot;pln&amp;quot;&amp;gt;;&amp;lt;/span&amp;gt;
+...
+&amp;lt;/pre&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The example below shows how the markup looks in HTML (using the &lt;a href=&#34;http://code.google.com/p/google-code-prettify/source/browse/trunk/styles/desert.css?r=198&#34;&gt;desert&lt;/a&gt; CSS theme).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# a simple OO class
+
+package Shape;
+
+sub new {
+    my ($class, $args) = @_;
+    my $self = {
+        color  =&amp;gt; $args-&amp;gt;{color} || &#39;black&#39;,
+        length =&amp;gt; $args-&amp;gt;{length} || 1,
+        width  =&amp;gt; $args-&amp;gt;{width} || 1,
+    };
+    return bless $self, $class;
+}
+
+sub get_area {
+    my $self = shift;
+    return $self-&amp;gt;{length} * $self-&amp;gt;{width};
+}
+
+sub get_color {
+    my $self = shift;
+    return $self-&amp;gt;{color};
+}
+
+sub set_color {
+    my ($self, $color) = @_;
+    $self-&amp;gt;{color} = $color;
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Two things to note here: disabling JavaScript will have no effect on the syntax highlighting above, as it&amp;rsquo;s generated in backend using PPI::Prettify. Second, the code displays multiline comments correctly, (everything after &lt;a href=&#34;http://perltricks.com/article/24/2013/5/11/Perl-tokens-you-should-know&#34;&gt;__DATA__&lt;/a&gt;) unlike prettify.js.&lt;/p&gt;
+
+&lt;h3 id=&#34;tokenizing-perl-code-stored-in-a-file:74c69b2f99de951b26ebaa1f686e5212&#34;&gt;Tokenizing Perl code stored in a file&lt;/h3&gt;
+
+&lt;p&gt;It&amp;rsquo;s easy to prettify existing Perl code from a file. You can do this in one line of Perl at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -MPPI::Prettify -MFile::Slurp -e &#39;$code=read_file(&amp;quot;output&amp;quot;);print prettify({code=&amp;gt;$code})&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;advanced-feature-1-debug-mode:74c69b2f99de951b26ebaa1f686e5212&#34;&gt;Advanced feature 1: debug mode&lt;/h3&gt;
+
+&lt;p&gt;The prettify() method also takes an optional debug parameter:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $html = prettify({ code =&amp;gt; $code, debug =&amp;gt; 1 });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Debug mode will provide the same output, however every tag will be given a &amp;ldquo;title&amp;rdquo; attribute with the original PPI::Token class as the value. This can help you to understand how the original PPI::Token class maps to the markup by hovering the cursor over the text. The code from earlier has been printed with debug mode turned on. Try hovering!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# a simple OO class
+
+package Shape;
+
+sub new {
+    my ($class, $args) = @_;
+    my $self = {
+        color  =&amp;gt; $args-&amp;gt;{color} || &#39;black&#39;,
+        length =&amp;gt; $args-&amp;gt;{length} || 1,
+        width  =&amp;gt; $args-&amp;gt;{width} || 1,
+    };
+    return bless $self, $class;
+}
+
+sub get_area {
+    my $self = shift;
+    return $self-&amp;gt;{length} * $self-&amp;gt;{width};
+}
+
+sub get_color {
+    my $self = shift;
+    return $self-&amp;gt;{color};
+}
+
+sub set_color {
+    my ($self, $color) = @_;
+    $self-&amp;gt;{color} = $color;
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;advanced-feature-2-override-the-mapping:74c69b2f99de951b26ebaa1f686e5212&#34;&gt;Advanced feature 2: override the mapping&lt;/h3&gt;
+
+&lt;p&gt;You may want to change how certain tokens of Perl code are marked up. PPI::Prettify exports the mapping in a hashref, called $MARKUP_RULES. Every PPI::Token class is a key, with the value being the CSS class name that prettify.js uses (and the prettify CSS themes expect). For example PPI::Token::Comment is mapped to &amp;ldquo;com&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&#39;PPI::Token::Comment&#39; =&amp;gt; &#39;com&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Combined with debug mode, it should be straightforward to change the mapping of a particular PPI::Token class to the prettify class you require.&lt;/p&gt;
+
+&lt;h3 id=&#34;alternatives:74c69b2f99de951b26ebaa1f686e5212&#34;&gt;Alternatives&lt;/h3&gt;
+
+&lt;p&gt;Consider using Adam Kennedy&amp;rsquo;s &lt;a href=&#34;https://metacpan.org/pod/PPI::HTML&#34;&gt;PPI::HTML&lt;/a&gt; if you are happy writing inline-CSS in your Perl code, or need more detailed markup than the 10 or so classes provided by PPI::Prettify. It&amp;rsquo;s a more mature module and can do line numbering too.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Banish unsightly variable assignments with Method::Signatures</title>
+      <link>http://perltricks.com/article/39/2013/9/8/Banish-unsightly-variable-assignments-with-Method--Signatures/</link>
+      <pubDate>Sun, 08 Sep 2013 22:59:38 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/39/2013/9/8/Banish-unsightly-variable-assignments-with-Method--Signatures/</guid>
+      <description>
+
+&lt;p&gt;One drawback of Perl is that its subroutines and methods do not have signatures (ignoring &lt;a href=&#34;http://perldoc.perl.org/perlsub.html#Prototypes&#34;&gt;prototypes&lt;/a&gt;). This means that Perl developers have to write their own code for variable assignment and type checking which leads to repetitive and verbose code. This article shows how by using the &lt;a href=&#34;https://metacpan.org/module/Method::Signatures&#34;&gt;Method::Signatures&lt;/a&gt; module developers can banish this boilerplate forever.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-func-subroutine:d44a2fcf4a84b486b8683659b04d7a8c&#34;&gt;The func subroutine&lt;/h3&gt;
+
+&lt;p&gt;Method::Signatures exports a subroutine called &amp;ldquo;func&amp;rdquo; which can replace the &amp;ldquo;sub&amp;rdquo; built-in function. Let&amp;rsquo;s look at a typical Perl subroutine:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Carp qw/croak/;
+sub extract_domain {
+    my $url = @_;
+    croak &amp;quot;Error missing argument URL $!&amp;quot; unless $url;
+    # code continues ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We can refactor this subroutines using &amp;ldquo;func&amp;rdquo; which accepts a signature (list of variables):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Method::Signatures;
+func extract_domain ($url) {
+    # code continues ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Replacing &amp;ldquo;sub&amp;rdquo; with &amp;ldquo;func&amp;rdquo; means that it will declare $url, croak if $_[0] doesn&amp;rsquo;t exist, else assign it to $url. This removes the need to include the boilerplate assignment and check code which in the example reduce the code length by 33% (2 lines of code).&lt;/p&gt;
+
+&lt;h3 id=&#34;the-method-subroutine:d44a2fcf4a84b486b8683659b04d7a8c&#34;&gt;The method subroutine&lt;/h3&gt;
+
+&lt;p&gt;Method::Signatures also exports a subroutine called &amp;ldquo;method&amp;rdquo; that can replace &amp;ldquo;sub&amp;rdquo; in object-oriented code. In addition to accepting a signature argument like &amp;ldquo;func&amp;rdquo;, &amp;ldquo;method&amp;rdquo; automatically declares and assigns $self. Consider the difference between this code extract (taken from &lt;a href=&#34;https://metacpan.org/module/Nginx::Log::Entry&#34;&gt;Nginx::Log::Entry&lt;/a&gt;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Entry;
+use Time::Piece;
+use Nginx::ParseLog;
+use HTTP::BrowserDetect;
+
+sub new {
+    my ( $class, $log_line ) = @_;
+    die &amp;quot;Error: no log string was passed to new&amp;quot; unless $log_line;
+    my $self = Nginx::ParseLog::parse($log_line); 
+    $self-&amp;gt;{detector} = HTTP::BrowserDetect-&amp;gt;new( $self-&amp;gt;{user_agent} );
+    return bless $self, $class;
+}
+
+sub get_ip {
+    my $self = shift;
+    return $self-&amp;gt;{ip};
+}
+    
+sub get_timezone {
+    my $self = shift;
+    return substr( $self-&amp;gt;{time}, -5 );
+}   
+
+sub was_robot {
+    my $self = shift;
+    return $self-&amp;gt;{detector}-&amp;gt;robot;
+}
+
+sub get_status {
+    my $self = shift;
+    return $self-&amp;gt;{status};
+}
+
+sub get_request {
+    my $self = shift;
+    return $self-&amp;gt;{request};
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and a refactored version using &amp;ldquo;method&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Entry_New;
+use Time::Piece;
+use Nginx::ParseLog;
+use HTTP::BrowserDetect;
+use Method::Signatures;
+
+func new ($class, $log_line) {
+    my $self = Nginx::ParseLog::parse($log_line);
+    $self-&amp;gt;{detector} = HTTP::BrowserDetect-&amp;gt;new( $self-&amp;gt;{user_agent} );
+    return bless $self, $class;
+}   
+
+method get_ip {
+    return $self-&amp;gt;{ip};
+}   
+    
+method get_timezone {
+    return substr( $self-&amp;gt;{time}, -5 );
+}
+    
+method was_robot { 
+    return $self-&amp;gt;{detector}-&amp;gt;robot;
+}
+
+method get_status {
+    return $self-&amp;gt;{status};
+}
+
+method get_request {
+    return $self-&amp;gt;{request};
+}   
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By using &amp;ldquo;method&amp;rdquo; we were able to remove all the boilerplate declarations and checks from the code, reducing the code length by almost 20% and improving its readability.&lt;/p&gt;
+
+&lt;h3 id=&#34;benchmarking-method-signatures:d44a2fcf4a84b486b8683659b04d7a8c&#34;&gt;Benchmarking Method::Signatures&lt;/h3&gt;
+
+&lt;p&gt;Does using Method::Signatures come with a significant performance hit? We can test the performance impact by comparing the vanilla and refactored Entry classes from earlier in this article. We&amp;rsquo;ll use the &lt;a href=&#34;https://metacpan.org/module/Benchmark::Forking&#34;&gt;Benchmark::Forking&lt;/a&gt; module to improve the benchmark accuracy. This is the benchmark script:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Benchmark::Forking qw/cmpthese/;
+use Entry;
+use Entry_New;
+
+open (my $LOG, &#39;&amp;lt;&#39;, &#39;access.log&#39;);
+my @log = &amp;lt;$LOG&amp;gt;;
+
+cmpthese (100, {
+        Entry       =&amp;gt; sub { foreach (@log) {
+                                my $entry = Entry-&amp;gt;new($_);
+                                $entry-&amp;gt;get_ip;
+                                $entry-&amp;gt;get_timezone;
+                                $entry-&amp;gt;was_robot;
+                                $entry-&amp;gt;get_status;
+                                $entry-&amp;gt;get_request;
+                              }
+                       },
+        Entry_New   =&amp;gt; sub { foreach (@log) {
+                                my $entry = Entry_New-&amp;gt;new($_);
+                                $entry-&amp;gt;get_ip;
+                                $entry-&amp;gt;get_timezone;
+                                $entry-&amp;gt;was_robot;
+                                $entry-&amp;gt;get_status;
+                                $entry-&amp;gt;get_request;
+                             }
+                       },      
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This script reads an Nginx access log of 10000 entries into @log. For both Entry and Entry_New, it will test 100 times the performance of initializing an Entry object and calling the accessor methods of the object. It does this for every entry in @log. Running the benchmark script returned the following result:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;            s/iter   Entry_New   Entry
+Entry_New   1.65        --        -1%
+Entry       1.63        1%        --
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;These results suggest that using Method::Signatures comes with only a 1% performance hit, which seems like excellent value given the functionality it provides.&lt;/p&gt;
+
+&lt;h3 id=&#34;additional-features:d44a2fcf4a84b486b8683659b04d7a8c&#34;&gt;Additional features&lt;/h3&gt;
+
+&lt;p&gt;There is a lot more to Method::Signatures such as named and optional parameters, type checking, default values and aliases. Check out the excellent module &lt;a href=&#34;https://metacpan.org/module/Method::Signatures&#34;&gt;documentation&lt;/a&gt; for more details.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Use do to execute Perl code stored in files</title>
+      <link>http://perltricks.com/article/28/2013/6/5/Use-do-to-execute-Perl-code-stored-in-files/</link>
+      <pubDate>Wed, 05 Jun 2013 13:22:52 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/28/2013/6/5/Use-do-to-execute-Perl-code-stored-in-files/</guid>
+      <description>&lt;p&gt;Following our &lt;a href=&#34;http://perltricks.com/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval&#34;&gt;recent article&lt;/a&gt; on how to execute Perl code stored in a file using eval, Perl programmer mithaldu pointed out that the Perl built-in function do provides similar functionality.&lt;/p&gt;
+
+&lt;p&gt;This is a the text file &amp;lsquo;print.txt&amp;rsquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;print &amp;quot;it works! \n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here is the original solution using eval:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use File::Slurp;
+use strict;
+use warnings;
+
+my $command = read_file(&#39;print.txt&#39;);
+eval $command;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and here is the same code re-written using do:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+do &#39;print.txt&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Using do requires fewer lines of code then the eval solution and there is no need to open a filehandle or use a module to slurp the file (such as &lt;a href=&#34;https://metacpan.org/module/File::Slurp&#34;&gt;File::Slurp&lt;/a&gt;). The do function also updates @INC and %INC, so it can be used to load modules which are then used later in the program (eval does not do this).&lt;/p&gt;
+
+&lt;p&gt;One scenario where the eval approach would be needed instead of do would be if the text file contained non-Perl code that required parsing before the file is ready to be executed.&lt;/p&gt;
+
+&lt;p&gt;Using do does not replace the inherent risks associated with executing code stored in a separate file - this is a cool trick, not a recommended solution.&lt;/p&gt;
+
+&lt;p&gt;The official Perl documentation, Perldoc has more information on both &lt;a href=&#34;http://perldoc.perl.org/functions/do.html&#34;&gt;do&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/functions/eval.html&#34;&gt;eval&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Execute Perl code stored in a text file with eval</title>
+      <link>http://perltricks.com/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval/</link>
+      <pubDate>Tue, 28 May 2013 12:25:15 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval/</guid>
+      <description>
+
+&lt;p&gt;The Perl &lt;a href=&#34;http://perldoc.perl.org/functions/eval.html&#34;&gt;eval function&lt;/a&gt; will execute any Perl code contained in a string that is passed to it. This article shows how eval can be used to execute Perl code stored in text files.&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s imagine that we want to execute this Perl statement stored in &amp;lsquo;print.txt&amp;rsquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;print &amp;quot;it works! \n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We can write a simple Perl script called &amp;lsquo;eval.pl&amp;rsquo; that will slurp &amp;lsquo;print.txt&amp;rsquo; into a string, and then call eval on the string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use File::Slurp;
+use strict;
+use warnings;
+
+my $command = read_file(&#39;print.txt&#39;);
+eval $command;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we can run &amp;lsquo;eval.pl&amp;rsquo; to prove it works:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl eval.pl
+it works!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;injecting-code:bbcd8770a04941299600be476a082762&#34;&gt;Injecting code&lt;/h3&gt;
+
+&lt;p&gt;When eval is called on a string containing Perl code, the code is executed within a sub lexical scope in main - similar to as if it was written within a block. This makes it possible to declare variables in the main program, and execute them in code contained in text files with eval. Let&amp;rsquo;s update &amp;lsquo;print.txt&amp;rsquo; to print a variable:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;print $message;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And &amp;lsquo;eval.pl&amp;rsquo; to declare $message and set the text to be printed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use File::Slurp;
+use strict;
+use warnings;
+
+my $command = read_file(&#39;print.txt&#39;);
+my $message = &amp;quot;We injected this message\n&amp;quot;;
+
+eval $command;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now running the code we can see the injected message is printed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl eval.pl
+We injected this message
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Although it is a cool feature, any technique which allows the execution of arbitrary code stored in text files is rife with risk. So exercise the proper caution and checks before employing this method!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Dynamic variable names with a dereferencing block</title>
+      <link>http://perltricks.com/article/23/2013/5/2/Dynamic-variable-names-with-a-dereferencing-block/</link>
+      <pubDate>Thu, 02 May 2013 20:16:55 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/23/2013/5/2/Dynamic-variable-names-with-a-dereferencing-block/</guid>
+      <description>&lt;p&gt;Perl is remarkably flexible and allows you to achieve all kinds of wizardry with the language. One example of this is using a dereferencing block to use a scalar value as a variable name. This allows you to use variables with dynamic names.&lt;/p&gt;
+
+&lt;p&gt;An interesting example of this can be seen in &lt;a href=&#34;https://metacpan.org/source/NRG/Nginx-ParseLog-1.01/lib/Nginx/ParseLog.pm&#34;&gt;Nginx::ParseLog&lt;/a&gt;, I&amp;rsquo;ve reproduced the relevant code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;if ( $log_string =~ m/^($ip)\s-\s (.*?)\s         \[(.*?)\]\s  &amp;quot;(.*?)&amp;quot;\s  (\d+)\s  (\d+)\s     &amp;quot;(.*?)&amp;quot;\s  &amp;quot;(.*?)&amp;quot;$/x) {
+    my $deparsed = { };
+    my $c = 0;
+         
+    my @field_list = qw/
+            ip     
+        remote_user
+            time    
+            request
+            status 
+            bytes_send
+            referer 
+            user_agent
+    /;
+ 
+    {
+        no strict &#39;refs&#39;; # some Perl magic
+ 
+        for (@field_list) {
+            $deparsed-&amp;gt;{ $_  } = ${ ++$c };
+            }
+    }
+     
+    return $deparsed;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;What this code does is match $log_string against a regex - if the match is successful, it iterates through the regex capture global variables ($1-$8), using the values of @field_list as the key values for the captures. The dynamic variable name is stored in $c.&lt;/p&gt;
+
+&lt;p&gt;Using dynamic variable names can provide useful shortcuts when used in the right context. Dynamic variables can also increase the risk of error (note that strict &amp;lsquo;refs&amp;rsquo; had to be disabled for this code to work). What&amp;rsquo;s nice about this example is using the regex match in the if statement provides the assurance that every capture was successful, hence in this context it should be ok to turn strict refs off briefly.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>The conditional (ternary) operator</title>
+      <link>http://perltricks.com/article/20/2013/4/16/The-conditional--ternary--operator/</link>
+      <pubDate>Tue, 16 Apr 2013 23:12:40 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/20/2013/4/16/The-conditional--ternary--operator/</guid>
+      <description>&lt;p&gt;One way to reduce the verbosity of Perl code is to replace if-else statements with a conditional operator expression. The conditional operator (aka ternary operator) takes the form: &lt;strong&gt;logical test&lt;/strong&gt; ? &lt;strong&gt;value if true&lt;/strong&gt; : &lt;strong&gt;value if false&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s convert a standard Perl if-else into its conditional operator equivalent, using a fictitious subroutine. First here is the if-else:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub calculate_salary {
+    my $hours = shift;
+    my $salary;
+    if ($hours &amp;gt; 40) {
+        $salary = get_overtime_wage($hours);
+    }
+    else {
+        $salary = get_normal_wage($hours);
+    }
+    return $salary;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And here is the same statement using the conditional operator:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub calculate_salary {
+    my $hours = shift;
+    return $hours &amp;gt; 40 ? get_overtime_wage($hours) : get_normal_wage($hours);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Hopefully this example shows how using the conditional operator can shorten and simplify Perl code. For further detail, check out the &lt;a href=&#34;http://perldoc.perl.org/perlop.html#Conditional-Operator&#34;&gt;official documentation&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>List shortcuts: qw the quote whitespace operator</title>
+      <link>http://perltricks.com/article/15/2013/4/9/List-shortcuts--qw-the-quote-whitespace-operator/</link>
+      <pubDate>Tue, 09 Apr 2013 00:02:11 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/15/2013/4/9/List-shortcuts--qw-the-quote-whitespace-operator/</guid>
+      <description>&lt;p&gt;A popular way to build a list of literal quotes in Perl is to use the quote whitespace operator (qw). It&amp;rsquo;s terse, versatile and elegant. To see why, let&amp;rsquo;s look at a typical statement using a list of strings:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# import the Encode module and three subroutines
+use Encode (&#39;decode&#39;, &#39;encode&#39;, &#39;find_encoding&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To define the list of strings in Perl we had to encase every string with apostrophes, separated by commas and surrounded by parentheses. That&amp;rsquo;s a lot of fluff, and opens the door to easy mistakes such as using speechmarks (&amp;ldquo;) when you needed an apostrophe. Instead of doing that, we could have used the quote whitespace operator:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Encode qw/decode encode find_encoding/;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The quote whitespace operator takes a list delimiter followed by a list of plain strings separated by whitespace and returns list of literal quoted strings. The delimiter can be an ASCII symbol (slash / is a popular choice), brackets or parentheses. Let&amp;rsquo;s review some more examples:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# assign a list of an array
+my @ny_boroughs = qw{Bronx Brooklyn Manhattan Queens Staten_Island};
+
+# Quote some tricky symbols using tilde as the list delimiter
+my @ascii_symbols = qw~! @ $ % ^ &amp;amp; * ( ) - _ = + { } [ ] \ | / ? ~;
+
+# Use qw an input to a loop
+foreach my $firm (qw/Deloitte ErnstAndYoung KPMG PWC/){
+    print $firm; 
+}
+
+# It will ignore spaces, even double or triple spaces
+my @colours = qw(red  blue   yellow    pink   green   ); 
+foreach (@colours) {
+    print $_;
+}
+# red
+# blue
+# yellow
+# pink
+# green
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Using the quote whitespace operator often results in a cleaner, simpler syntax that reduces the risk of error when working with lists.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Perl arrays 101 - create, loop and manipulate</title>
+      <link>http://perltricks.com/article/11/2013/4/4/Perl-arrays-101---create--loop-and-manipulate/</link>
+      <pubDate>Thu, 04 Apr 2013 20:22:51 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/11/2013/4/4/Perl-arrays-101---create--loop-and-manipulate/</guid>
+      <description>
+
+&lt;p&gt;Arrays in Perl contain an ordered list of values that can be accessed using built-in functions. They are one of the most useful data structures and frequently used in Perl programming.&lt;/p&gt;
+
+&lt;h3 id=&#34;creating-an-array:0fc1cff51f8e8b6779283bd677e343f0&#34;&gt;Creating an array&lt;/h3&gt;
+
+&lt;p&gt;In Perl variables are identified using sigils. Arrays use @ (as in &amp;lsquo;a&amp;rsquo; for array), so the format is: @any_name_you_choose_here. Arrays are initialised by assigning a list of values (comma separated values between parentheses). Unlike more formal languages, Perl arrays can contain a mix of numbers, strings, objects and references.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @empty_array;
+
+my @another_empty_array = ();
+
+my @numbers = (1, 2, 3, 4, 5);
+
+my @names_start_with_j = (&#39;John&#39;, &#39;Judy&#39;, &#39;Julia&#39;, &#39;James&#39;, &#39;Jennifer&#39;);
+
+my @random_collection = (2013, &#39;keyboard&#39;, &#39;perltricks.com&#39;, 30);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;finding-the-array-length-size:0fc1cff51f8e8b6779283bd677e343f0&#34;&gt;Finding the array length / size&lt;/h3&gt;
+
+&lt;p&gt;The length of an array (aka the &amp;lsquo;size&amp;rsquo;) is the count of the number of elements in the array. To find the array length, use the array in a scalar context:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @numbers = (1, 2, 3, 4, 5);
+my $array_length = @numbers; 
+print $array_length;
+# 5
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;accessing-array-elements-directly:0fc1cff51f8e8b6779283bd677e343f0&#34;&gt;Accessing array elements directly&lt;/h3&gt;
+
+&lt;p&gt;Arrays can be accessed in a variety of ways: by directly accessing an element, slicing a group of elements or looping through the entire array, accessing one element at a time.&lt;/p&gt;
+
+&lt;p&gt;When directly accessing an array element, use the array name prefaced with the scalar sigil ($) instead of (@) and the index number of the element enclosed in square brackets. Arrays are zero-based, which means that the first element&amp;rsquo;s index number is 0 (not 1!).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @names_start_with_j = (&#39;John&#39;, &#39;Judy&#39;, &#39;Julia&#39;, &#39;James&#39;, &#39;Jennifer&#39;);
+$names_start_with_j[0]; # John
+$names_start_with_j[4]; # Jennifer
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The implication of zero-based indexing is that the index number of the last element in an array is equal to the length of the array minus one.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @numbers = (11, 64, 29, 22, 100);
+my $numbers_array_length = @numbers;
+my $last_element_index = numbers_array_length - 1;
+# therefore ...
+print $numbers[$last_element_index]; 
+# 100
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For simpler ways to access the last element of an array - see our &lt;a href=&#34;http://perltricks.com/article/6/2013/3/28/Find-the-index-of-the-last-element-in-an-array&#34;&gt;recent article&lt;/a&gt; for examples.&lt;/p&gt;
+
+&lt;h3 id=&#34;loop-through-an-array-with-foreach:0fc1cff51f8e8b6779283bd677e343f0&#34;&gt;Loop through an array with foreach&lt;/h3&gt;
+
+&lt;p&gt;Arrays elements can be accessed sequentially using a foreach loop to iterate through the array one element at a time.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @names_start_with_j = (&#39;John&#39;, &#39;Judy&#39;, &#39;Julia&#39;, &#39;James&#39;, &#39;Jennifer&#39;);
+foreach my $element (@names_start_with_j) {
+    print &amp;quot;$element\n&amp;quot;;
+}
+# John
+# Judy
+# Julia
+# James
+# Jennifer
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Other common functions for looping through arrays are &lt;a href=&#34;http://perldoc.perl.org/functions/grep.html&#34;&gt;grep&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/functions/map.html&#34;&gt;map&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;shift-unshift-push-and-pop:0fc1cff51f8e8b6779283bd677e343f0&#34;&gt;shift, unshift, push and pop&lt;/h3&gt;
+
+&lt;p&gt;Perl arrays are dynamic in length, which means that elements can be added to and removed from the array as required. Perl provides four functions for this: shift, unshift, push and pop.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;shift&lt;/strong&gt; removes and returns the first element from the array, reducing the array length by 1.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @compass_points = (&#39;north&#39;, &#39;east&#39;, &#39;south&#39;, &#39;west&#39;);
+my $direction = shift @compass_points;
+print $direction; 
+# north
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If no array is passed to shift, it will operate on @_. This makes it useful in subroutines and methods where by default @_ contains the arguments from the subroutine / method call. E.G.:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;print_caller(&amp;quot;perltricks&amp;quot;);
+sub print_caller {
+    my $caller_name = shift;
+    print $caller_name;
+}
+# perltricks
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The other three array functions work similarly to shift. &lt;strong&gt;unshift&lt;/strong&gt; receives and inserts a new element into the front of the array increasing the array length by 1.&lt;strong&gt;push&lt;/strong&gt; receives and inserts a new element to the end of the array, increasing the array length by 1. &lt;strong&gt;pop&lt;/strong&gt; removes and returns the last element in the array, reducing the array length by 1.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @compass_points = (&#39;north&#39;, &#39;east&#39;, &#39;south&#39;, &#39;west&#39;);
+my $direction = &#39;north-east&#39;;
+unshift @compass_points, $direction;
+# @compass_points contains: north-east, north, east, south and west
+
+my $west = pop @compass; 
+push @compass, $new_direction; # put $west back
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;check-an-array-is-null-or-undefined:0fc1cff51f8e8b6779283bd677e343f0&#34;&gt;Check an array is null or undefined&lt;/h3&gt;
+
+&lt;p&gt;A simple way to check if an array is null or defined is to examine it in a scalar context to obtain the number of elements in the array. If the array is empty, it will return 0, which Perl will also evaluate as boolean false. Bear in mind that this is not quite the same thing as undefined, as it is possible to have an empty array.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @empty_array;
+if (@empty_array) {
+    # do something - will not be reached if the array has 0 elements
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Upgrade your list printing using field separator variables</title>
+      <link>http://perltricks.com/article/12/2013/4/3/Upgrade-your-list-printing-using-field-separator-variables/</link>
+      <pubDate>Wed, 03 Apr 2013 22:24:28 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/12/2013/4/3/Upgrade-your-list-printing-using-field-separator-variables/</guid>
+      <description>&lt;p&gt;A typical way to print every element of an array in Perl is using a foreach loop:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @sportscar_brands = qw/Ferrari Aston_Martin Lambourgini/;
+foreach my $brand (@sportscar_brands){
+    print &amp;quot;$brand\n&amp;quot;;
+}
+# Ferrari
+# Aston_Martin
+# Lambourgini
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;An alternative method is to set value of the the output field separator variable ($,). When printing a list or array Perl injects this variable between elements. Hence, if you set the output field separator to a newline (\n) you will achieve the same affect as the previous example, without the foreach loop.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$, = &amp;quot;\n&amp;quot;; # set the output field separator to newline
+my @sportscar_brands = qw/Ferrari Aston_Martin Lambourgini/;
+print @sportscar_brands;
+# Ferrari
+# Aston_Martin
+# Lambourgini
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The output field separator also works on lists:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$, = &amp;quot;\n&amp;quot;;
+print qw/Ferrari Aston_Martin Lambourgini/;
+# Ferrari
+# Aston_Martin
+# Lambourgini
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There is another variable called the list separator ($&amp;ldquo;). Perl injects the value of $&amp;rdquo; between the elements of an array in an interpolated string. The subtle difference here is that the output field separator will apply when using print, however the list separator applies to all arrays in an interpolated string context. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$&amp;quot; = &amp;quot;\n&amp;quot;; # set the list separator to newline
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @normalcar_brands = qw/Ford Honda Toyota Fiat/;
+print @normalcar_brands; # not inside an interpolated string
+# FordHondaToyotaFiat
+
+print &amp;quot;@normalcar_brands&amp;quot; # works in interpolated string
+# Ford
+# Honda
+# Toyota
+# Fiat
+
+my $separated_list_string = &amp;quot;@normalcar_brands&amp;quot;; # injects the separator
+print $separated_list_string;
+# Ford
+# Honda
+# Toyota
+# Fiat
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;One additional difference: despite its name, the list separator variable ($&amp;ldquo;) does not work on lists whilst the output field separator ($,) does (in Perl 5.16.3).&lt;/p&gt;
+
+&lt;p&gt;Finally if you have set both $, and $&amp;rdquo; and print an interpolated array, $&amp;rdquo; will be injected and $, will be ignored.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Perl string functions - concatenate substring and split</title>
+      <link>http://perltricks.com/article/8/2013/3/31/Perl-string-functions---concatenate-substring-and-split/</link>
+      <pubDate>Sun, 31 Mar 2013 23:04:34 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/8/2013/3/31/Perl-string-functions---concatenate-substring-and-split/</guid>
+      <description>
+
+&lt;p&gt;Perl has many string functions, let&amp;rsquo;s take a look at a some of the most common ones: concatenate, substring and split.&lt;/p&gt;
+
+&lt;h3 id=&#34;concatenate:dc067c2a677a499530328edaed9be9c1&#34;&gt;Concatenate&lt;/h3&gt;
+
+&lt;p&gt;Concatenate strings by inserting a fullstop (.) operator between them. Perl will automatically &amp;lsquo;stringify&amp;rsquo; scalar variables that were initialised as a number.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# declare and concatenate two strings
+my $joke = &#39;A horse walks &#39; . &#39;into a bar.&#39;; # A horse walks into a bar.
+# Concatenate two scalars
+my $meat  = &#39;ham&#39;;
+my $bread = &#39;sandwich&#39;;
+my $lunch = $meat . $bread; # hamsandwich
+
+# Concatenate scalars initialised as numbers
+my $hour        = 6;
+my $minutes     = 30;
+my $time_string = $hour . &#39;:&#39; . $minutes; # 6:30
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;substring:dc067c2a677a499530328edaed9be9c1&#34;&gt;Substring&lt;/h3&gt;
+
+&lt;p&gt;Substring extracts and returns a sub-set of an existing string. It takes up to four arguments: the expression to substring, the offset from where to start the substring, the length of the substring and a replacement string. If the length is omitted the substring will run to the end of input expression.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# substr(expression, offset, [length], [replacement])
+my $joke            = &#39;A horse walks into a bar.&#39;;
+my $animal          = substr($joke, 2, 5); # horse
+my $favourite_place = substr($joke, -4); # bar.
+
+# Extract a substring and replace the substring in the original string
+my $verb        = substr($joke, 8, 5, &#39;runs&#39;); # walks
+print $joke; # A horse runs into a bar.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://perldoc.perl.org/functions/substr.html&#34;&gt;perldoc&lt;/a&gt; page for substr has many more useful examples.&lt;/p&gt;
+
+&lt;h3 id=&#34;split:dc067c2a677a499530328edaed9be9c1&#34;&gt;Split&lt;/h3&gt;
+
+&lt;p&gt;The split function divides an input string into a list of substrings using a split pattern, and an (optional) limit on the number of split fields. If the input expression is omitted, Perl will use $_.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# split(pattern, [expression], [number_of_fields])
+my $sentence       = &#39;A horse walks into a bar.&#39;;
+my @words          = split(&#39; &#39;, $sentence); # A,horse,walks,into,a,bar
+
+my $fullname       = &#39;Mr Stephen Doyle&#39;;
+
+# Limit the split to two fields
+my @title_and_name = split(&#39; &#39;, $fullname, 2); # Mr,Stephen Doyle
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Find the index of the last element in an array</title>
+      <link>http://perltricks.com/article/6/2013/3/28/Find-the-index-of-the-last-element-in-an-array/</link>
+      <pubDate>Thu, 28 Mar 2013 23:30:33 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/6/2013/3/28/Find-the-index-of-the-last-element-in-an-array/</guid>
+      <description>
+
+&lt;p&gt;Most Perl programmers know that to find the size of an array, the array must called in a scalar context like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# Declare the array
+my @numbers_array = (41,67,13,9,62); 
+# Get the array size
+my $size_of_array = @numbers_array;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This understanding can lead to programmers applying a scalar context to an array to access its last element (subtracting 1 because arrays are zero-based).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;print $numbers_array[@numbers_array - 1];
+# 62
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;the-last-index-variable:65383929869db9a593a341e187dc3897&#34;&gt;The last-index variable&lt;/h3&gt;
+
+&lt;p&gt;Perl has a &amp;lsquo;last-index&amp;rsquo; variable for arrays ($#array_name).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;print $#numbers_array; 
+# 5
+print $numbers_array[$#numbers_array]; 
+# 62
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The last index operator ($#array_name) also works on arrayrefs if you insert an extra dollar sigil:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $arrayref = [41, 67, 13, 9, 62];
+print $#$arrayref;
+# 5
+print $$arrayref[$#$arrayref]; 
+# 62 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;negative-indexing:65383929869db9a593a341e187dc3897&#34;&gt;Negative indexing&lt;/h3&gt;
+
+&lt;p&gt;Perl provides a shorter syntax for accessing the last element of an array: negative indexing. Negative indices track the array from the end, so -1 refers to the last element, -2 the second to last element and so on.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# Declare the array
+my @cakes = qw(victoria_sponge chocolate_gateau carrot);
+print $cakes[-1]; # carrot
+print $cakes[-2]; # chocolate_gateau
+print $cakes[-3]; # victoria_sponge
+print $cakes[0];  # victoria_sponge
+print $cakes[1];  # chocolate_gateau
+print $cakes[2];  # carrot
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>You don&#39;t need a shebang line</title>
+      <link>http://perltricks.com/article/5/2013/3/25/You-don-t-need-a-shebang-line/</link>
+      <pubDate>Mon, 25 Mar 2013 23:39:55 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/5/2013/3/25/You-don-t-need-a-shebang-line/</guid>
+      <description>&lt;p&gt;The shebang line is the first line of code in a Perl script and usually looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The shebang line is the path to the Perl binary, and allows programmers to invoke Perl scripts directly instead of passing the script filename as an argument to Perl itself.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;./myperltrick.pl #execute directly, no need to type &#39;perl&#39; first
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;However, the shebang line is &lt;strong&gt;not mandatory&lt;/strong&gt;, and reduces the portability of Perl scripts (by requiring execute permissions and maintaining the shebang). It also obfuscates which version of Perl is being called when a script is executed, which can make debugging more difficult.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;./myperltrick.pl
+Cant locate Catalyst.pm in @INC (@INC contains: /etc/perl /usr/local/lib/perl/5.14.2 /usr/local/share/perl/5.14.2 /usr/lib/perl5 /usr/share/perl5 /usr/lib/perl/5.14 /usr/share/perl/5.14 /usr/local/lib/site_perl .) at ./perltricks.pl line 2.
+BEGIN failed--compilation aborted at ./perltricks.pl line 2.
+BEGIN failed--compilation aborted.
+# Hmm which version of Perl did I run ?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By not including the shebang line, programmers can write one-less line of code and retain modularity by separating the behaviour of the script from the executing programme.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl myperltricks.pl #this works fine
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Perl being Perl, it will try to &amp;lsquo;Do What You Mean&amp;rsquo; if a script that contains a shebang line is passed to the Perl program as an argument, the shebang line will be ignored. So write or don&amp;rsquo;t write the shebang, but you don&amp;rsquo;t need it.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

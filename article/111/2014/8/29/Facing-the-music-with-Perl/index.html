@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Facing the music with Perl Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A few Perl modules make it easy"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Facing the music with Perl</h1>
+            <p class="blog-post-meta">Aug 29, 2014 by <a href="/authors/brian-d-foy">brian d foy</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/111/0D9A013A-2F12-11E4-9950-DF3A7BB45C3F.jpeg"/>
+            </div>
+              <p>My digital music libraries were messed up. Spread across several devices and a couple of flirtations with iTunes Match and iCloud, I didn&rsquo;t have everything in one place—ironically. Not only that, but Apple had replaced some files with what it considered better versions. Although I don&rsquo;t want to perform the experiment to confirm it, I&rsquo;m sure that the new files had different metadata. I needed to sort it out to start on a better system. I thought the task would be arduous, and it was until I settled on a simpler problem that a couple of Perl modules solved quickly.</p>
+
+<p>For my first step, I needed to find all the music I had. I had backed up my files before I let Apple replace them with better versions. But I seemed to have made several backups, each with a different subset of my music. One backup would have most of the Led Zepplin but none of the Beatles, while another had no Zepplin and some of the Beatles. Another had all of the Beatles but no Cat Stevens.</p>
+
+<p>I started by collecting all the unique files from the directories in which I had found music. This program has some of my favorite things about Perl, especially since I still have the wounds from moving files around during my C phase.</p>
+
+<pre><code class="language-prettyprint">use v5.10;
+use strict;
+use warnings;
+
+use Digest::MD5 qw(md5_hex);
+use File::Copy  qw(copy);
+use File::Find;
+use File::Map   qw(map_file);
+use File::Path  qw(make_path);
+use File::Spec::Functions qw(catfile);
+
+my $wanted = sub {
+    state $Seen  = {};
+
+    my $full_name = $File::Find::name;
+    return if -d $full_name;
+
+    map_file my $map, $full_name, '+&lt;';
+    my $digest_hex = md5_hex( $map );
+    return if $Seen-&gt;{ $digest_hex }++;
+    
+    my( $extension )     = $full_name  =~ /(\.[^.]+)\z/;
+    my( $n, $m, $o, $p ) = $digest_hex =~ /\A (..) (..) (..) (..)/x;
+
+    my $basename = $_;
+    my $dir = catfile( $new_dir, $n, $m, $o, $p );
+    my $new_file = catfile( $dir, $basename );
+    return if -e $new_file;
+
+    make_path( $dir ) unless -d $dir;
+
+    copy(
+        $full_name, 
+        catfile( $dir, $basename )
+        );
+    };
+
+find( $wanted, @ARGV );
+</code></pre>
+
+<p><a href="http://www.metacpan.org/module/File::Find">File::Find</a> provides the code to traverse the file structure for me. I give find the list of starting directories, in this case those in <code>@ARGV</code>, and a callback subroutine as a reference. The meat of my program is in that <code>$wanted</code> subroutine. The hardest part of this code is remembering that <code>$File::Find::name</code> is the full path and <code>$_</code> is the filename only. I put those into variables to remind me which is which.</p>
+
+<p><a href="http://www.metacpan.org/pod/File::Map">File::Map</a> allows me to access a file&rsquo;s data directly from disk as a memory map rather than reading it into memory. I don&rsquo;t need to change the file to get its digest (using <a href="http://www.metacpan.org/pod/Digest::MD5">Digest::MD5</a>), so memory mapping is a big win across tens of thousands of music files. If I have seen that digest before, I move on to the next file. Otherwise I do some string manipulations to create new file paths, putting the pieces together with the cross-plaform <a href="http://www.metacpan.org/pod/File::Spec">File::Spec</a>. I copy the file to the new location with <a href="http://www.metacpan.org/pod/File::Copy">File::Copy</a>. I specifically make a copy so I leave the original files where they are for now. I anticipate messing up at least a couple of times. The new path is four levels deep with each deeper level based on the next two characters in the file&rsquo;s digest. That way, no directory gets too big, slowing down all directory operations.</p>
+
+<p>Some rough calculations showed me that no particular music library was more than 85% complete. This was where the real fun began, but also my embarrassing tales of woe. Out of the newly copied files, I needed to select the ones I wanted to keep.</p>
+
+<p>First, I merely cleaned out my iTunes library and reimported everything to see what I was working with. Most music I had in duplicates, and some in triplicates. iTunes Match had upgraded MP3 files to M4A (encoded in Apple&rsquo;s AAC codec) and had done the same for M4P files, the DRM-ed versions of music I had purchased. Each version had a different digest, so several versions of the same content survived.</p>
+
+<p>I struggled with the next part of the problem because I have too much computer power at my disposal. I could collect all of the metadata for each file and store it in a database. I could throw it into a NoSQL thingy. I even thought about redis. Any one of these technologies are fun diversions but they require too much work. I started and abandoned several approaches, including a brief attempt to use AppleScript to interact with iTunes directly. Oh, the insanity.</p>
+
+<p>Working from the digested directory each time was a bad decision. I&rsquo;d have to collect the metadata then group files by album or artist. iTunes had already done that for me, although I didn&rsquo;t realize this for a week. When I imported the music, it copied the files into folders named after the artist and album (something I could have done instead of using the digests). Most of my work would be limited to the files in a single directory. I don&rsquo;t need a data structure to hold all of that. I certainly didn&rsquo;t need a database.</p>
+
+<p>If I could enter a directory, examine each file in that directory, then process them on the way out of that directory, removing the duplicate files becomes much easier. I remembered that <a href="http://www.metacpan.org/pod/File::Find">File::Find</a> has a <code>post_process</code> option that allows me to do this, although I haven&rsquo;t used it in years:</p>
+
+<pre><code class="language-prettyprint">use File::Find qw(find);
+
+find( 
+    { 
+    wanted      =&gt; $wanted,   #code refs
+    postprocess =&gt; $post,
+    },
+    @ARGV,
+    );
+</code></pre>
+
+<p>While I was in each directory, I could collect information on each file. Each file is already sorted by artist and album but I still need to choose which one of the duplicate files to keep. After a bit of thought, the solution turned out to be simple. I could sort on file extension, looking up the ordering in a hash. When I have two files with the same extension I&rsquo;ll choose the one with the higher bitrate. When the bitrates match, I&rsquo;ll choose the one with the shortest filename. With the various music libraries, I had some files like <em>Susie Q.m4a</em> and <em>Susie Q 1.m4a</em>; essentially the same file except for some slight metadata differences. I used <a href="http://www.metacpan.org/pod/Music::Tag">Music::Tag</a> to get the metadata since it automatically delegated to plugins for the various file formats.</p>
+
+<p>After sorting, I mark for deletion everything except the first element in the list. I don&rsquo;t delete them right away; I print the list to a file which I can use later to delete files. I&rsquo;ve been around too long to delete files right away.</p>
+
+<pre><code class="language-prettyprint">#!/Users/brian/bin/perls/perl5.18.1
+use v5.18;
+use Digest::MD5 qw( md5_hex );
+use Data::Dumper;
+use File::Basename qw( basename );
+use File::Find;
+use File::Map   qw( map_file );
+use File::Copy  qw( copy );
+use File::Path  qw( make_path );
+use File::Spec::Functions  qw(abs2rel rel2abs splitdir);
+use Music::Tag;
+
+my $extensions_order = {
+    m4a =&gt; -2,        
+    mp3 =&gt; -1,
+    m4p =&gt;  0,
+    };
+
+open my $fh, '&gt;', 'delete_files.txt';
+
+my $hash = {};
+
+my( $wanted, $post ) = make_subs( $dir, $hash );
+
+find( 
+    { 
+    wanted      =&gt; $wanted,
+    postprocess =&gt; $post,
+    },
+    @ARGV,
+    );
+    
+sub make_subs {
+    my( $dir, $hash ) = @_;
+    
+    sub { # wanted
+        # my $path     = $File::Find::name;
+        # my $filename = $_;
+        
+        state $count = 0;
+
+        return if( -d $File::Find::name or -l $File::Find::name );
+        return if $_ eq '.DS_Store';
+
+        my $filename = basename( $File::Find::name );
+        my $relative = abs2rel( $File::Find::name, $dir );
+        
+        my $basename_no_ext = $filename =~ s/\.[^.]+\z//r;
+
+        my( $extension ) = $filename =~ m/ \. ( [^.]+ ) \z /x;
+        return unless exists $extensions_order-&gt;{$extension};
+
+        my $this_file = {};
+
+        my $info = eval { Music::Tag-&gt;new( $filename )-&gt;get_tag };
+        
+        my $title = eval{ $info-&gt;title };
+        if( $@ ) { 
+            warn &quot;Title had a problem: $@&quot;;
+            }
+
+        $this_file-&gt;{tag} = {
+            title   =&gt; $title,
+            bitrate =&gt; eval{ $info-&gt;bitrate },
+            };    
+        $this_file-&gt;{file} = {
+            extension =&gt; $extension,
+            basename  =&gt; $filename,
+            relative  =&gt; $relative,
+            no_ext    =&gt; $basename_no_ext,
+            'File::Find::name' =&gt; $File::Find::name,
+            '_' =&gt; $_,
+            };    
+        
+        push @{ $hash-&gt;{$File::Find::dir}{$title} }, $this_file;
+
+        $hash-&gt;{extensions}{$extension}++;
+        },
+        
+    sub { # postprocess        
+        my $this = $hash-&gt;{$File::Find::dir};
+
+        TITLE: foreach my $title ( sort keys %$this ) {
+            my $songs = $this-&gt;{ $title };
+            next if @$songs == 1; # no duplicates, no problem
+
+            my @sorted = sort {
+              state $e = $extensions_order;
+                
+              $e-&gt;{ $a-&gt;{file}{extension} } &lt;=&gt; $e-&gt;{ $b-&gt;{file}{extension} }
+                    or
+              length $a-&gt;{file}{basename} &lt;=&gt; length $b-&gt;{file}{basename}
+                    or
+              $b-&gt;{tag}{bitrate} &lt;=&gt; $a-&gt;{tag}{bitrate}
+              } @$songs;
+
+            # everything without the chosen key will be deleted
+            $sorted[0]{chosen}++;
+            
+            SONG: foreach my $song ( @sorted ) {
+                $hash-&gt;{seen}++;
+                next unless exists $extensions_order-&gt;{
+                    $song-&gt;{file}{extension} };
+                $hash-&gt;{examined}++;
+                next if $song-&gt;{chosen};
+                
+                # ignore other files, such as videos and e-books
+                next unless exists $extensions_order-&gt;{
+                    $song-&gt;{file}{extension} };
+
+                $hash-&gt;{deleted}++;
+                print { $fh } &quot;delete:\t$song-&gt;{file}{relative}\n&quot;;
+                }
+            }
+
+        delete $hash-&gt;{$File::Find::dir};
+        }
+    }
+</code></pre>
+
+<p>And that was it. This left behind a couple of problems, such as messed up metadata, but I wasn&rsquo;t going to be able to solve that programmatically anyway. Getting a complete set of files with no duplicates solved most of the problem and leaves me with the joy of flipping through physical albums that only us grey beards remember.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/sysadmin">sysadmin</a></div>
+              
+                <div class="tag"><a href="/tags/cd">cd</a></div>
+              
+                <div class="tag"><a href="/tags/file_find">file_find</a></div>
+              
+                <div class="tag"><a href="/tags/music">music</a></div>
+              
+                <div class="tag"><a href="/tags/apple">apple</a></div>
+              
+                <div class="tag"><a href="/tags/itunes">itunes</a></div>
+              
+                <div class="tag"><a href="/tags/metadata">metadata</a></div>
+              
+                <div class="tag"><a href="/tags/file_copy">file_copy</a></div>
+              
+                <div class="tag"><a href="/tags/digest_md5">digest_md5</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

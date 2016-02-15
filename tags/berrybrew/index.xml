@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Berrybrew on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/berrybrew/</link>
+    <description>Recent content in Berrybrew on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 10 Oct 2014 12:39:52 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/berrybrew/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Hello berrybrew, the Strawberry Perl version manager</title>
+      <link>http://perltricks.com/article/119/2014/10/10/Hello-berrybrew--the-Strawberry-Perl-version-manager/</link>
+      <pubDate>Fri, 10 Oct 2014 12:39:52 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/119/2014/10/10/Hello-berrybrew--the-Strawberry-Perl-version-manager/</guid>
+      <description>
+
+&lt;p&gt;&lt;a href=&#34;http://perlbrew.pl/&#34;&gt;Perlbrew&lt;/a&gt; and [plenv]() are tools for managing local Perl installations. They&amp;rsquo;re useful as they let you install and use multiple versions of Perl without administrator privileges. I have a special appreciation for them as I once tried to upgrade my mac system Perl and instead wrecked it and had to reinstall OSX.&lt;/p&gt;
+
+&lt;p&gt;When I&amp;rsquo;m on Windows I use Strawberry Perl, so I wrote &lt;a href=&#34;https://github.com/sillymoose/berrybrew&#34;&gt;berrybrew&lt;/a&gt; to help manage Perl on Windows. It&amp;rsquo;s similar to Perlbrew and plenv; it will download, install and manage multiple versions of Strawberry Perl for you, no administrator privileges required.&lt;/p&gt;
+
+&lt;h3 id=&#34;installation:d5167bc4d58ffc1d5402991419a8e81b&#34;&gt;Installation&lt;/h3&gt;
+
+&lt;p&gt;berrybrew is written in C#. If you have git you can install berrybrew by cloning the GitHub &lt;a href=&#34;https://github.com/sillymoose/berrybrew&#34;&gt;repo&lt;/a&gt; and either using the pre-compiled binary, or minting your own with Mono. The pre-compiled binary is &lt;code&gt;bin/berrybrew.exe&lt;/code&gt; and should work out of the box on Windows 7 and 8 (it might work on Windows XP if you have .Net framework 2 or higher installed).&lt;/p&gt;
+
+&lt;p&gt;To download the project with git and compile it with &lt;a href=&#34;http://www.mono-project.com/&#34;&gt;Mono&lt;/a&gt; type the following commands at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; git clone https://github.com/sillymoose/berrybrew
+&amp;gt; mcs src/berrybrew.cs -lib:lib -r:ICSharpCode.SharpZipLib.dll -out:bin/berrybrew.exe
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will output a fresh binary in the &lt;code&gt;bin&lt;/code&gt; directory.&lt;/p&gt;
+
+&lt;h3 id=&#34;features:d5167bc4d58ffc1d5402991419a8e81b&#34;&gt;Features&lt;/h3&gt;
+
+&lt;p&gt;The &lt;code&gt;available&lt;/code&gt; command lists available Strawberry Perls and whether they&amp;rsquo;re installed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; berrybrew available
+
+The following Strawberry Perls are available:
+
+            5.20.1_64 [installed]
+            5.20.1_32 [installed]
+            5.18.4_64
+            5.18.4_32
+            5.16.3_64
+            5.16.3_32
+            5.14.4_64
+            5.14.4_32
+            5.12.3_32
+            5.10.1_32
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The output shows that I have both versions of Perl 5.20.1 installed. I can install another version using the &lt;code&gt;install&lt;/code&gt; command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; berrybrew install 5.10.1_32
+Downloading http://strawberryperl.com/download/5.10.1.2/strawberry-perl-5.10.1.2-portable.zip to C:\Users\dfarrell\AppData\Local\Temp\gp5d33yg.qjo/strawberry-pe
+rl-5.10.1.2-portable.zip
+Confirming checksum ...
+Extracting C:\Users\dfarrell\AppData\Local\Temp\gp5d33yg.qjo/strawberry-perl-5.10.1.2-portable.zip
+
+The following Strawberry Perls are available:
+
+            5.20.1_64 [installed]
+            5.20.1_32 [installed]
+            5.18.4_64
+            5.18.4_32
+            5.16.3_64
+            5.16.3_32
+            5.14.4_64
+            5.14.4_32
+            5.12.3_32
+            5.10.1_32 [installed]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;berrybrew will download a temporary zip archive, confirm the checksums match, and extract the files to &lt;code&gt;C:\berrybrew&lt;/code&gt;. Finally I can use the newly installed Perl with the &lt;code&gt;switch&lt;/code&gt; command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; berrybrew switch 5.10.1_32
+Switched to 5.10.1_32, start a new terminal to use it.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This updates my user &lt;code&gt;%PATH%&lt;/code&gt; environment variable to point at the new Perl binary. berrybrew will also warn if it finds another Perl binary in the system or user path (such as an ActiveState or vanilla Strawberry Perl). The system path can be problematic as Windows appends the user path to the system path which means it will search the system path first for any matching Perl binary and if it finds one, it will ignore the berrybrew binary. The system path also requires administrator privileges to update, which kind of goes against the spirit of berrybrew. One way to handle these would be to ask the user if they want to remove the other path, if they say yes, then berrybrew could prompt for administrator credentials, fire up another berrybrew process and remove them. For now it just warns the user and leaves the path variables untouched.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:d5167bc4d58ffc1d5402991419a8e81b&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;I plan to add a few more commands to berrybrew: &lt;code&gt;exec&lt;/code&gt; to run a Perl program against every installed Perl, &lt;code&gt;uninstall&lt;/code&gt; to remove a Perl and &lt;code&gt;config&lt;/code&gt; to manage berrybrew&amp;rsquo;s settings. Under the hood a feature I&amp;rsquo;d love to add but am not sure how, is to refresh the current shell&amp;rsquo;s environment variable block, so the user doesn&amp;rsquo;t have to start a new cmd.exe when switching to a new Perl version.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s early days but if you have any suggestions for new features or feedback drop me an email or fork the project on &lt;a href=&#34;https://github.com/sillymoose/berrybrew&#34;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

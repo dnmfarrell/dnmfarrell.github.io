@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Rakudo on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/rakudo/</link>
+    <description>Recent content in Rakudo on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 31 Dec 2015 19:08:59 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/rakudo/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How to get Perl 6 now</title>
+      <link>http://perltricks.com/article/207/2015/12/31/How-to-get-Perl-6-now/</link>
+      <pubDate>Thu, 31 Dec 2015 19:08:59 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/207/2015/12/31/How-to-get-Perl-6-now/</guid>
+      <description>
+
+&lt;p&gt;Great news, Perl 6 was &lt;a href=&#34;https://perl6advent.wordpress.com/2015/12/25/christmas-is-here/&#34;&gt;released&lt;/a&gt; on Christmas Day; finally us geeks got something we wanted for Christmas. Send the books back Grandma! (unless you got &lt;a href=&#34;http://perltricks.com/article/205/2015/12/21/Modern-Perl-4th-edition--a-review&#34;&gt;Modern Perl&lt;/a&gt;).&lt;/p&gt;
+
+&lt;h3 id=&#34;installation-on-linux-osx:961206b7582ff32549d5b3ed6ab9aa7e&#34;&gt;Installation on Linux, OSX&lt;/h3&gt;
+
+&lt;p&gt;On Linux and Mac the easiest way to get Perl 6 is with &lt;a href=&#34;https://github.com/tadzik/rakudobrew&#34;&gt;rakudobrew&lt;/a&gt;. You&amp;rsquo;ll need the typical software development tools like &lt;code&gt;git&lt;/code&gt;, &lt;code&gt;gcc&lt;/code&gt; and &lt;code&gt;make&lt;/code&gt;. On OSX Apple&amp;rsquo;s &lt;a href=&#34;https://developer.apple.com/opensource/&#34;&gt;Command Line Tools app&lt;/a&gt; provides most of these and is easy to install. On Linux they&amp;rsquo;re available via the package manager. Once you have the prerequisite tools installed, you can install rakudobrew via the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
+$ export PATH=~/.rakudobrew/bin:$PATH
+$ rakudobrew build moar
+$ rakudobrew build panda
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will install &lt;code&gt;perl6&lt;/code&gt; and &lt;code&gt;panda&lt;/code&gt; the Perl 6 package manager.&lt;/p&gt;
+
+&lt;h3 id=&#34;installation-on-windows:961206b7582ff32549d5b3ed6ab9aa7e&#34;&gt;Installation on Windows&lt;/h3&gt;
+
+&lt;p&gt;On Windows it&amp;rsquo;s a different story. I was unable to get rakudobrew to work on Windows, which is a shame as it&amp;rsquo;s such a convenient tool. If you&amp;rsquo;re feeling adventurous, you can &lt;a href=&#34;http://perltricks.com/article/135/2014/11/18/Building-Perl-6-with-Visual-Studio-2013&#34;&gt;build your own Perl 6 with Visual Studio&lt;/a&gt;. Sinan Unur has &lt;a href=&#34;https://www.nu42.com/2015/12/perl6-rakudo-released.html&#34;&gt;blogged&lt;/a&gt; about building panda with the same toolset.&lt;/p&gt;
+
+&lt;p&gt;Alternatively you can use the latest &lt;a href=&#34;http://rakudo.org/downloads/star/&#34;&gt;Rakudo Star distribution&lt;/a&gt; which comes with a convenient &lt;code&gt;.msi&lt;/code&gt; installer. Unfortunately the most recent Rakudo Star distribution is from September, so you won&amp;rsquo;t benefit from the last 3 months of updates to Perl 6 (a new version should be available soon). If you&amp;rsquo;ve installed Rakudo Star, you&amp;rsquo;ll need to add the Perl 6 binaries to your path. You can do that using &lt;code&gt;cmd.exe&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; SETX PATH &amp;quot;%PATH%;C:\rakudo\bin&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now start a new &lt;code&gt;cmd.exe&lt;/code&gt; terminal, and you&amp;rsquo;ll be use Perl 6. Rakudo Star ships with Panda too, so you&amp;rsquo;ll be able to start installing Perl 6 modules right away.&lt;/p&gt;
+
+&lt;h3 id=&#34;useful-perl-6-resources:961206b7582ff32549d5b3ed6ab9aa7e&#34;&gt;Useful Perl 6 resources&lt;/h3&gt;
+
+&lt;p&gt;So you&amp;rsquo;ve got Perl 6 installed, now what? To keep up to date with Perl 6 developments, I read the &lt;a href=&#34;https://p6weekly.wordpress.com/&#34;&gt;Perl 6 Weekly&lt;/a&gt; blog. The &lt;a href=&#34;http://perlweekly.com/&#34;&gt;Perl Weekly&lt;/a&gt; newsletter also includes Perl 6 articles, so be sure to subscribe if you haven&amp;rsquo;t already. The official website &lt;a href=&#34;http://perl6.org/&#34;&gt;Perl6.org&lt;/a&gt; is a good reference for all things Perl 6 related. Wendy has posted a &lt;a href=&#34;https://wendyga.wordpress.com/2015/12/25/why-would-you-want-to-use-perl-6-some-answers/&#34;&gt;useful list&lt;/a&gt; of Perl 6 features.&lt;/p&gt;
+
+&lt;p&gt;Here at PerlTricks.com, we&amp;rsquo;ve got several Perl 6 articles that may be of interest:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://perltricks.com/article/144/2015/1/13/How-to-create-a-grammar-in-Perl-6&#34;&gt;How to create a Grammar&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://perltricks.com/article/170/2015/4/30/Parsing-Perl-5-pod-with-Perl-6&#34;&gt;Parsing Perl 5 Pod with Perl 6&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://perltricks.com/article/136/2014/11/20/Get-started-with-Perl-6-one-liners&#34;&gt;Get started with Perl 6 One Liners&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://perltricks.com/article/177/2015/6/9/Get-to-grips-with-Prove--Perl-s-test-workhorse&#34;&gt;How to run Perl 6 tests with prove&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://perltricks.com/article/194/2015/9/22/Activating-Perl-6-syntax-highlighting-in-Vim&#34;&gt;Activate Perl 6 syntax highlighting in Vim&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Update&lt;/strong&gt; - Visual Studio article now includes instructions for VS2015. Added link to nu42.com. 2016-01-04&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Script-fu: how to raise 641 request tracker tickets</title>
+      <link>http://perltricks.com/article/174/2015/5/12/Script-fu--how-to-raise-641-request-tracker-tickets/</link>
+      <pubDate>Tue, 12 May 2015 12:54:26 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/174/2015/5/12/Script-fu--how-to-raise-641-request-tracker-tickets/</guid>
+      <description>
+
+&lt;p&gt;I spent most of the NYC Perl Hackathon (thanks Bloomberg!) hacking on Perl 6 stuff. Led by Will &amp;ldquo;Coke&amp;rdquo; Coleda, one of the tasks for the group was to find skip/todo directives that were missing Request Tracker (RT) ticket numbers in the Perl 6 test suite.&lt;/p&gt;
+
+&lt;p&gt;A typical skip/todo directive looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#?rakudo todo &amp;quot;doesn&#39;t work yet due to copying of arrays&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This tells Rakudo to skip the following block of tests. For each skip/todo directive, a new RT ticket had to be raised and the ticket number added to the skip directive line in the test file, like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#?rakudo todo &amp;quot;doesn&#39;t work yet due to copying of arrays RT #99999&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This makes it easier for the Rakudo team to identify the remaining bugs or missing features in Rakudo.&lt;/p&gt;
+
+&lt;p&gt;I cloned the Perl 6 test suite, roast and after working through the workflow for reporting a single ticket, I wondered how many other skip/todo directives were missing RT tickets. To find out, I used a little &lt;code&gt;grep&lt;/code&gt; magic:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ grep -rlP &#39;#?rakudo.+?(?:skip|todo)(?:(?!RT).{2})+$&#39; ./ | wc -l
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This tells grep to recursively search for files in the current directory, and for each file, print the filename if the Perl-style regex matches the text in the file. The regex matches Rakudo skip/todo directives that didn&amp;rsquo;t already have an RT reference. The output of grep is then passed to &lt;code&gt;wc&lt;/code&gt; in order to count the number of files. Turns out there were 236 files affected, and this method didn&amp;rsquo;t even count the number of occurrences &lt;em&gt;within&lt;/em&gt; a file. Even if it took 5 minutes per file to raise the ticket on RT, update the file, commit the change and issue a pull request, that&amp;rsquo;s still 20 hours of work. It gets more complicated when you have to apportion that work between several people. At this point my spidey sense was tingling &amp;hellip; can you say &amp;ldquo;automation&amp;rdquo;?&lt;/p&gt;
+
+&lt;h3 id=&#34;using-a-machine-to-raise-rt-tickets-like-a-machine:8f3a1e2bb13193f3eb6c35713b20826f&#34;&gt;Using a machine to raise RT tickets &amp;ldquo;like a machine&amp;rdquo;&lt;/h3&gt;
+
+&lt;p&gt;I wrote a quick script to find all the skip/todo directives again, only this time I would capture the filename, line number and description:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+scan_directory(&#39;.&#39;);
+
+sub scan_directory
+{
+  my ($dir) = @_; 
+
+  opendir(my $dh, &amp;quot;$dir&amp;quot;) or die $!; 
+
+  while (readdir $dh)
+  {
+    my $newpath = &amp;quot;$dir/$_&amp;quot;;
+
+    next if $newpath !~ qr/^\.\/S/ || -l $newpath;
+
+    if (-d $newpath &amp;amp;&amp;amp; $newpath !~ /\.$/)
+    {   
+      scan_directory($newpath);
+    }   
+    elsif (-f $newpath)
+    {   
+      open my $file, &#39;&amp;lt;&#39;, $newpath or die &amp;quot;failed to open $newpath $!\n&amp;quot;;
+      my $line_num = 1;· 
+      while (&amp;lt;$file&amp;gt;)
+      {   
+        chomp;
+        if (/^#\?rakudo.+?(?:skip|todo)((?:(?!RT).)+)$/)
+        {
+          my $subject = sprintf &amp;quot;Roast rakudo skip/todo test:%s line:%s reason:%s&amp;quot;,
+            $newpath, $line_num, $1; 
+
+         $subject =~ s/&amp;quot;//g;
+
+          my $response = `rt create -t ticket set subject=&amp;quot;$subject&amp;quot; queue=perl6 priority=0`;
+          if ($response =~ /([0-9]+)/)
+          {
+            printf &amp;quot;%s RT#:%s\n&amp;quot;, $subject, $1; 
+          }
+          else
+          {
+            die &amp;quot;Failed to capture ticket # for $subject response: $response&amp;quot;;
+          }
+        }
+        $line_num++;
+      }   
+      close $file;
+    }   
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The script is fairly simple: it&amp;rsquo;s a recursive directory scanner that scans files for Rakudo skip/todo blocks. The script uses the following line of code with backticks to execute the &lt;code&gt;rt&lt;/code&gt; command line program, raise a ticket in the Perl 6 queue and captures the response:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $response = `rt create -t ticket set subject=&amp;quot;$subject&amp;quot; queue=perl6 priority=0`;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The script then extracts the RT ticket number from the &lt;code&gt;$response&lt;/code&gt;, and prints out a line containing the filename, line number, description and the RT ticket number. I saved this output in a separate file&lt;/p&gt;
+
+&lt;p&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;a-quick-note-on-configuring-rt-cli:8f3a1e2bb13193f3eb6c35713b20826f&#34;&gt;A quick note on configuring RT CLI&lt;/h3&gt;
+
+&lt;p&gt;Configuring and using the RT command line client is simple, but finding out how to do it can be a hard - most of the sources I looked at were out of date, and the RT CPAN &lt;a href=&#34;https://metacpan.org/search?q=RT&amp;amp;size=20&#34;&gt;namespace&lt;/a&gt; has so many burned-out carcasses that Mad Max would be comfortable there. To use the command line client, first install RT::Client::CLI:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan RT::Client::CLI
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then login to the RT Perl &lt;a href=&#34;http://rt.perl.org/&#34;&gt;website&lt;/a&gt; and go to user &lt;a href=&#34;https://rt.perl.org/User/Prefs.html&#34;&gt;preferences&lt;/a&gt; and set a CLI password. Finally, create the file &lt;code&gt;.rtrc&lt;/code&gt; in your home directory. This file should contain:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;server https://rt.perl.org/
+user rt_username
+passwd rt_cli_password
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Replace &lt;code&gt;rt_username&lt;/code&gt; with whatever name shows as the top of the RT screen under &amp;ldquo;logged in as&amp;rdquo;. For me it&amp;rsquo;s my email address. Also replace &lt;code&gt;rt_cli_password&lt;/code&gt; with the CLI password you just set. Alternatively instead of a config file, you can use the following environment variables: RTSERVER, RTUSER and RTPASSWD.&lt;/p&gt;
+
+&lt;p&gt;That&amp;rsquo;s it, RT is now configured! Try out some &lt;a href=&#34;http://requesttracker.wikia.com/wiki/CLI&#34;&gt;commands&lt;/a&gt;. &lt;a href=&#34;https://www.safaribooksonline.com/library/view/rt-essentials/0596006683/ch04.html&#34;&gt;Chapter 4&lt;/a&gt; from the RT Essentials book was also useful.&lt;/p&gt;
+
+&lt;h3 id=&#34;updating-roast:8f3a1e2bb13193f3eb6c35713b20826f&#34;&gt;Updating roast&lt;/h3&gt;
+
+&lt;p&gt;Now that I had the RT ticket numbers I needed to go back and add them to the skip/todo directives in the unit test files in roast. I scripted that too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+open my $tickets, &#39;&amp;lt;&#39;, &#39;./tickets&#39;;
+
+while (my $line = &amp;lt;$tickets&amp;gt;)
+{
+  chomp $line;
+  if (my ($filename, $line_num, $reason, $ticket_num) = $line =~ /:(.+?) .+?:(.+?) .+?:(.+?) .+?:(.+?)$/)
+  {
+    open my $file, &#39;&amp;lt;&#39;, $filename or die &amp;quot;failed to open $filename $!\n&amp;quot;;
+    my $counter = 1;
+    my @lines;
+    while (my $line = &amp;lt;$file&amp;gt;)
+    {   
+      if ($counter == $line_num)
+      {   
+        chomp $line;
+        $line =~ s/(&#39;|&amp;quot;)\s*$/ RT #$ticket_num$1\n/;
+      }   
+      push @lines, $line;
+      $counter++;
+    }   
+    close $file;
+
+    open my $output_file, &#39;&amp;gt;&#39;, $filename or die &amp;quot;failed to open $filename $!\n&amp;quot;;
+    for (@lines)
+    {   
+      print $output_file $_; 
+    }   
+    close $output_file;
+  }
+  else
+  {
+    die &amp;quot;failed to match $line!\n&amp;quot;;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This took a couple of attempts to get right. At first I thought I would try using &lt;code&gt;open&lt;/code&gt; with an awesome read/write filehandle using &lt;code&gt;+&amp;lt;&lt;/code&gt; but that turned out to be more trouble than it was worth. The other challenge was inserting the RT ticket number within the quoted string on the line, rather than outside of it. So this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#?rakudo todo &amp;quot;doesn&#39;t work yet due to copying of arrays&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Would become this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#?rakudo todo &amp;quot;doesn&#39;t work yet due to copying of arrays RT #124652&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The challenge here is that different descriptions use different delimiters to capture the description, either single or double quotes. In the script, this line handles that problem:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$line =~ s/(&#39;|&amp;quot;)\s*$/ RT #$ticket_num$1\n/;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;rsquo;s a substitution regex that captures the last quoting delimiter on the line, and replaces that with the RT ticket number plus the captured delimiter (&lt;code&gt;$1&lt;/code&gt;). It worked!&lt;/p&gt;
+
+&lt;h3 id=&#34;wrap-up:8f3a1e2bb13193f3eb6c35713b20826f&#34;&gt;Wrap up&lt;/h3&gt;
+
+&lt;p&gt;In the end I raised 641 tickets across 236 test files in roast, for about 2 hours of work. And most of that was spent trying to configure the RT command line client. One thing to keep in mind with raising hundreds of tickets is email notification. Luckily for me Robert Spier intercepted the mailsend (thanks Robert!), but it would be great if there was a way to avoid creating hundreds of notifications when raising tickets. If there&amp;rsquo;s a way, I&amp;rsquo;d love to know how.&lt;/p&gt;
+
+&lt;p&gt;Thanks to Will &amp;ldquo;Coke&amp;rdquo; Coleda, Tobias Leich (FROGGS) and Christian Bartolomäus (usev6) for reviewing the pull request and doing the work of merging it. If you&amp;rsquo;re interested in supporting Perl 6, the Rakudo team have a &lt;a href=&#34;http://rakudo.org/how-to-help/&#34;&gt;page&lt;/a&gt; explaining way to contribute. I&amp;rsquo;d also recommend looking at the Perl 6 community &lt;a href=&#34;http://perl6.org/community/&#34;&gt;page&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;If you&amp;rsquo;re based in New York or in the North-East of America, I&amp;rsquo;ll be at the &lt;a href=&#34;http://mini-conf.com&#34;&gt;Miniconf&lt;/a&gt; hackathon on June 6th, leading a team to convert Perl 5 modules to Perl 6. Hope to see everyone there!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Get started with Perl 6 one liners</title>
+      <link>http://perltricks.com/article/136/2014/11/20/Get-started-with-Perl-6-one-liners/</link>
+      <pubDate>Thu, 20 Nov 2014 14:04:56 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/136/2014/11/20/Get-started-with-Perl-6-one-liners/</guid>
+      <description>
+
+&lt;p&gt;One thing that sets Perl apart from other languages is the ability to write small programs in a single line of code, known as a &amp;ldquo;one liner&amp;rdquo;. It&amp;rsquo;s often faster to type a program directly into the terminal than to write a throwaway script. And one liners are powerful too; they&amp;rsquo;re complete Perl programs that can load external libraries but also integrate into the terminal. You can pipe data in or out of a one liner.&lt;/p&gt;
+
+&lt;p&gt;Like its predecessor, Perl 6 supports one liners. And in the same way Perl 6 cleaned up Perl 5&amp;rsquo;s warts elsewhere, the one liner syntax is also better. It&amp;rsquo;s cleaner with fewer special variables and options to memorize. This article aims to get you up-and-running with Perl 6 one liners.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-basics:f134c951b57c0f63005d49172b15ce32&#34;&gt;The basics&lt;/h3&gt;
+
+&lt;p&gt;To get started with one liners, all you really need to understand is the &lt;code&gt;-e&lt;/code&gt; option. This tells Perl to execute what follows as a program. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;perl6 -e &#39;say &amp;quot;Hello, World!&amp;quot;&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s step through this code.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;perl6&lt;/code&gt; invokes the Perl 6 program&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-e&lt;/code&gt; tells Perl 6 to execute&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;&#39;say &amp;quot;Hello, World!&amp;quot;&#39;&lt;/code&gt; is the program. Every program must be surrounded in single quotes (except on Windows, see (&lt;a href=&#34;https://github.com/sillymoose/Perl6-One-Liners#converting-for-windows&#34;&gt;converting for Windows&lt;/a&gt;).&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;To run a one-liner, just type it into the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -e &#39;say &amp;quot;Hello, World!&amp;quot;&#39;
+Hello, World!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;file-processing:f134c951b57c0f63005d49172b15ce32&#34;&gt;File processing&lt;/h3&gt;
+
+&lt;p&gt;If you want to load a file, just add the path to the file after the program code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -e &#39;for (lines) { say $_ }&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This program prints every line in &lt;code&gt;/path/to/file.txt&lt;/code&gt;. You may know that &lt;code&gt;$_&lt;/code&gt; is the default variable, which in this case is the current line being looped through. &lt;code&gt;lines&lt;/code&gt; is a list that is automatically created for you whenever you pass a filepath to a one-liner. Now let&amp;rsquo;s re-write that one liner, step-by-step. These one liners are all equivalent:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -e &#39;for (lines) { say $_ }&#39; /path/to/file.txt
+&amp;gt; perl6 -e &#39;for (lines) { $_.say }&#39; /path/to/file.txt
+&amp;gt; perl6 -e &#39;for (lines) { .say }&#39; /path/to/file.txt
+&amp;gt; perl6 -e &#39;.say for (lines)&#39; /path/to/file.txt
+&amp;gt; perl6 -e &#39;.say for lines&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Just like &lt;code&gt;$_&lt;/code&gt; is the default variable, methods called on the default variable can omit the variable name. They become default methods. So &lt;code&gt;$_.say&lt;/code&gt; becomes &lt;code&gt;.say&lt;/code&gt;. This brevity pays off with one liners - it&amp;rsquo;s less typing!&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;-n&lt;/code&gt; option changes the behavior of the program: it executes the code once for every line of the file. To uppercase and print every line of &lt;code&gt;/path/to/file.txt&lt;/code&gt; you can type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -ne &#39;.uc.say&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;-p&lt;/code&gt; option is just like &lt;code&gt;-n&lt;/code&gt; except that it will automatically print &lt;code&gt;$_&lt;/code&gt;. This means that another way we could uppercase a file would be:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -pe &#39;$_ = $_.uc&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or by applying a shortcut, this does the same thing:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -pe &#39;.=uc&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;-n&lt;/code&gt; and &lt;code&gt;-p&lt;/code&gt; options are really useful and often spare the programmer from extra typing.&lt;/p&gt;
+
+&lt;h3 id=&#34;load-modules:f134c951b57c0f63005d49172b15ce32&#34;&gt;Load modules&lt;/h3&gt;
+
+&lt;p&gt;The final thing you should know is how to load a module. This is really powerful as you can extend Perl 6&amp;rsquo;s capabilities by importing external libraries. The &lt;code&gt;-M&lt;/code&gt; switch stands for load module:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -M URI::Encode -e &#39;say encode_uri(&amp;quot;/10 ways to crush it with Perl 6&amp;quot;)&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code &lt;code&gt;-M URI::Encode&lt;/code&gt; loads the URI::Encode module, which exports the &lt;code&gt;encode_uri&lt;/code&gt; subroutine. It prints:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;%2F10%20ways%20to%20crush%20it%20with%20Perl%206
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;What if you have a module that is not installed in a standard location? In this case using &lt;code&gt;-M&lt;/code&gt; alone won&amp;rsquo;t work, as Perl won&amp;rsquo;t find the module. For these scenarios, just pass use the &lt;code&gt;-I&lt;/code&gt; switch to include the directory:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -I lib -M URI::Encode -e &#39;say encode_uri(&amp;quot;www.example.com/10 ways to crush it with Perl 6&amp;quot;)&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now Perl 6 will search for URI::Encode in &lt;code&gt;lib&lt;/code&gt; as well as the standard install locations.&lt;/p&gt;
+
+&lt;p&gt;Finally, if you want a summary of all of these options, just use the &lt;code&gt;-h&lt;/code&gt; option:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -h
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will print:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;    With no arguments, enters a REPL. With a &amp;quot;[programfile]&amp;quot; or the &amp;quot;-e&amp;quot; option, compiles the given program and by default also executes the compiled code.
+ 
+    -c                   check syntax only (runs BEGIN and CHECK blocks)
+    --doc                extract documentation and print it as text
+    -e program           one line of program
+    -h, --help           display this help text
+    -n                   run program once for each line of input
+    -p                   same as -n, but also print $_ at the end of lines
+    -I path              adds the path to the module search path
+    -M module            loads the module prior to running the program
+    --target=[stage]     specify compilation stage to emit
+    --optimize=[level]   use the given level of optimization (0..3)
+    -t, --trace=[flags]  enable trace flags, see &#39;parrot --help-debug&#39;
+    --encoding=[mode]    specify string encoding mode
+    -o, --output=[name]  specify name of output file
+    -v, --version        display version information
+    --stagestats         display time spent in the compilation stages
+    --ll-exception       display a low level backtrace on errors
+    --profile            print profile information to standard error
+    --doc=[module]       Use Pod::To::[module] to render inline documentation.
+     
+    Note that only boolean single-letter options may be bundled.
+
+    Output from --profile can be visualized by kcachegrind.
+
+    To modify the include path, you can set the PERL6LIB environment variable:
+
+    PERL6LIB=&amp;quot;lib&amp;quot; perl6 example.pl
+
+    For more information, see the perl6(1) man page.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:f134c951b57c0f63005d49172b15ce32&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;This article was adapted from my open source &lt;a href=&#34;https://github.com/sillymoose/Perl6-One-Liners&#34;&gt;book&lt;/a&gt;, which has lots of example Perl 6 one liners, many of which were contributed by the Perl 6 community. If you&amp;rsquo;re interested in learning more Perl 6, I&amp;rsquo;d recommend visiting the official &lt;a href=&#34;http://perl6.org/&#34;&gt;website&lt;/a&gt;, which has links to the IRC channel and official documentation.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Building Perl 6 with Visual Studio 2013</title>
+      <link>http://perltricks.com/article/135/2014/11/18/Building-Perl-6-with-Visual-Studio-2013/</link>
+      <pubDate>Tue, 18 Nov 2014 13:34:36 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/135/2014/11/18/Building-Perl-6-with-Visual-Studio-2013/</guid>
+      <description>
+
+&lt;p&gt;I think the last time I tried playing around with anything related to Perl 6 was at least two years ago. Recently, &lt;a href=&#34;https://fosdem.org/2015/schedule/event/get_ready_to_party/&#34;&gt;an understated entry&lt;/a&gt; in Fosdem &amp;lsquo;15 schedule caught the Perl community&amp;rsquo;s attention:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;The last pieces are finally falling into place. After years of design and implementation, 2015 will be the year that Perl 6 officially launches for production use.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Since then, Microsoft made &lt;a href=&#34;http://blog.nu42.com/2014/11/64-bit-perl-5201-with-visual-studio.html&#34;&gt;Visual Studio 2013 freely available&lt;/a&gt; for individuals and small teams. Up to this point, I had been using the compiler that comes with Windows SDK 7.1 with decent results, but, of course, couldn&amp;rsquo;t resist the temptation to build Perl 5.20.1 with the new compiler.&lt;/p&gt;
+
+&lt;p&gt;This was followed by an encouraging question from &lt;a href=&#34;http://www.reddit.com/r/perl/comments/2m3t6s/%CE%BD42_64bit_perl_5201_with_visual_studio_2013/cm1iqnb&#34;&gt;David Farrell&lt;/a&gt;: &amp;ldquo;Have you thought about compiling Rakudo?&amp;rdquo;&lt;/p&gt;
+
+&lt;p&gt;Well, I hadn&amp;rsquo;t.&lt;/p&gt;
+
+&lt;p&gt;I had been anticipating too many headaches from not using *nix tools, but I decided to give it a shot. Perl 6 really couldn&amp;rsquo;t be ready enough that I could just get the source and build it, could it?&lt;/p&gt;
+
+&lt;p&gt;I started with Rakudo Star - a Perl 6 distribution that bundles some useful modules and a package manager. I downloaded &lt;a href=&#34;http://rakudo.org/downloads/star/&#34;&gt;rakudo-star-2014.09.tar.gz&lt;/a&gt;, extracted it and ran the configure script:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;C:\Src&amp;gt; perl Configure.pl --gen-moar
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This configures Perl 6 to use &lt;a href=&#34;http://moarvm.com/&#34;&gt;MoarVM&lt;/a&gt;, one of several virtual machines that Perl 6 can be built for. From that point on, it was just a matter of following a few prompts and soon I had a &lt;code&gt;perl6&lt;/code&gt; that was churning through the specification tests.&lt;/p&gt;
+
+&lt;p&gt;Those did take a while. In the end there were about a dozen test failures which represent a tiny fraction of the total number of tests.&lt;/p&gt;
+
+&lt;h3 id=&#34;compiling-rakudo-from-source:8e521b9a6a55a3a00378444bf2aee097&#34;&gt;Compiling Rakudo from source&lt;/h3&gt;
+
+&lt;p&gt;Using the two months old Rakudo Star distribution left me wanting more. So I headed over to &lt;a href=&#34;https://github.com/rakudo/rakudo/&#34;&gt;Rakudo&amp;rsquo;s GitHub repository&lt;/a&gt; and proceeded to checkout and build the default branch.&lt;/p&gt;
+
+&lt;p&gt;If you want to build Rakudo from source you will need &lt;a href=&#34;http://git-scm.com/&#34;&gt;Git&lt;/a&gt; for this to work. There are several options available, including &lt;a href=&#34;https://windows.github.com/&#34;&gt;GitHub Windows&lt;/a&gt; and &lt;a href=&#34;http://git-scm.com/download/win&#34;&gt;Git for Windows&lt;/a&gt;. I prefer to use &lt;a href=&#34;https://www.cygwin.com/&#34;&gt;Cygwin&lt;/a&gt; versions of *nixy utilities by adding Cygwin&amp;rsquo;s executable locations &lt;em&gt;last&lt;/em&gt; in my &lt;code&gt;%PATH%&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Once you have a version of Git installed, these are the steps to follow:&lt;/p&gt;
+
+&lt;p&gt;Open a &amp;ldquo;VS2013 x64 Native Tools Command Prompt&amp;rdquo;. You can find the shortcuts under &lt;code&gt;C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\Tools\Shortcuts&lt;/code&gt; (with Visual Studio 2015, the shortcut is under: &lt;code&gt;C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual Studio 2015\Visual Studio Tools\Windows Desktop Command Prompts&lt;/code&gt;).&lt;/p&gt;
+
+&lt;p&gt;Run the following commands to get the Rakudo source and build it for MoarVM:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; git clone https://github.com/rakudo/rakudo.git
+&amp;gt; cd rakudo
+&amp;gt; perl Configure.pl --gen-moar --gen-nqp --backends=moar --prefix=C:/opt/Perl6
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;N.B. Make sure this is a native Windows &lt;code&gt;perl&lt;/code&gt;, not a Cygwin version in case you have those on the path. If you want to be absolutely certain, specify the full path. E.g., in my case, &lt;code&gt;C:\opt\perl-5.20.1\bin\perl Configure.pl ...&lt;/code&gt;. You may also have to adjust the &lt;code&gt;--prefix&lt;/code&gt; path to suit your system.&lt;/p&gt;
+
+&lt;p&gt;Running &lt;code&gt;Configure.pl&lt;/code&gt; will pull in the rest of the components necessary to build Rakudo. The rest is easy:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; nmake
+&amp;gt; nmake test
+&amp;gt; nmake spectest
+&amp;gt; nmake install
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Run spectest only if you are really patient or curious. When those tests were done, I had seven spectest failures. I didn&amp;rsquo;t care much about those at this point. My purpose was to have a &lt;code&gt;perl6&lt;/code&gt; working well enough to let me try, (for the first time ever!), some Perl 6 examples.&lt;/p&gt;
+
+&lt;p&gt;You can also add the &lt;code&gt;Perl6\bin&lt;/code&gt; path to your user path. If everything worked as smoothly as it did for me, try:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -v
+This is perl6 version 2014.10-114-gf8f6feb built on MoarVM version
+2014.10-17-g05b25a6
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And just for fun:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -e &amp;quot;&#39;Hello World!&#39;.say&amp;quot;
+Hello World!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;installing-perl-6-modules:8e521b9a6a55a3a00378444bf2aee097&#34;&gt;Installing Perl 6 Modules&lt;/h3&gt;
+
+&lt;p&gt;What is Perl without the ability to exploit other people&amp;rsquo;s hard work for your gain?&lt;/p&gt;
+
+&lt;p&gt;Perl 6, just like Perl 5, has a module system. You can find contributed modules at &lt;a href=&#34;http://modules.perl6.org/&#34;&gt;modules.perl6.org&lt;/a&gt;, and install them using &lt;a href=&#34;https://github.com/tadzik/panda/&#34;&gt;panda&lt;/a&gt;. Unfortunately bootstrapping panda didn&amp;rsquo;t work for me due to &lt;a href=&#34;https://github.com/tadzik/File-Find/blob/master/t/01-file-find.t&#34;&gt;test failures with File::Find&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;I am not sure if these indicate problems with the underlying library, or problems with the way tests are written. I suspect the latter, but that will have to wait. In the mean time, I will &lt;a href=&#34;http://perl6.org/documentation/&#34;&gt;explore the basic language&lt;/a&gt; to get a better feel for Perl 6.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update&lt;/strong&gt; - added VS2015 instructions. 2016-01-04&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

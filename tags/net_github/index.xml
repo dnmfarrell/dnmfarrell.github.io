@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Net_github on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/net_github/</link>
+    <description>Recent content in Net_github on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 05 Sep 2014 12:11:51 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/net_github/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Analyzing GitHub with the search API</title>
+      <link>http://perltricks.com/article/112/2014/9/5/Analyzing-GitHub-with-the-search-API/</link>
+      <pubDate>Fri, 05 Sep 2014 12:11:51 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/112/2014/9/5/Analyzing-GitHub-with-the-search-API/</guid>
+      <description>
+
+&lt;p&gt;The Net::GitHub module provides a perly interface to GitHub&amp;rsquo;s feature-rich API. You can do everything with it, from creating new repos to managing issues and initiating pull requests. Today I&amp;rsquo;m going to focus on search.&lt;/p&gt;
+
+&lt;h3 id=&#34;setup:aca40df9e1d07f7ddcf3dfd9a21817db&#34;&gt;Setup&lt;/h3&gt;
+
+&lt;p&gt;Grab yourself a copy of &lt;a href=&#34;https://metacpan.org/pod/Net::GitHub&#34;&gt;Net::GitHub&lt;/a&gt; (make sure it&amp;rsquo;s version 0.68 or higher). The CPAN Testers &lt;a href=&#34;http://matrix.cpantesters.org/?dist=Net-GitHub+0.68&#34;&gt;results&lt;/a&gt; show that it builds on all major platforms, including Windows. You can install it via from CPAN at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Net::GitHub
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;first-steps:aca40df9e1d07f7ddcf3dfd9a21817db&#34;&gt;First steps&lt;/h3&gt;
+
+&lt;p&gt;First we need to create a search object. You can search GitHub anonymously up to 5 times per minute or if you authenticate, 20 times per minute. The module &lt;a href=&#34;https://metacpan.org/pod/Net::GitHub&#34;&gt;documentation&lt;/a&gt; shows examples of how to authenticate, so we&amp;rsquo;ll proceed here unauthenticated.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Net::GitHub::V3;
+
+# unauthenticated
+my $gh = Net::GitHub::V3-&amp;gt;new;
+my $search = $gh-&amp;gt;search;
+my %data = $search-&amp;gt;repositories({ q =&amp;gt; &#39;docker&#39;});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above creates a &lt;code&gt;$search&lt;/code&gt; object, and initiates a repo search for docker. The &lt;code&gt;%data&lt;/code&gt; hash contains the search results. Let&amp;rsquo;s have a look at them:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;{&#39;incomplete_results&#39; =&amp;gt; bless( do{\(my $o = 0)}, &#39;JSON::XS::Boolean&#39; ),
+ &#39;total_count&#39; =&amp;gt; 12830,
+ &#39;items&#39; =&amp;gt; [ {
+                   &#39;open_issues_count&#39; =&amp;gt; 771,
+                   &#39;url&#39; =&amp;gt; &#39;https://api.github.com/repos/docker/docker&#39;,
+                   &#39;has_downloads&#39; =&amp;gt; bless( do{\(my $o = 1)}, &#39;JSON::XS::Boolean&#39; ),
+                   &#39;tags_url&#39; =&amp;gt; &#39;https://api.github.com/repos/docker/docker/tags&#39;,
+                   &#39;forks_count&#39; =&amp;gt; 2794,
+                   &#39;has_issues&#39; =&amp;gt; $VAR1-&amp;gt;{&#39;items&#39;}[0]{&#39;has_downloads&#39;},
+                   &#39;clone_url&#39; =&amp;gt; &#39;https://github.com/docker/docker.git&#39;,
+                   &#39;name&#39; =&amp;gt; &#39;docker&#39;,
+                   &#39;private&#39; =&amp;gt; $VAR1-&amp;gt;{&#39;incomplete_results&#39;},
+                   &#39;watchers_count&#39; =&amp;gt; 14846,
+                   &#39;pushed_at&#39; =&amp;gt; &#39;2014-09-05T00:32:46Z&#39;,
+                   &#39;description&#39; =&amp;gt; &#39;Docker - the open-source application container engine&#39;,
+                   &#39;updated_at&#39; =&amp;gt; &#39;2014-09-04T21:59:25Z&#39;,
+                   &#39;html_url&#39; =&amp;gt; &#39;https://github.com/docker/docker&#39;,
+                   &#39;stargazers_count&#39; =&amp;gt; 14846,
+                   &#39;size&#39; =&amp;gt; 135198,
+                   &#39;watchers&#39; =&amp;gt; 14846,
+                   &#39;created_at&#39; =&amp;gt; &#39;2013-01-18T18:10:
+                   &#39;open_issues&#39; =&amp;gt; 771,
+                   &#39;language&#39; =&amp;gt; &#39;Go&#39;,
+                   &#39;git_url&#39; =&amp;gt; &#39;git://github.com/docker/docker.
+                   &#39;full_name&#39; =&amp;gt; &#39;docker/docker&#39;,
+                   &#39;homepage&#39; =&amp;gt; &#39;http://www.docker.com&#39;,
+                   &#39;forks&#39; =&amp;gt; 2794,
+                   &#39;score&#39; =&amp;gt; &#39;89.950935&#39;,
+                    ...
+                   },
+            ]
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve truncated the results for the sake of brevity, to show the top level key values and one simplified repo:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;incomplete_results&lt;/code&gt; is a key value pair that returns a boolean true if the are more search results than those returned by the search&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;total_count&lt;/code&gt; shows the total number of repos returned by the search&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;items&lt;/code&gt; is the interesting one - it&amp;rsquo;s an arrayref of repo hashes&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;getting-more-results:aca40df9e1d07f7ddcf3dfd9a21817db&#34;&gt;Getting more results&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s update the code to pull more results. GitHub permits up to 100 results per API call and a 1,000 results per search.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Net::GitHub::V3;
+
+my $gh = Net::GitHub::V3-&amp;gt;new;
+my $search = $gh-&amp;gt;search;
+
+my @data = @{ $search-&amp;gt;repositories({ q =&amp;gt; &#39;docker&#39;,
+                                      per_page =&amp;gt; 100 })-&amp;gt;{items} };
+
+while ($search-&amp;gt;has_next_page) {
+    sleep 12; # 5 queries max per minute
+    push @data, @{ $search-&amp;gt;next_page-&amp;gt;{items} };
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above executes the same search as before, except now I&amp;rsquo;m passing the &lt;code&gt;per_page&lt;/code&gt; parameter to get 100 results per call. I also extract the &lt;code&gt;items&lt;/code&gt; arrayref directly into the &lt;code&gt;@data&lt;/code&gt; array. The while loop will continue to call the search API until no further results are returned or we hit the 1,000 result limit.&lt;/p&gt;
+
+&lt;h3 id=&#34;analyzing-the-data:aca40df9e1d07f7ddcf3dfd9a21817db&#34;&gt;Analyzing the data&lt;/h3&gt;
+
+&lt;p&gt;So now we have a full set of results in , what can we do with it? One analysis that could be interesting is a count by programming language. Every repo hash contains a &lt;code&gt;language&lt;/code&gt; key value pair, so we can extract and count it. Lets see which language most docker-related repos are written in.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Net::GitHub::V3;
+
+my $gh = Net::GitHub::V3-&amp;gt;new;
+my $search = $gh-&amp;gt;search;
+
+my @data = @{ $search-&amp;gt;repositories({ q =&amp;gt; &#39;docker+created:&amp;gt;2014-09-01&#39;,
+                                      per_page =&amp;gt; 100 })-&amp;gt;{items} };
+
+while ($search-&amp;gt;has_next_page) {
+    sleep 12; # 5 queries max per minute
+    push @data, @{ $search-&amp;gt;next_page-&amp;gt;{items} };
+}
+
+my %languages;
+
+for my $repo (@data) {
+    my $language = $repo-&amp;gt;{language} ? $repo-&amp;gt;{language} : &#39;Other&#39;;
+    $languages{ $language }++;
+}
+
+for (sort { $languages{$b} &amp;lt;=&amp;gt; $languages{$a} } keys %languages) {
+    printf &amp;quot;%10s: %5i\n&amp;quot;, $_, $languages{$_};
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s walk through this code. First of all, I changed the search argument to limit results to repos created since September 2014 using the &lt;code&gt;created&lt;/code&gt; qualifier. This was to ensure we didn&amp;rsquo;t hit the 1,000 result search limit. The GitHub search API supports a whole range of useful &lt;a href=&#34;https://developer.github.com/v3/search/#parameters&#34;&gt;search qualifiers&lt;/a&gt; (although it&amp;rsquo;s not documented, &lt;code&gt;created&lt;/code&gt; will take a full timestamp like &lt;code&gt;2014-09-01T00:00:00Z&lt;/code&gt;).&lt;/p&gt;
+
+&lt;p&gt;Next I declared the &lt;code&gt;%languages&lt;/code&gt; hash and iterated through the results, extracting each repo&amp;rsquo;s language. Where language was &lt;code&gt;undef&lt;/code&gt;, I labelled the repo &amp;ldquo;Other&amp;rdquo;. Finally I sorted the results and printed them using &lt;a href=&#34;http://perldoc.perl.org/functions/printf.html&#34;&gt;printf&lt;/a&gt;to get a nicely formatted output. Here are the results:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;     Shell:   238
+     Other:    58
+    Python:    13
+      Ruby:    10
+JavaScript:     8
+        Go:     6
+      Perl:     2
+       PHP:     2
+   Clojure:     1
+      Java:     1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Perhaps as is to be expected, the results show shell programs dominating the Docker space in September.&lt;/p&gt;
+
+&lt;h3 id=&#34;further-info:aca40df9e1d07f7ddcf3dfd9a21817db&#34;&gt;Further Info&lt;/h3&gt;
+
+&lt;p&gt;GitHub&amp;rsquo;s search API supports more than just repo search. You can search issues, code and users as well. Check out the official GitHub search API &lt;a href=&#34;https://developer.github.com/v3/search/&#34;&gt;documentation&lt;/a&gt; for more examples.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::GitHub&#34;&gt;Net::GitHub&lt;/a&gt; provides an interface for far more than just search though. It&amp;rsquo;s a full-featured API - you can literally manage your GitHub account via Perl code with Net::GitHub. The developer Fayland Lam has provided loads of documentation, and I found him helpful responsive to enquiries. Thanks Fayland!&lt;/p&gt;
+
+&lt;p&gt;If you&amp;rsquo;re looking for more than just search, you may also want to look at Ingy döt Net&amp;rsquo;s awesome &lt;a href=&#34;https://github.com/ingydotnet/git-hub&#34;&gt;git-hub&lt;/a&gt;, which provides the full power of GitHub at the command line.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

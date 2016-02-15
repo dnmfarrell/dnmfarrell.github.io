@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Run only one instance of a program at a time Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Lockfiles can provide race condition-free solutions"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Run only one instance of a program at a time</h1>
+            <p class="blog-post-meta">Nov 4, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>Recently I wanted to schedule a Perl app to run every minute on a server, but if an instance of the app was already running, it should exit and do nothing. This is a common problem and I was able to solve it with a lockfile. Let&rsquo;s see how to use lockfiles in Perl.</p>
+
+<h3 id="lockfiles-you-say:e2b49cd805c9d1d81412d3e39a65e7e9">Lockfiles you say?</h3>
+
+<p>Most operating systems support file locking - it&rsquo;s an essential tool to prevent multiple processes updating a file at the same time and causing data loss. Processes obtain file locks when they are accessing a file to prevent other processes changing them, and release the file lock when they&rsquo;re done, freeing the file to be used by other processes again.</p>
+
+<p>Programs can use the lock file principle to prevent multiple instances of themselves running at the same time. When the program starts it tries to lock the lockfile, if successful it executes the program, else it exits. When the program process ends, any locks it obtained are removed by the OS. You may have seen lockfiles before, they are usually ordinary files with a <code>.lock</code> extension.</p>
+
+<h3 id="file-locking-in-perl:e2b49cd805c9d1d81412d3e39a65e7e9">File locking in Perl</h3>
+
+<p>Perl provides the <a href="http://perldoc.perl.org/functions/flock.html">flock</a> function for file locking. It takes a filehandle and a constant value for the lock type. So to get an exclusive lock on a file, I could do:</p>
+
+<pre><code class="language-prettyprint">open my $file, &quot;&gt;&quot;, &quot;app.lock&quot; or die $!; 
+flock $file, 2 or die &quot;Unable to lock file $!&quot;;
+# we have the lock
+</code></pre>
+
+<p>This code starts by opening a write filehandle to the file <code>app.lock</code>. If successful, it attempts to get an exclusive lock on the file by calling flock with the number 2. An exclusive lock means no other process can access the file whilst the lock is active. Remembering the constant values for lock types can be a pain, so helpfully the <a href="https://metacpan.org/pod/Fcntl">Fcntl</a> module will export constant names if you ask nicely. I&rsquo;ll update the code to do that:</p>
+
+<pre><code class="language-prettyprint">use Fcntl qw(:flock);
+open my $file, &quot;&gt;&quot;, &quot;app.lock&quot; or die $!; 
+flock $file, LOCK_EX or die &quot;Unable to lock file $!&quot;;
+# we have the lock
+</code></pre>
+
+<p>This code does the same thing as before but we don&rsquo;t need to remember the constant value for the lock type (LOCK_EX == exclusive lock). Note there is no need to unlock the file - when the program exits, the lock will be removed automatically.</p>
+
+<h3 id="non-blocking-flock:e2b49cd805c9d1d81412d3e39a65e7e9">Non-blocking flock</h3>
+
+<p>So far so good but we have a problem. If the file is locked, <code>flock</code> will block and keep our program waiting around until the lock is removed. I want is the program to exit immediately if it can&rsquo;t obtain the lock. The only way to check if a file is locked is with <code>flock</code> though! Fortunately the <code>flock</code> developers had considered this issue, and I can pass an extra argument to indicate I want a non-blocking lock.</p>
+
+<pre><code class="language-prettyprint">use Fcntl qw(:flock);
+open my $file, &quot;&gt;&quot;, &quot;app.lock&quot; or die $!; 
+flock $file, LOCK_EX|LOCK_NB or die &quot;Unable to lock file $!&quot;;
+# we have the lock
+</code></pre>
+
+<p>I&rsquo;ve added <code>|LOCK_NB</code> to the flock arguments and now it will return false immediately if it cannot obtain an exclusive lock.This provides the non-blocking behavior I need.</p>
+
+<h3 id="testing-it-out:e2b49cd805c9d1d81412d3e39a65e7e9">Testing it out</h3>
+
+<p>I&rsquo;m going to put this locking code into a quick script so I can test the lock functionality:</p>
+
+<pre><code class="language-prettyprint">#!/usr/bin/env perl
+use Fcntl qw(:flock);
+open my $file, &quot;&gt;&quot;, &quot;app.lock&quot; or die $!; 
+flock $file, LOCK_EX|LOCK_NB or die &quot;Unable to lock file: $!&quot;;
+
+sleep(60);
+</code></pre>
+
+<p>I&rsquo;ll save the script as <code>sleep60.pl</code> and test it at the terminal:</p>
+
+<pre><code class="language-prettyprint">$ chmod 700 sleep60.pl
+$ ./sleep60.pl&amp;
+[2] 21505
+$ ./sleep60.pl
+Unable to lock file Resource temporarily unavailable at ./sleep60.pl line 4.
+</code></pre>
+
+<p>Looking good! I tried to run the script twice and the second time, the system printed the expected error message and exited.</p>
+
+<h3 id="avoiding-external-files:e2b49cd805c9d1d81412d3e39a65e7e9">Avoiding external files</h3>
+
+<p>Using an external file feels kind-of-dirty. What I&rsquo;d really like to do is tidy up by deleting the lockfile once the program has finished. However unlocking and deleting the file involves extra steps which may introduce a <a href="https://en.wikipedia.org/wiki/Race_condition">race condition</a>. Instead of deleting the file, what if we never created it? One way to do this is to use the <a href="http://perltricks.com/article/24/2013/5/11/Perl-tokens-you-should-know">__DATA__</a> filehandle, like so:</p>
+
+<pre><code class="language-prettyprint">#!/usr/bin/env perl
+use Fcntl qw(:flock);
+flock DATA, LOCK_EX|LOCK_NB or die &quot;Unable to lock file $!&quot;;
+
+sleep(60);
+__DATA__
+</code></pre>
+
+<p>This version of the script opens a lock on the <code>DATA</code> filehandle and creates no external files. Mark Jason Dominus <a href="http://perl.plover.com/yak/flock/samples/slide006.html">showed</a> this ingenious trick years ago. Another trick Mark showed was to open the lockfile on the program file itself:</p>
+
+<pre><code class="language-prettyprint">#!/usr/bin/env perl
+use Fcntl qw(:flock);
+open our $file, '&lt;', $0 or die $!;
+flock $file, LOCK_EX|LOCK_NB or die &quot;Unable to lock file $!&quot;;
+
+sleep(60);
+</code></pre>
+
+<p>This frees up <code>DATA</code> and has the added benefit that the code can be exported by a module (by using <code>our</code> instead of <code>my</code>). Note that the <code>open</code> arguments have been changed to use a read-only filehandle to avoid truncating the source code of the program! If you need this behavior, you can implement it yourself as shown above, or use my module <a href="https://metacpan.org/pod/IPC::Lockfile">IPC::Lockfile</a>, which will do it for you. If you need more refined lockfile functionality, have a look at <a href="https://metacpan.org/pod/Sys::RunAlone">Sys::RunAlone</a> which uses the same trick (thanks to <a href="https://metacpan.org/author/BOOK">BooK</a> for the reference). There are also plenty of other options on <a href="https://metacpan.org/search?size=20&amp;q=lockfile&amp;search_type=modules">CPAN</a>.</p>
+
+<p><strong>Update:</strong> <em>added Sys::RunAlone reference - 2015-11-28.</em></p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/lockfile">lockfile</a></div>
+              
+                <div class="tag"><a href="/tags/process">process</a></div>
+              
+                <div class="tag"><a href="/tags/race_condition">race_condition</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

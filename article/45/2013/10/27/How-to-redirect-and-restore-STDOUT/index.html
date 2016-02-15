@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>How to redirect and restore STDOUT Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="STDOUT is the Perl filehandle for printing standard output. Unless a filehandle is specified, all standard printed output in Perl will go to the terminal. Because STDOUT is just a global variable, it can be redirected and restored. Want to implement logging on a program without changing every print statement in the source code? Want to capture the standard output of a perl CRON job? Read on."/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">How to redirect and restore STDOUT</h1>
+            <p class="blog-post-meta">Oct 27, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>STDOUT is the Perl filehandle for printing standard output. Unless a filehandle is specified, all standard printed output in Perl will go to the terminal. Because STDOUT is just a global variable, it can be redirected and restored. Want to implement logging on a program without changing every print statement in the source code? Want to capture the standard output of a perl CRON job? Read on.</p>
+
+<h3 id="terminal-redirects:9e03003b05f671fa59d2fc87f91ddfba">Terminal redirects</h3>
+
+<p>Before you launch your favourite text editor and start hacking Perl code, you may just need to redirect the program output in the terminal. On UNIX-based systems you can write to a file using &ldquo;&gt;&rdquo; and append to a file using &ldquo;&gt;&gt;&rdquo;. Both write and append will create the file if it doesn&rsquo;t exist.</p>
+
+<pre><code class="language-prettyprint">perl program.pl &gt; /path/to/log.txt
+perl program.pl &gt;&gt; /path/to/log.txt
+</code></pre>
+
+<p>On Windows a similar effect can be achieved using PowerShell using a pipe operator (&ldquo;|&rdquo;) and &ldquo;set-content&rdquo; to write, or &ldquo;add-content&rdquo; to append (the pipe will not redirect STDERR).</p>
+
+<pre><code class="language-prettyprint">perl program.pl | set-content /path/to/log.txt
+perl program.pl | add-content /path/to/log.txt
+</code></pre>
+
+<h3 id="perl-solutions:9e03003b05f671fa59d2fc87f91ddfba">Perl solutions</h3>
+
+<p>If a terminal redirect is not specific enough for your needs, you can use one of the following Perl solutions. All of the following solutions use <a href="https://metacpan.org/pod/autodie">autodie</a> which removes the need for the classic &ldquo;|| or die $!&rdquo; syntax to be appended to every open statement in the code.</p>
+
+<h3 id="redirect-stdout-using-select:9e03003b05f671fa59d2fc87f91ddfba">Redirect STDOUT using select</h3>
+
+<p>Perl&rsquo;s built-in function <a href="http://perldoc.perl.org/functions/select.html">select</a> changes the standard output filehandle to the filehandle provided as an argument. This makes it easy to globally redirect and restore standard output.</p>
+
+<pre><code class="language-prettyprint">use feature qw/say/;
+use autodie;
+
+# open filehandle log.txt
+open (my $LOG, '&gt;&gt;', 'log.txt');
+
+# select new filehandle
+select $LOG;
+
+say 'This should be logged.';
+
+# restore STDOUT
+select STDOUT;
+
+say 'This should show in the terminal';
+</code></pre>
+
+<h3 id="redirect-stdout-using-local:9e03003b05f671fa59d2fc87f91ddfba">Redirect STDOUT using local</h3>
+
+<p>Perl&rsquo;s <a href="http://perldoc.perl.org/functions/local.html">local</a> built-in function is another option for redirecting STDOUT. The local function creates a lexically-scoped copy of any variable passed to it. By enclosing local in a do block, the code below limits the STDOUT redirect to the block scope and STDOUT is automatically restored after the closing block brace (&ldquo;}&rdquo;). By definition this is not a global solution for redirecting STDOUT.</p>
+
+<pre><code class="language-prettyprint">use feature qw/say/;
+use autodie;
+
+do {
+    local *STDOUT;
+
+    # redirect STDOUT to log.txt
+    open (STDOUT, '&gt;&gt;', 'log.txt');
+
+    say 'This should be logged.';
+};
+say 'This should show in the terminal';
+</code></pre>
+
+<h3 id="redirect-stdout-using-a-filehandle:9e03003b05f671fa59d2fc87f91ddfba">Redirect STDOUT using a filehandle</h3>
+
+<p>A third way to redirect and restore STDOUT is to copy the STDOUT filehandle before replacing it. This copy can then be restored when required. As with select, this will have a global affect on the Perl program.</p>
+
+<pre><code class="language-prettyprint">use feature qw/say/;
+use autodie;
+
+# copy STDOUT to another filehandle
+open (my $STDOLD, '&gt;&amp;', STDOUT);
+
+# redirect STDOUT to log.txt
+open (STDOUT, '&gt;&gt;', 'log.txt');
+
+say 'This should be logged.';
+
+# restore STDOUT
+open (STDOUT, '&gt;&amp;', $STDOLD);
+
+say 'This should show in the terminal';
+</code></pre>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/file">file</a></div>
+              
+                <div class="tag"><a href="/tags/filehandle">filehandle</a></div>
+              
+                <div class="tag"><a href="/tags/windows">windows</a></div>
+              
+                <div class="tag"><a href="/tags/powershell">powershell</a></div>
+              
+                <div class="tag"><a href="/tags/bash">bash</a></div>
+              
+                <div class="tag"><a href="/tags/stdout">stdout</a></div>
+              
+                <div class="tag"><a href="/tags/log">log</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>String on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/string/</link>
+    <description>Recent content in String on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 03 Oct 2013 00:42:18 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/string/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How to read a string into an array of characters using split</title>
+      <link>http://perltricks.com/article/42/2013/10/3/How-to-read-a-string-into-an-array-of-characters-using-split/</link>
+      <pubDate>Thu, 03 Oct 2013 00:42:18 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/42/2013/10/3/How-to-read-a-string-into-an-array-of-characters-using-split/</guid>
+      <description>&lt;p&gt;Perl&amp;rsquo;s split function has a useful feature that will split a string into characters. This works by supplying an empty regex pattern (&amp;ldquo;//&amp;rdquo;) to the split function. This can be used to easily split a word into an array of letters, for example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $word = &#39;camel&#39;;
+my @letters = split(//, $word);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Perl&amp;rsquo;s official documentation has more on the split function. You can read it &lt;a href=&#34;http://perldoc.perl.org/functions/split.html&#34;&gt;online&lt;/a&gt; or by running the following command at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perldoc -f split
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Execute Perl code stored in a text file with eval</title>
+      <link>http://perltricks.com/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval/</link>
+      <pubDate>Tue, 28 May 2013 12:25:15 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval/</guid>
+      <description>
+
+&lt;p&gt;The Perl &lt;a href=&#34;http://perldoc.perl.org/functions/eval.html&#34;&gt;eval function&lt;/a&gt; will execute any Perl code contained in a string that is passed to it. This article shows how eval can be used to execute Perl code stored in text files.&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s imagine that we want to execute this Perl statement stored in &amp;lsquo;print.txt&amp;rsquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;print &amp;quot;it works! \n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We can write a simple Perl script called &amp;lsquo;eval.pl&amp;rsquo; that will slurp &amp;lsquo;print.txt&amp;rsquo; into a string, and then call eval on the string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use File::Slurp;
+use strict;
+use warnings;
+
+my $command = read_file(&#39;print.txt&#39;);
+eval $command;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we can run &amp;lsquo;eval.pl&amp;rsquo; to prove it works:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl eval.pl
+it works!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;injecting-code:bbcd8770a04941299600be476a082762&#34;&gt;Injecting code&lt;/h3&gt;
+
+&lt;p&gt;When eval is called on a string containing Perl code, the code is executed within a sub lexical scope in main - similar to as if it was written within a block. This makes it possible to declare variables in the main program, and execute them in code contained in text files with eval. Let&amp;rsquo;s update &amp;lsquo;print.txt&amp;rsquo; to print a variable:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;print $message;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And &amp;lsquo;eval.pl&amp;rsquo; to declare $message and set the text to be printed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use File::Slurp;
+use strict;
+use warnings;
+
+my $command = read_file(&#39;print.txt&#39;);
+my $message = &amp;quot;We injected this message\n&amp;quot;;
+
+eval $command;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now running the code we can see the injected message is printed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl eval.pl
+We injected this message
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Although it is a cool feature, any technique which allows the execution of arbitrary code stored in text files is rife with risk. So exercise the proper caution and checks before employing this method!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>List shortcuts: qw the quote whitespace operator</title>
+      <link>http://perltricks.com/article/15/2013/4/9/List-shortcuts--qw-the-quote-whitespace-operator/</link>
+      <pubDate>Tue, 09 Apr 2013 00:02:11 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/15/2013/4/9/List-shortcuts--qw-the-quote-whitespace-operator/</guid>
+      <description>&lt;p&gt;A popular way to build a list of literal quotes in Perl is to use the quote whitespace operator (qw). It&amp;rsquo;s terse, versatile and elegant. To see why, let&amp;rsquo;s look at a typical statement using a list of strings:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# import the Encode module and three subroutines
+use Encode (&#39;decode&#39;, &#39;encode&#39;, &#39;find_encoding&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To define the list of strings in Perl we had to encase every string with apostrophes, separated by commas and surrounded by parentheses. That&amp;rsquo;s a lot of fluff, and opens the door to easy mistakes such as using speechmarks (&amp;ldquo;) when you needed an apostrophe. Instead of doing that, we could have used the quote whitespace operator:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Encode qw/decode encode find_encoding/;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The quote whitespace operator takes a list delimiter followed by a list of plain strings separated by whitespace and returns list of literal quoted strings. The delimiter can be an ASCII symbol (slash / is a popular choice), brackets or parentheses. Let&amp;rsquo;s review some more examples:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# assign a list of an array
+my @ny_boroughs = qw{Bronx Brooklyn Manhattan Queens Staten_Island};
+
+# Quote some tricky symbols using tilde as the list delimiter
+my @ascii_symbols = qw~! @ $ % ^ &amp;amp; * ( ) - _ = + { } [ ] \ | / ? ~;
+
+# Use qw an input to a loop
+foreach my $firm (qw/Deloitte ErnstAndYoung KPMG PWC/){
+    print $firm; 
+}
+
+# It will ignore spaces, even double or triple spaces
+my @colours = qw(red  blue   yellow    pink   green   ); 
+foreach (@colours) {
+    print $_;
+}
+# red
+# blue
+# yellow
+# pink
+# green
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Using the quote whitespace operator often results in a cleaner, simpler syntax that reduces the risk of error when working with lists.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Upgrade your list printing using field separator variables</title>
+      <link>http://perltricks.com/article/12/2013/4/3/Upgrade-your-list-printing-using-field-separator-variables/</link>
+      <pubDate>Wed, 03 Apr 2013 22:24:28 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/12/2013/4/3/Upgrade-your-list-printing-using-field-separator-variables/</guid>
+      <description>&lt;p&gt;A typical way to print every element of an array in Perl is using a foreach loop:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @sportscar_brands = qw/Ferrari Aston_Martin Lambourgini/;
+foreach my $brand (@sportscar_brands){
+    print &amp;quot;$brand\n&amp;quot;;
+}
+# Ferrari
+# Aston_Martin
+# Lambourgini
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;An alternative method is to set value of the the output field separator variable ($,). When printing a list or array Perl injects this variable between elements. Hence, if you set the output field separator to a newline (\n) you will achieve the same affect as the previous example, without the foreach loop.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$, = &amp;quot;\n&amp;quot;; # set the output field separator to newline
+my @sportscar_brands = qw/Ferrari Aston_Martin Lambourgini/;
+print @sportscar_brands;
+# Ferrari
+# Aston_Martin
+# Lambourgini
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The output field separator also works on lists:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$, = &amp;quot;\n&amp;quot;;
+print qw/Ferrari Aston_Martin Lambourgini/;
+# Ferrari
+# Aston_Martin
+# Lambourgini
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There is another variable called the list separator ($&amp;ldquo;). Perl injects the value of $&amp;rdquo; between the elements of an array in an interpolated string. The subtle difference here is that the output field separator will apply when using print, however the list separator applies to all arrays in an interpolated string context. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$&amp;quot; = &amp;quot;\n&amp;quot;; # set the list separator to newline
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @normalcar_brands = qw/Ford Honda Toyota Fiat/;
+print @normalcar_brands; # not inside an interpolated string
+# FordHondaToyotaFiat
+
+print &amp;quot;@normalcar_brands&amp;quot; # works in interpolated string
+# Ford
+# Honda
+# Toyota
+# Fiat
+
+my $separated_list_string = &amp;quot;@normalcar_brands&amp;quot;; # injects the separator
+print $separated_list_string;
+# Ford
+# Honda
+# Toyota
+# Fiat
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;One additional difference: despite its name, the list separator variable ($&amp;ldquo;) does not work on lists whilst the output field separator ($,) does (in Perl 5.16.3).&lt;/p&gt;
+
+&lt;p&gt;Finally if you have set both $, and $&amp;rdquo; and print an interpolated array, $&amp;rdquo; will be injected and $, will be ignored.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Repeat strings with the repetition operator Repeat strings with the repetition operator</title>
+      <link>http://perltricks.com/article/10/2013/4/2/Repeat-strings-with-the-repetition-operator-Repeat-strings-with-the-repetition-operator/</link>
+      <pubDate>Tue, 02 Apr 2013 22:14:45 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/10/2013/4/2/Repeat-strings-with-the-repetition-operator-Repeat-strings-with-the-repetition-operator/</guid>
+      <description>&lt;p&gt;You get the idea - Perl has a repetition operator (x) that repeats the scalar or list on its left by the number on it&amp;rsquo;s right (like multiplication).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $string = &#39;I like chocolate&#39;;
+print $string x 10;
+#results
+
+I like chocolateI like chocolateI like chocolateI like chocolateI like chocolateI like chocolateI like chocolateI like chocolateI like chocolateI like chocolate
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You may be able to think of more useful employment for this operator, like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl -CS -e &#39;print qq!\N{U+2661} \N{U+2665}! x 1000;&#39;
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Perl string functions - concatenate substring and split</title>
+      <link>http://perltricks.com/article/8/2013/3/31/Perl-string-functions---concatenate-substring-and-split/</link>
+      <pubDate>Sun, 31 Mar 2013 23:04:34 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/8/2013/3/31/Perl-string-functions---concatenate-substring-and-split/</guid>
+      <description>
+
+&lt;p&gt;Perl has many string functions, let&amp;rsquo;s take a look at a some of the most common ones: concatenate, substring and split.&lt;/p&gt;
+
+&lt;h3 id=&#34;concatenate:dc067c2a677a499530328edaed9be9c1&#34;&gt;Concatenate&lt;/h3&gt;
+
+&lt;p&gt;Concatenate strings by inserting a fullstop (.) operator between them. Perl will automatically &amp;lsquo;stringify&amp;rsquo; scalar variables that were initialised as a number.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# declare and concatenate two strings
+my $joke = &#39;A horse walks &#39; . &#39;into a bar.&#39;; # A horse walks into a bar.
+# Concatenate two scalars
+my $meat  = &#39;ham&#39;;
+my $bread = &#39;sandwich&#39;;
+my $lunch = $meat . $bread; # hamsandwich
+
+# Concatenate scalars initialised as numbers
+my $hour        = 6;
+my $minutes     = 30;
+my $time_string = $hour . &#39;:&#39; . $minutes; # 6:30
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;substring:dc067c2a677a499530328edaed9be9c1&#34;&gt;Substring&lt;/h3&gt;
+
+&lt;p&gt;Substring extracts and returns a sub-set of an existing string. It takes up to four arguments: the expression to substring, the offset from where to start the substring, the length of the substring and a replacement string. If the length is omitted the substring will run to the end of input expression.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# substr(expression, offset, [length], [replacement])
+my $joke            = &#39;A horse walks into a bar.&#39;;
+my $animal          = substr($joke, 2, 5); # horse
+my $favourite_place = substr($joke, -4); # bar.
+
+# Extract a substring and replace the substring in the original string
+my $verb        = substr($joke, 8, 5, &#39;runs&#39;); # walks
+print $joke; # A horse runs into a bar.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://perldoc.perl.org/functions/substr.html&#34;&gt;perldoc&lt;/a&gt; page for substr has many more useful examples.&lt;/p&gt;
+
+&lt;h3 id=&#34;split:dc067c2a677a499530328edaed9be9c1&#34;&gt;Split&lt;/h3&gt;
+
+&lt;p&gt;The split function divides an input string into a list of substrings using a split pattern, and an (optional) limit on the number of split fields. If the input expression is omitted, Perl will use $_.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# split(pattern, [expression], [number_of_fields])
+my $sentence       = &#39;A horse walks into a bar.&#39;;
+my @words          = split(&#39; &#39;, $sentence); # A,horse,walks,into,a,bar
+
+my $fullname       = &#39;Mr Stephen Doyle&#39;;
+
+# Limit the split to two fields
+my @title_and_name = split(&#39; &#39;, $fullname, 2); # Mr,Stephen Doyle
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Quoting strings in Perl - even ones containing apostrophes and quote or speech marks</title>
+      <link>http://perltricks.com/article/7/2013/3/30/Quoting-strings-in-Perl---even-ones-containing-apostrophes-and-quote-or-speech-marks/</link>
+      <pubDate>Sat, 30 Mar 2013 18:49:41 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/7/2013/3/30/Quoting-strings-in-Perl---even-ones-containing-apostrophes-and-quote-or-speech-marks/</guid>
+      <description>
+
+&lt;p&gt;Broadly speaking Perl has two types of strings: quotes that are interpolated at runtime and literal quotes that are not interpolated. Let&amp;rsquo;s review each of these in turn.&lt;/p&gt;
+
+&lt;h3 id=&#34;interpolated-strings:ef0b8c484fe51c5b018df719d3cd6116&#34;&gt;Interpolated Strings&lt;/h3&gt;
+
+&lt;p&gt;These strings are declared by encapsulating the quote in speech marks (&amp;ldquo;). If the encapsulated quote contains variables or escape-sequences, these will be processed at runtime.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $integer = 10;
+#Declare an interpolated string
+my $sentence = &amp;quot;I will count to $integer.\nThen I am coming for you!&amp;quot;;
+print $sentence;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will print:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;I will count to 10. 
+Then I am coming for you!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Notice how the $integer variable was interpolated to print it&amp;rsquo;s value, and how the newline escape sequence (\n) was applied too.&lt;/p&gt;
+
+&lt;h3 id=&#34;literal-strings-not-interpolated:ef0b8c484fe51c5b018df719d3cd6116&#34;&gt;Literal strings (not interpolated)&lt;/h3&gt;
+
+&lt;p&gt;Literal strings need to be encapsulated by apostrophes (&amp;lsquo;). The content of these strings will be preserved as quoted, and not interpolated at runtime. Using literal strings is also more efficient as the Perl parser does not have to examine the the string for variables and escape sequences for interpolation.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $integer = 10;
+#Declare a literal string
+my $sentence = &#39;I will count to $integer.\nThen I am coming for you!&#39;;
+print $sentence;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will print:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;I will count to $integer.\nThen I am coming for you!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;strings-that-contain-quote-speech-marks:ef0b8c484fe51c5b018df719d3cd6116&#34;&gt;Strings that contain quote / speech marks&lt;/h3&gt;
+
+&lt;p&gt;To quote a string that contains speech marks or apostrophes, Perl provides two quote operators: &lt;strong&gt;q&lt;/strong&gt; for literal quotes and &lt;strong&gt;qq&lt;/strong&gt; for interpolated quotes. The quote operators let the programmer define the encapsulating characters for the string - simply choose characters that are not contained in your string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $user = &amp;quot;sillymoose&amp;quot;;
+my $difficult_string_interpolated = qq{Welcome $user\n. Whilst you are are here, you can &amp;quot;do as they do in Rome&amp;quot; and enjoy yourself};
+print $difficult_string_interpolated;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will print:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Welcome sillymoose
+Whilst you are are here, you can &amp;quot;do as they do in Rome&amp;quot; and enjoy yourself
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Although the example above used curly braces ({,}) to encapsulate the string, Perl will accept most symbol characters such as those on the top of your keyboard(!@£$%^&amp;amp;*-+). Contrary to popular belief, Perl &lt;strong&gt;will not accept any character&lt;/strong&gt; as the delimiter - the letters of the alphabet (a-z) do not work for example.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

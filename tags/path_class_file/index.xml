@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Path_class_file on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/path_class_file/</link>
+    <description>Recent content in Path_class_file on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 30 Jun 2014 12:17:25 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/path_class_file/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Managing files is a breeze with this DBIx::Class plugin</title>
+      <link>http://perltricks.com/article/98/2014/6/30/Managing-files-is-a-breeze-with-this-DBIx--Class-plugin/</link>
+      <pubDate>Mon, 30 Jun 2014 12:17:25 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/98/2014/6/30/Managing-files-is-a-breeze-with-this-DBIx--Class-plugin/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Managing application file uploads is challenging: storage, de-duplication, retrieval and permissions all need to be handled. DBIx::Class::InflateColumn::FS simplifies the challenge by handling the backend storage of files so the programmer can focus on application development. Let&amp;rsquo;s take a closer look at how it works.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:da68520d418322a2aba4c2ed5fa6b38c&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;To use this example, you&amp;rsquo;ll need to install &lt;a href=&#34;https://metacpan.org/pod/DBIx::Class::InflateColumn::FS&#34;&gt;DBIx::Class::InflateColumn::FS&lt;/a&gt; from CPAN. The CPAN Testers &lt;a href=&#34;http://matrix.cpantesters.org/?dist=DBIx-Class-InflateColumn-FS+0.01007&#34;&gt;results&lt;/a&gt; show that it should run on all platforms, including Windows. You&amp;rsquo;ll also need &lt;a href=&#34;https://metacpan.org/pod/DBIx::Class::Schema::Loader&#34;&gt;DBIx::Class::Schema::Loader&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/File::MimeInfo&#34;&gt;File::MimeInfo&lt;/a&gt; if you don&amp;rsquo;t already have them and &lt;a href=&#34;https://sqlite.org/&#34;&gt;SQLite3&lt;/a&gt;. To install the Perl modules, open the terminal and enter:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan DBIx::Class::InflateColumn::FS DBIx::Class::Schema::Loader File::MimeInfo
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;setup-the-result-class:da68520d418322a2aba4c2ed5fa6b38c&#34;&gt;Setup the result class&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s create an example class for handling file uploads. DBIx::Class maps objects to database tables, so we need to create a database table that represents our file upload object. This is the SQL code for creating the upload table:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;create table upload (
+    id          integer     primary key,
+    file        text        not null,
+    mime        text        not null
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Save the code into a script called create_upload.sql and run it at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ sqlite3 MyApp.db &amp;lt; create_upload.sql
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will create the upload table. Next we can use the &amp;ldquo;dbicdump&amp;rdquo; app that comes with DBIx::Class::Schema::Loader to create the basic result class for us:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ dbicdump MyApp::Schema dbi:SQLite:MyApp.db
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Open up the newly-created MyApp/Schema/Result/Upload.pm in a text editor and add the following code, below the line beginning &amp;ldquo;# DO NOT MODIFY &amp;hellip;&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use File::MimeInfo &#39;extensions&#39;;
+
+__PACKAGE__-&amp;gt;load_components(&amp;quot;InflateColumn::FS&amp;quot;);
+__PACKAGE__-&amp;gt;add_columns(
+    &amp;quot;file&amp;quot;,
+    {   
+        data_type      =&amp;gt; &#39;TEXT&#39;,
+        is_fs_column   =&amp;gt; 1,
+        fs_column_path =&amp;gt; &#39;uploads&#39;,
+    }   
+);
+
+sub extension { 
+    my ($self) = @_;
+    [ extensions($self-&amp;gt;mime) ]-&amp;gt;[0];
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code enables the DBIx::Class::InflateColumn::FS plugin on the &amp;ldquo;file&amp;rdquo; attribute of our Upload class. Additionally we&amp;rsquo;ve added a subroutine called &amp;ldquo;extension&amp;rdquo; that will return the file extension for the file.&lt;/p&gt;
+
+&lt;h3 id=&#34;create-an-upload:da68520d418322a2aba4c2ed5fa6b38c&#34;&gt;Create an upload&lt;/h3&gt;
+
+&lt;p&gt;This script will create an upload object:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use MyApp::Schema;
+use MIME::Types;
+use lib &#39;.&#39;;
+
+open(my $file, &#39;&amp;lt;&#39;, $ARGV[0]) or die $!; 
+
+my $schema = MyApp::Schema-&amp;gt;connect(&#39;dbi:SQLite:MyApp.db&#39;);
+
+# Add the file to the database and file system
+my $upload = $schema-&amp;gt;resultset(&#39;Upload&#39;)-&amp;gt;
+        create({ file =&amp;gt; $file,
+                 mime =&amp;gt; (MIME::Types-&amp;gt;new-&amp;gt;mimeTypeOf($ARGV[0])) });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Saving the script as &amp;ldquo;create_upload.pl&amp;rdquo; we can call it at the terminal, passing the filepath to the file we want to save:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl create_upload.pl perltricks_logo.png
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Just by creating the object, DBIx::Class::InflateColumn::FS will save the file in our uploads directory. No need to write extra code that explicitly copies the file.&lt;/p&gt;
+
+&lt;h3 id=&#34;retrieve-an-upload:da68520d418322a2aba4c2ed5fa6b38c&#34;&gt;Retrieve an upload&lt;/h3&gt;
+
+&lt;p&gt;This script will retrieve the upload object. DBIx::Class::InflateColumn::FS automatically inflates the &amp;ldquo;file&amp;rdquo; column to be a &lt;a href=&#34;https://metacpan.org/pod/Path::Class::File&#34;&gt;Path::Class::File&lt;/a&gt; object, which gives us many convenience methods:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use MyApp::Schema;
+use lib &#39;.&#39;;
+
+my $schema = MyApp::Schema-&amp;gt;connect(&#39;dbi:SQLite:MyApp.db&#39;);
+
+# retrieve the upload
+my $upload = $schema-&amp;gt;resultset(&#39;Upload&#39;)-&amp;gt;find(1);
+
+# get the relative path
+$upload-&amp;gt;file-&amp;gt;relative;
+
+# get the absolute path
+$upload-&amp;gt;file-&amp;gt;absolute;
+
+# get the base filename
+$upload-&amp;gt;file-&amp;gt;basename;
+
+# get the mime type (image/png)
+$upload-&amp;gt;mime;
+
+# get the file extension
+$upload-&amp;gt;extension;
+
+# get a read filehandle
+$upload-&amp;gt;file-&amp;gt;openr;
+
+# get a write filehandle
+$upload-&amp;gt;file-&amp;gt;openw;
+
+# get an append filehandle
+$upload-&amp;gt;file-&amp;gt;opena;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;delete-an-upload:da68520d418322a2aba4c2ed5fa6b38c&#34;&gt;Delete an upload&lt;/h3&gt;
+
+&lt;p&gt;DBIx::Class::InflateColumn::FS makes it super-simple to delete files. Simply call delete on the result object to delete it from the table and the file system:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use MyApp::Schema;
+use lib &#39;.&#39;;
+
+my $schema = MyApp::Schema-&amp;gt;connect(&#39;dbi:SQLite:MyApp.db&#39;);
+
+# retrieve the upload
+my $upload = $schema-&amp;gt;resultset(&#39;Upload&#39;)-&amp;gt;find(1);
+
+# delete the file from the database and file system
+$upload-&amp;gt;delete;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:da68520d418322a2aba4c2ed5fa6b38c&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;DBIx::Class::InflateColumn::FS is useful as-is, but it shines in certain situations. For example if you&amp;rsquo;re managing image files, it really pays to store the original high-quality image, and dynamically re-size the image when requested. This way you minimize disk use and retain the flexibility in the application logic to adjust the images as required.&lt;/p&gt;
+
+&lt;p&gt;Thanks to Devin Austin whose Catalyst advent calendar &lt;a href=&#34;http://www.catalystframework.org/calendar/2008/5&#34;&gt;article&lt;/a&gt; was a useful source for this article.&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F98%2F2014%2F6%2F30%2FManaging-files-is-a-breeze-with-this-DBIx--Class-plugin&amp;amp;text=Managing+files+is+a+breeze+with+this+DBIx%3A%3AClass+plugin&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F98%2F2014%2F6%2F30%2FManaging-files-is-a-breeze-with-this-DBIx--Class-plugin&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;https://creativecommons.org/licenses/by/2.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/brightmeadow/3748310435/in/photolist-6He56Z-bDdcmL-5Jp3Z-aZWgk-aaGbZM-aZWfK-5uGDfb-63MA6m-88qSJK-6B33mX-76En59-6N6eHG-5UFiwj-3rXHK-aZWiH-4CmaD2-6vWgnX-3bai1p-c3CSTq-3PChVM-7hdnBS-2iYPPt-8Vx4Eo-4Cmav8-6P8qMy-jfddWn-4RoQjt-5ZrohQ-eQikQL-dGWiLV-4C7epr-dH2HeL-4C7eve-bnpqbW-4CmavB-8Nvnmc-8SfZR6-3ppzd-7PEzCG-FLPq-9gXmeE-dGWi5t-8Sg3sF-7h9qon-8EWHyq-dGWhC6-buGn9s-c1AukG-7VSc8B-dRCTcZ&#34;&gt;Cas&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

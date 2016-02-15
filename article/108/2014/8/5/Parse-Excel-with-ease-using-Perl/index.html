@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Parse Excel with ease using Perl Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Spreadsheet::Read makes parsing spreadsheets too easy"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Parse Excel with ease using Perl</h1>
+            <p class="blog-post-meta">Aug 5, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/108/52AEDC46-1CA2-11E4-81FD-87E12D77B041.png"/>
+            </div>
+              
+
+<p>In the business world, it seems like Excel spreadsheets are everywhere. Recently I had to parse several hundred spreadsheets under a tight deadline for a client. To make matters worse, the spreadsheets were in a mix of Excel 2003 (xls) and 2007 (xlsx) formats. Fortunately I know Perl, and using the Spreadsheet::Read module, it was easy. This article will show you how to use Spreadsheet::Read to parse Excel spreadsheets.</p>
+
+<h3 id="requirements:0b46a0650427715cdfe7d0a01e84588d">Requirements</h3>
+
+<p>You&rsquo;ll need to install <a href="https://metacpan.org/pod/Spreadsheet::Read">Spreadsheet::Read</a> and a couple of interface modules. <a href="https://metacpan.org/pod/Spreadsheet::ParseExcel">Spreadsheet::ParseExcel</a> is an interface for Excel 2003 spreadsheets and <a href="https://metacpan.org/pod/Spreadsheet::XLSX">Spreadsheet::XLSX</a> is for reading the modern Excel format. You can install all three modules from the terminal using cpan:</p>
+
+<pre><code class="language-prettyprint">$ cpan Spreadsheet::ParseExcel Spreadsheet::XLSX Spreadsheet::Read
+</code></pre>
+
+<h3 id="using-spreadsheet-read:0b46a0650427715cdfe7d0a01e84588d">Using Spreadsheet::Read</h3>
+
+<p>Let&rsquo;s parse the spreadsheet shown in the cover image, which contains an income statement. Spreadsheet::Read provides a simple, unified interface for reading spreadsheets. It exports the <code>ReadData</code> function which requires a filepath to the spreadsheet:</p>
+
+<pre><code class="language-prettyprint">use Spreadsheet::Read;
+
+my $workbook = ReadData('income_statement.xlsx');
+</code></pre>
+
+<p>Now <code>$workbook</code> contains the data structure representing the spreadsheet. We can inspect this structure by printing it with <a href="https://metacpan.org/pod/Data::Printer">Data::Printer</a>:</p>
+
+<pre><code class="language-prettyprint">\ [
+    [0] {
+        error     undef,
+        parser    &quot;Spreadsheet::XLSX&quot;,
+        sheet     {
+            Sheet1   1
+        },
+        sheets    1,
+        type      &quot;xlsx&quot;,
+        version   0.13
+    },
+    [1] {
+        attr     [],
+        B1       &quot;Income Statement 2014&quot;,
+        B2       &quot;Revenue&quot;,
+        B3       &quot;Cost of goods sold&quot;,
+        B4       &quot;Gross profit&quot;,
+        B5       &quot;Financing costs&quot;,
+        B6       &quot;Tax&quot;,
+        B7       &quot;Net profit&quot;,
+        cell     [
+            [0] [],
+            [1] [],
+            [2] [
+                [0] undef,
+                [1] &quot;Income Statement 2014&quot;,
+                [2] &quot;Revenue&quot;,
+                [3] &quot;Cost of goods sold&quot;,
+                [4] &quot;Gross profit&quot;,
+                [5] &quot;Financing costs&quot;,
+                [6] &quot;Tax&quot;,
+                [7] &quot;Net profit&quot;
+            ],
+            [3] [
+                [0] undef,
+                [1] undef,
+                [2] 50000,
+                [3] 2500,
+                [4] 47500,
+                [5] 7150,
+                [6] 10087.5,
+                [7] 30262.5
+            ]
+        ],
+        C2       &quot; $ 50,000.00 &quot;,
+        C3       &quot; $ 2,500.00 &quot;,
+        C4       &quot; $ 47,500.00 &quot;,
+        C5       &quot; $ 7,150.00 &quot;,
+        C6       &quot; $ 10,087.50 &quot;,
+        C7       &quot; $ 30,262.50 &quot;,
+        label    &quot;Sheet1&quot;,
+        maxcol   3,
+        maxrow   7
+    }
+]
+</code></pre>
+
+<p>This shows that <code>$workbook</code> is an arrayref, whose first element describes the file, and subsequent elements represent the individual worksheets. The <code>label</code> key pair contains the worksheet name, access it like this:</p>
+
+<pre><code class="language-prettyprint">$workbook-&gt;[1]{label}; #Sheet1
+</code></pre>
+
+<p>Cells can be referenced using Excel&rsquo;s grid notation (&ldquo;A3&rdquo;) or via standard Perl array access. The different between these is formatting:</p>
+
+<pre><code class="language-prettyprint">$workbook-&gt;[1]{C2}; #$ 50,000.00
+
+$workbook-&gt;[1]{cell}[3][2]; #50000
+</code></pre>
+
+<p>So if you need to perform additional processing on the data you&rsquo;re extracting (such as saving to a database), you probably want to use the <code>{cell}</code> notation, to obtain clean data. With Spreadsheet::Read array indexes begin at 1, so cell &ldquo;C2&rdquo; is [3][2].</p>
+
+<p>Perhaps you want to loop through two columns at once and print them? No problem:</p>
+
+<pre><code class="language-prettyprint">for (2..7) {
+    print &quot;$workbook-&gt;[1]{cell}[2][$_]: $workbook-&gt;[1]{cell}[3][$_]\n&quot;; 
+}
+</code></pre>
+
+<p>There are some data points which Spreadsheet::Read does not provide: you cannot access the underlying formula of a cell and the styling data is also not available.</p>
+
+<h3 id="conclusion:0b46a0650427715cdfe7d0a01e84588d">Conclusion</h3>
+
+<p>Spreadsheet::Read isn&rsquo;t just great for command line apps, it has many uses. Unlike the Microsoft .Net interop library, Perl&rsquo;s Excel interfaces are not single threaded and do not require Excel to be installed to work. Instead Spreadsheet::Read directly parses the Excel file. That makes it possible to process large computing tasks in parallel. Another possible use case is for a spreadsheet upload interface on a web application; Spreadsheet::Read also supports the Libre / Open Office formats as well as CSV text files.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/cpan">cpan</a></div>
+              
+                <div class="tag"><a href="/tags/excel">excel</a></div>
+              
+                <div class="tag"><a href="/tags/xls">xls</a></div>
+              
+                <div class="tag"><a href="/tags/xlsx">xlsx</a></div>
+              
+                <div class="tag"><a href="/tags/libre">libre</a></div>
+              
+                <div class="tag"><a href="/tags/office">office</a></div>
+              
+                <div class="tag"><a href="/tags/open">open</a></div>
+              
+                <div class="tag"><a href="/tags/read">read</a></div>
+              
+                <div class="tag"><a href="/tags/spreadsheet_read">spreadsheet_read</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

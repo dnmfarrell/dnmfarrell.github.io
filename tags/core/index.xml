@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Core on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/core/</link>
+    <description>Recent content in Core on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 29 Sep 2013 19:12:54 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/core/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How to benchmark Perl code for speed</title>
+      <link>http://perltricks.com/article/40/2013/9/29/How-to-benchmark-Perl-code-for-speed/</link>
+      <pubDate>Sun, 29 Sep 2013 19:12:54 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/40/2013/9/29/How-to-benchmark-Perl-code-for-speed/</guid>
+      <description>
+
+&lt;p&gt;Benchmarking Perl code speed is easy with the &lt;a href=&#34;https://metacpan.org/module/Benchmark&#34;&gt;Benchmark&lt;/a&gt; module. This article discusses benchmarking in general and how to use the &lt;a href=&#34;https://metacpan.org/module/Benchmark&#34;&gt;Benchmark&lt;/a&gt; module.&lt;/p&gt;
+
+&lt;h3 id=&#34;what-is-a-benchmark:9f13c3fb84d6c1f3b2fdc2b107f646bd&#34;&gt;What is a benchmark?&lt;/h3&gt;
+
+&lt;p&gt;In programming a benchmark is a point-in-time measurement of the performance of a some code. Any aspect of the code performance can be benchmarked: speed, memory use and IO frequency are some common metrics.&lt;/p&gt;
+
+&lt;h3 id=&#34;benchmark-limitations:9f13c3fb84d6c1f3b2fdc2b107f646bd&#34;&gt;Benchmark limitations&lt;/h3&gt;
+
+&lt;p&gt;One thing to keep in mind with benchmarks is that they are affected by the environment: the operating system, hardware, software and current machine state can all affect the benchmark. For Perl code the current Perl version and the compile options that Perl was installed with can have significant affects on code performance. For example if Perl was compiled with iThreads enabled, this increases the overhead of all Perl programs. Therefore benchmark comparisons are only meaningful when the benchmark environments are the same.&lt;/p&gt;
+
+&lt;h3 id=&#34;perl-s-benchmark-module:9f13c3fb84d6c1f3b2fdc2b107f646bd&#34;&gt;Perl&amp;rsquo;s Benchmark Module&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/module/Benchmark&#34;&gt;Benchmark&lt;/a&gt; comes installed in Perl core so if you have Perl installed you should already have Benchmark installed as well. If you are on a UNIX-like system then consider installing &lt;a href=&#34;https://metacpan.org/module/Benchmark::Forking&#34;&gt;Benchmark::Forking&lt;/a&gt; as it can improve the accuracy of benchmarks. &lt;a href=&#34;https://metacpan.org/module/Benchmark::Forking&#34;&gt;Benchmark::Forking&lt;/a&gt; is a drop-in replacement for &lt;a href=&#34;https://metacpan.org/module/Benchmark&#34;&gt;Benchmark&lt;/a&gt; and all of the following code examples will work with either module.&lt;/p&gt;
+
+&lt;h3 id=&#34;timing-perl-code:9f13c3fb84d6c1f3b2fdc2b107f646bd&#34;&gt;Timing Perl Code&lt;/h3&gt;
+
+&lt;p&gt;Benchmarks are most interesting when comparing performance of code - so we&amp;rsquo;re going to focus on methods that do that. Benchmark provides a &amp;ldquo;timethese&amp;rdquo; subroutine which continuously executes sets of Perl code for a number of CPU seconds and then prints out the results. Let&amp;rsquo;s compare the speed difference of two common Perl operations: array assignment using the shift built in function and direct array assignment using equals:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Benchmark qw/cmpthese timethese/;
+
+timethese(-10, {
+        shiftAssign =&amp;gt; sub {    my @alphabet = (&#39;A&#39;..&#39;Z&#39;);
+                                for (my $i = 0; $i &amp;lt; 26; $i++){
+                                    my $letter = shift @alphabet;
+                                }
+                           },
+        equalsAssign =&amp;gt; sub {   my @alphabet = (&#39;A&#39;..&#39;Z&#39;);
+                                for (my $i = 0; $i &amp;lt; 26; $i++){
+                                    my $letter = $alphabet[$i];
+                                }
+                            },
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Running the code above yielded the following results:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Benchmark: running equalsAssign, shiftAssign for at least 10 CPU seconds...
+equalsAssign: 10 wallclock secs (10.32 usr +  0.00 sys = 10.32 CPU) @ 150112.98/s (n=1549166)
+shiftAssign: 11 wallclock secs (10.43 usr +  0.00 sys = 10.43 CPU) @ 148529.82/s (n=1549166)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The key metric to focus on is the rate per CPU second. This shows that the shiftAssign code block was executed 148,529.82/s and the equalsAssign block was slightly faster, executing 150,112.98/s. Note that the testing of each block ran for different amounts of time - so the other numbers in the output are not directly comparable.&lt;/p&gt;
+
+&lt;h3 id=&#34;comparing-perl-code:9f13c3fb84d6c1f3b2fdc2b107f646bd&#34;&gt;Comparing Perl Code&lt;/h3&gt;
+
+&lt;p&gt;The &amp;ldquo;cmpthese&amp;rdquo; subroutine provided the Benchmark module accepts the same arguments and &amp;ldquo;timethese&amp;rdquo; shown above, but prints out a useful comparison grid of the results to show which code block was faster by %. Helpfully it also includes the rate per CPU second.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Benchmark qw/cmpthese timethese/;
+
+cmpthese(-10, {
+        shiftAssign =&amp;gt; sub {    my @alphabet = (&#39;A&#39;..&#39;Z&#39;);
+                                for (my $i = 0; $i &amp;lt; 26; $i++){
+                                    my $letter = shift @alphabet;
+                                }
+                           },
+        equalsAssign =&amp;gt; sub {   my @alphabet = (&#39;A&#39;..&#39;Z&#39;);
+                                for (my $i = 0; $i &amp;lt; 26; $i++){
+                                    my $letter = $alphabet[$i];
+                                }
+                            },
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Executing this code returned the following results:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;                 Rate  shiftAssign equalsAssign
+shiftAssign  142529/s           --          -4%
+equalsAssign 148159/s           4%           --
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The results above are ordered from slowest to fastest (as seen by the rate/s measurement). This benchmark shows that the equalsAssign code block was on average 4% faster than the shiftAssign code block.&lt;/p&gt;
+
+&lt;h3 id=&#34;additional-tips:9f13c3fb84d6c1f3b2fdc2b107f646bd&#34;&gt;Additional Tips&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Try to use the minimum set of code required for the behavior required - this will increase the accuracy of the benchmark pertaining to operations being benchmarked.&lt;/li&gt;
+&lt;li&gt;Use a negative number as the CPU seconds count for &amp;ldquo;timethese&amp;rdquo; or &amp;ldquo;cmpthese&amp;rdquo;. This specifies the minimum number of CPU seconds to run. &lt;a href=&#34;http://www.perlmonks.org/?node_id=8745&#34;&gt;Some sources&lt;/a&gt; recommend at least -5 seconds to avoid inaccurate benchmarks.&lt;/li&gt;
+&lt;li&gt;Sanity check your results: if you&amp;rsquo;re not sure try comparing two code blocks with one obviously slower than the other to check that Benchmark is returning sensible results.&lt;/li&gt;
+&lt;li&gt;Compare code examples rather than time individual ones: the actual execution time of a block of code is usually not that important; knowing which set of code is faster than the other however is useful as this will generally be a repeatable occurrence.&lt;/li&gt;
+&lt;li&gt;If you require more in depth benchmarking consider using &lt;a href=&#34;https://metacpan.org/module/Devel::NYTProf&#34;&gt;Devel::NYTProf&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;sources:9f13c3fb84d6c1f3b2fdc2b107f646bd&#34;&gt;Sources&lt;/h3&gt;
+
+&lt;p&gt;This article drew on information from a few sources in particular: brian d foy&amp;rsquo;s &lt;a href=&#34;http://www252.pair.com/comdog/Talks/benchmarking_perl.pdf&#34;&gt;Benchmarking Perl&lt;/a&gt; talk notes and David Golden&amp;rsquo;s &lt;a href=&#34;http://www.dagolden.com/index.php/1849/adventures-in-benchmarking-part-1/&#34;&gt;Adventures in Benchmarking&lt;/a&gt; post.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Catch and Handle Signals in Perl</title>
+      <link>http://perltricks.com/article/37/2013/8/18/Catch-and-Handle-Signals-in-Perl/</link>
+      <pubDate>Sun, 18 Aug 2013 18:48:51 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/37/2013/8/18/Catch-and-Handle-Signals-in-Perl/</guid>
+      <description>
+
+&lt;p&gt;Signals are types of messages sent by an operating system to a process such as a Perl program. Signals provide a method for communicating with a process, for example when running a command line program pressing control-c will send the interrupt signal (&amp;lsquo;SIGINT&amp;rsquo;) to the program by default terminating it. Signals are often unexpected and if not handled can leave your Perl program or data in an unfinished state. This article describes some useful Perl programming tools for gracefully handling signals.&lt;/p&gt;
+
+&lt;h3 id=&#34;method-1-the-sig-hash:7909a2df78dbcc2767753affaca8b750&#34;&gt;Method 1: The %SIG Hash&lt;/h3&gt;
+
+&lt;p&gt;All Perl programs have the global variable %SIG hash which contains keys corresponding to each signal type. When a signal is sent to a Perl program, the value of the matching key name in %SIG is automatically de-referenced. This makes it possible to assign code references to handle specific signals by adding a coderef to the signal&amp;rsquo;s key value in %SIG. Let&amp;rsquo;s use an example Perl script called sleeper.pl to demonstrate. All sleeper.pl does is sleep for 20 seconds:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+sleep(20);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now let&amp;rsquo;s update sleeper.pl to handle an interrupt signal using %SIG:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+$SIG{INT} = sub { die &amp;quot;Caught a sigint $!&amp;quot; };
+
+sleep(20);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If we run sleeper.pl on the command line and press control-c to send a SIGINT to it, we can see the our code ref was executed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl sleeper.pl
+^CCaught a sig int Interrupted system call at projects/scripts/sleeper.pl line 4.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By updating the various key-value pairs in %SIG it&amp;rsquo;s possible to handle specific signals, for example we can update sleeper.pl to handle a terminate signal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+$SIG{INT} = sub { die &amp;quot;Caught a sigint $!&amp;quot; };
+$SIG{TERM} = sub { die &amp;quot;Caught a sigterm $!&amp;quot; };
+
+sleep(20);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;rsquo;s often easier to define a signal handling subroutine rather than using anonymous subroutines for every signal you wish to catch. Let&amp;rsquo;s update sleeper.pl accordingly:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+$SIG{INT}  = \&amp;amp;signal_handler;
+$SIG{TERM} = \&amp;amp;signal_handler;
+
+sleep(20);
+
+sub signal_handler {
+    die &amp;quot;Caught a signal $!&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now the signal_handler subroutine will be called everytime sleeper.pl receives a SIGINT or SIGTERM signal. Using these techniques it&amp;rsquo;s possible to extend signal-handling behavior for all signals that you wish to be handled.&lt;/p&gt;
+
+&lt;h3 id=&#34;method-2-sigtrap:7909a2df78dbcc2767753affaca8b750&#34;&gt;Method 2: sigtrap&lt;/h3&gt;
+
+&lt;p&gt;sigtrap is a useful Perl pragma that makes handling signals easier than manipulating %SIG directly. The sigtrap pragma recognizes three groups of signals: normal-signals (HUP, PIPE, INT, TERM), error-signals (ABRT, BUS, EMT, FPE, ILL, QUIT, SEGV, SYS and TRAP) and old-interface-signals (ABRT, BUS, EMT, FPE, ILL, PIPE, QUIT, SEGV, SYS, TERM, and TRAP). Using sigtrap we can update sleeper.pl to die when any of the normal-signals are received:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use sigtrap qw/die normal-signals/;
+
+sleep(20);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Instead of calling die we can have sigtrap call the signal_handler routine that we defined previously:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use sigtrap qw/handler signal_handler normal-signals/;
+
+sleep(20);
+
+sub signal_handler {
+    die &amp;quot;Caught a signal $!&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There is a lot more to sigtrap, check out the &lt;a href=&#34;http://perldoc.perl.org/sigtrap.html&#34;&gt;sigtrap perldoc entry&lt;/a&gt; for more details about its functionality.&lt;/p&gt;
+
+&lt;h3 id=&#34;useful-signal-handling-behavior:7909a2df78dbcc2767753affaca8b750&#34;&gt;Useful signal handling behavior&lt;/h3&gt;
+
+&lt;p&gt;It&amp;rsquo;s common to call die when handling SIGINT and SIGTERM. die is useful because it will ensure that Perl stops correctly: for example Perl will execute a destructor method if present when die is called, but the destructor method will not be called if a SIGINT or SIGTERM is received and no signal handler calls die. Additional behaviors that are useful in a signal handling subroutine are stack tracing, event logging, thread termination and temporary file clean up. The correct behavior to define will depend on the type of signal received and the type of Perl program.&lt;/p&gt;
+
+&lt;h3 id=&#34;posix-signals:7909a2df78dbcc2767753affaca8b750&#34;&gt;POSIX signals&lt;/h3&gt;
+
+&lt;p&gt;Not every signal can be handled: on POSIX compliant systems (such as BSD, Linux and OSX) SIGSTOP and SIGKILL cannot be caught, blocked or ignored. See the &lt;a href=&#34;http://man7.org/linux/man-pages/man7/signal.7.html&#34;&gt;signal man page&lt;/a&gt; for further details. Not every signal needs to be handled - each signal has a default program behavior (disposition) which may not affect the running of the program (also defined on the man page). You can find a list of signals Perl recognizes by printing %SIG at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl -e &#39;foreach (keys %SIG) { print &amp;quot;$_\n&amp;quot; }&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;windows-signals:7909a2df78dbcc2767753affaca8b750&#34;&gt;Windows signals&lt;/h3&gt;
+
+&lt;p&gt;Windows implements a subset of the standard POSIX signals. These signals can still be handled using the techniques described above. Microsoft have provided a list of these signals on &lt;a href=&#34;http://msdn.microsoft.com/en-us/library/ms811896#ucmgch09_topic3&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Perl hash basics: create, update, loop, delete and sort</title>
+      <link>http://perltricks.com/article/27/2013/6/16/Perl-hash-basics--create--update--loop--delete-and-sort/</link>
+      <pubDate>Sun, 16 Jun 2013 21:32:18 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/27/2013/6/16/Perl-hash-basics--create--update--loop--delete-and-sort/</guid>
+      <description>
+
+&lt;p&gt;Hashes are one of Perl&amp;rsquo;s core data types. This article describes the main functions and syntax rules for for working with hashes in Perl.&lt;/p&gt;
+
+&lt;h3 id=&#34;declaration-and-initialization:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Declaration and initialization&lt;/h3&gt;
+
+&lt;p&gt;A hash is an unsorted collection of key value pairs. Within a hash a key is a unique string that references a particular value. A hash can be modified once initialized. Because a hash is unsorted, if it&amp;rsquo;s contents are required in a particular order then they must be sorted on output. Perl uses the &amp;lsquo;%&amp;rsquo; symbol as the variable sigil for hashes. This command will &lt;strong&gt;declare an empty hash&lt;/strong&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %hash;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Similar to the syntax for arrays, hashes can also be declared using a list of comma separated values:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %weekly_temperature = (&#39;monday&#39;, 65, &#39;tuesday&#39;, 68, &#39;wednesday&#39;, 71, &#39;thursday&#39;, 53, &#39;friday&#39;, 60);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the code above, Perl takes the first entry in the list as a key (&amp;lsquo;monday&amp;rsquo;), and the second entry as that key&amp;rsquo;s value (65). The third entry in the list (&amp;lsquo;tuesday&amp;rsquo;) would then be declared as a key, and the fourth entry (68) as its value and so on.&lt;/p&gt;
+
+&lt;p&gt;The &lt;strong&gt;&amp;lsquo;fat comma&amp;rsquo;&lt;/strong&gt; operator looks like an arrow (&amp;lsquo;=&amp;gt;&amp;rsquo;) and allows the declaration of key value pairs instead of using a comma. This makes for cleaner and more readable code. Additionally there is no need to quote strings for keys when using the fat comma. Using the fat comma, the same declaration of %weekly_temperature would look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %weekly_temperature = (
+    monday    =&amp;gt; 65, 
+    tuesday   =&amp;gt; 68,
+    wednesday =&amp;gt; 71, 
+    thursday  =&amp;gt; 53, 
+    friday    =&amp;gt; 60,
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;access-a-value:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Access a value&lt;/h3&gt;
+
+&lt;p&gt;To access the value of a key value pair, Perl requires the key encased in curly brackets.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %weekly_temperature = (
+    monday    =&amp;gt; 65, 
+    tuesday   =&amp;gt; 68,
+    wednesday =&amp;gt; 71, 
+    thursday  =&amp;gt; 53, 
+    friday    =&amp;gt; 60,
+);
+my $monday_temp = $weekly_temperature{monday};
+#65
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that strings do not need to be quoted when placed between the curly brackets for hash keys and that the scalar sigil (&amp;lsquo;$&amp;rsquo;) is used when accessing a single scalar value instead of (&amp;lsquo;%&amp;rsquo;).&lt;/p&gt;
+
+&lt;h3 id=&#34;take-a-slice-of-a-hash:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Take a slice of a hash&lt;/h3&gt;
+
+&lt;p&gt;A slice is a list of values. In Perl a slice can be read into an array, assigned to individual scalars, or used as an input to a function or subroutine. Slices are useful when you only want to extract a handful of values from a hash. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %weekly_temperature = (
+    monday    =&amp;gt; 65,
+    tuesday   =&amp;gt; 68,
+    wednesday =&amp;gt; 71,
+    thursday  =&amp;gt; 53,
+    friday    =&amp;gt; 60,
+);
+
+my ($tuesday_temp, $friday_temp) = @weekly_temperature{(&#39;tuesday&#39;, &#39;friday&#39;)};
+
+print &amp;quot;$tuesday_temp\n&amp;quot;;
+#68
+
+print &amp;quot;$friday_temp\n&amp;quot;;
+#60
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above declares the &amp;lsquo;weekly_temperature&amp;rsquo; hash as usual. What&amp;rsquo;s unusual here is that to get the slice of values, the array sigil (&amp;lsquo;@&amp;rsquo;) is used by pre-pending it to the hash variable name. With this change the has will then lookup a list of values.&lt;/p&gt;
+
+&lt;h3 id=&#34;access-all-values-with-the-values-function:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Access all values with the values function&lt;/h3&gt;
+
+&lt;p&gt;The values function returns a list of the values contained in a hash. It&amp;rsquo;s possible to loop through the list of returned values and perform operations on them (e.g. print). For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %weekly_temperature = (
+    monday    =&amp;gt; 65, 
+    tuesday   =&amp;gt; 68,
+    wednesday =&amp;gt; 71, 
+    thursday  =&amp;gt; 53, 
+    friday    =&amp;gt; 60,
+);
+foreach my $value (values %weekly_temperature){
+    print $value . &amp;quot;\n&amp;quot;;
+}
+#71 
+#53 
+#60
+#65 
+#68
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A couple more tips when working with key value pairs of a hash: the code is more readable if you vertically align the fat comma (&amp;lsquo;=&amp;gt;&amp;rsquo;) operators and unlike C, Perl allows the last element to have a trailing comma, which makes it easier to add elements later without generating a compile error.&lt;/p&gt;
+
+&lt;h3 id=&#34;access-all-keys-with-the-keys-function:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Access all keys with the keys function&lt;/h3&gt;
+
+&lt;p&gt;The keys function returns a list of the keys contained in a hash. A common way to access all the key value pairs of a hash is to use loop through the list returned by the keys function. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %consultant_salaries = (
+    associate        =&amp;gt; 25000,
+    senior_associate =&amp;gt; 40000,
+    manager          =&amp;gt; 80000,
+    director         =&amp;gt; 120000,
+    partner          =&amp;gt; 250000,
+);
+foreach my $grade (keys %consultant_salaries) {
+    print &amp;quot;$grade: $consultant_salaries{$grade}\n&amp;quot;;
+}
+#associate: 25000
+#partner: 250000
+#director: 120000
+#manager: 80000
+#senior_associate: 40000
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the above code we used the keys function to return a list of keys, looped though the list with foreach, and then printed the key and the value of each pair. Note that the print order of the pairs is different from intialization - that&amp;rsquo;s because hashes store their pairs in a random internal order. Also we used an interpreted quoted string using speech marks (&amp;ldquo;). This allows us to mix variables with plain text and escape characters like newline (&amp;rsquo;\n&amp;rsquo;) for convenient printing.&lt;/p&gt;
+
+&lt;h3 id=&#34;access-all-key-value-pairs-with-the-each-function:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Access all key value pairs with the each function&lt;/h3&gt;
+
+&lt;p&gt;The each function returns all keys and values of a hash, one at a time:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %consultant_salaries = (
+    associate        =&amp;gt; 25000,
+    senior_associate =&amp;gt; 40000,
+    manager          =&amp;gt; 80000,
+    director         =&amp;gt; 120000,
+    partner          =&amp;gt; 250000,
+);
+while (my ($key, $value) = each %consultant_salaries) {
+    print &amp;quot;$key: $value\n&amp;quot;;
+}
+#associate: 25000
+#partner: 250000
+#director: 120000
+#manager: 80000
+#senior_associate: 40000
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;add-a-new-key-value-pair:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Add a new key value pair&lt;/h3&gt;
+
+&lt;p&gt;To add a new pair to a hash, use this syntax:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# declare the hash as usual
+my %fruit_pairs = (apples =&amp;gt; &#39;oranges&#39;);
+
+# add a new key value pair
+$fruit_pairs{oranges} = &#39;lemons&#39;;
+
+# prove the new pair exists by printing the hash
+while (my ($key, $value) = each %fruit_pairs) {
+    print &amp;quot;$key: $value\n&amp;quot;;
+}
+#apples: oranges
+#oranges: lemons
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;delete-a-key-value-pair:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Delete a key value pair&lt;/h3&gt;
+
+&lt;p&gt;To remove a key value pair from a hash use the delete function. Delete requires the key of the pair in order to delete it from the hash:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %fruit_pairs = (apples =&amp;gt; &#39;oranges&#39;);
+
+# use the delete function with the pair&#39;s key
+delete $fruit_pairs{apples};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;update-a-value-of-a-pair:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Update a value of a pair&lt;/h3&gt;
+
+&lt;p&gt;To update the value of a pair, simply assign it a new value using the same syntax as to add a new key value pair. The difference here is that the key already exists in the hash:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %fruit_pairs = (apples =&amp;gt; &#39;oranges&#39;);
+# assign a new value to the pair
+$fruit_pairs{apples} = &#39;bananas&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;empty-a-hash:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Empty a hash&lt;/h3&gt;
+
+&lt;p&gt;To empty a hash, re-declare it with no members:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %fruit_pairs = (apples =&amp;gt; &#39;oranges&#39;);
+
+# empty the hash
+%fruit_pairs = ();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;increment-decrement-a-value:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;increment / decrement a value&lt;/h3&gt;
+
+&lt;p&gt;Quick answer: use the same syntax for assigning / updating a value with the increment or decrement operator:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %common_word_count = (
+    the =&amp;gt; 54,
+    and =&amp;gt; 98,
+    a   =&amp;gt; 29,
+);
+
+# increment the value of the pair with the key &#39;the&#39; by 1
+$common_word_count{the}++;
+
+# decrement the key value pair with the key &#39;a&#39;
+$common_word_count{a}--;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;sort-a-hash-alphabetically:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Sort a hash alphabetically&lt;/h3&gt;
+
+&lt;p&gt;Although the internal ordering of a hash is random, it is possible to sort the output from a hash into a more useful sequence. Perl provides the sort function to (obviously) sort lists of data. By default it sorts alphabetically:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %common_word_count = (
+    the =&amp;gt; 54,
+    and =&amp;gt; 98,
+    a   =&amp;gt; 29,
+);
+# use sort with keys to sort the keys of a hash
+foreach my $key (sort keys %common_word_count){
+   print &amp;quot;$key\n&amp;quot;;
+}
+#a
+#and
+#the
+
+# to sort values use keys to lookup the values and a compare block to compare them
+foreach my $key (sort {$common_word_count{$a} cmp $common_word_count{$b}} keys %common_word_count){
+       print &amp;quot;$key: $common_word_count{$key}\n&amp;quot;;
+}
+#a: 29
+#the: 54
+#and: 98
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s review the code above. The compare block receives the hash keys using the keys function. It then compares the values of each key using $a and $b as special variables to lookup and compare the values of the two keys. This sorted list of keys is then passed to the foreach command and looped through as usual. Note how the order is printed in value order - however it is still alphabetical ordering.&lt;/p&gt;
+
+&lt;h3 id=&#34;sort-a-hash-numerically:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Sort a hash numerically&lt;/h3&gt;
+
+&lt;p&gt;Numerically sorting a hash requires using a compare block as in the previous example, but substituting the &amp;lsquo;cmp&amp;rsquo; operator for the numerical comparison operator (&amp;rsquo;&amp;lt;=&amp;gt;&amp;rsquo;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %common_word_count = (
+            the =&amp;gt; 54,
+            and =&amp;gt; 98,
+            a   =&amp;gt; 29,
+);
+
+foreach my $key (sort {$common_word_count{$a} &amp;lt;=&amp;gt; $common_word_count{$b}} keys %common_word_count) {
+    print &amp;quot;$key: $common_word_count{$key}\n&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;get-the-hash-size:bc250e2ef05172708bd06f3d4b57f148&#34;&gt;Get the hash size&lt;/h3&gt;
+
+&lt;p&gt;To get the size of a hash, simply call the keys function in a scalar context. This can be done by assigning the return value of keys to a scalar variable:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %common_word_count = (
+            the =&amp;gt; 54,
+            and =&amp;gt; 98,
+            a   =&amp;gt; 29,
+);
+
+my $count =  keys %common_word_count;
+print &amp;quot;$count\n&amp;quot;;
+#3
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

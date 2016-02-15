@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ping on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/ping/</link>
+    <description>Recent content in Ping on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 06 Jul 2015 12:27:10 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/ping/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Host discovery with broadcast and echo</title>
+      <link>http://perltricks.com/article/180/2015/7/6/Host-discovery-with-broadcast-and-echo/</link>
+      <pubDate>Mon, 06 Jul 2015 12:27:10 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/180/2015/7/6/Host-discovery-with-broadcast-and-echo/</guid>
+      <description>
+
+&lt;p&gt;Network host discovery is the attempt to elicit the addresses of the hosts connected to a network. Last week I &lt;a href=&#34;http://perltricks.com/article/179/2015/7/1/Basic-network-hacking-with-Perl&#34;&gt;wrote&lt;/a&gt; about a unicast approach with Perl that enumerated through every address in the network subnet, messaging each address in turn to see if any hosts respond. This week I&amp;rsquo;ve been working on an alternative approach using broadcast and echo.&lt;/p&gt;
+
+&lt;h3 id=&#34;icmp-and-echo:1ce3cb0a78c3ebf18e0e797ceac88b1e&#34;&gt;ICMP and echo&lt;/h3&gt;
+
+&lt;p&gt;Internet Control Message Protocol (ICMP) is a networking protocol used by networking devices to coordinate with each other. ICMP messages contain a type and a code which have predefined &lt;a href=&#34;https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol#Control_messages&#34;&gt;meanings&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;An ICMP message of type 8 means echo request and hosts are expected to respond with an ICMP message of type 0 (echo reply). To discover hosts on a network, I can send an echo request to the network and capture the IP address of any echo replies received. Instead of cycling through every possible IP address in the subnet, I can send the echo request to the broadcast IP: &lt;code&gt;255.255.255.255&lt;/code&gt; and the message will automatically be sent to every host on the network.&lt;/p&gt;
+
+&lt;p&gt;If you&amp;rsquo;re running a modern Linux, you can test this out at the command line using &lt;code&gt;ping&lt;/code&gt; (other versions may work without the &amp;ldquo;-b&amp;rdquo; switch):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ping -b 255.255.255.255
+WARNING: pinging broadcast address
+PING 255.255.255.255 (255.255.255.255) 56(84) bytes of data.
+64 bytes from 192.168.1.4: icmp_seq=1 ttl=64 time=92.9 ms
+64 bytes from 192.168.1.4: icmp_seq=2 ttl=64 time=2.04 ms
+64 bytes from 192.168.1.4: icmp_seq=3 ttl=64 time=136 ms
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here you see one other host on my network is responding at the address &lt;code&gt;192.168.1.4&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;implementing-echo-in-perl:1ce3cb0a78c3ebf18e0e797ceac88b1e&#34;&gt;Implementing echo in Perl&lt;/h3&gt;
+
+&lt;p&gt;It&amp;rsquo;s possible to implement ping using nothing but core Perl modules. That is, if Perl is installed, this &lt;a href=&#34;https://github.com/dnmfarrell/Penetration-Testing-With-Perl/blob/master/livehost_echo&#34;&gt;script&lt;/a&gt; should work:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
+use strict;
+use warnings;
+use Socket;
+use Net::Ping;
+
+# the checksum must be correct else hosts will ignore the request
+my $msg_checksum = Net::Ping-&amp;gt;checksum(pack(&amp;quot;C2 n3&amp;quot;,8,0,0,0,1));
+my $msg = pack(&amp;quot;C2 n3&amp;quot;, 8, 0, $msg_checksum, 0, 1);
+
+socket(my $socket, AF_INET, SOCK_RAW, getprotobyname(&#39;icmp&#39;));
+setsockopt($socket, SOL_SOCKET, SO_BROADCAST, 1);
+send($socket, $msg, 0, sockaddr_in(0, inet_aton(&#39;255.255.255.255&#39;)));
+bind($socket,sockaddr_in(0,inet_aton(0)));
+
+while (1)
+{
+  my $addr = recv($socket, my $data, 1024, 0);
+  my ($tmp, $tos, $len, $id, $offset, $tt, $proto, $checksum,
+    $src_ip, $dest_ip, $options) = unpack(&#39;CCnnnCCnNNa*&#39;, $data);
+
+  if ($dest_ip != 4294967295) # destination != 255.255.255.255
+  {
+    my ($port, $peer) = sockaddr_in($addr);
+    printf &amp;quot;%s bytes from %s\n&amp;quot;, length($data), inet_ntoa($peer);
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This script starts by importing the &lt;code&gt;Socket&lt;/code&gt; and &lt;code&gt;Net::Ping&lt;/code&gt; modules - both part of the Perl core distribution. It uses the &lt;code&gt;checksum&lt;/code&gt; function from &lt;code&gt;Net::Ping&lt;/code&gt; to calculate the message checksum. The checksum is important because if it is incorrect, hosts will not reply. The script packs the code, the type, checksum and offset into &lt;code&gt;$msg&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The script then creates a broadcast socket, and sends the message to the broadcast address (&lt;code&gt;255.255.255.255&lt;/code&gt;). The socket is then bound to the network address, and the script enters a while loop attempting to read data from the socket using &lt;code&gt;recv&lt;/code&gt;. Any received data is unpacked and the packet address saved in &lt;code&gt;$addr&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The source and destination IP fields in the unpacked message are stored as 32 bit integers, so the script ignores packets whose destination matches the integer of the broadcast address, as this message was sent by the script. After that the script decodes the packet address and prints the results.&lt;/p&gt;
+
+&lt;p&gt;Running this script on my network, I can see the same host as was returned by &lt;code&gt;ping&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ sudo ./livehost_echo                                 
+28 bytes from 192.168.1.4
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;fingerprinting-hosts:1ce3cb0a78c3ebf18e0e797ceac88b1e&#34;&gt;Fingerprinting hosts&lt;/h3&gt;
+
+&lt;p&gt;The primary issue with this technique is it can only discover hosts that respond to broadcast requests, and many do not. For example Chromebooks, smart phones and Linux machines usually don&amp;rsquo;t reply (OSX machines and many versions of Windows do though). This can be an advantage though: because the response rate to broadcast is different to unicast, the echo script can be used in conjunction with unicast to fingerprint hosts. If a machine responds to a unicast message but not a broadcast, we learn something about the identity of that host. For example if I use the &lt;a href=&#34;https://github.com/dnmfarrell/Penetration-Testing-With-Perl/blob/master/livehost_scanner&#34;&gt;livehost_scanner&lt;/a&gt; script on my home network:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sudo $(which perl) livehost_scanner                                                                                                                  
+Gateway IP: 192.168.1.1
+Starting scan
+192.168.1.1 10:0d:7f:81:31:c2
+192.168.1.2 5c:c5:d4:47:0a:13 (this machine)
+192.168.1.7 38:e7:d8:00:9a:d5
+192.168.1.4 e0:ac:cb:5e:d5:da
+192.168.1.10 cc:3d:82:60:4b:95
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can see that there 2 other livehosts (excluding the router) which show up, but didn&amp;rsquo;t respond to an echo request. The echo script could be adapted to send other types of ICMP messages such as timestamp and subnet mask which can be used to further &lt;a href=&#34;http://www.sans.org/security-resources/idfaq/icmp_misuse.php&#34;&gt;identify&lt;/a&gt; a host.&lt;/p&gt;
+
+&lt;h3 id=&#34;further-thoughts:1ce3cb0a78c3ebf18e0e797ceac88b1e&#34;&gt;Further thoughts&lt;/h3&gt;
+
+&lt;p&gt;The echo script uses the broadcast technique which only works on IPv4 networks. IPv6 networks support multicast instead, but that would require changes to the script. Interestingly the number of potential addresses in a single IPv6 subnet, (I think) renders the unicast technique redundant.&lt;/p&gt;
+
+&lt;p&gt;Another other problem with the echo script is that because it opens a raw socket, it requires root privileges to run. The &lt;code&gt;ping&lt;/code&gt; utility on the other hand is installed with setuserid permissions and runs as root regardless of the user&amp;rsquo;s own privileges.&lt;/p&gt;
+
+&lt;h3 id=&#34;useful-resources:1ce3cb0a78c3ebf18e0e797ceac88b1e&#34;&gt;Useful resources&lt;/h3&gt;
+
+&lt;p&gt;In preparing this script I learned a lot about sockets and network programming. Lincoln Stein&amp;rsquo;s &lt;a href=&#34;http://www.amazon.com/Network-Programming-Perl-Lincoln-Stein/dp/0201615711/ref=la_B000APT5P6_1_1&#34;&gt;Network Programming with Perl&lt;/a&gt; was an invaluable resource for understanding sockets and the arcane invocations to use with them. If you&amp;rsquo;re considering working with sockets, the &lt;a href=&#34;https://metacpan.org/pod/IO::Socket&#34;&gt;IO::Socket&lt;/a&gt; module has a cleaner interface than the &lt;a href=&#34;https://metacpan.org/pod/Socket&#34;&gt;Socket&lt;/a&gt; module (and is also part of core). The source code for the excellent &lt;a href=&#34;https://metacpan.org/pod/NetPacket&#34;&gt;NetPacket&lt;/a&gt; distribution was useful in understanding how to parse packets.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Simple, secure backups with Perl Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Creating encrypted, compressed archives"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Simple, secure backups with Perl</h1>
+            <p class="blog-post-meta">Aug 27, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/185/487F38FA-4C68-11E5-A045-6BD5FB9DDBA7.jpeg"/>
+            </div>
+              
+
+<p>Recently I was searching for a backup solution, and ended up rolling my own. The result is <a href="https://github.com/dnmfarrell/Stasis">Stasis</a> a Perl program that uses <code>tar</code> and <code>gpg</code> to compress and encrypt files.</p>
+
+<h3 id="how-it-works:58ff53ab1c4471a3eaca8fcffabc9318">How it works</h3>
+
+<p>Stasis takes a list of file and directory paths and builds a temporary compressed gzip archive using <code>tar</code>. It then encrypts the temporary archive with <code>gpg</code> using <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard">AES 256-bit</a>, saving it to a new location and removes the temporary archive. Stasis supports backups using a passphrase or a GPG key.</p>
+
+<h3 id="examples:58ff53ab1c4471a3eaca8fcffabc9318">Examples</h3>
+
+<p>Let&rsquo;s say I wanted to backup all files in my main home directories. I&rsquo;d create a text file called <code>files_to_backup.txt</code>, that contains:</p>
+
+<pre><code>/home/dfarrell/Documents
+/home/dfarrell/Downloads
+/home/dfarrell/Music
+/home/dfarrell/Pictures
+/home/dfarrell/Videos
+</code></pre>
+
+<p>I can save all of these directories and files to Dropbox:</p>
+
+<pre><code class="language-prettyprint">$ stasis --destination ~/Dropbox --files files_to_backup.txt --passphrase mysecretkey
+</code></pre>
+
+<p>Or more tersely:</p>
+
+<pre><code class="language-prettyprint">$ stasis -d ~/Dropbox -f files_to_backup.txt --passphrase mysecretkey
+</code></pre>
+
+<p>Use passfile instead of passphrase:</p>
+
+<pre><code class="language-prettyprint">$ stasis -d ~/Dropbox -f files_to_backup.txt --passfile /path/to/passfile
+</code></pre>
+
+<p>Use the &ldquo;referrer&rdquo; argument to provide a GPG key instead of a passphrase:</p>
+
+<pre><code class="language-prettyprint">$ stasis -d ~/Dropbox -f files_to_backup.txt -r keyname@example.com
+</code></pre>
+
+<p>Ignore the files matching patterns in <code>.stasisignore</code>. This is useful if I wanted to ignore certain types of files, like OSX <code>.DS_Store</code> index files or more broadly, all hidden files: <code>.*</code>.</p>
+
+<pre><code class="language-prettyprint">$ stasis -d ~/Dropbox -f files_to_backup.txt -r keyname@example.com -i .stasisignore
+</code></pre>
+
+<p>Only keep the most recent 5 backups:</p>
+
+<pre><code class="language-prettyprint">$ stasis -d ~/Dropbox -f files_to_backup.txt -r mygpgkey@email.com -l 5
+</code></pre>
+
+<h3 id="restoring-a-backup:58ff53ab1c4471a3eaca8fcffabc9318">Restoring a backup</h3>
+
+<p>First decrypt the the backup with <code>gpg</code>:</p>
+
+<pre><code class="language-prettyprint">$ gpg -d /path/to/backup.tar.gz.gpg &gt; /path/to/output.tar.gz
+gpg: AES256 encrypted data
+gpg: encrypted with 1 passphrase
+</code></pre>
+
+<p>GPG will ask for the passphrase or GPG key passphrase to unlock the data. You can then inspect the decrypted archive&rsquo;s files with <code>tar</code>:</p>
+
+<pre><code class="language-prettyprint">$ tar --list -f /path/to/output.tar.gz
+</code></pre>
+
+<p>Or:</p>
+
+<pre><code class="language-prettyprint">$ tar -zvtf /path/to/output.tar.gz
+</code></pre>
+
+<p>To unzip the archive:</p>
+
+<pre><code class="language-prettyprint">$ tar -zvxf /path/to/output.tar.gz
+</code></pre>
+
+<h3 id="scripting-stasis:58ff53ab1c4471a3eaca8fcffabc9318">Scripting Stasis</h3>
+
+<p>This script creates weekly backups using Stasis. I have a cron job that runs the script every 30 minutes - if it can&rsquo;t find a Stasis backup archive that is less than a week old, it will start a new backup.</p>
+
+<pre><code class="language-prettyprint">#!/usr/bin/env perl
+use strict;
+use warnings;
+use Time::Piece;
+use Time::Seconds;
+use Getopt::Long 'GetOptions';
+
+GetOptions ( force =&gt; \my $force );
+
+my $time_now   = localtime;
+my $week_ago   = $time_now - ONE_WEEK;
+my $backup_dir = '/home/dfarrell/Dropbox/backups';
+my $need_backup= 'true';
+
+# look for a backup file younger than 1 week
+opendir(my $dir, $backup_dir) or die &quot;Can't open backup_dir $!\n&quot;;
+while (readdir $dir)
+{
+  next unless /^stasis-.+?\.gpg$/;
+  my @stat = stat &quot;$backup_dir/$_&quot;;
+  $need_backup = 0 if $stat[10] &gt; $week_ago-&gt;epoch;
+}
+
+if ($need_backup || $force)
+{
+  system('/home/dfarrell/Projects/Stasis/stasis \
+    -d /home/dfarrell/Dropbox/backups \
+    -f /home/dfarrell/Projects/Stasis/backup_list \
+    -i /home/dfarrell/Projects/Stasis/.stasisignore \
+    -l 4 \
+    --passfile /home/dfarrell/.stasis'
+  ) == 0 or die &quot;Error creating backup $?\n&quot;;
+}
+else
+{
+  print &quot;No backup required\n&quot;;
+</code></pre>
+
+<p>The script is saved in my path as <code>backup</code>. So I can also generate a fresh backup anytime with this terminal command <code>backup --force</code>. If you use the script, be sure to update the filepaths for your own system. Both Stasis and this script only use core Perl - no additional modules should need to installed providing you have a fairly modern Perl distribution.</p>
+
+<h3 id="disadvantages-of-stasis:58ff53ab1c4471a3eaca8fcffabc9318">Disadvantages of Stasis</h3>
+
+<p>Stasis suits my needs but it has several drawbacks which mean it might not be ideal for you. For one thing, it creates a standalone, encrypted archive every time it runs instead of incremental backups. Although this is simple, it also wastes space, so consider the implications if you intend to keep many backup copies. Because Stasis creates a temporary copy of the data it archives, it also requires enough disk space to create two compressed archives of the data.</p>
+
+<p>As Stasis creates a new archive every time, it can be a resource intensive process to backup. On my ultrabook, it takes Stasis about 20 seconds to create a new 400MB new archive. If you are intending to archive large amounts of data, you may need another solution.</p>
+
+<p>Archive names are fixed and should not be changed. Stasis creates encrypted archives with the ISO 8601 datetime in the filename like:<code>stasis-0000-00-00T00:00:00.tar.gz.gpg</code>. To detect previous backup files, Stasis looks for files matching this pattern in the backup directory. This comes into play of you use the <code>--limit</code> option, which will limit the number of archives retained.</p>
+
+<h3 id="stasis-cheatsheet:58ff53ab1c4471a3eaca8fcffabc9318">Stasis cheatsheet</h3>
+
+<pre><code>stasis [options]
+
+Options:
+
+    --destination -d  destination directory to save the encrypted archive to
+    --files       -f  filepath to a text file of filepaths to backup
+    --ignore      -i  filepath to a text file of glob patterns to ignore
+    --limit       -l  limit number of stasis backups to keep in destination directory (optional)
+    --passphrase      passphrase to use
+    --passfile        filepath to a textfile containing the password to use
+    --referrer    -r  name of the gpg key to use (instead of a passphrase or passfile)
+    --temp        -t  temp directory path, uses /tmp by default
+    --verbose     -v  verbose, print progress statements
+    --help        -h  print this documentation
+</code></pre>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/stasis">stasis</a></div>
+              
+                <div class="tag"><a href="/tags/gpg">gpg</a></div>
+              
+                <div class="tag"><a href="/tags/tar">tar</a></div>
+              
+                <div class="tag"><a href="/tags/dropbox">dropbox</a></div>
+              
+                <div class="tag"><a href="/tags/aes">aes</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

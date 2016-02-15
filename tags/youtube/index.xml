@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Youtube on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/youtube/</link>
+    <description>Recent content in Youtube on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 30 Jul 2015 12:49:46 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/youtube/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Rip music from anywhere with Audacity</title>
+      <link>http://perltricks.com/article/186/2015/7/30/Rip-music-from-anywhere-with-Audacity/</link>
+      <pubDate>Thu, 30 Jul 2015 12:49:46 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/186/2015/7/30/Rip-music-from-anywhere-with-Audacity/</guid>
+      <description>
+
+&lt;p&gt;Sorry Perlers, this post contains no Perl code. Instead I want to show you how to record music with the open source tool &lt;a href=&#34;http://audacityteam.org/&#34;&gt;Audacity&lt;/a&gt;. If you listen to music on YouTube, Soundcloud, Pandora - wherever, you can rip it and save it using Audacity. Say goodbye to the arms race of YouTube downloaders/decoders and HTTP network analysis to find the direct URL for the underlying MP3 (looking at you Bandcamp - still vulnerable at the time of writing). Instead say hello to a solution that will work as long as music plays through your computer (so - forever).&lt;/p&gt;
+
+&lt;h3 id=&#34;setup:5c5a3e3c615fcc2b53c7c3ec3df70294&#34;&gt;Setup&lt;/h3&gt;
+
+&lt;p&gt;First install Audacity. I&amp;rsquo;m a fedora user so I grabbed it with &lt;code&gt;yum&lt;/code&gt;/&lt;code&gt;dnf&lt;/code&gt;, but users of other systems can use their package manager or get pre-built &lt;a href=&#34;http://www.fosshub.com/Audacity.html/audacity-minsrc-2.1.1.tar.xz&#34;&gt;binary&lt;/a&gt; for Windows or OSX.&lt;/p&gt;
+
+&lt;p&gt;Disable your microphone, you don&amp;rsquo;t want Audacity recording anything except the sound passing out of your speakers. Navigate to the webpage which you want to record from, but don&amp;rsquo;t start the music yet.&lt;/p&gt;
+
+&lt;h3 id=&#34;recording-and-exporting:5c5a3e3c615fcc2b53c7c3ec3df70294&#34;&gt;Recording and Exporting&lt;/h3&gt;
+
+&lt;p&gt;Start Audacity, click the &amp;ldquo;Transport&amp;rdquo; menu, and select &amp;ldquo;Sound Activated Recording&amp;rdquo;. Now click the record button, and Audacity should pause recording. Switch to the webpage you wan to record from and start the music. You should see Audacity detect the music and begin recording. Once the music has finished, stop Audacity.&lt;/p&gt;
+
+&lt;p&gt;If the music contains more than one track, you&amp;rsquo;ll need to add labels at the start of each track. A fast way to do this is using the silence analyzer. Click the &amp;ldquo;Analyze&amp;rdquo; menu, and &amp;ldquo;Silence Finder&amp;rdquo;. Press &amp;ldquo;OK&amp;rdquo; and Audacity will add a label at each point of silence in the music. Make sure you add a label to the beginning of the music - sound activated recording usually means the first track is not preceded by silence. To manually add labels, just navigate to the section of music where you want to add a label and press &lt;code&gt;Control + B&lt;/code&gt;. You can give each label a title, or add them on export later.&lt;/p&gt;
+
+&lt;p&gt;To maximize the recorded volume, press &lt;code&gt;Control + A&lt;/code&gt; to select all of the recording, select the &amp;ldquo;effect&amp;rdquo; menu, and &amp;ldquo;normalize&amp;rdquo;. The default value of -1.0 decibel is fine. This will ensure the recording doesn&amp;rsquo;t sound &amp;ldquo;quiet&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Finally, select the &amp;ldquo;File&amp;rdquo; menu and &amp;ldquo;Export Audio&amp;rdquo; or &amp;ldquo;Export Multiple&amp;rdquo; if you have more than one track to export. If you&amp;rsquo;re exporting mp3, Audacity will let you add mp3 tags to each track at this point. That&amp;rsquo;s it!&lt;/p&gt;
+
+&lt;h3 id=&#34;automating-the-process:5c5a3e3c615fcc2b53c7c3ec3df70294&#34;&gt;Automating the process&lt;/h3&gt;
+
+&lt;p&gt;One downside to this method is it is highly manual. One way to automate some of it is by using an Audacity&amp;rsquo;s &lt;a href=&#34;http://manual.audacityteam.org/man/Chains_-_for_batch_processing_and_effects_automation&#34;&gt;chains&lt;/a&gt; feature. To script an audio recording process with Perl, the &lt;a href=&#34;https://metacpan.org/pod/Audio::PortAudio&#34;&gt;Audio::PortAudio&lt;/a&gt; module looks promising, for the capturing and saving of audio data at least.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Download a YouTube video with one line of Perl</title>
+      <link>http://perltricks.com/article/63/2014/1/26/Download-a-YouTube-video-with-one-line-of-Perl/</link>
+      <pubDate>Sun, 26 Jan 2014 22:41:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/63/2014/1/26/Download-a-YouTube-video-with-one-line-of-Perl/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Downloading YouTube videos with Perl is easy when you&amp;rsquo;re packing the right module. That module is &lt;a href=&#34;https://metacpan.org/pod/WWW::YouTube::Download&#34;&gt;WWW::YouTube::Download&lt;/a&gt;. Here&amp;rsquo;s how you can download a video in one line of Perl.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;*&lt;strong&gt;Edit&lt;/strong&gt; - this article was updated on 27/1/2014 to describe the &amp;ldquo;youtube-download&amp;rdquo; app that comes with WWW::YouTube::Download.*&lt;/p&gt;
+
+&lt;h3 id=&#34;warning:530784e281eacfc273aaf409e299faae&#34;&gt;Warning&lt;/h3&gt;
+
+&lt;p&gt;You should only download videos which you have permission to do so. The following is just an example of how to do this, when you have permission.&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:530784e281eacfc273aaf409e299faae&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need to install WWW::YouTube::Download. The CPAN Testers &lt;a href=&#34;http://matrix.cpantesters.org/?dist=WWW-YouTube-Download+0.56&#34;&gt;results&lt;/a&gt; for the latest version (0.56 at the time of writing) show that it runs on all major platforms.&lt;/p&gt;
+
+&lt;p&gt;You can install the module via CPAN at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan WWW:YouTube::Download
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;use-the-youtube-download-app:530784e281eacfc273aaf409e299faae&#34;&gt;Use the youtube-download app&lt;/h3&gt;
+
+&lt;p&gt;When you install WWW::YouTube::Download, it comes with a command-line app, &amp;ldquo;youtube-download&amp;rdquo;. Using it couldn&amp;rsquo;t be easier. Simply open the command line and type the program name with the URL or video id of the video to download. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ youtube-download http://www.youtube.com/watch?v=ju1IMxGSuNE
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;*&lt;strong&gt;NB&lt;/strong&gt; - using the app as shown above is the easiest way to use the tool - however at the time of writing I was not aware of the command line tool. Read on for the one liner example.*&lt;/p&gt;
+
+&lt;h3 id=&#34;download-a-video-in-one-line-of-perl:530784e281eacfc273aaf409e299faae&#34;&gt;Download a video in one line of Perl&lt;/h3&gt;
+
+&lt;p&gt;At the command line, type or paste the following command, replacing $id with the id of the video you want to download:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -MWWW::YouTube::Download -e &#39;WWW::YouTube::Download-&amp;gt;new-&amp;gt;download(q/$id/)&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;explaining-the-one-liner:530784e281eacfc273aaf409e299faae&#34;&gt;Explaining the one liner&lt;/h3&gt;
+
+&lt;p&gt;This one liner is simple. First we load WWW::YouTube::Download using the &amp;ldquo;-M&amp;rdquo; switch. Then the &amp;ldquo;-e&amp;rdquo; switch tells Perl to execute the code between the apostrophes. We then initiate a WWW::YouTube::Download object with new, and immediately call the &lt;a href=&#34;https://metacpan.org/pod/WWW::YouTube::Download#download-video_id-args&#34;&gt;download&lt;/a&gt; method on the new object. We use the quoting construct &amp;ldquo;q//&amp;rdquo; to quote strings without using quote marks as this makes the one liner more cross-platform compatible.&lt;/p&gt;
+
+&lt;h3 id=&#34;on-windows:530784e281eacfc273aaf409e299faae&#34;&gt;On Windows&lt;/h3&gt;
+
+&lt;p&gt;On Windows, you&amp;rsquo;ll need to replace the apostrophes with double quotes (&amp;ldquo;).&lt;/p&gt;
+
+&lt;h3 id=&#34;how-to-get-the-video-id:530784e281eacfc273aaf409e299faae&#34;&gt;How to get the video id&lt;/h3&gt;
+
+&lt;p&gt;The video id is the alphanumeric code value for &amp;ldquo;v&amp;rdquo; in the URL of the video you want to download. For example with this URL:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;http://www.youtube.com/watch?v=ju1IMxGSuNE
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&amp;ldquo;ju1IMxGSuNE&amp;rdquo; is the video id, because if you look in the URL after the question mark, v=ju1IMxGSuNE, which means &amp;ldquo;the value for v equals ju1IMxGSuNE&amp;rdquo;. If you have a URL but can&amp;rsquo;t work out the video id, WWW::YouTube::Download provides a video_id method. This one liner will print out the video id, just replace $url with the actual YouTube URL.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -MWWW::YouTube::Download -E &#39;say WWW::YouTube::Download-&amp;gt;new-&amp;gt;video_id(q{$url})&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;a-perl-script-to-download-youtube-videos:530784e281eacfc273aaf409e299faae&#34;&gt;A Perl script to download YouTube videos&lt;/h3&gt;
+
+&lt;p&gt;We can expand the concepts used in the one liner into a fully-fledged Perl script, called &amp;ldquo;download.pl&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use WWW::YouTube::Download;
+
+if (@ARGV) {
+    my $tube = WWW::YouTube::Download-&amp;gt;new;
+    my $video_id = $tube-&amp;gt;video_id($ARGV[0]);
+    $tube-&amp;gt;download($video_id, { filename =&amp;gt; &#39;{title}{suffix}&#39; }); 
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The script takes a YouTube URL as an argument. It gets the video id of the URL, then downloads the video into the current directory. As an added bonus, the script will save the file with the title of the video, instead of the default which is the video id. You can run the script at the command line, passing the URL of the YouTube video to download. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./download.pl http://www.youtube.com/watch?v=ju1IMxGSuNE
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You may need to set the script&amp;rsquo;s permissions to executable using chmod:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ chmod 755 download.pl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:530784e281eacfc273aaf409e299faae&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;WWW::YouTube::Download is easy to use, fast and just works. The module&amp;rsquo;s &lt;a href=&#34;https://metacpan.org/pod/WWW::YouTube::Download&#34;&gt;documentation&lt;/a&gt; is easy to follow. Thanks to Yuji Shimada for writing it!&lt;/p&gt;
+
+&lt;p&gt;There is more to WWW::YouTube::Download than shown here - one interesting feature is that you can specify the video format (if more than one is available). By default the module downloads the highest quality video available.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

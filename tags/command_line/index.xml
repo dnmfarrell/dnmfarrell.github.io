@@ -1,0 +1,668 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Command_line on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/command_line/</link>
+    <description>Recent content in Command_line on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 26 Feb 2015 13:42:57 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/command_line/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Hello perldoc, productivity booster</title>
+      <link>http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/</link>
+      <pubDate>Thu, 26 Feb 2015 13:42:57 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/</guid>
+      <description>
+
+&lt;p&gt;Imagine this scenario: you&amp;rsquo;re using the DateTime module but you can&amp;rsquo;t remember the exact name of a function it provides. What do you do? You could open your browser, go to &lt;a href=&#34;https://metacpan.org/&#34;&gt;MetaCPAN&lt;/a&gt;, search for DateTime and look up the answer in the module&amp;rsquo;s documentation. A faster way would be to switch to the command line, and type &lt;code&gt;perldoc DateTime&lt;/code&gt; to display the module&amp;rsquo;s documentation right there in the terminal.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;perldoc&lt;/code&gt; is a command line program for reading Perl documentation. It comes with Perl, so if you&amp;rsquo;ve got Perl installed, perldoc should be available too. Using perldoc is easy: as you&amp;rsquo;ve already seen, to view the documentation of a module you&amp;rsquo;ve installed, at the command line type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc Module::Name
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;perldoc will search for the module and if it finds it, display the module&amp;rsquo;s documentation (written in Pod). Using perldoc you can learn more about any aspect of Perl almost instantly. Want to know more about Pod? Try &lt;code&gt;perldoc pod&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;dial-f-for-functions:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Dial -f for functions&lt;/h3&gt;
+
+&lt;p&gt;Perl has a huge number of built-in functions, about 224 depending on the Perl version. Who can remember exactly how they all work? I know I can&amp;rsquo;t. To lookup a Perl function, use perldoc with the &lt;code&gt;-f&lt;/code&gt; switch. For instance to look up the documentation on the &lt;code&gt;rindex&lt;/code&gt; function:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -f rindex
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Which will display:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rindex STR,SUBSTR,POSITION
+rindex STR,SUBSTR
+      Works just like index() except that it returns the position of the
+      last occurrence of SUBSTR in STR. If POSITION is specified,
+      returns the last occurrence beginning at or before that position.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Aha! This is all well and good, but what do you do if you can&amp;rsquo;t remember the function name? Well you could use &lt;a href=&#34;https://metacpan.org/pod/B::Keywords&#34;&gt;B::Keywords&lt;/a&gt;, but another way would be to check out &lt;code&gt;perlfunc&lt;/code&gt; the Perl documentation on built-in functions. To read it, with perldoc just type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc perlfunc
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;predefined-variables:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Predefined Variables&lt;/h3&gt;
+
+&lt;p&gt;As with functions, Perl has a large number of predefined variables that do everything from storing the program name to tracking the state of the regex engine. They&amp;rsquo;re really useful, but often have obscure names like &lt;code&gt;$^O&lt;/code&gt; (the OS name). So if you find yourself needing to check whether you&amp;rsquo;re looking at a list separator (&lt;code&gt;$&amp;quot;&lt;/code&gt;) or an output separator (&lt;code&gt;$/&lt;/code&gt;), just use perldoc with the &lt;code&gt;-v&lt;/code&gt; switch:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -v $/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Because some predefined variables have weird names, you may need to quote them on the command line for perldoc to work:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -v &#39;$&amp;quot;&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The predefined variables documentation is known as &lt;code&gt;perlvar&lt;/code&gt;. It&amp;rsquo;s well worth a read through at least once (&lt;code&gt;perldoc perlvar&lt;/code&gt;).&lt;/p&gt;
+
+&lt;h3 id=&#34;searching-the-documentation:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Searching the documentation&lt;/h3&gt;
+
+&lt;p&gt;Perl has a lot of great documentation, but it can be hard to remember the names of all of the entries. If you ever want to browse the table of contents, use &lt;code&gt;perl&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc perl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Many people recommend perltoc for this, but for finding relevant entries, I think the perl entry is easier to browse than perltoc.&lt;/p&gt;
+
+&lt;p&gt;Perl also has an extensive FAQ, (another entry that&amp;rsquo;s worth a read through). It has loads of answers to common queries. As usual you can read it with &lt;code&gt;perldoc faq&lt;/code&gt;, but you can also search it using the &lt;code&gt;-q&lt;/code&gt; switch. Want to know if there are any good IDEs for Perl? (a common newbie question):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -q ide
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;Is there an IDE or Windows Perl Editor?
+ Perl programs are just plain text, so any editor will do.
+
+ If you&#39;re on Unix, you already have an IDE--Unix itself. The Unix
+ philosophy is the philosophy of several small tools that each do one thing
+ and do it well. It&#39;s like a carpenter&#39;s toolbox.
+
+ If you want an IDE, check the following (in alphabetical order, not order
+ of preference):
+
+ Eclipse
+
+
+     The Eclipse Perl Integration Project integrates Perl editing/debugging
+     with Eclipse.
+
+ Komodo
+
+
+     ActiveState&#39;s cross-platform (as of October 2004, that&#39;s Windows,
+     Linux, and Solaris), multi-language IDE has Perl support, including a
+     regular expression debugger and remote debugging.
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;finding-module-install-locations:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Finding module install locations&lt;/h3&gt;
+
+&lt;p&gt;perldoc isn&amp;rsquo;t just about documentation. If you need to find out where a module is installed, using the &lt;code&gt;-l&lt;/code&gt; switch, perldoc will return the filepath of the module:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -l Test::More
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you get the path, you can open it in an editor directly:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ vi $(perldoc -l Test::More)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;One trick here: some modules don&amp;rsquo;t have any POD in them, for those modules, use &lt;code&gt;-lm&lt;/code&gt; to still return the path.&lt;/p&gt;
+
+&lt;h3 id=&#34;read-module-source-code-in-perldoc:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Read module source code in perldoc&lt;/h3&gt;
+
+&lt;p&gt;Finally, perldoc can also display module source code. Just use the &lt;code&gt;-m&lt;/code&gt; switch:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -m Test::More
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;wrap-up:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Wrap up&lt;/h3&gt;
+
+&lt;p&gt;This article has covered the most common features, but perldoc has a bunch of other capabilities that you can read about at the command line with &lt;code&gt;man perldoc&lt;/code&gt;. The Perl documentation is also &lt;a href=&#34;http://perldoc.perl.org/&#34;&gt;online&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Keep in mind that as you get more proficient with perldoc, you&amp;rsquo;ll need the online resources less and less. Get in the habit of switching to the command line, looking up something in perldoc and flipping right back to programming - it&amp;rsquo;s a productivity win.&lt;/p&gt;
+
+&lt;h3 id=&#34;perldoc-cheatsheet:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;perldoc cheatsheet&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;perldoc [option]
+
+Module Options                               
+--------------                               
+         Module documentation     
+-l       Module filepath          
+-lm      Module filepath (alt.)   
+-m       Module source
+
+
+Search Options
+--------------
+-f     Get a built-in function definition
+-v     Get a variable definition
+-q      Search the faq for a keyword
+
+
+Commonly Used Entries
+---------------------
+perl         Language overview, list of all other entries
+perltoc      Table of contents
+perlfunc     Built-in functions documentation
+perlvar      Predefined variables documentation
+perlref      References documentation
+perlre       Regex documentation
+faq          The Perl FAQ
+
+Help
+----
+man perldoc     List of all perldoc options
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Get to grips with GNU Screen</title>
+      <link>http://perltricks.com/article/153/2015/2/16/Get-to-grips-with-GNU-Screen/</link>
+      <pubDate>Mon, 16 Feb 2015 14:15:50 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/153/2015/2/16/Get-to-grips-with-GNU-Screen/</guid>
+      <description>
+
+&lt;p&gt;GNU Screen is a terminal multiplexer, a program that manages terminal windows. It&amp;rsquo;s been around for 28 years, which makes it older than Perl 5. So if you thought Perl had some archaic conventions, you ain&amp;rsquo;t seen nothing yet. But despite it&amp;rsquo;s age Screen is a powerful tool for managing terminals; if you often find yourself using more than one terminal, you owe it to yourself to start using a multiplexer for major productivity gains. Screen is the most widely used multiplexer, another popular option is &lt;a href=&#34;http://tmux.sourceforge.net/&#34;&gt;tmux&lt;/a&gt;, but this article is about Screen.&lt;/p&gt;
+
+&lt;h3 id=&#34;getting-started:b3b4c08bbb2a80fadc5ed53bc347292f&#34;&gt;Getting started&lt;/h3&gt;
+
+&lt;p&gt;Start Screen by simply typing &lt;code&gt;screen&lt;/code&gt; at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ screen
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All commands in Screen start with the prefix &lt;code&gt;Control + a&lt;/code&gt;. The first command to learn is the most important; how to display the commands menu! To do this type &lt;code&gt;Control + a, ?&lt;/code&gt; (that is, press Control and the &amp;ldquo;A&amp;rdquo; key, release the keys and then type question mark). If you remember this one command, you can always get yourself out of trouble, even if you forget some of the other commands.&lt;/p&gt;
+
+&lt;h3 id=&#34;managing-windows:b3b4c08bbb2a80fadc5ed53bc347292f&#34;&gt;Managing windows&lt;/h3&gt;
+
+&lt;p&gt;To open a new terminal window, type &lt;code&gt;Control + a, c&lt;/code&gt;. Screen will create a new window - this is a new terminal process. To see a list of open windows, type &lt;code&gt;Control + a, &amp;quot;&lt;/code&gt;. You can press up and down to highlight the window you want to use, and press enter to open it.&lt;/p&gt;
+
+&lt;p&gt;You can also cycle through windows, by pressing &lt;code&gt;Control + a, n&lt;/code&gt; to move to the next window and &lt;code&gt;Control + a, p&lt;/code&gt; to move to the previous one. Every window is assigned a number, and you can jump straight to a window with: &lt;code&gt;Control + a, #&lt;/code&gt; where the pound key is the number window to jump to.&lt;/p&gt;
+
+&lt;p&gt;Finally if you want to kill a window type &lt;code&gt;Control + a, k&lt;/code&gt;. To kill all windows and exit screen the combination is: &lt;code&gt;Control + a, \&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;split-screen:b3b4c08bbb2a80fadc5ed53bc347292f&#34;&gt;Split Screen&lt;/h3&gt;
+
+&lt;p&gt;Screen can split the terminal window into multiple windows. This is really helpful if you need to look at multiple terminals simultaneously. Any window can be split vertically or horizontally and multiple times, leading to all kinds of &lt;a href=&#34;https://encrypted.google.com/search?tbm=isch&amp;amp;q=gnu%20screen&amp;amp;tbs=imgo:1&#34;&gt;combinations&lt;/a&gt;. To vertically split the screen type: &lt;code&gt;Control + a, |&lt;/code&gt; and to horizontally split type: &lt;code&gt;Control + a, S&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;To highlight the next split window, type &lt;code&gt;Control + a, tab&lt;/code&gt; (there&amp;rsquo;s also a config option to select by mouse click, more on that later). The combination &lt;code&gt;Control + a, Q&lt;/code&gt;. will quit split screen mode.&lt;/p&gt;
+
+&lt;h3 id=&#34;copy-and-paste:b3b4c08bbb2a80fadc5ed53bc347292f&#34;&gt;Copy and paste&lt;/h3&gt;
+
+&lt;p&gt;Copying and pasting with Screen isn&amp;rsquo;t super easy. So much so that I often found myself using the terminal copy and paste instead (highlight with mouse, then &lt;code&gt;Control + C&lt;/code&gt;, &lt;code&gt;Control + V&lt;/code&gt;). However it&amp;rsquo;s useful to know Screen&amp;rsquo;s copy and paste because terminal copy and paste just crumbles on split screen mode, and you may want to use the mouse select for something more useful anyway.&lt;/p&gt;
+
+&lt;p&gt;Copy and paste is modal, so you first have to enter &amp;ldquo;copy mode&amp;rdquo;. To do that type &lt;code&gt;Control + a, [&lt;/code&gt;. Now move the cursor to the beginning of the text you want to copy. Press &lt;code&gt;space&lt;/code&gt; to mark it and use the arrow keys (or h, j, k, l) to move the cursor to the end of the text you want to copy. Pressing &lt;code&gt;space&lt;/code&gt; again will copy the highlighted text. To paste, type &lt;code&gt;Control + a, ]&lt;/code&gt;. Ew.&lt;/p&gt;
+
+&lt;h3 id=&#34;scrolling:b3b4c08bbb2a80fadc5ed53bc347292f&#34;&gt;Scrolling&lt;/h3&gt;
+
+&lt;p&gt;By default Screen prevents scrolling using the X-Window scrollbar (it also doesn&amp;rsquo;t keep much history). This can be get very annoying, so you&amp;rsquo;ll want to know how to scroll. To do so, you need to enter copy mode with &lt;code&gt;Control + a, [&lt;/code&gt;. and then press &lt;code&gt;Control + u&lt;/code&gt; to scroll up and &lt;code&gt;Control + d&lt;/code&gt; to go down. Press &lt;code&gt;escape&lt;/code&gt; to exit copy mode. And until you can remember the combinations for scrolling, you&amp;rsquo;ll find yourself piping output to &lt;code&gt;less&lt;/code&gt; more than you ever imagined.&lt;/p&gt;
+
+&lt;h3 id=&#34;detaching-screen-sessions:b3b4c08bbb2a80fadc5ed53bc347292f&#34;&gt;Detaching Screen Sessions&lt;/h3&gt;
+
+&lt;p&gt;Screen sessions can be put into the background just like any other terminal process. Screen will keep open any terminal processes (like ssh sessions). This is very useful - if you find yourself working with more than 5 or 6 windows, it might be easier to detach and start a new screen session than adding more windows. To detach screen, the combination is &lt;code&gt;Control + a, d&lt;/code&gt;. When you detach, screen will print the session name and return to the terminal prompt. To re-attach to a detached session just use &lt;code&gt;screen -r&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ screen -r
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you have more than one screen session, you can display all detached sessions with &lt;code&gt;-ls&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ screen -ls
+There are screens on:
+    30549.pts-1.localhost   (Detached)
+    30498.pts-1.localhost   (Detached)
+    29207.pts-1.localhost   (Detached)
+3 Sockets in /var/run/screen/S-sillymoose.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then just re-attach to the session you want by providing the session name as an option to &lt;code&gt;-r&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ screen -r 29207
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But if you&amp;rsquo;ve really got multiple Screen sessions going, it can be hard to remember what they&amp;rsquo;re all doing. So when you start Screen, use the &lt;code&gt;-S&lt;/code&gt; option to give the session a name:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ screen -S aws_ec2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you name all your sessions, it&amp;rsquo;s much easier to know which one to re-attach to:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ screen -ls
+There are screens on:
+    31155.aws_ec2   (Detached)
+    30866.email_servers (Detached)
+    30815.ecommerce_app (Detached)
+3 Sockets in /var/run/screen/S-sillymoose.
+
+$ screen -r email_servers
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;customizing-screen:b3b4c08bbb2a80fadc5ed53bc347292f&#34;&gt;Customizing Screen&lt;/h3&gt;
+
+&lt;p&gt;Screen is highly configurable which is good because you&amp;rsquo;ll probably want to change a few of the default options. The first option you should consider isn&amp;rsquo;t a Screen option at all however.&lt;/p&gt;
+
+&lt;p&gt;To stop your ssh sessions from timing out, add the following to your &lt;code&gt;~/.ssh/config&lt;/code&gt; file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# dont timeout connections
+ServerAliveInternal 600
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If the &lt;code&gt;~/.ssh/config&lt;/code&gt; file didn&amp;rsquo;t already exist, you may have to change the permissions on the file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ chmod 644 ~/.ssh/config
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This option will have ssh send a byte every 10 minutes to the remote server to keep the session alive. You may want to change the frequency depending on your needs. Now you can have multiple ssh windows within screen, detach them for hours and return and you&amp;rsquo;ll still be logged in.&lt;/p&gt;
+
+&lt;p&gt;Like many other terminal programs, screen will look for a runcom config file (&lt;code&gt;~/.screenrc&lt;/code&gt;). I like the following options:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# no welcome message
+startup_message off
+
+# keep running processes on detach
+autodetach on
+
+# start windows at 1 instead of 0
+bind c screen 1
+bind ^c screen 1
+bind 0 select 10
+screen 1
+
+# large scrollback buffer
+defscrollback 5000
+
+# on split screen, switch window focus by clicking
+mousetrack on
+
+# refresh screen after closing a program
+altscreen on
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There are loads more options to choose from. Screen has a huge online &lt;a href=&#34;https://www.gnu.org/software/screen/manual/screen.html&#34;&gt;manual&lt;/a&gt; and it&amp;rsquo;s terminal man page is comprehensive too. Any typed command listed in the manual can be run from within screen, or added to the &lt;code&gt;~/.screenrc&lt;/code&gt; file. For instance if you don&amp;rsquo;t like Screen&amp;rsquo;s default key bindings, checkout the &lt;code&gt;bindkey&lt;/code&gt; command for overriding them, as you don&amp;rsquo;t want to be typing them for another 28 years.&lt;/p&gt;
+
+&lt;h3 id=&#34;screen-cheatsheet:b3b4c08bbb2a80fadc5ed53bc347292f&#34;&gt;Screen Cheatsheet&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;# Type before other commands
+Prefix: Control + a
+
+Shortcuts menu: ?
+
+New window:    c      Split Vertical:   |       Copy mode:     [
+Close window:  k      Split Horizontal: S       Start copy:    space
+Next window:   n      Focus next region: tab    Scroll up:     u
+Prior window:  p      Quit split screem: Q      Scroll down:   d
+Jump window #: 0-9                              End copy:      space
+List windows:  &amp;quot;                                Paste:         ]
+                                                End copy mode: escape
+
+Detach: d
+Quit:   \
+
+# Terminal commands
+Launch Screen:     screen
+Named session:     screen -S &amp;lt;name&amp;gt;
+List sessions:     screen -ls
+Re-attach session: screen -r [name]
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Get started with Perl 6 one liners</title>
+      <link>http://perltricks.com/article/136/2014/11/20/Get-started-with-Perl-6-one-liners/</link>
+      <pubDate>Thu, 20 Nov 2014 14:04:56 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/136/2014/11/20/Get-started-with-Perl-6-one-liners/</guid>
+      <description>
+
+&lt;p&gt;One thing that sets Perl apart from other languages is the ability to write small programs in a single line of code, known as a &amp;ldquo;one liner&amp;rdquo;. It&amp;rsquo;s often faster to type a program directly into the terminal than to write a throwaway script. And one liners are powerful too; they&amp;rsquo;re complete Perl programs that can load external libraries but also integrate into the terminal. You can pipe data in or out of a one liner.&lt;/p&gt;
+
+&lt;p&gt;Like its predecessor, Perl 6 supports one liners. And in the same way Perl 6 cleaned up Perl 5&amp;rsquo;s warts elsewhere, the one liner syntax is also better. It&amp;rsquo;s cleaner with fewer special variables and options to memorize. This article aims to get you up-and-running with Perl 6 one liners.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-basics:f134c951b57c0f63005d49172b15ce32&#34;&gt;The basics&lt;/h3&gt;
+
+&lt;p&gt;To get started with one liners, all you really need to understand is the &lt;code&gt;-e&lt;/code&gt; option. This tells Perl to execute what follows as a program. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;perl6 -e &#39;say &amp;quot;Hello, World!&amp;quot;&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s step through this code.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;perl6&lt;/code&gt; invokes the Perl 6 program&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-e&lt;/code&gt; tells Perl 6 to execute&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;&#39;say &amp;quot;Hello, World!&amp;quot;&#39;&lt;/code&gt; is the program. Every program must be surrounded in single quotes (except on Windows, see (&lt;a href=&#34;https://github.com/sillymoose/Perl6-One-Liners#converting-for-windows&#34;&gt;converting for Windows&lt;/a&gt;).&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;To run a one-liner, just type it into the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -e &#39;say &amp;quot;Hello, World!&amp;quot;&#39;
+Hello, World!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;file-processing:f134c951b57c0f63005d49172b15ce32&#34;&gt;File processing&lt;/h3&gt;
+
+&lt;p&gt;If you want to load a file, just add the path to the file after the program code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -e &#39;for (lines) { say $_ }&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This program prints every line in &lt;code&gt;/path/to/file.txt&lt;/code&gt;. You may know that &lt;code&gt;$_&lt;/code&gt; is the default variable, which in this case is the current line being looped through. &lt;code&gt;lines&lt;/code&gt; is a list that is automatically created for you whenever you pass a filepath to a one-liner. Now let&amp;rsquo;s re-write that one liner, step-by-step. These one liners are all equivalent:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -e &#39;for (lines) { say $_ }&#39; /path/to/file.txt
+&amp;gt; perl6 -e &#39;for (lines) { $_.say }&#39; /path/to/file.txt
+&amp;gt; perl6 -e &#39;for (lines) { .say }&#39; /path/to/file.txt
+&amp;gt; perl6 -e &#39;.say for (lines)&#39; /path/to/file.txt
+&amp;gt; perl6 -e &#39;.say for lines&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Just like &lt;code&gt;$_&lt;/code&gt; is the default variable, methods called on the default variable can omit the variable name. They become default methods. So &lt;code&gt;$_.say&lt;/code&gt; becomes &lt;code&gt;.say&lt;/code&gt;. This brevity pays off with one liners - it&amp;rsquo;s less typing!&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;-n&lt;/code&gt; option changes the behavior of the program: it executes the code once for every line of the file. To uppercase and print every line of &lt;code&gt;/path/to/file.txt&lt;/code&gt; you can type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -ne &#39;.uc.say&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;-p&lt;/code&gt; option is just like &lt;code&gt;-n&lt;/code&gt; except that it will automatically print &lt;code&gt;$_&lt;/code&gt;. This means that another way we could uppercase a file would be:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -pe &#39;$_ = $_.uc&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or by applying a shortcut, this does the same thing:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -pe &#39;.=uc&#39; /path/to/file.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;-n&lt;/code&gt; and &lt;code&gt;-p&lt;/code&gt; options are really useful and often spare the programmer from extra typing.&lt;/p&gt;
+
+&lt;h3 id=&#34;load-modules:f134c951b57c0f63005d49172b15ce32&#34;&gt;Load modules&lt;/h3&gt;
+
+&lt;p&gt;The final thing you should know is how to load a module. This is really powerful as you can extend Perl 6&amp;rsquo;s capabilities by importing external libraries. The &lt;code&gt;-M&lt;/code&gt; switch stands for load module:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -M URI::Encode -e &#39;say encode_uri(&amp;quot;/10 ways to crush it with Perl 6&amp;quot;)&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code &lt;code&gt;-M URI::Encode&lt;/code&gt; loads the URI::Encode module, which exports the &lt;code&gt;encode_uri&lt;/code&gt; subroutine. It prints:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;%2F10%20ways%20to%20crush%20it%20with%20Perl%206
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;What if you have a module that is not installed in a standard location? In this case using &lt;code&gt;-M&lt;/code&gt; alone won&amp;rsquo;t work, as Perl won&amp;rsquo;t find the module. For these scenarios, just pass use the &lt;code&gt;-I&lt;/code&gt; switch to include the directory:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -I lib -M URI::Encode -e &#39;say encode_uri(&amp;quot;www.example.com/10 ways to crush it with Perl 6&amp;quot;)&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now Perl 6 will search for URI::Encode in &lt;code&gt;lib&lt;/code&gt; as well as the standard install locations.&lt;/p&gt;
+
+&lt;p&gt;Finally, if you want a summary of all of these options, just use the &lt;code&gt;-h&lt;/code&gt; option:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl6 -h
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will print:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;    With no arguments, enters a REPL. With a &amp;quot;[programfile]&amp;quot; or the &amp;quot;-e&amp;quot; option, compiles the given program and by default also executes the compiled code.
+ 
+    -c                   check syntax only (runs BEGIN and CHECK blocks)
+    --doc                extract documentation and print it as text
+    -e program           one line of program
+    -h, --help           display this help text
+    -n                   run program once for each line of input
+    -p                   same as -n, but also print $_ at the end of lines
+    -I path              adds the path to the module search path
+    -M module            loads the module prior to running the program
+    --target=[stage]     specify compilation stage to emit
+    --optimize=[level]   use the given level of optimization (0..3)
+    -t, --trace=[flags]  enable trace flags, see &#39;parrot --help-debug&#39;
+    --encoding=[mode]    specify string encoding mode
+    -o, --output=[name]  specify name of output file
+    -v, --version        display version information
+    --stagestats         display time spent in the compilation stages
+    --ll-exception       display a low level backtrace on errors
+    --profile            print profile information to standard error
+    --doc=[module]       Use Pod::To::[module] to render inline documentation.
+     
+    Note that only boolean single-letter options may be bundled.
+
+    Output from --profile can be visualized by kcachegrind.
+
+    To modify the include path, you can set the PERL6LIB environment variable:
+
+    PERL6LIB=&amp;quot;lib&amp;quot; perl6 example.pl
+
+    For more information, see the perl6(1) man page.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:f134c951b57c0f63005d49172b15ce32&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;This article was adapted from my open source &lt;a href=&#34;https://github.com/sillymoose/Perl6-One-Liners&#34;&gt;book&lt;/a&gt;, which has lots of example Perl 6 one liners, many of which were contributed by the Perl 6 community. If you&amp;rsquo;re interested in learning more Perl 6, I&amp;rsquo;d recommend visiting the official &lt;a href=&#34;http://perl6.org/&#34;&gt;website&lt;/a&gt;, which has links to the IRC channel and official documentation.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Get a weather report at the terminal with Perl</title>
+      <link>http://perltricks.com/article/114/2014/9/11/Get-a-weather-report-at-the-terminal-with-Perl/</link>
+      <pubDate>Thu, 11 Sep 2014 12:36:33 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/114/2014/9/11/Get-a-weather-report-at-the-terminal-with-Perl/</guid>
+      <description>
+
+&lt;p&gt;Getting a weather forecast can be a chore; you have to navigate to the right website, close the banner ad, type in your location, click the right link, and &lt;em&gt;maybe&lt;/em&gt; then you can see a forecast. I wanted a more convenient way and found one using &lt;a href=&#34;https://metacpan.org/pod/WWW::Wunderground::API&#34;&gt;WWW::Wunderground::API&lt;/a&gt;. As the name suggests, the module provides a Perl interface to the Wunderground.com API. In this article I&amp;rsquo;ll show you how to use it.&lt;/p&gt;
+
+&lt;h3 id=&#34;setup:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;Setup&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need an API key for Wunderground.com (sign up &lt;a href=&#34;http://www.wunderground.com/weather/api/&#34;&gt;here&lt;/a&gt; it&amp;rsquo;s free). You&amp;rsquo;ll also need to install WWW::Wunderground.::API. The CPAN Testers &lt;a href=&#34;http://matrix.cpantesters.org/?dist=WWW-Wunderground-API+0.06&#34;&gt;results&lt;/a&gt; show that it runs on most platforms, including Windows. You can install the module at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan WWW::Wunderground::API
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;the-code:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;The Code&lt;/h3&gt;
+
+&lt;p&gt;Using WWW::Wunderground::API, I created a script that would pull an hourly forecast for my local city:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use WWW::Wunderground::API;
+
+binmode STDOUT, &#39;:utf8&#39;; # for degrees symbol
+
+my $w = new WWW::Wunderground::API(
+    location =&amp;gt; &#39;New York City, NY&#39;,
+    api_key  =&amp;gt; &#39;123456789012345&#39;,
+    auto_api =&amp;gt; 1,
+);
+
+# print header
+printf &amp;quot;%-10s%-4s%-4s%-8s%-20s\n&amp;quot;,
+       &#39;Time&#39;,
+       &amp;quot;\x{2109}&amp;quot;,
+       &amp;quot;\x{2103}&amp;quot;,
+       &#39;Rain %&#39;,
+       &#39;Conditions&#39;;
+
+# print hourly
+for (@{ $w-&amp;gt;hourly })
+{
+    printf &amp;quot;%8s%4i%4i%8i  %-30s\n&amp;quot;,
+           $_-&amp;gt;{FCTTIME}{civil},
+           $_-&amp;gt;{temp}{english},
+           $_-&amp;gt;{temp}{metric},
+           $_-&amp;gt;{pop},
+           $_-&amp;gt;{condition};
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the script I use code&amp;gt;binmode to switch the standard output to UTF8 mode. This lets me print some cool degrees symbols later on. I then connect to the Wunderground API, passing my API key and location (location can be a city name or a zip code). Finally I print out the weather forecast using printf to format the output nicely. I saved the script as &lt;code&gt;weather&lt;/code&gt; and ran it at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ weather
+Time      ℉   ℃   Rain %  Conditions          
+11:00 PM  69  21       3  Partly Cloudy                 
+12:00 AM  69  21       3  Partly Cloudy                 
+ 1:00 AM  69  21       8  Partly Cloudy                 
+ 2:00 AM  69  21       9  Mostly Cloudy                 
+ 3:00 AM  69  21       8  Mostly Cloudy                 
+ 4:00 AM  69  21       5  Mostly Cloudy                 
+ 5:00 AM  69  21       5  Overcast                      
+ 6:00 AM  69  21       4  Overcast                      
+ 7:00 AM  69  21       4  Mostly Cloudy                 
+ 8:00 AM  70  21       4  Mostly Cloudy                 
+ 9:00 AM  72  22       3  Mostly Cloudy                 
+10:00 AM  74  23       2  Mostly Cloudy                 
+11:00 AM  77  25       2  Mostly Cloudy                 
+12:00 PM  80  27       2  Mostly Cloudy                 
+ 1:00 PM  82  28       1  Mostly Cloudy                 
+ 2:00 PM  84  29       7  Overcast                      
+ 3:00 PM  84  29      46  Chance of a Thunderstorm      
+ 4:00 PM  84  29      52  Chance of a Thunderstorm      
+ 5:00 PM  82  28      56  Chance of a Thunderstorm      
+ 6:00 PM  82  28      45  Chance of a Thunderstorm      
+ 7:00 PM  81  27      50  Chance of a Thunderstorm      
+ 8:00 PM  80  27      39  Chance of a Thunderstorm      
+ 9:00 PM  78  26      32  Chance of a Thunderstorm      
+10:00 PM  77  25      38  Chance of a Thunderstorm      
+11:00 PM  74  23       6  Partly Cloudy                 
+12:00 AM  71  22       3  Clear                         
+ 1:00 AM  69  21       3  Clear                         
+ 2:00 AM  67  19       2  Partly Cloudy                 
+ 3:00 AM  65  18       2  Clear                         
+ 4:00 AM  64  18       2  Clear                         
+ 5:00 AM  62  17       2  Clear                         
+ 6:00 AM  61  16       2  Clear                         
+ 7:00 AM  60  16       2  Clear                         
+ 8:00 AM  60  16       2  Clear                         
+ 9:00 AM  62  17       1  Clear                         
+10:00 AM  64  18       0  Clear  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The results show an hourly forecast with the temperature in Fahrenheit and Celsius, the probability of rain and an overall description. As I do most of my work from the terminal, this is much more convenient than using the browser and there are no ads!&lt;/p&gt;
+
+&lt;h3 id=&#34;multiple-locations:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;Multiple Locations&lt;/h3&gt;
+
+&lt;p&gt;So the script is nice, but how can we make it better? Well, I&amp;rsquo;m rarely in the same place all the time, and I expect most people mover around too, so it would good to be more flexible and let the user type in the location, rather than using the same location every time:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use WWW::Wunderground::API;
+
+my $home_location = &#39;New York City, NY&#39;;
+
+# capture location
+print &amp;quot;Enter city or zip code ($home_location): &amp;quot;;
+my $location = &amp;lt;&amp;gt;;
+chomp $location;
+
+binmode STDOUT, &#39;:utf8&#39;; # for degrees symbol
+my $w = new WWW::Wunderground::API(
+    location =&amp;gt; $location || $home_location,
+    api_key  =&amp;gt; &#39;123456789012345&#39;,
+    auto_api =&amp;gt; 1,
+);
+
+# print header
+printf &amp;quot;%-10s%-4s%-4s%-8s%-20s\n&amp;quot;,
+       &#39;Time&#39;,
+       &amp;quot;\x{2109}&amp;quot;,
+       &amp;quot;\x{2103}&amp;quot;,
+       &#39;Rain %&#39;,
+       &#39;Conditions&#39;;
+
+# print hourly
+for (@{ $w-&amp;gt;hourly })
+{
+    printf &amp;quot;%8s%4i%4i%8i  %-30s\n&amp;quot;,
+           $_-&amp;gt;{FCTTIME}{civil},
+           $_-&amp;gt;{temp}{english},
+           $_-&amp;gt;{temp}{metric},
+           $_-&amp;gt;{pop},
+           $_-&amp;gt;{condition};
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve updated the code to store a default location called &lt;code&gt;$home_location&lt;/code&gt;. I then ask the user to enter a City or zip code, making sure to &lt;a href=&#34;http://perldoc.perl.org/functions/chomp.html&#34;&gt;chomp&lt;/a&gt; the result. Later in the API call, the code: &lt;code&gt;$location || $home_location&lt;/code&gt; will submit the home location unless the user has entered a location. Running the script now, I can get the weather for London easily:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ weather
+Enter city or zip code (New York City, NY): London, UK
+Time      ℉   ℃   Rain %  Conditions          
+ 4:00 AM  50  10       4  Clear                         
+ 5:00 AM  50  10       4  Clear                         
+ 6:00 AM  49   9       4  Clear                         
+ 7:00 AM  49   9       4  Clear                         
+ 8:00 AM  52  11       4  Clear                         
+ 9:00 AM  55  13       4  Clear                         
+10:00 AM  59  15       4  Clear                         
+11:00 AM  62  17       3  Clear                         
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;caching:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;Caching&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://metacpan.org/pod/WWW::Wunderground::API&#34;&gt;WWW::Wunderground::API&lt;/a&gt; documentation shows how to use &lt;a href=&#34;https://metacpan.org/pod/Cache::FileCache&#34;&gt;Cache::FileCache&lt;/a&gt; to cache the weather results locally. When you setup the cache, you can specify an expiry parameter - until the cache expires the WWW::Wunderground::API will use the cached results instead of the Wunderground API. This prevents unnecessary API calls and makes the script faster:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use WWW::Wunderground::API;
+use Cache::FileCache;
+
+my $home_location = &#39;New York City, NY&#39;;
+
+#capture location
+print &amp;quot;Enter city or zip code ($home_location): &amp;quot;;
+my $location = &amp;lt;&amp;gt;;
+chomp $location;
+
+binmode STDOUT, &#39;:utf8&#39;; # for degrees symbol
+my $w = new WWW::Wunderground::API(
+    location =&amp;gt; $location || $home_location,
+    api_key  =&amp;gt; &#39;123456789012345&#39;,
+    auto_api =&amp;gt; 1,
+    cache    =&amp;gt; Cache::FileCache-&amp;gt;new({
+                    namespace          =&amp;gt; &#39;wundercache&#39;,
+                    default_expires_in =&amp;gt; 2400 }),
+);
+
+# print header
+printf &amp;quot;%-10s%-4s%-4s%-8s%-20s\n&amp;quot;,
+       &#39;Time&#39;,
+       &amp;quot;\x{2109}&amp;quot;,
+       &amp;quot;\x{2103}&amp;quot;,
+       &#39;Rain %&#39;,
+       &#39;Conditions&#39;;
+
+# print hourly
+for (@{ $w-&amp;gt;hourly })
+{
+    printf &amp;quot;%8s%4i%4i%8i  %-30s\n&amp;quot;,
+           $_-&amp;gt;{FCTTIME}{civil},
+           $_-&amp;gt;{temp}{english},
+           $_-&amp;gt;{temp}{metric},
+           $_-&amp;gt;{pop},
+           $_-&amp;gt;{condition};
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Not much has changed in the code. The line &lt;code&gt;use Cache::FileCache;&lt;/code&gt; imports the module and a &lt;code&gt;cache&lt;/code&gt; parameter has been added to the Wunderground API call. WWW::Wunderground::API is smart enough to not return cached results for different locations.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;That&amp;rsquo;s probably enough to get started, however there is more that could be done with this script. I could make the script more portable by using environment variables instead of the hard coded values for my API key and home location. Exception handling could better - checking for an internet connection before running the script, handling failed API calls more gracefully (for unknown locations for example). Finally, why have the user type in a location at all? We could use get the user&amp;rsquo;s IP address and then geolocate them using the &lt;a href=&#34;https://metacpan.org/pod/Geo::IP&#34;&gt;Geo::IP&lt;/a&gt; module.&lt;/p&gt;
+
+&lt;p&gt;The Wunderground API provides a lot more than just a 24 hour forecast. Check out their API &lt;a href=&#34;http://www.wunderground.com/weather/api/d/docs&#34;&gt;documentation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/gsfc/5598148465/in/photolist-9wFYv8-kYwXMt-bsoJ2F-epZCJW-51zsz5-4xqurW-dQW1WX-ntLbig-47NhYw-8ha98x-gKjXSn-iGqBL8-fkVu7f-3bs6Hv-9C5Gp9-dfRRoo-ab4NaA-5nNgKY-hkfRe6-hSmCX2-97fCju-8fqUzR-e6xj8j-943upK-CaRbr-5sSeXx-6yuU9E-4adC2H-9YWWVQ-dK9bTn-piUN9-8NP9b5-8hdo8u-8xGTYN-mG2TTk-bmH4rF-7A8s15-97GPeg-fxsEhK-a1cDq-nMWvny-7xTFh6-ow6uvp-i7yjhS-82v13J-6DmEYb-c6BXa-5eCgsS-bo1p2k-nytJYo/&#34;&gt;NASA Goddard Space Flight Center&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

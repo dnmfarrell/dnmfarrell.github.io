@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Create static web apps with Wget Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An alternative to Wallflower"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Create static web apps with Wget</h1>
+            <p class="blog-post-meta">Jul 22, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/103/998C1D22-1144-11E4-80EC-0DC15E2B53EB.png"/>
+            </div>
+              
+
+<p><em>Last week we covered <a href="https://metacpan.org/pod/distribution/App-Wallflower/bin/wallflower">Wallflower</a> an awesome utility for generating static websites from Perl web applications. This week we&rsquo;re covering an alternative method, that uses <a href="https://en.wikipedia.org/wiki/Wget">Wget</a>. One benefit of this method is it can be used on any dynamic web application, not just Perl ones.</em></p>
+
+<h3 id="requirements:11eb354f02100c5b1eef8d7dfa4efa33">Requirements</h3>
+
+<p>You&rsquo;ll need Wget installed - if you&rsquo;re using Linux it should already be installed. OSX users can install it with <a href="http://brew.sh/">Homebrew</a> and there is a Windows <a href="http://gnuwin32.sourceforge.net/packages/wget.htm">version</a> available. To follow this example you&rsquo;ll also need Dancer2 installed, which you can get via cpan:</p>
+
+<pre><code class="language-prettyprint">$ cpan Dancer2
+</code></pre>
+
+<h3 id="create-the-application:11eb354f02100c5b1eef8d7dfa4efa33">Create the application</h3>
+
+<p>We&rsquo;ll use Dancer2 to create a basic skeleton app:</p>
+
+<pre><code class="language-prettyprint">$ dancer2 -a MyApp
++ MyApp
++ MyApp/config.yml
++ MyApp/MANIFEST.SKIP
++ MyApp/Makefile.PL
++ MyApp/views
++ MyApp/views/index.tt
++ MyApp/views/layouts
++ MyApp/views/layouts/main.tt
++ MyApp/t
++ MyApp/t/002_index_route.t
++ MyApp/t/001_base.t
++ MyApp/bin
++ MyApp/bin/app.pl
++ MyApp/lib
++ MyApp/lib/MyApp.pm
++ MyApp/environments
++ MyApp/environments/production.yml
++ MyApp/environments/development.yml
++ MyApp/public
++ MyApp/public/500.html
++ MyApp/public/404.html
++ MyApp/public/favicon.ico
++ MyApp/public/dispatch.cgi
++ MyApp/public/dispatch.fcgi
++ MyApp/public/css
++ MyApp/public/css/error.css
++ MyApp/public/css/style.css
++ MyApp/public/javascripts
++ MyApp/public/javascripts/jquery.js
++ MyApp/public/images
++ MyApp/public/images/perldancer.jpg
++ MyApp/public/images/perldancer-bg.jpg
+</code></pre>
+
+<p>Lets start the app:</p>
+
+<pre><code class="language-prettyprint">$ ./MyApp/bin/app.pl
+&gt;&gt; Dancer2 v0.143000 server 435 listening on http://0.0.0.0:3000
+</code></pre>
+
+<h3 id="create-the-static-site:11eb354f02100c5b1eef8d7dfa4efa33">Create the static site</h3>
+
+<p>We&rsquo;ll point Wget at the site in recursive mode, so that it pulls all the files we need (up to a depth of 5 by default).</p>
+
+<pre><code class="language-prettyprint">$ wget -r 0:3000 -d 0:3000 --page-requisites
+</code></pre>
+
+<p>Here we pass Wget the following options:</p>
+
+<ul>
+<li>&rdquo;-r 0:3000&rdquo; to recursively follow links from 0:3000</li>
+<li>-&ldquo;d 0:3000&rdquo; to only save static files from the local domain</li>
+<li>&rdquo;&ndash;page-requisites&rdquo; to pull all required files for a page, even if beyond our depth limit</li>
+</ul>
+
+<p>By default Wget will create a directory named after the domain (&ldquo;0:3000&rdquo;) and place all static files there. And that&rsquo;s it, all the files for our static site have been generated.</p>
+
+<h3 id="wget-vs-wallflower:11eb354f02100c5b1eef8d7dfa4efa33">Wget vs Wallflower</h3>
+
+<p>So if both apps can generate static sites, which one is better? If you&rsquo;re working with a non-Perl site, then Wget is obviously the way to go. In terms of speed, Wget is faster if you combine the command with xargs and request the urls in parallel:</p>
+
+<pre><code class="language-prettyprint">$ cat urls.txt | xargs -P16 wget -i
+</code></pre>
+
+<p>To take advantage of the parallel GET requests, you&rsquo;ll need to serve the application on a web server though.</p>
+
+<p>Wallflower has nice option (&ldquo;-F&rdquo;) to take a list of URLs to download, which can be useful if the entire site cannot be downloaded by following links from the root application page. <a href="https://metacpan.org/pod/Wallflower">App::Wallflower</a> is the source library for Wallflower, and extendible through Perl code, so you can further tailor the process to meet your needs. This can be used for post-processing actions like generating a sitemap.xml or advanced setups like a hybrid application, where the public pages of the site are static, but the secure parts remain dynamic. With Wallflower all of this can be scripted in Perl, with Wget you&rsquo;d need to a combination of shell scripts and Perl, which is less convenient.</p>
+
+<p>As was recommended in last week&rsquo;s <a href="http://perltricks.com/article/102/2014/7/15/Generate-static-websites-from-dynamic-Perl-web-apps#h3Wallflower%20Tips">article</a> make sure you&rsquo;re using absolute urls in your template code to avoid deployment issues with your static files.</p>
+
+<h3 id="thanks:11eb354f02100c5b1eef8d7dfa4efa33">Thanks</h3>
+
+<p><em>Thanks to Steve Schnepp for contacting us with this tip. Thanks to Philippe Bruhat for creating Wallflower and providing additional technical guidance.</em></p>
+
+<p>*<strong>Correction:</strong> technical comparison of Wallflower and Wget updated following clarification from module author. 2014-08-02*</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/app">app</a></div>
+              
+                <div class="tag"><a href="/tags/mvc">mvc</a></div>
+              
+                <div class="tag"><a href="/tags/static">static</a></div>
+              
+                <div class="tag"><a href="/tags/perl">perl</a></div>
+              
+                <div class="tag"><a href="/tags/framework">framework</a></div>
+              
+                <div class="tag"><a href="/tags/wget">wget</a></div>
+              
+                <div class="tag"><a href="/tags/recursive">recursive</a></div>
+              
+                <div class="tag"><a href="/tags/recursion">recursion</a></div>
+              
+                <div class="tag"><a href="/tags/webapp">webapp</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

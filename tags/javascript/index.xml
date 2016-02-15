@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Javascript on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/javascript/</link>
+    <description>Recent content in Javascript on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 08 Dec 2014 14:13:27 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/javascript/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Controlling Firefox from Perl</title>
+      <link>http://perltricks.com/article/138/2014/12/8/Controlling-Firefox-from-Perl/</link>
+      <pubDate>Mon, 08 Dec 2014 14:13:27 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/138/2014/12/8/Controlling-Firefox-from-Perl/</guid>
+      <description>
+
+&lt;p&gt;I&amp;rsquo;ve been playing with &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize::Firefox&#34;&gt;WWW::Mechanize::Firefox&lt;/a&gt;. It&amp;rsquo;s like the LWP-backended &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize&#34;&gt;WWW::Mechanize&lt;/a&gt;, but with a browser doing all the work. Instead of doing it all in Perl, I can use it as the glue language that it is.&lt;/p&gt;
+
+&lt;p&gt;Sometimes &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize&#34;&gt;WWW::Mechanize&lt;/a&gt;, &lt;a href=&#34;http://www.metacpan.org/module/LWP::UserAgent&#34;&gt;LWP::UserAgent&lt;/a&gt;, or &lt;a href=&#34;http://www.metacpan.org/module/Mojo::UserAgent&#34;&gt;Mojo::UserAgent&lt;/a&gt; aren&amp;rsquo;t enough. For basic web scraping and automation they work well, but fail miserably for anything that requires JavaScript. Some people have luck with SpiderMonkey (&lt;a href=&#34;https://metacpan.org/search?q=spidermonkey&amp;amp;&#34;&gt;with several Perl interfaces&lt;/a&gt;), but that still isn&amp;rsquo;t the whole browser environment.&lt;/p&gt;
+
+&lt;p&gt;Before you start, you need the &lt;a href=&#34;https://www.mozilla.org&#34;&gt;Firefox&lt;/a&gt; browser (or one of its forks) with the &lt;a href=&#34;https://addons.mozilla.org/en-us/firefox/addon/mozrepl/&#34;&gt;MozRepl&lt;/a&gt; add-on, which provides an interactive JavaScript console that you can telnet into. Once activated, you can connect to the console and can control the browser.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://farm8.staticflickr.com/7503/15324164413_0a43aeb932.jpg&#34; title=&#34;activate_mozrepl by brian d foy, on Flickr&#34;&gt;&lt;img src=&#34;https://farm8.staticflickr.com/7503/15324164413_0a43aeb932.jpg&#34; alt=&#34;activate\_mozrepl&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I have to know JavaScript to control Firefox directly. I can telnet into the MozRepl server and issue commands. It&amp;rsquo;s a bit more work than I&amp;rsquo;d like to do.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://farm9.staticflickr.com/8680/15941835341_f064e9e2a3.jpg&#34; title=&#34;mozrepl_telnet by brian d foy, on Flickr&#34;&gt;&lt;img src=&#34;https://farm9.staticflickr.com/8680/15941835341_f064e9e2a3.jpg&#34; alt=&#34;mozrepl\_telnet&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m not going to control Firefox directly, though, because I&amp;rsquo;m going to let some Perl modules do that for me. The basic interface of &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize::Firefox&#34;&gt;WWW::Mechanize::Firefox&lt;/a&gt; is the same as &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize&#34;&gt;WWW::Mechanize&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/local/perls/perl-5.20.0/bin/perl
+use v5.10;
+use WWW::Mechanize::Firefox;
+
+my $mech = WWW::Mechanize::Firefox-&amp;gt;new;
+$mech-&amp;gt;autoclose_tab( 0 );
+
+$mech-&amp;gt;get( &#39;http://www.perltricks.com&#39; );
+
+foreach my $link ( $mech-&amp;gt;links ) {
+    state $count = 0;
+    say $count++, &amp;quot;: &amp;quot;, $link-&amp;gt;url;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I get a list of the links on the PerlTricks main page:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;0: http://perltricks.com/favicon.ico
+1: http://perltricks.com/feed/atom
+2: http://perltricks.com/feed/rss
+3: http://perltricks.com/static/css/bootstrap.min.css
+4: http://perltricks.com/static/css/carousel.css
+5: http://perltricks.com/static/css/perltricks.css
+6: https://twitter.com/intent/follow?screen_name=perltricks
+7: http://perltricks.com/feed/rss
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s not even the good part yet.&lt;/p&gt;
+
+&lt;h3 id=&#34;executing-javascript:b571cb2b36a22a2464e2b146c6144eec&#34;&gt;Executing JavaScript&lt;/h3&gt;
+
+&lt;p&gt;Since I&amp;rsquo;m connected to a JavaScript terminal, I can evaluate JavaScript code. The &lt;code&gt;eval&lt;/code&gt; returns the result and its type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+use WWW::Mechanize::Firefox;
+
+my $mech = WWW::Mechanize::Firefox-&amp;gt;new;
+$mech-&amp;gt;autoclose_tab( 0 );
+
+my( $result, $type ) = $mech-&amp;gt;eval( &#39;2+2&#39; );
+
+say &amp;quot;2+2 is $result (type $type)&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;2+2 is 4 (type number)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That evaluates the JavaScript in its own context, which isn&amp;rsquo;t that interesting for me. I want to interact and control parts of a web page. To do that, I use the &lt;code&gt;eval_in_page&lt;/code&gt;. That runs the JavaScript with everything else going on in the current tab, including all the JavaScript code it has loaded. Here&amp;rsquo;s an example that uses the StackExchange JavaScript to change the view from the desktop mode to the mobile mode:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+use WWW::Mechanize::Firefox;
+
+my $mech = WWW::Mechanize::Firefox-&amp;gt;new;
+$mech-&amp;gt;autoclose_tab( 0 );
+
+$mech-&amp;gt;get( &#39;http://www.stackoverflow.com/&#39; );
+sleep 5;
+$mech-&amp;gt;eval_in_page( &#39;StackExchange.switchMobile(&amp;quot;on&amp;quot;)&#39; );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When I run this, the screen changes from the full site to the mobile site.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://farm9.staticflickr.com/8640/15943126852_07692bfc09.jpg&#34; title=&#34;screenshots by brian d foy, on Flickr&#34;&gt;&lt;img src=&#34;https://farm9.staticflickr.com/8640/15943126852_07692bfc09.jpg&#34; alt=&#34;screenshots&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;some-problems:b571cb2b36a22a2464e2b146c6144eec&#34;&gt;Some problems&lt;/h3&gt;
+
+&lt;p&gt;This approach has some problem though, almost none of which come from Perl. If I want to automate something that makes many requests or runs for a long time, Firefox is likely to have problems. Over time, &lt;a href=&#34;https://support.mozilla.org/en-US/kb/firefox-uses-too-much-memory-ram&#34;&gt;it&amp;rsquo;s memory footprint grows&lt;/a&gt;, leading to poor performance and crashes. Sometimes the connection to the console breaks, taking down my program with it.&lt;/p&gt;
+
+&lt;p&gt;Because of this, I limit my use of &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize::Firefox&#34;&gt;WWW::Mechanize::Firefox&lt;/a&gt; to the parts of my problem that require JavaScript. I can extract the information I need then use &lt;a href=&#34;http://www.metacpan.org/module/Mojo::UserAgent&#34;&gt;Mojo::UserAgent&lt;/a&gt; to handle the other parts.&lt;/p&gt;
+
+&lt;h3 id=&#34;similar-solutions:b571cb2b36a22a2464e2b146c6144eec&#34;&gt;Similar solutions&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize::Firefox&#34;&gt;WWW::Mechanize::Firefox&lt;/a&gt; isn&amp;rsquo;t the only way to do this sort of thing. &lt;a href=&#34;http://blogs.perl.org/users/robhammond/2013/02/web-scraping-with-perl-phantomjs.html&#34;&gt;Rob Hammond posted on blogs.perl.org about PhantomJS&lt;/a&gt;, which received some comments about &lt;a href=&#34;http://www.metacpan.org/module/WWW::WebKit&#34;&gt;WWW::WebKit&lt;/a&gt;. There used to be a Win32::IE::Mechanize, but apparently it &lt;a href=&#34;http://www.perlmonks.org/?node_id=1061372&#34;&gt;doesn&amp;rsquo;t work in IE 8&lt;/a&gt;. &lt;a href=&#34;http://www.seleniumhq.org&#34;&gt;Selenium&lt;/a&gt; and &lt;a href=&#34;http://www.metacpan.org/module/Test::WWW::Selenium&#34;&gt;Test::WWW::Selenium&lt;/a&gt; is another tool that I could use, but that&amp;rsquo;s more geared to browser acceptance testing and replays.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Join the discussion on the Perl &lt;a href=&#34;http://www.reddit.com/r/perl/comments/2onaz4/controlling_firefox_from_perl_by_brian_d_foy/&#34;&gt;subreddit&lt;/a&gt; about this article!&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update:&lt;/strong&gt; &lt;em&gt;last paragraph updated to include Selenium reference. 2014-12-09&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Create professional slideshows in seconds with App::revealup</title>
+      <link>http://perltricks.com/article/94/2014/6/6/Create-professional-slideshows-in-seconds-with-App--revealup/</link>
+      <pubDate>Fri, 06 Jun 2014 12:59:56 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/94/2014/6/6/Create-professional-slideshows-in-seconds-with-App--revealup/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;&lt;a href=&#34;https://metacpan.org/pod/App::revealup&#34;&gt;App::revealup&lt;/a&gt; is a command line app that creates slide shows from markdown documents. We listed it in this this month&amp;rsquo;s &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, but the app is so much fun I thought it was worth a separate feature.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:69eb22f12abc28dbc259e04444743098&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need to grab App::revealup from CPAN. The latest version (0.03) should run on most platforms including Windows. At the command line type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan App::revealup
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;create-a-presentation:69eb22f12abc28dbc259e04444743098&#34;&gt;Create a presentation&lt;/h3&gt;
+
+&lt;p&gt;App::revealup transforms markdown documents into slide shows, so let&amp;rsquo;s start by creating a basic presentation file, called presentation.md:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;A quick guide to markdown  as served by `App::revealup`  
+David Farrell  
+[PerlTricks.com](http://perltricks.com)
+June 2014
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As you can see, markdown is easy to read. The code above is a single slide presentation. The only two interesting things going on here is the use of backticks (&amp;rdquo;`App::revealup`&amp;rdquo;) to create inline code and the hyperlink &amp;ldquo;&lt;a href=&#34;http://perltricks.com&#34;&gt;PerlTricks.com&lt;/a&gt;&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;To view this slide in presentation mode, at the command line type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ revealup server presentation.md --port 5000
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now open your browser and navigate to &lt;a href=&#34;http://localhost:5000&#34;&gt;http://localhost:5000&lt;/a&gt;. You should see something like this:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide1.png&#34; title=&#34;A single slide presentation&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide1_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s add a second slide to showcase how different headers appear. In App::revealup the horizontal slide separator is three hyphens in a row (&amp;ldquo;&amp;mdash;&amp;rdquo;).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;A quick guide to markdown  as served by `App::revealup`  
+David Farrell  
+[PerlTricks.com](http://perltricks.com)
+June 2014  
+
+---
+# This is H1
+## This is H2
+### This is H3
+#### This is H4
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;App::reveal dynamically reads the source presentation file, so you can leave the process running and just save the changes to the source presentation file. Reloading the browser at &lt;a href=&#34;http://localhost:5000&#34;&gt;http://localhost:5000&lt;/a&gt; should show the updated presentation. Press → to move to the second slide.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide2.png&#34; title=&#34;Our second slide&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide2_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;You can add vertical slides too. These are delimited by three underscores (&amp;rdquo;___&amp;rdquo;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;A quick guide to markdown  as served by `App::revealup`  
+David Farrell  
+[PerlTricks.com](http://perltricks.com)
+June 2014  
+
+---
+# This is H1
+## This is H2
+### This is H3
+#### This is H4
+
+---
+
++ Unordered
+- lists are
+* made with plus, minus or asterisk
+___
+
+1. Ordered
+2. lists are
+3. made with numbers and a period
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Refreshing the browser, we get two additional slides. Press ↓ to move down one slide:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide3.png&#34; title=&#34;An unordered list. Press down to see the next vertical slide&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide3_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide4.png&#34; title=&#34;An ordered list&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide4_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Instead of trawling through every slide, I&amp;rsquo;ve completed the rest of the presentation and put it on &lt;a href=&#34;https://gist.github.com/dnmfarrell/1b118c5813a7a10ea7e2&#34;&gt;GitHub&lt;/a&gt;. The presentation content is an overview of the markdown syntax. Try running it with App::revealup!&lt;/p&gt;
+
+&lt;p&gt;One nice feature is if you ever want to zoom out, just press the escape key:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide_zoom.png&#34; title=&#34;Zoomed out view of completed presentation&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide_zoom_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;how-app-revealup-works:69eb22f12abc28dbc259e04444743098&#34;&gt;How App::revealup works&lt;/h3&gt;
+
+&lt;p&gt;App::revealup is the glue between the &lt;a href=&#34;http://lab.hakim.se/reveal-js/#/&#34;&gt;reveal.js&lt;/a&gt; library and the source markdown file. It launches a PSGI web server, and compiles a basic HTML document which loads reveal.js and any required libraries or css. You can override the default css theme by passing an extra command line option:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ revealup server presentation.md --port 5000 --theme solarized.css
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;App::revealup installs all of the basic reveal.js &lt;a href=&#34;https://github.com/hakimel/reveal.js/tree/master/css/theme&#34;&gt;themes&lt;/a&gt; or you can provide your own:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ revealup server presentation.md --port 5000 --theme &amp;quot;/path/to/custom.css&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:69eb22f12abc28dbc259e04444743098&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;App::revealup is great example of Perl as a glue language - pulling together useful libraries to create something greater than the sum of its parts. If you&amp;rsquo;d like to learn more about the markdown syntax, check out this &lt;a href=&#34;https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet&#34;&gt;cheetsheet&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F94%2F2014%2F6%2F6%2FCreate-professional-slideshows-in-seconds-with-App-revealup&amp;amp;text=Create+professional+slideshows+in+seconds+with+App%3A%3Arevealup&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F94%2F2014%2F6%2F6%2FCreate-professional-slideshows-in-seconds-with-App-revealup&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Update: command changed to match v0.10 (see &lt;a href=&#34;https://metacpan.org/changes/distribution/App-revealup&#34;&gt;changelog&lt;/a&gt;) 2014-08-24.&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Display beautiful Perl code in HTML without JavaScript</title>
+      <link>http://perltricks.com/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</link>
+      <pubDate>Mon, 13 Jan 2014 01:34:32 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Would you like to display beautiful syntax-highlighted Perl code on the web without using JavaScript? Maybe you&amp;rsquo;d like to use an existing &lt;a href=&#34;http://google-code-prettify.googlecode.com/svn/trunk/styles/index.html&#34;&gt;CSS markup theme&lt;/a&gt; without having to write in-line CSS in your Perl code? If yes, take a look at &lt;a href=&#34;https://metacpan.org/pod/PPI::Prettify&#34;&gt;PPI::Prettify&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;background:74c69b2f99de951b26ebaa1f686e5212&#34;&gt;Background&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://code.google.com/p/google-code-prettify/&#34;&gt;prettify.js&lt;/a&gt; library does a wonderful job of robustly syntax coloring a large number of different languages for displaying code on the web. It&amp;rsquo;s used on blogs.perl.org; we use it on PerlTricks.com. But because Perl is an ambiguous language, prettify.js often doesn&amp;rsquo;t tokenize all of the code correctly. What&amp;rsquo;s worse is if a user has JavaScript disabled, the code will not be highlighted at all. That&amp;rsquo;s why I wrote &lt;a href=&#34;https://metacpan.org/pod/PPI::Prettify&#34;&gt;PPI::Prettify&lt;/a&gt;. It runs in the backend using PPI::Document so it&amp;rsquo;s faster more accurate than prettify.js, but outputs the same HTML codes as prettify.js does, enabling you to re-use any of the existing CSS themes available (&lt;a href=&#34;http://google-code-prettify.googlecode.com/svn/trunk/styles/index.html&#34;&gt;here&lt;/a&gt;, &lt;a href=&#34;%0Ahttp://jmblog.github.io/color-themes-for-google-code-prettify/&#34;&gt;here&lt;/a&gt; and &lt;a href=&#34;%0Ahttp://stanleyhlng.com/prettify-js/#theme-bootstrap-light&#34;&gt;here&lt;/a&gt; for example).&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:74c69b2f99de951b26ebaa1f686e5212&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need PPI::Prettify and can install it via CPAN at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan PPI::Prettify
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In terms of OS compatibility, PPI::Prettify is pure-Perl so you should be able to run it on any platform that has Perl installed.&lt;/p&gt;
+
+&lt;h3 id=&#34;tokenizing-inline-perl-code:74c69b2f99de951b26ebaa1f686e5212&#34;&gt;Tokenizing inline Perl code&lt;/h3&gt;
+
+&lt;p&gt;PPI::Prettify exports a prettify() method that takes a string of Perl code, and returns it tokenized with &amp;lt;span&amp;gt; tags. To be safe, PPI::Prettify employs HTML encoding on all token content. Let&amp;rsquo;s whip up a quick script to demo prettify():&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use warnings;
+use strict;
+use PPI::Prettify;
+
+read(main::DATA, my $code, 500);
+
+print prettify({ code =&amp;gt; $code });
+
+__DATA__
+# a simple OO class
+
+package Shape;
+
+sub new {
+    my ($class, $args) = @_;
+    my $self = {
+        color  =&amp;gt; $args-&amp;gt;{color} || &#39;black&#39;,
+        length =&amp;gt; $args-&amp;gt;{length} || 1,
+        width  =&amp;gt; $args-&amp;gt;{width} || 1,
+    };
+    return bless $self, $class;
+}
+
+sub get_area {
+    my $self = shift;
+    return $self-&amp;gt;{length} * $self-&amp;gt;{width};
+}
+
+sub get_color {
+    my $self = shift;
+    return $self-&amp;gt;{color};
+}
+
+sub set_color {
+    my ($self, $color) = @_;
+    $self-&amp;gt;{color} = $color;
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The script uses the &lt;a href=&#34;http://perltricks.com/article/24/2013/5/11/Perl-tokens-you-should-know&#34;&gt;__DATA__&lt;/a&gt; token to create a filehandle to some inline Perl code (The code is a simple OO example taken from our article &lt;a href=&#34;http://perltricks.com/article/25/2013/5/20/Old-School-Object-Oriented-Perl&#34;&gt;Old School Object Oriented Perl&lt;/a&gt;). The read function slurps the filehandle contents into $code. We then use the prettify() function to tokenize and markup the Perl code.&lt;/p&gt;
+
+&lt;p&gt;Running that script returns the Perl code surrounded by &amp;lt;span&amp;gt; tags. This is a summary of the markup produced by prettify():&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;lt;pre class=&amp;quot;prettyprint&amp;quot;&amp;gt;&amp;lt;span class=&amp;quot;com&amp;quot;&amp;gt;# a simple OO class
+&amp;lt;/span&amp;gt;&amp;lt;span class=&amp;quot;pln&amp;quot;&amp;gt;
+&amp;lt;/span&amp;gt;&amp;lt;span class=&amp;quot;kwd&amp;quot;&amp;gt;package&amp;lt;/span&amp;gt;&amp;lt;span class=&amp;quot;pln&amp;quot;&amp;gt; &amp;lt;/span&amp;gt;&amp;lt;span class=&amp;quot;atn&amp;quot;&amp;gt;Shape&amp;lt;/span&amp;gt;&amp;lt;span class=&amp;quot;pln&amp;quot;&amp;gt;;&amp;lt;/span&amp;gt;
+...
+&amp;lt;/pre&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The example below shows how the markup looks in HTML (using the &lt;a href=&#34;http://code.google.com/p/google-code-prettify/source/browse/trunk/styles/desert.css?r=198&#34;&gt;desert&lt;/a&gt; CSS theme).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# a simple OO class
+
+package Shape;
+
+sub new {
+    my ($class, $args) = @_;
+    my $self = {
+        color  =&amp;gt; $args-&amp;gt;{color} || &#39;black&#39;,
+        length =&amp;gt; $args-&amp;gt;{length} || 1,
+        width  =&amp;gt; $args-&amp;gt;{width} || 1,
+    };
+    return bless $self, $class;
+}
+
+sub get_area {
+    my $self = shift;
+    return $self-&amp;gt;{length} * $self-&amp;gt;{width};
+}
+
+sub get_color {
+    my $self = shift;
+    return $self-&amp;gt;{color};
+}
+
+sub set_color {
+    my ($self, $color) = @_;
+    $self-&amp;gt;{color} = $color;
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Two things to note here: disabling JavaScript will have no effect on the syntax highlighting above, as it&amp;rsquo;s generated in backend using PPI::Prettify. Second, the code displays multiline comments correctly, (everything after &lt;a href=&#34;http://perltricks.com/article/24/2013/5/11/Perl-tokens-you-should-know&#34;&gt;__DATA__&lt;/a&gt;) unlike prettify.js.&lt;/p&gt;
+
+&lt;h3 id=&#34;tokenizing-perl-code-stored-in-a-file:74c69b2f99de951b26ebaa1f686e5212&#34;&gt;Tokenizing Perl code stored in a file&lt;/h3&gt;
+
+&lt;p&gt;It&amp;rsquo;s easy to prettify existing Perl code from a file. You can do this in one line of Perl at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -MPPI::Prettify -MFile::Slurp -e &#39;$code=read_file(&amp;quot;output&amp;quot;);print prettify({code=&amp;gt;$code})&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;advanced-feature-1-debug-mode:74c69b2f99de951b26ebaa1f686e5212&#34;&gt;Advanced feature 1: debug mode&lt;/h3&gt;
+
+&lt;p&gt;The prettify() method also takes an optional debug parameter:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $html = prettify({ code =&amp;gt; $code, debug =&amp;gt; 1 });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Debug mode will provide the same output, however every tag will be given a &amp;ldquo;title&amp;rdquo; attribute with the original PPI::Token class as the value. This can help you to understand how the original PPI::Token class maps to the markup by hovering the cursor over the text. The code from earlier has been printed with debug mode turned on. Try hovering!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# a simple OO class
+
+package Shape;
+
+sub new {
+    my ($class, $args) = @_;
+    my $self = {
+        color  =&amp;gt; $args-&amp;gt;{color} || &#39;black&#39;,
+        length =&amp;gt; $args-&amp;gt;{length} || 1,
+        width  =&amp;gt; $args-&amp;gt;{width} || 1,
+    };
+    return bless $self, $class;
+}
+
+sub get_area {
+    my $self = shift;
+    return $self-&amp;gt;{length} * $self-&amp;gt;{width};
+}
+
+sub get_color {
+    my $self = shift;
+    return $self-&amp;gt;{color};
+}
+
+sub set_color {
+    my ($self, $color) = @_;
+    $self-&amp;gt;{color} = $color;
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;advanced-feature-2-override-the-mapping:74c69b2f99de951b26ebaa1f686e5212&#34;&gt;Advanced feature 2: override the mapping&lt;/h3&gt;
+
+&lt;p&gt;You may want to change how certain tokens of Perl code are marked up. PPI::Prettify exports the mapping in a hashref, called $MARKUP_RULES. Every PPI::Token class is a key, with the value being the CSS class name that prettify.js uses (and the prettify CSS themes expect). For example PPI::Token::Comment is mapped to &amp;ldquo;com&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&#39;PPI::Token::Comment&#39; =&amp;gt; &#39;com&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Combined with debug mode, it should be straightforward to change the mapping of a particular PPI::Token class to the prettify class you require.&lt;/p&gt;
+
+&lt;h3 id=&#34;alternatives:74c69b2f99de951b26ebaa1f686e5212&#34;&gt;Alternatives&lt;/h3&gt;
+
+&lt;p&gt;Consider using Adam Kennedy&amp;rsquo;s &lt;a href=&#34;https://metacpan.org/pod/PPI::HTML&#34;&gt;PPI::HTML&lt;/a&gt; if you are happy writing inline-CSS in your Perl code, or need more detailed markup than the 10 or so classes provided by PPI::Prettify. It&amp;rsquo;s a more mature module and can do line numbering too.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>How to contribute to the exercism.io Perl 5 repo Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A step by step guide to porting exercises"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">How to contribute to the exercism.io Perl 5 repo</h1>
+            <p class="blog-post-meta">May 22, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p><em>Earlier this week I rounded off our exercism.io article with a call to action to help port exercises into the Perl 5 repo. Today I&rsquo;m going to walk through the porting process step-by-step and show you how easy it is to contribute.</em></p>
+
+<h3 id="requirements:96c520196f6519b815b433280ae5ea10">Requirements</h3>
+
+<p>You&rsquo;ll need a GitHub account and Perl installed. That&rsquo;s it!</p>
+
+<h3 id="fork-the-repo:96c520196f6519b815b433280ae5ea10">Fork the repo</h3>
+
+<p>To contribute to a project on GitHub, we&rsquo;ll use the &ldquo;fork and pull&rdquo; approach. First we&rsquo;ll login to GitHub:</p>
+
+<p><a href="/static/images/91/github_1.png" title="Login to GitHub"><img src="/static/images/91/github_1_small.png" alt="" /></a></p>
+
+<p>Next, search for the exercism/xperl5 repo:</p>
+
+<p><a href="/static/images/91/github_2.png" title="Search for exercism/xperl5"><img src="/static/images/91/github_2_small.png" alt="" /></a></p>
+
+<p><a href="/static/images/91/github_3.png" title="Click the fork button"><img src="/static/images/91/github_3_small.png" alt="" /></a></p>
+
+<p>Click the &ldquo;Fork&rdquo; button to copy the repo into our own perltricks/xperl5 repo:</p>
+
+<p><a href="/static/images/91/github_4.png" title="Our own forked repo"><img src="/static/images/91/github_4_small.png" alt="" /></a></p>
+
+<h3 id="get-the-exercises:96c520196f6519b815b433280ae5ea10">Get the exercises</h3>
+
+<p>Now we&rsquo;ve forked the repo, we can commit changes to our forked version. To start we&rsquo;ll need to download the Perl exercises from our forked repo. We can do this from the command line:</p>
+
+<pre><code class="language-prettyprint">$ git clone https://github.com/sillymoose/xperl5.git
+</code></pre>
+
+<p>This will download the xperl5 repo into a directory called &ldquo;xperl5&rdquo;. Next download the list of common exercises:</p>
+
+<pre><code class="language-prettyprint">$ git clone https://github.com/exercism/x-common.git
+</code></pre>
+
+<p>This will download the latest list of available exercises to the &ldquo;x-common&rdquo; directory, which contains a collection of readme files for the exercises. Any exercise that has a readme file in x-common that is missing from the xperl5 directory needs to be ported.</p>
+
+<h3 id="find-the-exercise-in-another-language:96c520196f6519b815b433280ae5ea10">Find the exercise in another language</h3>
+
+<p>Once you&rsquo;ve found an exercise that needs to be ported, you&rsquo;ll want to find that exercise in one of the other languages repos. It&rsquo;s far easier to translate an exercise than to write it from scratch yourself! The Ruby, Python and JavaScript repos have most of the exercises, so we&rsquo;ll start with one of those. For example to download the Ruby exercises repo, just type this command:</p>
+
+<pre><code class="language-prettyprint">$ git clone https://github.com/exercism/xruby.git
+</code></pre>
+
+<p>If the xruby directory doesn&rsquo;t have the exercise you&rsquo;re looking to port, try cloning xpython or xjavascript instead.</p>
+
+<h3 id="porting-the-exercise:96c520196f6519b815b433280ae5ea10">Porting the exercise</h3>
+
+<p>To port an exercise you need to provide the exercise test file and an Example.pm module which passes the tests. Earlier this week I ported the &ldquo;leap&rdquo; exercise from Ruby to Perl. This involved three steps. First I created the new exercise subdirectory in the xperl5 directory:</p>
+
+<pre><code class="language-prettyprint">$ mkdir xperl5/leap
+</code></pre>
+
+<p>Next, I translated the Ruby test file &ldquo;xruby/leap/leap_test.rb&rdquo;:</p>
+
+<pre><code class="language-prettyprint">require 'date'
+require 'minitest/autorun'
+require_relative 'year'
+
+class Date
+  def leap?
+    throw &quot;Try to implement this yourself instead of using Ruby's implementation.&quot;
+  end
+  
+  alias :gregorian_leap? :leap?
+  alias :julian_leap? :leap?
+end
+
+class YearTest &lt; MiniTest::Unit::TestCase
+  def test_leap_year
+    assert Year.leap?(1996)
+  end
+
+  def test_non_leap_year
+    skip
+    refute Year.leap?(1997)
+  end
+  
+  def test_non_leap_even_year
+    skip
+    refute Year.leap?(1998)
+  end
+
+  def test_century
+    skip
+    refute Year.leap?(1900)
+  end
+
+  def test_fourth_century
+    skip
+    assert Year.leap?(2400)
+  end
+end
+</code></pre>
+
+<p>to &ldquo;xperl5/leap/leap.t&rdquo;:</p>
+
+<pre><code class="language-prettyprint">use warnings;
+use strict;
+use Test::More tests =&gt; 7;
+
+my $module = $ENV{EXERCISM} ? 'Example' : 'Leap';
+my $sub = $module . '::is_leap';
+
+use_ok($module) or BAIL_OUT (&quot;You need to create a module called $module.pm.&quot;);
+can_ok($module, 'is_leap') or BAIL_OUT(&quot;Missing package $module with sub is_leap().&quot;);
+
+do {
+    no strict 'refs';
+    is 1, $sub-&gt;(1996), '1996 is a leap year';
+    is 0, $sub-&gt;(1997), '1997 is not a leap year';
+    is 0, $sub-&gt;(1998), '1998 is not a leap year';
+    is 0, $sub-&gt;(1900), '1900 is not a leap year';
+    is 1, $sub-&gt;(2400), '2400 is a leap year';
+}
+</code></pre>
+
+<p>Finally I ported the example answer &ldquo;xruby/leap/example.rb&rdquo;:</p>
+
+<pre><code class="language-prettyprint">require 'delegate'
+
+class Year &lt; SimpleDelegator
+
+  def self.leap?(number)
+    Year.new(number).leap?
+  end 
+
+  def leap?
+    divisible_by?(400) || divisible_by?(4) &amp;&amp; !divisible_by?(100)
+  end
+
+  private
+
+  def divisible_by?(i)
+    (self % i) == 0
+  end 
+end
+</code></pre>
+
+<p>Here is the Perl version, &ldquo;xperl5/leap/Example.pm&rdquo;:</p>
+
+<pre><code class="language-prettyprint">package Example;
+use warnings;
+use strict;
+
+sub is_leap {
+    my $year = shift;
+    divisible_by($year, 400)
+        or divisible_by($year, 4) and !divisible_by($year, 100)
+        ? 1 : 0;
+}
+
+sub divisible_by {
+    $_[0] % $_[1] == 0 ? 1 : 0;
+}
+
+__PACKAGE__;
+</code></pre>
+
+<p>Run the test file at the command line:</p>
+
+<pre><code class="language-prettyprint">$ EXERCISM=1 prove leap.t
+leap.t .. ok   
+All tests successful.
+Files=1, Tests=7,  0 wallclock secs ( 0.02 usr  0.00 sys +  0.02 cusr  0.00 csys =  0.04 CPU)
+Result: PASS
+</code></pre>
+
+<p>All of our tests passed, so we can commit these files. I also <a href="https://github.com/sillymoose/xperl6/tree/master/leap">ported</a> a Perl 6 version.</p>
+
+<h3 id="add-the-new-exercise-to-the-forked-repo:96c520196f6519b815b433280ae5ea10">Add the new exercise to the forked repo</h3>
+
+<p>Now that we&rsquo;ve ported the files, we need to add them to the forked xperl5 repository and commit the change. Here&rsquo;s are the commands to do that:</p>
+
+<pre><code class="language-prettyprint">$ cd xperl5
+$ git add leap/Example.pm leap/leap.t
+$ git commit -am 'Added the leap exercise'
+$ git push origin master
+</code></pre>
+
+<p>If the forked repo is out of sync with exercism/xperl5 you&rsquo;ll need to <a href="http://stackoverflow.com/questions/7244321/how-to-update-github-forked-repository">rebase</a> it.</p>
+
+<h3 id="create-a-pull-request:96c520196f6519b815b433280ae5ea10">Create a pull request</h3>
+
+<p>Returning to GitHub, all we have to do is initiate a pull request from our forked repo at perltricks/xperl5. Clicking the &ldquo;pull requests&rdquo; link on the right of the screen brings us to the pull requests screen:</p>
+
+<p><a href="/static/images/91/github_5.png" title="The pull requests screen"><img src="/static/images/91/github_5_small.png" alt="" /></a></p>
+
+<p>Clicking the &ldquo;new pull request&rdquo; button will create the pull request form, GitHub automatically knows that the pull request should go back to exercism/xperl5.</p>
+
+<p><a href="/static/images/91/github_6.png" title="The new pull request. Send the pull request!"><img src="/static/images/91/github_6_small.png" alt="" /></a></p>
+
+<p>Clicking the &ldquo;Send pull request&rdquo; button submits the pull request and we&rsquo;re done! The exercism repo committers usually respond within a couple of hours. So now you&rsquo;ve seen how easy it is to port an exercise, be warned it can be addictive &hellip;</p>
+
+<p>Enjoyed this article? Help us out and <a href="https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F91%2F2014%2F5%2F21%2FHow-to-contribute-to-the-exercism-io-Perl-5-repo&amp;text=How+to+contribute+to+the+exercism.io+Perl+5+repo&amp;tw_p=tweetbutton&amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F91%2F2014%2F5%2F21%2FHow-to-contribute-to-the-exercism-io-Perl-5-repo&amp;via=perltricks">tweet</a> about it!</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/community">community</a></div>
+              
+                <div class="tag"><a href="/tags/github">github</a></div>
+              
+                <div class="tag"><a href="/tags/open_source">open_source</a></div>
+              
+                <div class="tag"><a href="/tags/perl5">perl5</a></div>
+              
+                <div class="tag"><a href="/tags/perl6">perl6</a></div>
+              
+                <div class="tag"><a href="/tags/exercism_io">exercism_io</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

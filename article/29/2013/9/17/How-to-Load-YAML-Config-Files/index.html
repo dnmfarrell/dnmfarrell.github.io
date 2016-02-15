@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>How to Load YAML Config Files Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Reading YAML config files is easy with Perl"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">How to Load YAML Config Files</h1>
+            <p class="blog-post-meta">Sep 17, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>Config files are used by programmers to store local variables as it&rsquo;s usually better to update a config file than to edit source code. <a href="http://www.yaml.org/spec/1.2/spec.html#Introduction">YAML</a> is a popular data serialization language that&rsquo;s easy to read and can serialize the common Perl variables (scalars, arrays and hashes). This article describes how to read a YAML config file in Perl and access the config file&rsquo;s variables.</p>
+
+<h3 id="the-config-file:3635643ce2dafff7a934f356c4953c84">The config file</h3>
+
+<p>YAML defines different types of <a href="http://www.yaml.org/spec/1.2/spec.html#id2759963">data collections</a> that can be used to serialize (represent or store) Perl variables. Let&rsquo;s define a YAML config file to store some local email data. The config.yaml file could look like this:</p>
+
+<pre><code>---
+emailName: David
+emailAddresses: 
+    - sillymoos@cpan.org
+    - perltricks.com@gmail.com
+credentials:
+    username: sillymoose
+    password: itsasecret
+</code></pre>
+
+<p>Let&rsquo;s walkthrough config.yaml: the config file starts with three hyphens (&ldquo;&mdash;&rdquo;) to signify the start of the document, &ldquo;emailName&rdquo;: is a scalar mapping with the value &ldquo;David&rdquo;, &ldquo;emailAddresses&rdquo; is a sequence of email addresses and &ldquo;credentials&rdquo; is a mapping of scalar mappings for the email username and password.</p>
+
+<h3 id="load-the-config-file:3635643ce2dafff7a934f356c4953c84">Load the config file</h3>
+
+<p>Perl&rsquo;s <a href="https://metacpan.org/module/YAML::XS">YAML::XS</a> module provides a <code>LoadFile</code> subroutine that can be used to read any YAML file into a scalar variable. This script loads the &ldquo;config.yaml&rdquo; config file and prints it using <a href="https://metacpan.org/pod/Data::Dumper">Data::Dumper</a>:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use YAML::XS 'LoadFile';
+use Data::Dumper;
+    
+my $config = LoadFile('config.yaml');
+
+print Dumper($config);
+</code></pre>
+
+<p>If we run this script we get the following results:</p>
+
+<pre><code class="language-prettyprint">$VAR1 = {
+          'emailName' =&gt; 'David',
+          'credentials' =&gt; {
+                           'password' =&gt; 'itsasecret',
+                           'username' =&gt; 'sillymoose'
+                         },
+          'emailAddresses' =&gt; [
+                              'sillymoos@cpan.org',
+                              'perltricks.com@gmail.com'
+                            ]
+        };
+</code></pre>
+
+<p>These results show that config.yaml has been read into <code>$config</code> as a hash reference with three keys: &ldquo;emailName&rdquo;, &ldquo;credentials&rdquo; and &ldquo;emailAddresses&rdquo;.</p>
+
+<h3 id="accessing-the-config-data:3635643ce2dafff7a934f356c4953c84">Accessing the config data</h3>
+
+<p>So far the script reads the contents of config.yaml into <code>$config</code>. To access the config data we need to dereference the data from <code>$config</code>. The following script shows examples of accessing the config scalar, array and hash data.</p>
+
+<pre><code class="language-prettyprint">use YAML::XS 'LoadFile';
+use feature 'say';
+
+my $config = LoadFile('config.yaml');
+
+# access the scalar emailName
+my $emailName = $config-&gt;{emailName};
+
+# access the array emailAddresses directly
+my $firstEmailAddress = $config-&gt;{emailAddresses}-&gt;[0];
+my $secondEmailAddress= $config-&gt;{emailAddresses}-&gt;[1];
+
+# loop through and print emailAddresses
+for (@{$config-&gt;{emailAddresses}}) { say }
+
+# access the credentials hash key values directly
+my $username = $config-&gt;{credentials}-&gt;{username};
+my $password = $config-&gt;{credentials}-&gt;{password};
+
+# loop through and print credentials
+for (keys %{$config-&gt;{credentials}}) {
+    say &quot;$_: $config-&gt;{credentials}-&gt;{$_}&quot;;
+}
+</code></pre>
+
+<h3 id="more-yaml:3635643ce2dafff7a934f356c4953c84">More YAML</h3>
+
+<p><a href="https://metacpan.org/module/YAML::XS">YAML::XS</a> uses the libyaml C library and provides strong performance and adherence to the YAML specification. However if you have difficulty installing YAML::XS, there are pure Perl alternatives available: <a href="https://metacpan.org/module/YAML">YAML</a> is not actively maintained and has several bugs but excellent documentation and generally works, <a href="https://metacpan.org/module/YAML::Tiny">YAML::Tiny</a> is a newer module that implements a useful subset of the YAML specification.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/configuration">configuration</a></div>
+              
+                <div class="tag"><a href="/tags/config">config</a></div>
+              
+                <div class="tag"><a href="/tags/yaml">yaml</a></div>
+              
+                <div class="tag"><a href="/tags/libyaml">libyaml</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

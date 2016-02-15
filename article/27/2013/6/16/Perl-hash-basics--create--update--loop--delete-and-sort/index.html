@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Perl hash basics: create, update, loop, delete and sort Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Hashes are one of Perl&#39;s core data types. This article describes the main functions and syntax rules for for working with hashes in Perl."/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Perl hash basics: create, update, loop, delete and sort</h1>
+            <p class="blog-post-meta">Jun 16, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>Hashes are one of Perl&rsquo;s core data types. This article describes the main functions and syntax rules for for working with hashes in Perl.</p>
+
+<h3 id="declaration-and-initialization:bc250e2ef05172708bd06f3d4b57f148">Declaration and initialization</h3>
+
+<p>A hash is an unsorted collection of key value pairs. Within a hash a key is a unique string that references a particular value. A hash can be modified once initialized. Because a hash is unsorted, if it&rsquo;s contents are required in a particular order then they must be sorted on output. Perl uses the &lsquo;%&rsquo; symbol as the variable sigil for hashes. This command will <strong>declare an empty hash</strong>:</p>
+
+<pre><code class="language-prettyprint">my %hash;
+</code></pre>
+
+<p>Similar to the syntax for arrays, hashes can also be declared using a list of comma separated values:</p>
+
+<pre><code class="language-prettyprint">my %weekly_temperature = ('monday', 65, 'tuesday', 68, 'wednesday', 71, 'thursday', 53, 'friday', 60);
+</code></pre>
+
+<p>In the code above, Perl takes the first entry in the list as a key (&lsquo;monday&rsquo;), and the second entry as that key&rsquo;s value (65). The third entry in the list (&lsquo;tuesday&rsquo;) would then be declared as a key, and the fourth entry (68) as its value and so on.</p>
+
+<p>The <strong>&lsquo;fat comma&rsquo;</strong> operator looks like an arrow (&lsquo;=&gt;&rsquo;) and allows the declaration of key value pairs instead of using a comma. This makes for cleaner and more readable code. Additionally there is no need to quote strings for keys when using the fat comma. Using the fat comma, the same declaration of %weekly_temperature would look like this:</p>
+
+<pre><code class="language-prettyprint">my %weekly_temperature = (
+    monday    =&gt; 65, 
+    tuesday   =&gt; 68,
+    wednesday =&gt; 71, 
+    thursday  =&gt; 53, 
+    friday    =&gt; 60,
+);
+</code></pre>
+
+<h3 id="access-a-value:bc250e2ef05172708bd06f3d4b57f148">Access a value</h3>
+
+<p>To access the value of a key value pair, Perl requires the key encased in curly brackets.</p>
+
+<pre><code class="language-prettyprint">my %weekly_temperature = (
+    monday    =&gt; 65, 
+    tuesday   =&gt; 68,
+    wednesday =&gt; 71, 
+    thursday  =&gt; 53, 
+    friday    =&gt; 60,
+);
+my $monday_temp = $weekly_temperature{monday};
+#65
+</code></pre>
+
+<p>Note that strings do not need to be quoted when placed between the curly brackets for hash keys and that the scalar sigil (&lsquo;$&rsquo;) is used when accessing a single scalar value instead of (&lsquo;%&rsquo;).</p>
+
+<h3 id="take-a-slice-of-a-hash:bc250e2ef05172708bd06f3d4b57f148">Take a slice of a hash</h3>
+
+<p>A slice is a list of values. In Perl a slice can be read into an array, assigned to individual scalars, or used as an input to a function or subroutine. Slices are useful when you only want to extract a handful of values from a hash. For example:</p>
+
+<pre><code class="language-prettyprint">my %weekly_temperature = (
+    monday    =&gt; 65,
+    tuesday   =&gt; 68,
+    wednesday =&gt; 71,
+    thursday  =&gt; 53,
+    friday    =&gt; 60,
+);
+
+my ($tuesday_temp, $friday_temp) = @weekly_temperature{('tuesday', 'friday')};
+
+print &quot;$tuesday_temp\n&quot;;
+#68
+
+print &quot;$friday_temp\n&quot;;
+#60
+</code></pre>
+
+<p>The code above declares the &lsquo;weekly_temperature&rsquo; hash as usual. What&rsquo;s unusual here is that to get the slice of values, the array sigil (&lsquo;@&rsquo;) is used by pre-pending it to the hash variable name. With this change the has will then lookup a list of values.</p>
+
+<h3 id="access-all-values-with-the-values-function:bc250e2ef05172708bd06f3d4b57f148">Access all values with the values function</h3>
+
+<p>The values function returns a list of the values contained in a hash. It&rsquo;s possible to loop through the list of returned values and perform operations on them (e.g. print). For example:</p>
+
+<pre><code class="language-prettyprint">my %weekly_temperature = (
+    monday    =&gt; 65, 
+    tuesday   =&gt; 68,
+    wednesday =&gt; 71, 
+    thursday  =&gt; 53, 
+    friday    =&gt; 60,
+);
+foreach my $value (values %weekly_temperature){
+    print $value . &quot;\n&quot;;
+}
+#71 
+#53 
+#60
+#65 
+#68
+</code></pre>
+
+<p>A couple more tips when working with key value pairs of a hash: the code is more readable if you vertically align the fat comma (&lsquo;=&gt;&rsquo;) operators and unlike C, Perl allows the last element to have a trailing comma, which makes it easier to add elements later without generating a compile error.</p>
+
+<h3 id="access-all-keys-with-the-keys-function:bc250e2ef05172708bd06f3d4b57f148">Access all keys with the keys function</h3>
+
+<p>The keys function returns a list of the keys contained in a hash. A common way to access all the key value pairs of a hash is to use loop through the list returned by the keys function. For example:</p>
+
+<pre><code class="language-prettyprint">my %consultant_salaries = (
+    associate        =&gt; 25000,
+    senior_associate =&gt; 40000,
+    manager          =&gt; 80000,
+    director         =&gt; 120000,
+    partner          =&gt; 250000,
+);
+foreach my $grade (keys %consultant_salaries) {
+    print &quot;$grade: $consultant_salaries{$grade}\n&quot;;
+}
+#associate: 25000
+#partner: 250000
+#director: 120000
+#manager: 80000
+#senior_associate: 40000
+</code></pre>
+
+<p>In the above code we used the keys function to return a list of keys, looped though the list with foreach, and then printed the key and the value of each pair. Note that the print order of the pairs is different from intialization - that&rsquo;s because hashes store their pairs in a random internal order. Also we used an interpreted quoted string using speech marks (&ldquo;). This allows us to mix variables with plain text and escape characters like newline (&rsquo;\n&rsquo;) for convenient printing.</p>
+
+<h3 id="access-all-key-value-pairs-with-the-each-function:bc250e2ef05172708bd06f3d4b57f148">Access all key value pairs with the each function</h3>
+
+<p>The each function returns all keys and values of a hash, one at a time:</p>
+
+<pre><code class="language-prettyprint">my %consultant_salaries = (
+    associate        =&gt; 25000,
+    senior_associate =&gt; 40000,
+    manager          =&gt; 80000,
+    director         =&gt; 120000,
+    partner          =&gt; 250000,
+);
+while (my ($key, $value) = each %consultant_salaries) {
+    print &quot;$key: $value\n&quot;;
+}
+#associate: 25000
+#partner: 250000
+#director: 120000
+#manager: 80000
+#senior_associate: 40000
+</code></pre>
+
+<h3 id="add-a-new-key-value-pair:bc250e2ef05172708bd06f3d4b57f148">Add a new key value pair</h3>
+
+<p>To add a new pair to a hash, use this syntax:</p>
+
+<pre><code class="language-prettyprint"># declare the hash as usual
+my %fruit_pairs = (apples =&gt; 'oranges');
+
+# add a new key value pair
+$fruit_pairs{oranges} = 'lemons';
+
+# prove the new pair exists by printing the hash
+while (my ($key, $value) = each %fruit_pairs) {
+    print &quot;$key: $value\n&quot;;
+}
+#apples: oranges
+#oranges: lemons
+</code></pre>
+
+<h3 id="delete-a-key-value-pair:bc250e2ef05172708bd06f3d4b57f148">Delete a key value pair</h3>
+
+<p>To remove a key value pair from a hash use the delete function. Delete requires the key of the pair in order to delete it from the hash:</p>
+
+<pre><code class="language-prettyprint">my %fruit_pairs = (apples =&gt; 'oranges');
+
+# use the delete function with the pair's key
+delete $fruit_pairs{apples};
+</code></pre>
+
+<h3 id="update-a-value-of-a-pair:bc250e2ef05172708bd06f3d4b57f148">Update a value of a pair</h3>
+
+<p>To update the value of a pair, simply assign it a new value using the same syntax as to add a new key value pair. The difference here is that the key already exists in the hash:</p>
+
+<pre><code class="language-prettyprint">my %fruit_pairs = (apples =&gt; 'oranges');
+# assign a new value to the pair
+$fruit_pairs{apples} = 'bananas';
+</code></pre>
+
+<h3 id="empty-a-hash:bc250e2ef05172708bd06f3d4b57f148">Empty a hash</h3>
+
+<p>To empty a hash, re-declare it with no members:</p>
+
+<pre><code class="language-prettyprint">my %fruit_pairs = (apples =&gt; 'oranges');
+
+# empty the hash
+%fruit_pairs = ();
+</code></pre>
+
+<h3 id="increment-decrement-a-value:bc250e2ef05172708bd06f3d4b57f148">increment / decrement a value</h3>
+
+<p>Quick answer: use the same syntax for assigning / updating a value with the increment or decrement operator:</p>
+
+<pre><code class="language-prettyprint">my %common_word_count = (
+    the =&gt; 54,
+    and =&gt; 98,
+    a   =&gt; 29,
+);
+
+# increment the value of the pair with the key 'the' by 1
+$common_word_count{the}++;
+
+# decrement the key value pair with the key 'a'
+$common_word_count{a}--;
+</code></pre>
+
+<h3 id="sort-a-hash-alphabetically:bc250e2ef05172708bd06f3d4b57f148">Sort a hash alphabetically</h3>
+
+<p>Although the internal ordering of a hash is random, it is possible to sort the output from a hash into a more useful sequence. Perl provides the sort function to (obviously) sort lists of data. By default it sorts alphabetically:</p>
+
+<pre><code class="language-prettyprint">my %common_word_count = (
+    the =&gt; 54,
+    and =&gt; 98,
+    a   =&gt; 29,
+);
+# use sort with keys to sort the keys of a hash
+foreach my $key (sort keys %common_word_count){
+   print &quot;$key\n&quot;;
+}
+#a
+#and
+#the
+
+# to sort values use keys to lookup the values and a compare block to compare them
+foreach my $key (sort {$common_word_count{$a} cmp $common_word_count{$b}} keys %common_word_count){
+       print &quot;$key: $common_word_count{$key}\n&quot;;
+}
+#a: 29
+#the: 54
+#and: 98
+</code></pre>
+
+<p>Let&rsquo;s review the code above. The compare block receives the hash keys using the keys function. It then compares the values of each key using $a and $b as special variables to lookup and compare the values of the two keys. This sorted list of keys is then passed to the foreach command and looped through as usual. Note how the order is printed in value order - however it is still alphabetical ordering.</p>
+
+<h3 id="sort-a-hash-numerically:bc250e2ef05172708bd06f3d4b57f148">Sort a hash numerically</h3>
+
+<p>Numerically sorting a hash requires using a compare block as in the previous example, but substituting the &lsquo;cmp&rsquo; operator for the numerical comparison operator (&rsquo;&lt;=&gt;&rsquo;):</p>
+
+<pre><code class="language-prettyprint">my %common_word_count = (
+            the =&gt; 54,
+            and =&gt; 98,
+            a   =&gt; 29,
+);
+
+foreach my $key (sort {$common_word_count{$a} &lt;=&gt; $common_word_count{$b}} keys %common_word_count) {
+    print &quot;$key: $common_word_count{$key}\n&quot;;
+}
+</code></pre>
+
+<h3 id="get-the-hash-size:bc250e2ef05172708bd06f3d4b57f148">Get the hash size</h3>
+
+<p>To get the size of a hash, simply call the keys function in a scalar context. This can be done by assigning the return value of keys to a scalar variable:</p>
+
+<pre><code class="language-prettyprint">my %common_word_count = (
+            the =&gt; 54,
+            and =&gt; 98,
+            a   =&gt; 29,
+);
+
+my $count =  keys %common_word_count;
+print &quot;$count\n&quot;;
+#3
+</code></pre>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/loop">loop</a></div>
+              
+                <div class="tag"><a href="/tags/variable">variable</a></div>
+              
+                <div class="tag"><a href="/tags/hash">hash</a></div>
+              
+                <div class="tag"><a href="/tags/core">core</a></div>
+              
+                <div class="tag"><a href="/tags/delete">delete</a></div>
+              
+                <div class="tag"><a href="/tags/add">add</a></div>
+              
+                <div class="tag"><a href="/tags/key">key</a></div>
+              
+                <div class="tag"><a href="/tags/value">value</a></div>
+              
+                <div class="tag"><a href="/tags/pair">pair</a></div>
+              
+                <div class="tag"><a href="/tags/length">length</a></div>
+              
+                <div class="tag"><a href="/tags/size">size</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

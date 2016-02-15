@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Firefox on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/firefox/</link>
+    <description>Recent content in Firefox on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 08 Dec 2014 14:13:27 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/firefox/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Controlling Firefox from Perl</title>
+      <link>http://perltricks.com/article/138/2014/12/8/Controlling-Firefox-from-Perl/</link>
+      <pubDate>Mon, 08 Dec 2014 14:13:27 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/138/2014/12/8/Controlling-Firefox-from-Perl/</guid>
+      <description>
+
+&lt;p&gt;I&amp;rsquo;ve been playing with &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize::Firefox&#34;&gt;WWW::Mechanize::Firefox&lt;/a&gt;. It&amp;rsquo;s like the LWP-backended &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize&#34;&gt;WWW::Mechanize&lt;/a&gt;, but with a browser doing all the work. Instead of doing it all in Perl, I can use it as the glue language that it is.&lt;/p&gt;
+
+&lt;p&gt;Sometimes &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize&#34;&gt;WWW::Mechanize&lt;/a&gt;, &lt;a href=&#34;http://www.metacpan.org/module/LWP::UserAgent&#34;&gt;LWP::UserAgent&lt;/a&gt;, or &lt;a href=&#34;http://www.metacpan.org/module/Mojo::UserAgent&#34;&gt;Mojo::UserAgent&lt;/a&gt; aren&amp;rsquo;t enough. For basic web scraping and automation they work well, but fail miserably for anything that requires JavaScript. Some people have luck with SpiderMonkey (&lt;a href=&#34;https://metacpan.org/search?q=spidermonkey&amp;amp;&#34;&gt;with several Perl interfaces&lt;/a&gt;), but that still isn&amp;rsquo;t the whole browser environment.&lt;/p&gt;
+
+&lt;p&gt;Before you start, you need the &lt;a href=&#34;https://www.mozilla.org&#34;&gt;Firefox&lt;/a&gt; browser (or one of its forks) with the &lt;a href=&#34;https://addons.mozilla.org/en-us/firefox/addon/mozrepl/&#34;&gt;MozRepl&lt;/a&gt; add-on, which provides an interactive JavaScript console that you can telnet into. Once activated, you can connect to the console and can control the browser.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://farm8.staticflickr.com/7503/15324164413_0a43aeb932.jpg&#34; title=&#34;activate_mozrepl by brian d foy, on Flickr&#34;&gt;&lt;img src=&#34;https://farm8.staticflickr.com/7503/15324164413_0a43aeb932.jpg&#34; alt=&#34;activate\_mozrepl&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I have to know JavaScript to control Firefox directly. I can telnet into the MozRepl server and issue commands. It&amp;rsquo;s a bit more work than I&amp;rsquo;d like to do.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://farm9.staticflickr.com/8680/15941835341_f064e9e2a3.jpg&#34; title=&#34;mozrepl_telnet by brian d foy, on Flickr&#34;&gt;&lt;img src=&#34;https://farm9.staticflickr.com/8680/15941835341_f064e9e2a3.jpg&#34; alt=&#34;mozrepl\_telnet&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m not going to control Firefox directly, though, because I&amp;rsquo;m going to let some Perl modules do that for me. The basic interface of &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize::Firefox&#34;&gt;WWW::Mechanize::Firefox&lt;/a&gt; is the same as &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize&#34;&gt;WWW::Mechanize&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/local/perls/perl-5.20.0/bin/perl
+use v5.10;
+use WWW::Mechanize::Firefox;
+
+my $mech = WWW::Mechanize::Firefox-&amp;gt;new;
+$mech-&amp;gt;autoclose_tab( 0 );
+
+$mech-&amp;gt;get( &#39;http://www.perltricks.com&#39; );
+
+foreach my $link ( $mech-&amp;gt;links ) {
+    state $count = 0;
+    say $count++, &amp;quot;: &amp;quot;, $link-&amp;gt;url;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I get a list of the links on the PerlTricks main page:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;0: http://perltricks.com/favicon.ico
+1: http://perltricks.com/feed/atom
+2: http://perltricks.com/feed/rss
+3: http://perltricks.com/static/css/bootstrap.min.css
+4: http://perltricks.com/static/css/carousel.css
+5: http://perltricks.com/static/css/perltricks.css
+6: https://twitter.com/intent/follow?screen_name=perltricks
+7: http://perltricks.com/feed/rss
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s not even the good part yet.&lt;/p&gt;
+
+&lt;h3 id=&#34;executing-javascript:b571cb2b36a22a2464e2b146c6144eec&#34;&gt;Executing JavaScript&lt;/h3&gt;
+
+&lt;p&gt;Since I&amp;rsquo;m connected to a JavaScript terminal, I can evaluate JavaScript code. The &lt;code&gt;eval&lt;/code&gt; returns the result and its type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+use WWW::Mechanize::Firefox;
+
+my $mech = WWW::Mechanize::Firefox-&amp;gt;new;
+$mech-&amp;gt;autoclose_tab( 0 );
+
+my( $result, $type ) = $mech-&amp;gt;eval( &#39;2+2&#39; );
+
+say &amp;quot;2+2 is $result (type $type)&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;2+2 is 4 (type number)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That evaluates the JavaScript in its own context, which isn&amp;rsquo;t that interesting for me. I want to interact and control parts of a web page. To do that, I use the &lt;code&gt;eval_in_page&lt;/code&gt;. That runs the JavaScript with everything else going on in the current tab, including all the JavaScript code it has loaded. Here&amp;rsquo;s an example that uses the StackExchange JavaScript to change the view from the desktop mode to the mobile mode:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+use WWW::Mechanize::Firefox;
+
+my $mech = WWW::Mechanize::Firefox-&amp;gt;new;
+$mech-&amp;gt;autoclose_tab( 0 );
+
+$mech-&amp;gt;get( &#39;http://www.stackoverflow.com/&#39; );
+sleep 5;
+$mech-&amp;gt;eval_in_page( &#39;StackExchange.switchMobile(&amp;quot;on&amp;quot;)&#39; );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When I run this, the screen changes from the full site to the mobile site.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://farm9.staticflickr.com/8640/15943126852_07692bfc09.jpg&#34; title=&#34;screenshots by brian d foy, on Flickr&#34;&gt;&lt;img src=&#34;https://farm9.staticflickr.com/8640/15943126852_07692bfc09.jpg&#34; alt=&#34;screenshots&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;some-problems:b571cb2b36a22a2464e2b146c6144eec&#34;&gt;Some problems&lt;/h3&gt;
+
+&lt;p&gt;This approach has some problem though, almost none of which come from Perl. If I want to automate something that makes many requests or runs for a long time, Firefox is likely to have problems. Over time, &lt;a href=&#34;https://support.mozilla.org/en-US/kb/firefox-uses-too-much-memory-ram&#34;&gt;it&amp;rsquo;s memory footprint grows&lt;/a&gt;, leading to poor performance and crashes. Sometimes the connection to the console breaks, taking down my program with it.&lt;/p&gt;
+
+&lt;p&gt;Because of this, I limit my use of &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize::Firefox&#34;&gt;WWW::Mechanize::Firefox&lt;/a&gt; to the parts of my problem that require JavaScript. I can extract the information I need then use &lt;a href=&#34;http://www.metacpan.org/module/Mojo::UserAgent&#34;&gt;Mojo::UserAgent&lt;/a&gt; to handle the other parts.&lt;/p&gt;
+
+&lt;h3 id=&#34;similar-solutions:b571cb2b36a22a2464e2b146c6144eec&#34;&gt;Similar solutions&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize::Firefox&#34;&gt;WWW::Mechanize::Firefox&lt;/a&gt; isn&amp;rsquo;t the only way to do this sort of thing. &lt;a href=&#34;http://blogs.perl.org/users/robhammond/2013/02/web-scraping-with-perl-phantomjs.html&#34;&gt;Rob Hammond posted on blogs.perl.org about PhantomJS&lt;/a&gt;, which received some comments about &lt;a href=&#34;http://www.metacpan.org/module/WWW::WebKit&#34;&gt;WWW::WebKit&lt;/a&gt;. There used to be a Win32::IE::Mechanize, but apparently it &lt;a href=&#34;http://www.perlmonks.org/?node_id=1061372&#34;&gt;doesn&amp;rsquo;t work in IE 8&lt;/a&gt;. &lt;a href=&#34;http://www.seleniumhq.org&#34;&gt;Selenium&lt;/a&gt; and &lt;a href=&#34;http://www.metacpan.org/module/Test::WWW::Selenium&#34;&gt;Test::WWW::Selenium&lt;/a&gt; is another tool that I could use, but that&amp;rsquo;s more geared to browser acceptance testing and replays.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Join the discussion on the Perl &lt;a href=&#34;http://www.reddit.com/r/perl/comments/2onaz4/controlling_firefox_from_perl_by_brian_d_foy/&#34;&gt;subreddit&lt;/a&gt; about this article!&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update:&lt;/strong&gt; &lt;em&gt;last paragraph updated to include Selenium reference. 2014-12-09&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

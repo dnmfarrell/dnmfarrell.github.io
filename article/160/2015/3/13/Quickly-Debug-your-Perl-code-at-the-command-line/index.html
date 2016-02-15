@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Quickly Debug your Perl code at the command line Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Something not working? Whip up a one liner and find out why"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Quickly Debug your Perl code at the command line</h1>
+            <p class="blog-post-meta">Mar 13, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>I remember when I first started programming in Perl, whenever something wasn&rsquo;t working as I expected it to, I would write a quick script to isolate the problem and test it. I didn&rsquo;t give the scripts good names; they were throwaway, and soon I had hundreds of useless Perl scripts littered all over my hard drive.</p>
+
+<p>I rarely write scripts like that anymore. If I&rsquo;m developing a module, I&rsquo;ll write a unit test to bottom-out whatever problem I&rsquo;m investigating - that way I&rsquo;m making an investment instead of throwing code away. Most of the time however, I just write a one liner, which is a single line of Perl code typed directly into the terminal. One liners are fast to type and they hang around in your terminal history for quick iterations. So if you find yourself needing to test a particular function is doing what you think it does, or are unsure if you&rsquo;re carefully-crafted regex works, write a one liner.</p>
+
+<h3 id="one-liner-basics:13cc8d082772e2403612220d551b65fb">One liner basics</h3>
+
+<p>Perl has a ton of command line switches (see <code>perldoc perlrun</code>), but I&rsquo;m just going to cover the ones you&rsquo;ll commonly need to debug code. The most important switch is <code>-e</code>, for execute (or maybe &ldquo;engage&rdquo; :) ). The <code>-e</code> switch takes a quoted string of Perl code and executes it. For example:</p>
+
+<pre><code class="language-prettyprint">$ perl -e 'print &quot;Hello, World!\n&quot;'
+Hello, World!
+</code></pre>
+
+<p>It&rsquo;s important that you use single-quotes to quote the code for <code>-e</code>. This usually means you can&rsquo;t use single-quotes within the one liner code. If you&rsquo;re using Windows cmd.exe or PowerShell, you must use double-quotes instead.</p>
+
+<p>I&rsquo;m always forgetting what Perl&rsquo;s predefined special variables do, and often test them at the command line with a one liner to see what they contain. For instance do you remember what <code>$^O</code> is?</p>
+
+<pre><code class="language-prettyprint">$ perl -e 'print &quot;$^O\n&quot;'
+linux
+</code></pre>
+
+<p>It&rsquo;s the operating system name. With that cleared up, let&rsquo;s see what else we can do. If you&rsquo;re using a relatively new Perl (5.10.0 or higher) you can use the <code>-E</code> switch instead of <code>-e</code>. This turns on some of Perl&rsquo;s newer features, like <code>say</code>, which prints a string and appends a newline to it. This saves typing and makes the code cleaner:</p>
+
+<pre><code class="language-prettyprint">$ perl -E 'say &quot;$^O&quot;'
+linux
+</code></pre>
+
+<p>Pretty handy! <code>say</code> is a nifty feature that you&rsquo;ll use again and again.</p>
+
+<h3 id="v-is-for-version:13cc8d082772e2403612220d551b65fb">V is for version</h3>
+
+<p>If you ever need to check which version of Perl is installed on your system, use the <code>-v</code> switch:</p>
+
+<pre><code class="language-prettyprint">$ perl -v
+
+This is perl 5, version 20, subversion 2 (v5.20.2) built for x86_64-linux
+(with 1 registered patch, see perl -V for more detail)
+
+Copyright 1987-2015, Larry Wall
+...
+</code></pre>
+
+<p>Quick tip: if you need detailed information about the installed Perl version, use a capital: <code>-V</code> instead.</p>
+
+<h3 id="load-modules-with-m:13cc8d082772e2403612220d551b65fb">Load modules with M</h3>
+
+<p>Modules can be loaded at the command line too. For instance to download and print the PerlTricks.com homepage, I can use <a href="https://metacpan.org/pod/HTTP::Tiny">HTTP::Tiny</a>:</p>
+
+<pre><code class="language-prettyprint">$ perl -MHTTP::Tiny -E 'say HTTP::Tiny-&gt;new-&gt;get(&quot;http://perltricks.com&quot;)-&gt;{content}';
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+    &lt;title&gt;PerlTricks.com - Perl programming news, code and culture&lt;/title&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+   ,,,
+</code></pre>
+
+<p>If you need to import functions from a module, use an equals sign followed by a comma separated list of function names. I can check if an XML file is valid XML with <a href="https://metacpan.org/pod/XML::Simple">XML::Simple</a> and it&rsquo;s <code>XMLin</code> function just by loading the XML file:</p>
+
+<pre><code class="language-prettyprint">$ perl -MXML::Simple=XMLin -e 'XMLin(&quot;data.xml&quot;)'
+</code></pre>
+
+<p>If <code>XMLin</code> doesn&rsquo;t emit any warnings or exceptions, the data is probably correctly formatted.</p>
+
+<h3 id="turn-on-warnings-with-w:13cc8d082772e2403612220d551b65fb">Turn on warnings with w</h3>
+
+<p>This one is pretty simple: use <code>-w</code> to turn on warnings. This can be incredibly helpful when code is not behaving the way you think it should. Warnings can help you identify issues that would otherwise be hard to spot:</p>
+
+<pre><code class="language-prettyprint">$ perl -E '$counter = 2; $countor = 3; say $counter'
+2
+</code></pre>
+
+<p>Hmm <code>$counter</code> should be 3 shouldn&rsquo;t it? Turning on warnings quickly identifies the issue:</p>
+
+<pre><code class="language-prettyprint">$ perl -wE '$counter = 2; $countor = 3; say $counter'
+Name &quot;main::countor&quot; used only once: possible typo at -e line 1.
+2
+</code></pre>
+
+<p>There are plenty of more subtle bugs that warnings won&rsquo;t identify directly, but the fact that Perl issues a warning puts you onto the fact that something is wrong. Take this example:</p>
+
+<pre><code class="language-prettyprint">$ perl -MTry::Tiny -wE '$pass; try { $pass = &quot;true&quot; } catch { say $_ } return $pass if $pass or die'
+Useless use of a variable in void context at -e line 1.
+Died at -e line 1.
+</code></pre>
+
+<p>Can you see what&rsquo;s wrong here? The <code>catch</code> block is missing a trailing semicolon. With warnings turned on, you can see that <em>something</em> is up, but it&rsquo;s not obvious what&rsquo;s wrong.</p>
+
+<h3 id="use-i-to-include-directories:13cc8d082772e2403612220d551b65fb">Use I to include directories</h3>
+
+<p>Sometimes you&rsquo;ll be working with modules that are not installed in Perl&rsquo;s standard locations. This often happens when you&rsquo;re debugging an application but it&rsquo;s not installed via CPAN. To demonstrate this, I&rsquo;ll download my <a href="https://metacpan.org/pod/WWW::curlmyip">WWW::curlmyip</a> module:</p>
+
+<pre><code class="language-prettyprint">$ cpan -g WWW::curlmyip
+$~ tar xzf WWW-curlmyip-0.02.tar.gz 
+$ cd WWW-curlmyip-0.02/
+</code></pre>
+
+<p>WWW::curlmyip exports a function called <code>get_ip</code> which returns your external IP address. I can use it in a one liner:</p>
+
+<pre><code class="language-prettyprint">$ perl -MWWW::curlmyip -E 'say get_ip'
+Can't locate WWW/curlmyip.pm in @INC (you may need to install the WWW::curlmyip module) (@INC contains: /home/dfarrell/.plenv/versions/5.20.2/lib/perl5/site_perl/5.20.2/x86_64-linux /home/dfarrell/.plenv/versions/5.20.2/lib/perl5/site_perl/5.20.2 /home/dfarrell/.plenv/versions/5.20.2/lib/perl5/5.20.2/x86_64-linux /home/dfarrell/.plenv/versions/5.20.2/lib/perl5/5.20.2 .).
+BEGIN failed--compilation aborted.
+</code></pre>
+
+<p>That didn&rsquo;t work. Perl is complaining that it can&rsquo;t find WWW::curlmyip. To fix this, I can include the distribution <code>lib</code> directory that contains the module using <code>-I</code>:</p>
+
+<pre><code class="language-prettyprint">$ perl -Ilib -MWWW::curlmyip -E 'say get_ip'
+100.241.20.7
+</code></pre>
+
+<p>And the <code>get_ip</code> function now works.</p>
+
+<h3 id="wrap-up:13cc8d082772e2403612220d551b65fb">Wrap-up</h3>
+
+<p>If you ever need to check the one liner syntax, just run <code>perl -h</code> to get a summary of the available options. Another good resource is the official documentation, which you can read at the terminal with <code>perldoc perlrun</code>.</p>
+
+<p>This article has covered the most common command line switches used for debugging code but a whole book could be written about Perl one liners. In fact, one has: <a href="http://www.catonmat.net/blog/perl-one-liners-no-starch-press/">Perl One-Liners</a> by Peteris Krummins. In the book Peteris describes the various command line switches with example programs. It also has an excellent &ldquo;how to&rdquo; for running one liners on Windows.</p>
+
+<p>Finally, Perl 6 also has excellent one liner support and the switches are mostly the same as Perl 5. If you&rsquo;re interested, check out our article <a href="http://perltricks.com/article/136/2014/11/20/Get-started-with-Perl-6-one-liners">Get started with Perl 6 one liners</a>.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/one_liner">one_liner</a></div>
+              
+                <div class="tag"><a href="/tags/terminal">terminal</a></div>
+              
+                <div class="tag"><a href="/tags/debug">debug</a></div>
+              
+                <div class="tag"><a href="/tags/testing">testing</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

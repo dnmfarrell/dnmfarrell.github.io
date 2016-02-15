@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Boost your Perl productivity with auto-compile checking Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An easy trick that saves you time"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Boost your Perl productivity with auto-compile checking</h1>
+            <p class="blog-post-meta">Nov 10, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/133/8CD1623C-68E1-11E4-99FF-327195E830D2.jpeg"/>
+            </div>
+              
+
+<p>The Perl command line option <code>-c</code> causes Perl to check the syntax of the program, but not execute it (apart from code in BEGIN, CHECK and UNITCHECK blocks - watch out for those). For example:</p>
+
+<pre><code class="language-prettyprint">$ perl -c lib/Devel/DidYouMean.pm
+lib/Devel/DidYouMean.pm syntax OK
+</code></pre>
+
+<p>This is useful but it&rsquo;s kind of clunky to type it every time you want to check the syntax of a program or file.</p>
+
+<h3 id="continuous-syntax-checking:8b44f8b5a95c23d489bedfd99622b8bb">Continuous syntax checking</h3>
+
+<p>One of my favourite <a href="https://metacpan.org/pod/Catalyst::Manual::Tutorial::02_CatalystBasics#The-Simplest-Way">features</a> when developing Catalyst web apps is using the test server to automatically check the syntax of the web app as I develop it. This saves me time as I know immediately if the web app compiles or not and don&rsquo;t waste time opening up a browser only to get an error. if you&rsquo;re working on a Unix-based operating system you can achieve a similar effect for any Perl program (not just web apps). The <code>watch</code> program can automatically run the check command. Just start a new terminal, and enter:</p>
+
+<pre><code class="language-prettyprint">$ watch 'perl -c lib/Devel/DidYouMean.pm'
+</code></pre>
+
+<p>Giving this output:</p>
+
+<pre><code class="language-prettyprint">Every 2s perl -c lib/Devel/DidYouMean.pm           Sat Nov  8 2014
+
+lib/Devel/DidYouMean.pm syntax OK
+</code></pre>
+
+<p>In this case I&rsquo;m watching the file <code>lib/Devel/DidYouMean.pm</code> but you can provide any path to a Perl file that you want to check for syntax errors. By default <code>watch</code> will run the command every 2 seconds. So if I save a bad update to the file, the watching terminal window will show the error:</p>
+
+<pre><code class="language-prettyprint">Every 2.0s: perl -c lib/Devel/DidYouMean.pm           Sat Nov  8 2014
+
+syntax error at lib/Devel/DidYouMean.pm line 122, near &quot;} keys&quot;
+
+lib/Devel/DidYouMean.pm had compilation errors.
+</code></pre>
+
+<p>This enables me to catch the error before running the program, saving time.</p>
+
+<h3 id="checking-syntax-in-a-text-editor:8b44f8b5a95c23d489bedfd99622b8bb">Checking syntax in a text-editor</h3>
+
+<p>Using <code>watch</code> is useful, but I find it can be annoying to have to check a separate terminal window to know if my program compiles or not. Another way to do this is to run the command from within your text-editor. I&rsquo;ll show how you how to do this in vim, but it should be possible to do this in any text-editor that has save events which you can hook in to (e.g. examples for <a href="http://www.klaascuvelier.be/2013/06/sublime-command-on-save/">Sublime Text</a> and <a href="http://flycheck.readthedocs.org/en/latest/">Emacs</a>).</p>
+
+<p>Add the following line to your .vimrc file:</p>
+
+<pre><code class="language-prettyprint">autocmd BufWritePost *.pm,*.t,*.pl echom system(&quot;perl -Ilib -c &quot; . '&quot;' . expand(&quot;%:p&quot;). '&quot;' )
+</code></pre>
+
+<p>What this command does is every time a file ending in .pm, .t, or.pl is saved, vim will run the check syntax command on the file, echoing the results to the current window. Reload your .vimrc with this vim command: <code>:so $MYVIMRC</code>.</p>
+
+<p>Now you don&rsquo;t have to bother setting up a separate terminal window and watching the file; vim will notify you immediately if any Perl file is saved with compilation errors. Much more convenient!</p>
+
+<h3 id="alternative-methods-in-vim:8b44f8b5a95c23d489bedfd99622b8bb">Alternative Methods in Vim</h3>
+
+<p>Several readers got in touch to recommend the Syntastic <a href="https://github.com/scrooloose/syntastic">plugin</a> for Vim (<a href="https://github.com/scrooloose/syntastic">manual</a>). One nice thing about Syntastic is you can chain compile checks: first run <code>perl -c</code>, if it passes, then run <a href="https://metacpan.org/pod/Perl::Critic">Perl::Critic</a> and so on. Syntastic also integrates syntax checkers for many other languages, so if Vim is your editor of choice, you might want to check it out.</p>
+
+<p>A simpler alternative to Syntastic is to use Vim&rsquo;s built-in compiler support. With a Perl file in the current buffer, type:</p>
+
+<pre><code class="language-prettyprint">:compiler perl
+:make
+:cope
+</code></pre>
+
+<p>This will run Perl&rsquo;s syntax checks checks on the current buffer. Vim reads the output into an error list, which the <code>:cope</code> command displays. You can jump to the line referenced by a specific error by pressing the enter key (<a href="http://vimdoc.sourceforge.net/htmldoc/quickfix.html#quickfix-window">manual</a>).</p>
+
+<p><strong>Updates:</strong> <em>BEGIN, CHECK, UNITCHECK blocks caution added. Emacs link and addition Vim methods added. 2014-11-10</em></p>
+
+<p><em>Vim autocmd example updated to handle filepaths containing spaces. Thanks to Henry An for the suggestion. 2015-01-22</em></p>
+
+<p><em>Cover image <a href="http://creativecommons.org/licenses/by/4.0/">©</a> <a href="https://www.flickr.com/photos/runneralan/10092757714/in/photolist--88qSeT-88u7R1-dqTSLE-atoyrp-bD3QaN-93yNyq-8QYfKX-diG9h4-bD3NV9-88u847-gnS2f3-55QWyu-dqTHcF-9AJTkV-88qSdr-7h39AP-7nPgCT-88qSfv-5MyRfE-bRXxYv-bD3PXU-88u7pC-imjBX2-8xz38b-32eo27-a8YVvZ-8WJgFA-93ySDG-57KLMs-oYUnQ1-88qRL4-fturhH-88qRMx-cUx3nS-4GMFL2-88qSrv-5RhqjZ-ftuqAr-ehAoHf-ftJLsq-88u7fU-5R22Pk-5CNDM-bv2wve-9vnwcd-6dyA62-ejP2nf-329MpH-88u7ds">Alan Kotok</a> image has been digitally altered</em></p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/perl">perl</a></div>
+              
+                <div class="tag"><a href="/tags/compile">compile</a></div>
+              
+                <div class="tag"><a href="/tags/check">check</a></div>
+              
+                <div class="tag"><a href="/tags/vim">vim</a></div>
+              
+                <div class="tag"><a href="/tags/sublime_text">sublime_text</a></div>
+              
+                <div class="tag"><a href="/tags/text_editor">text_editor</a></div>
+              
+                <div class="tag"><a href="/tags/watch">watch</a></div>
+              
+                <div class="tag"><a href="/tags/syntastic">syntastic</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

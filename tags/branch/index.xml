@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Branch on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/branch/</link>
+    <description>Recent content in Branch on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 24 Dec 2015 17:20:05 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/branch/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Quick tip: git push origin hamster?</title>
+      <link>http://perltricks.com/article/206/2015/12/24/Quick-tip--git-push-origin-hamster-/</link>
+      <pubDate>Thu, 24 Dec 2015 17:20:05 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/206/2015/12/24/Quick-tip--git-push-origin-hamster-/</guid>
+      <description>&lt;p&gt;My typing is horrible. I make mistakes all the time. I&amp;rsquo;m an avid &lt;a href=&#34;http://www.vim.org/&#34;&gt;Vim&lt;/a&gt; user but I still use the arrow keys. I&amp;rsquo;m one of those people who need technology that does what they meant, not what they asked for. So if you&amp;rsquo;re a coder like me, you probably see this a lot:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git push origin amster
+error: src refspec amster does not match any.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Fortunately there is a simple workaround: Git&amp;rsquo;s &lt;a href=&#34;https://git-scm.com/docs/git-symbolic-ref&#34;&gt;symbolic references&lt;/a&gt;. I can add a symbolic reference for &lt;code&gt;amster&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git symbolic-ref refs/heads/amster refs/heads/master
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And now Git does what I meant:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git push origin amster
+Counting objects: 3, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 695 bytes | 0 bytes/s, done.
+Total 3 (delta 2), reused 0 (delta 0)
+To git@github.com:user/SomeProject.git
+   ec208c7..fb0cb8f  amster -&amp;gt; master
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Because it&amp;rsquo;s a symbolic reference, anytime I mean to type &lt;code&gt;master&lt;/code&gt; but actually type &lt;code&gt;amster&lt;/code&gt;, Git will do the right thing. Try it!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

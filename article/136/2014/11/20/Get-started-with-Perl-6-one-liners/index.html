@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Get started with Perl 6 one liners Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="One liners in Perl are better than ever"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Get started with Perl 6 one liners</h1>
+            <p class="blog-post-meta">Nov 20, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/136/76F864F4-70BD-11E4-97E0-E519A241EDA8.png"/>
+            </div>
+              
+
+<p>One thing that sets Perl apart from other languages is the ability to write small programs in a single line of code, known as a &ldquo;one liner&rdquo;. It&rsquo;s often faster to type a program directly into the terminal than to write a throwaway script. And one liners are powerful too; they&rsquo;re complete Perl programs that can load external libraries but also integrate into the terminal. You can pipe data in or out of a one liner.</p>
+
+<p>Like its predecessor, Perl 6 supports one liners. And in the same way Perl 6 cleaned up Perl 5&rsquo;s warts elsewhere, the one liner syntax is also better. It&rsquo;s cleaner with fewer special variables and options to memorize. This article aims to get you up-and-running with Perl 6 one liners.</p>
+
+<h3 id="the-basics:f134c951b57c0f63005d49172b15ce32">The basics</h3>
+
+<p>To get started with one liners, all you really need to understand is the <code>-e</code> option. This tells Perl to execute what follows as a program. For example:</p>
+
+<pre><code>perl6 -e 'say &quot;Hello, World!&quot;'
+</code></pre>
+
+<p>Let&rsquo;s step through this code.</p>
+
+<ol>
+<li><code>perl6</code> invokes the Perl 6 program</li>
+<li><code>-e</code> tells Perl 6 to execute</li>
+<li><code>'say &quot;Hello, World!&quot;'</code> is the program. Every program must be surrounded in single quotes (except on Windows, see (<a href="https://github.com/sillymoose/Perl6-One-Liners#converting-for-windows">converting for Windows</a>).</li>
+</ol>
+
+<p>To run a one-liner, just type it into the terminal:</p>
+
+<pre><code class="language-prettyprint">&gt; perl6 -e 'say &quot;Hello, World!&quot;'
+Hello, World!
+</code></pre>
+
+<h3 id="file-processing:f134c951b57c0f63005d49172b15ce32">File processing</h3>
+
+<p>If you want to load a file, just add the path to the file after the program code:</p>
+
+<pre><code class="language-prettyprint">&gt; perl6 -e 'for (lines) { say $_ }' /path/to/file.txt
+</code></pre>
+
+<p>This program prints every line in <code>/path/to/file.txt</code>. You may know that <code>$_</code> is the default variable, which in this case is the current line being looped through. <code>lines</code> is a list that is automatically created for you whenever you pass a filepath to a one-liner. Now let&rsquo;s re-write that one liner, step-by-step. These one liners are all equivalent:</p>
+
+<pre><code class="language-prettyprint">&gt; perl6 -e 'for (lines) { say $_ }' /path/to/file.txt
+&gt; perl6 -e 'for (lines) { $_.say }' /path/to/file.txt
+&gt; perl6 -e 'for (lines) { .say }' /path/to/file.txt
+&gt; perl6 -e '.say for (lines)' /path/to/file.txt
+&gt; perl6 -e '.say for lines' /path/to/file.txt
+</code></pre>
+
+<p>Just like <code>$_</code> is the default variable, methods called on the default variable can omit the variable name. They become default methods. So <code>$_.say</code> becomes <code>.say</code>. This brevity pays off with one liners - it&rsquo;s less typing!</p>
+
+<p>The <code>-n</code> option changes the behavior of the program: it executes the code once for every line of the file. To uppercase and print every line of <code>/path/to/file.txt</code> you can type:</p>
+
+<pre><code class="language-prettyprint">&gt; perl6 -ne '.uc.say' /path/to/file.txt
+</code></pre>
+
+<p>The <code>-p</code> option is just like <code>-n</code> except that it will automatically print <code>$_</code>. This means that another way we could uppercase a file would be:</p>
+
+<pre><code class="language-prettyprint">&gt; perl6 -pe '$_ = $_.uc' /path/to/file.txt
+</code></pre>
+
+<p>Or by applying a shortcut, this does the same thing:</p>
+
+<pre><code class="language-prettyprint">&gt; perl6 -pe '.=uc' /path/to/file.txt
+</code></pre>
+
+<p>The <code>-n</code> and <code>-p</code> options are really useful and often spare the programmer from extra typing.</p>
+
+<h3 id="load-modules:f134c951b57c0f63005d49172b15ce32">Load modules</h3>
+
+<p>The final thing you should know is how to load a module. This is really powerful as you can extend Perl 6&rsquo;s capabilities by importing external libraries. The <code>-M</code> switch stands for load module:</p>
+
+<pre><code class="language-prettyprint">&gt; perl6 -M URI::Encode -e 'say encode_uri(&quot;/10 ways to crush it with Perl 6&quot;)'
+</code></pre>
+
+<p>The code <code>-M URI::Encode</code> loads the URI::Encode module, which exports the <code>encode_uri</code> subroutine. It prints:</p>
+
+<pre><code class="language-prettyprint">%2F10%20ways%20to%20crush%20it%20with%20Perl%206
+</code></pre>
+
+<p>What if you have a module that is not installed in a standard location? In this case using <code>-M</code> alone won&rsquo;t work, as Perl won&rsquo;t find the module. For these scenarios, just pass use the <code>-I</code> switch to include the directory:</p>
+
+<pre><code class="language-prettyprint">&gt; perl6 -I lib -M URI::Encode -e 'say encode_uri(&quot;www.example.com/10 ways to crush it with Perl 6&quot;)'
+</code></pre>
+
+<p>Now Perl 6 will search for URI::Encode in <code>lib</code> as well as the standard install locations.</p>
+
+<p>Finally, if you want a summary of all of these options, just use the <code>-h</code> option:</p>
+
+<pre><code class="language-prettyprint">&gt; perl6 -h
+</code></pre>
+
+<p>This will print:</p>
+
+<pre><code class="language-prettyprint">    With no arguments, enters a REPL. With a &quot;[programfile]&quot; or the &quot;-e&quot; option, compiles the given program and by default also executes the compiled code.
+ 
+    -c                   check syntax only (runs BEGIN and CHECK blocks)
+    --doc                extract documentation and print it as text
+    -e program           one line of program
+    -h, --help           display this help text
+    -n                   run program once for each line of input
+    -p                   same as -n, but also print $_ at the end of lines
+    -I path              adds the path to the module search path
+    -M module            loads the module prior to running the program
+    --target=[stage]     specify compilation stage to emit
+    --optimize=[level]   use the given level of optimization (0..3)
+    -t, --trace=[flags]  enable trace flags, see 'parrot --help-debug'
+    --encoding=[mode]    specify string encoding mode
+    -o, --output=[name]  specify name of output file
+    -v, --version        display version information
+    --stagestats         display time spent in the compilation stages
+    --ll-exception       display a low level backtrace on errors
+    --profile            print profile information to standard error
+    --doc=[module]       Use Pod::To::[module] to render inline documentation.
+     
+    Note that only boolean single-letter options may be bundled.
+
+    Output from --profile can be visualized by kcachegrind.
+
+    To modify the include path, you can set the PERL6LIB environment variable:
+
+    PERL6LIB=&quot;lib&quot; perl6 example.pl
+
+    For more information, see the perl6(1) man page.
+</code></pre>
+
+<h3 id="conclusion:f134c951b57c0f63005d49172b15ce32">Conclusion</h3>
+
+<p>This article was adapted from my open source <a href="https://github.com/sillymoose/Perl6-One-Liners">book</a>, which has lots of example Perl 6 one liners, many of which were contributed by the Perl 6 community. If you&rsquo;re interested in learning more Perl 6, I&rsquo;d recommend visiting the official <a href="http://perl6.org/">website</a>, which has links to the IRC channel and official documentation.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/windows">windows</a></div>
+              
+                <div class="tag"><a href="/tags/one_liner">one_liner</a></div>
+              
+                <div class="tag"><a href="/tags/perl">perl</a></div>
+              
+                <div class="tag"><a href="/tags/terminal">terminal</a></div>
+              
+                <div class="tag"><a href="/tags/command_line">command_line</a></div>
+              
+                <div class="tag"><a href="/tags/perl6">perl6</a></div>
+              
+                <div class="tag"><a href="/tags/rakudo">rakudo</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

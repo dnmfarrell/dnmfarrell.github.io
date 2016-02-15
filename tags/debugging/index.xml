@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Debugging on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/debugging/</link>
+    <description>Recent content in Debugging on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 15 May 2014 12:19:51 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/debugging/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Debunk Perl&#39;s magic with B::Deparse</title>
+      <link>http://perltricks.com/article/89/2014/5/15/Debunk-Perl-s-magic-with-B--Deparse/</link>
+      <pubDate>Thu, 15 May 2014 12:19:51 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/89/2014/5/15/Debunk-Perl-s-magic-with-B--Deparse/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;The &lt;a href=&#34;https://metacpan.org/pod/B::Deparse&#34;&gt;B::Deparse&lt;/a&gt; module compiles a Perl program and then deparses it, producing the internally generated source code. What&amp;rsquo;s the point of that you say? Well it let&amp;rsquo;s you look behind the curtain and inspect how Perl is structuring the program code which can help you debug it, among other things.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;example:c51e9e6cf0be3f9a1a44b085736f67c8&#34;&gt;Example&lt;/h3&gt;
+
+&lt;p&gt;Consider the slurpy parameter optimization from this week&amp;rsquo;s subroutine signatures &lt;a href=&#34;http://perltricks.com/article/88/2014/5/12/Benchmarking-subroutine-signatures&#34;&gt;article&lt;/a&gt;. We know from speed benchmarks that the signature becomes ~30% faster with a slurpy parameter, and we can reason about why that is the case, but B::Deparse can &lt;em&gt;show&lt;/em&gt; us why. Here is the code for two signatures, one normal and one using the slurpy parameter:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature &#39;signatures&#39;;
+
+sub normal_signature ($foo) {}
+
+sub slurpy_signature ($foo, @) {}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now if we save the code as signatures.pl, we can use B::Deparse to inspect it at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -MO=Deparse signatures.pl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This generates the following output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub normal_signature {
+    use feature &#39;signatures&#39;;
+    die &#39;Too many arguments for subroutine&#39; unless @_ &amp;lt;= 1;
+    die &#39;Too few arguments for subroutine&#39; unless @_ &amp;gt;= 1;
+    my $foo = $_[0];
+    ();
+}
+sub slurpy_signature {
+    use feature &#39;signatures&#39;;
+    die &#39;Too few arguments for subroutine&#39; unless @_ &amp;gt;= 1;
+    my $foo = $_[0];
+    ();
+}
+signatures.pl syntax OK
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The generated code shows how Perl structured the signatures.pl code internally. You can see how &amp;ldquo;slurpy_signature&amp;rdquo; has one fewer die statement. This explains the improved performance as the subroutine has less to do. Magic debunked!&lt;/p&gt;
+
+&lt;h3 id=&#34;more-on-b-deparse:c51e9e6cf0be3f9a1a44b085736f67c8&#34;&gt;More on B::Deparse&lt;/h3&gt;
+
+&lt;p&gt;B::Deparse comes with extensive &lt;a href=&#34;https://metacpan.org/pod/B::Deparse&#34;&gt;documentation&lt;/a&gt; and has some useful options for altering the output.&lt;/p&gt;
+
+&lt;p&gt;One of the many gems in brian d foy&amp;rsquo;s &lt;a href=&#34;http://www.amazon.com/gp/product/144939311X/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;amp;camp=1789&amp;amp;creative=9325&amp;amp;creativeASIN=144939311X&amp;amp;linkCode=as2&amp;amp;tag=perltrickscom-20&#34;&gt;Mastering Perl&lt;/a&gt; book is the B::Deparse entry in the &amp;ldquo;Cleaning up Perl&amp;rdquo; chapter (affiliate link). In the book brian shows several uses for B::Deparse including debugging one-liners and decoding obfuscated code. You can read a draft version of the chapter online &lt;a href=&#34;http://chimera.labs.oreilly.com/books/1234000001527/ch07.html&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;PerlMonks has an &lt;a href=&#34;http://www.perlmonks.org/?node_id=804232&#34;&gt;interesting&lt;/a&gt; entry for those curious as to why the command line use of B::Deparse is &amp;ldquo;-MO=Deparse&amp;rdquo; and not &amp;ldquo;-MB::Deparse&amp;rdquo;.&lt;/p&gt;
+
+&lt;h3 id=&#34;thanks:c51e9e6cf0be3f9a1a44b085736f67c8&#34;&gt;Thanks&lt;/h3&gt;
+
+&lt;p&gt;Thanks again to Perl Pumpking and &lt;a href=&#34;http://www.youtube.com/watch?v=Sp102BECq8s&#34;&gt;teflon&lt;/a&gt; man Ricardo Signes who put me on to using B::Deparse on subroutine signatures.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;https://creativecommons.org/licenses/by/2.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/barkbud/4165385634&#34;&gt;bark&lt;/a&gt; image has been digitaly altered&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Installing Perl modules with C library dependencies</title>
+      <link>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</link>
+      <pubDate>Mon, 15 Apr 2013 18:37:26 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</guid>
+      <description>
+
+&lt;p&gt;Some Perl modules have specific C library dependencies that need to be met or else they won&amp;rsquo;t install. These issues can be tricky to solve as CPAN is not able to automatically install or report on non-Perl dependencies and Google isn&amp;rsquo;t good at returning useful results for these types of issues (&lt;a href=&#34;https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod&#34;&gt;Net::SSLeay&lt;/a&gt; is a common example of a tricky module to install). Usually you will only find out about missing dependencies when trying to install the module, as the install will fail. What you need to do at this point is &lt;strong&gt;identify&lt;/strong&gt; and &lt;strong&gt;install&lt;/strong&gt; the missing C libraries.&lt;/p&gt;
+
+&lt;h3 id=&#34;identifying-c-library-dependencies:12040641a686db63029ae6c41a9f1d99&#34;&gt;Identifying C Library dependencies&lt;/h3&gt;
+
+&lt;p&gt;Here are some places to check for dependencies:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Install error message&lt;/strong&gt; - scan the command line output from the failed install: often Perl developers will write specific error messages that indicate the missing C library.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Module documentation&lt;/strong&gt; - check the main POD page for the module on &lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; it may indicate which C libraries are required.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Distribution files&lt;/strong&gt; - check the README and INSTALL files that come with the distribution for the module you are trying to install. If available they will be in the root directory of the tarball. You can browse these files online at &lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; by searching for the module, then clicking the &amp;lsquo;browse&amp;rsquo; link on the module&amp;rsquo;s main page.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Search your package manager&lt;/strong&gt; - look at the technologies and keywords associated with the module. For example &lt;a href=&#34;https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod&#34;&gt;Net::SSLeay&lt;/a&gt; probably has something to do with SSL, so search for Perl-related SSL packages (example below).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;installing-c-library-dependencies:12040641a686db63029ae6c41a9f1d99&#34;&gt;Installing C library dependencies&lt;/h3&gt;
+
+&lt;p&gt;Once you have identified the missing C libraries, you need to install them. If you are on Linux, this can be done using a package manager and searching for and installing the package containing the C library:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# yum package manager
+$ sudo yum search ssl
+...
+sudo yum install openssl-perl.x86_64 perl-Net-SSLeay.x86_64 perl-Crypt-SSLeay.x86_64
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you are not on Linux, try downloading the library directly from the C library&amp;rsquo;s homepage - these are easy to find via Google and usually have specific Windows / OSX distributions.&lt;/p&gt;
+
+&lt;p&gt;Once you have installed the requisite libraries, try installing the Perl module again with CPAN.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Check your module POD using perldoc</title>
+      <link>http://perltricks.com/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</link>
+      <pubDate>Mon, 01 Apr 2013 22:45:35 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</guid>
+      <description>&lt;p&gt;Perl ships with a command-line program called perldoc that makes it easier to search and read Perl&amp;rsquo;s vast documentation in the POD markup language. If perldoc is called with the -F flag, it will display the POD markup of an input file - this can be useful when your are developing a new Perl distribution and want to check the appearance of the POD in your module before it appears on CPAN for all to see.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# Pass a local file to perldoc
+
+perldoc -F ProxyManager.pm
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will then display the POD markup:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;ProxyManager(3)                                            
+
+NAME
+       Net::OpenVPN::ProxyManager - connect to proxy servers using OpenVPN.
+
+SYNOPSIS
+       use Net::OpenVPN::ProxyManager;
+       my $pm = Net::OpenVPN::ProxyManager-&amp;gt;new;
+
+       # Create a config object to capture proxy server details
+       my $config_object = $pm-&amp;gt;create_config({remote =&amp;gt; &#39;100.120.3.34 53&#39;, proto =&amp;gt; &#39;udp&#39;});
+
+       # Launch OpenVPN and connect to the proxy
+       $pm-&amp;gt;connect($config_object);
+       # do some stuff
+
+       # Disconnect from the proxy server
+       $pm-&amp;gt;disconnect();
+
+DESCRIPTION
+       Net::OpenVPN::ProxyManager is an object oriented module that provides methods to simplify the management of proxy connections that support OpenVPN.
+
+This is a base generic class, see Net::OpenVPN::ProxyManager::HMA for additional methods to interact with hidemyass.com proxy servers.
+
+METHODS
+   new
+       The constructor accepts an anonymous hash for two optional parameters: config_path and warning_flag. config_path is the path that ProxyManager.pm will use to create the config file when the create_config method is called. By default config_path is set to &#39;/tmp/openvpn-config.conf&#39;.
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

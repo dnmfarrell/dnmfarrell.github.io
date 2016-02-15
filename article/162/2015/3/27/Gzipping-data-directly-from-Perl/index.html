@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Gzipping data directly from Perl Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="TIMTOWDI"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Gzipping data directly from Perl</h1>
+            <p class="blog-post-meta">Mar 27, 2015 by <a href="/authors/brian-d-foy">brian d foy</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>Perl can read and write gzipped streams through its IO layers. <a href="https://metacpan.org/author/NWCLARK">Nicholas Clark</a> recently updated <a href="https://metacpan.org/pod/PerlIO::gzip">PerlIO::gzip</a> (with patches from <a href="https://metacpan.org/author/ZEFRAM">Zefram</a>), after nine years since the last release. Now it works with Perl v5.20 and the upcoming v5.22, although it still has problems on Windows. But as we are used to, there is more then one way to do it.</p>
+
+<h3 id="the-pipe-way:73581e43f14f9bf5179ccccf00045752">The pipe way</h3>
+
+<p>Perl is versatile, and being the Unix duct tape that it is, reading or writing from the standard filehandles is easy. You might know about the three-argument <a href="http://perldoc.perl.org/functions/open.html">open</a>, but I can give it as many arguments as I like. For a piped open, I can set the mode as the second argument and the command as a list as I would for <a href="http://perldoc.perl.org/functions/system.html">system</a> (see the &ldquo;Secure Programming Chapter&rdquo; of <a href="http://www.masteringperl.org">Mastering Perl</a>). I remember where to put the <code>-</code> on the side of the <code>|</code> where the command would go:</p>
+
+<pre><code class="language-prettyprint">$ENV{PATH} = '';
+
+open my $z, '-|', '/usr/bin/gunzip', '-c', 'moby_dick.txt.gz';
+
+while( &lt;$z&gt; ) {
+    print;
+    }
+
+close $z 
+    or die &quot;There was a problem with the pipe open!&quot;;
+</code></pre>
+
+<p>I could go the other way too by printing through a pipe to a command that will <em>gzip</em> the data for me. The <code>-</code> flips to the other side of the <code>|</code> and I use shell redirection to move the result of <em>gzip</em> into a file. I don&rsquo;t use the list form since I want the <code>&gt;</code> in the command to be special (if only <em>gzip</em> had a switch to set the output filename):</p>
+
+<pre><code class="language-prettyprint">$ENV{PATH} = '';
+
+open my $z, '|-', '/usr/bin/gzip &gt; data.gz';
+
+while(  ) {
+    print { $z } $_;
+    }
+
+close $z 
+    or die &quot;There was a problem with the pipe open!&quot;;
+</code></pre>
+
+<p>That&rsquo;s the general form that I can use with any sort of command. It has the drawbacks of multiple processes and the reliance of an external command in a particular place. If I can do it directly in the Perl process, I don&rsquo;t have those drawbacks. Fortunately, I can, because Perl is like that.</p>
+
+<h3 id="reading-gzipped-data:73581e43f14f9bf5179ccccf00045752">Reading gzipped data</h3>
+
+<p>To read a gzippped file in Perl, I can use the <code>gzip</code> I/O layer (see <a href="http://perldoc.perl.org/perlopentut.html">perlopen</a>). Once I open the file, I can read its lines (assuming it&rsquo;s text) like I would a &ldquo;normal&rdquo; text file:</p>
+
+<pre><code class="language-prettyprint">open my $fh, '&lt;:gzip' $filename 
+    or die &quot;Could not read from $filename: $!&quot;;
+
+while( &lt;$fh&gt; ) {
+    print;
+    }
+</code></pre>
+
+<p>Or, I can read octets if the data aren&rsquo;t text:</p>
+
+<pre><code class="language-prettyprint">open my $fh, '&lt;:gzip' $filename 
+    or die &quot;Could not read from $filename: $!&quot;;
+
+while( read( $fh, $buffer, 1024 ) ) {
+    ...; # do something with $buffer (... is a v5.12 feature!)
+    }
+</code></pre>
+
+<p>If I can&rsquo;t use the I/O layers, perhaps because the operating system does not support it or it&rsquo;s broken on my version of Perl, I can use the <a href="http://www.metacpan.org/pod/IO::Compress">IO::Compress</a> modules instead. This example uses its object interface to create the write filehandle:</p>
+
+<pre><code class="language-prettyprint">use IO::Compress::Gunzip;
+
+my $z = IO::Compress::Gunzip-&gt;new( $filename )
+    or die &quot;Could not read from $filename: $GunzipError&quot;;
+
+while( &lt;$z&gt; ) {
+    print;
+    }
+</code></pre>
+
+<p>The I/O layer is faster than the module, but the PerlIO documentation notes that we shouldn&rsquo;t trust our data to it. People have been using it without major problems, but you could be that one person who loses all their data. Sinan Ünür writes about the performance in <a href="http://www.nu42.com/2013/02/large-gzipped-files-long-lines.html">Large gzipped files, long lines, extracting columns etc</a>.</p>
+
+<h3 id="writing-gzipped-data:73581e43f14f9bf5179ccccf00045752">Writing gzipped data</h3>
+
+<p>I can also directly write gzipped data to a file. It&rsquo;s similar my previous examples with the filehandles moved around. This one uses the I/O layer:</p>
+
+<pre><code class="language-prettyprint">open my $fh, '&gt;:gzip' $filename 
+    or die &quot;Could not write to $filename: $!&quot;;
+
+while(  ) {
+    print { $fh } $_;
+    }
+</code></pre>
+
+<p>And this one uses <a href="http://www.metacpan.org/pod/IO::Compress::Gzip">IO::Compress::Gzip</a>:</p>
+
+<pre><code class="language-prettyprint">use IO::Compress::Gzip;
+
+my $z = IO::Compress::Gzip-&gt;new( $filename )
+    or die &quot;Could not write to $filename: $GzipError&quot;;
+
+while(  ) {
+    print { $z } $_;
+    }
+</code></pre>
+
+<h3 id="an-advanced-tip:73581e43f14f9bf5179ccccf00045752">An advanced tip</h3>
+
+<p>I can read multiple streams of gzipped data with a single filehandle. The <code>MultiStream</code> option in <a href="http://www.metacpan.org/pod/IO::Compress::Gunzip">IO::Compress::Gunzip</a> allows the decompressor to reset itself when it thinks it has detected a new stream and continue to provide output:</p>
+
+<pre><code class="language-prettyprint">use IO::Uncompress::Gunzip qw($GunzipError);
+
+my $z = IO::Uncompress::Gunzip-&gt;new( *STDIN, MultiStream =&gt; 1 )
+    or die &quot;Could not make uncompress object: $GunzipError&quot;;
+    
+while( &lt;$z&gt; ) {
+    print;
+    }
+</code></pre>
+
+<p>With this I can read several gzipped files at the same time:</p>
+
+<pre><code>$ cat *.gz |  ./multistream.pl
+</code></pre>
+
+<p>This sort of thing is quite handy for rotated logs when I want to read them all and don&rsquo;t care that they were split up.</p>
+
+<h3 id="and-a-small-bonus:73581e43f14f9bf5179ccccf00045752">And, a small bonus</h3>
+
+<p>If you want to know more about the gzip compression, <a href="http://jvns.ca/blog/2013/10/24/day-16-gzip-plus-poetry-equals-awesome/%0A">Julia Evans created a nice animation of gzip working in real time on <em>The Raven</em></a>.</p>
+
+<p>You can see a bit more abstract <a href="http://www.data-compression.com/lempelziv.html%0A">animation</a> at www.data-compression.com. You can see how this single-pass method works and how it can work from a possibly infinite stream like I provide in this article.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/perl">perl</a></div>
+              
+                <div class="tag"><a href="/tags/gzip">gzip</a></div>
+              
+                <div class="tag"><a href="/tags/compression">compression</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

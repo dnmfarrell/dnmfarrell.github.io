@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Network on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/network/</link>
+    <description>Recent content in Network on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 15 Apr 2013 18:37:26 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/network/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Installing Perl modules with C library dependencies</title>
+      <link>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</link>
+      <pubDate>Mon, 15 Apr 2013 18:37:26 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</guid>
+      <description>
+
+&lt;p&gt;Some Perl modules have specific C library dependencies that need to be met or else they won&amp;rsquo;t install. These issues can be tricky to solve as CPAN is not able to automatically install or report on non-Perl dependencies and Google isn&amp;rsquo;t good at returning useful results for these types of issues (&lt;a href=&#34;https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod&#34;&gt;Net::SSLeay&lt;/a&gt; is a common example of a tricky module to install). Usually you will only find out about missing dependencies when trying to install the module, as the install will fail. What you need to do at this point is &lt;strong&gt;identify&lt;/strong&gt; and &lt;strong&gt;install&lt;/strong&gt; the missing C libraries.&lt;/p&gt;
+
+&lt;h3 id=&#34;identifying-c-library-dependencies:12040641a686db63029ae6c41a9f1d99&#34;&gt;Identifying C Library dependencies&lt;/h3&gt;
+
+&lt;p&gt;Here are some places to check for dependencies:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Install error message&lt;/strong&gt; - scan the command line output from the failed install: often Perl developers will write specific error messages that indicate the missing C library.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Module documentation&lt;/strong&gt; - check the main POD page for the module on &lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; it may indicate which C libraries are required.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Distribution files&lt;/strong&gt; - check the README and INSTALL files that come with the distribution for the module you are trying to install. If available they will be in the root directory of the tarball. You can browse these files online at &lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; by searching for the module, then clicking the &amp;lsquo;browse&amp;rsquo; link on the module&amp;rsquo;s main page.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Search your package manager&lt;/strong&gt; - look at the technologies and keywords associated with the module. For example &lt;a href=&#34;https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod&#34;&gt;Net::SSLeay&lt;/a&gt; probably has something to do with SSL, so search for Perl-related SSL packages (example below).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;installing-c-library-dependencies:12040641a686db63029ae6c41a9f1d99&#34;&gt;Installing C library dependencies&lt;/h3&gt;
+
+&lt;p&gt;Once you have identified the missing C libraries, you need to install them. If you are on Linux, this can be done using a package manager and searching for and installing the package containing the C library:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# yum package manager
+$ sudo yum search ssl
+...
+sudo yum install openssl-perl.x86_64 perl-Net-SSLeay.x86_64 perl-Crypt-SSLeay.x86_64
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you are not on Linux, try downloading the library directly from the C library&amp;rsquo;s homepage - these are easy to find via Google and usually have specific Windows / OSX distributions.&lt;/p&gt;
+
+&lt;p&gt;Once you have installed the requisite libraries, try installing the Perl module again with CPAN.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

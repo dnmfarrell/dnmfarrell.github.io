@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Sqlite on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/sqlite/</link>
+    <description>Recent content in Sqlite on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 15 Apr 2015 03:05:00 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/sqlite/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Unit test your code on an in-memory database</title>
+      <link>http://perltricks.com/article/167/2015/4/15/Unit-test-your-code-on-an-in-memory-database/</link>
+      <pubDate>Wed, 15 Apr 2015 03:05:00 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/167/2015/4/15/Unit-test-your-code-on-an-in-memory-database/</guid>
+      <description>
+
+&lt;p&gt;Unit test scripts should be independent, stateless and free from side-effects. These ideals are not always achievable but by using tools like mock objects we can often get close. Some functionality is harder to test than others though; for example how do you test database interface code? Databases have state - even if you reset the data after you&amp;rsquo;ve tested it, there&amp;rsquo;s no guarantee the data is the same, or that other code hasn&amp;rsquo;t accessed the database during the test execution.&lt;/p&gt;
+
+&lt;p&gt;One way to deal with this is to create an in-memory database, visible only to the unit testing process and automatically deleted once the tests have completed. Fortunately it&amp;rsquo;s really easy to do this with SQLite3 and Perl.&lt;/p&gt;
+
+&lt;h3 id=&#34;dbi:03c65913e1217b9d9e3f5eed982602df&#34;&gt;DBI&lt;/h3&gt;
+
+&lt;p&gt;The Perl &lt;a href=&#34;https://metacpan.org/pod/DBI&#34;&gt;DBI&lt;/a&gt; module is the de-facto way of accessing relational databases in Perl. To create an in-memory database, I can use call &lt;code&gt;connect&lt;/code&gt; specifying the SQLite driver, and the database name as &amp;ldquo;:memory:&amp;ldquo;. This returns a database handle to a new, in memory SQLite3 database.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::More;
+use DBI;
+
+# load in-memory db
+my $dbh = DBI-&amp;gt;connect(&#39;dbi:SQLite:dbname=:memory:&#39;,&#39;&#39;,&#39;&#39;);
+
+# create tables
+my $create_table_script =
+  do {  local $/; 
+        open my $SQL, &#39;&amp;lt;&#39;, &#39;create_tables.sql&#39;;
+        &amp;lt;$SQL&amp;gt;;
+     };  
+
+my $sth = 
+  $dbh-&amp;gt;prepare($create_table_script) or BAIL_OUT ($dbh-&amp;gt;errstr);
+$sth-&amp;gt;execute or BAIL_OUT($sth-&amp;gt;errstr);
+
+# add unit tests here ...
+
+done_testing;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;From here I slurp a SQL script for creating the tables into a string and use the database handle to execute it. The &lt;code&gt;BAIL_OUT&lt;/code&gt; function is called if any of the database steps fail, ending the testing prematurely. At this point I have a brand new database with fresh tables, ready for testing.&lt;/p&gt;
+
+&lt;h3 id=&#34;dbix-class:03c65913e1217b9d9e3f5eed982602df&#34;&gt;DBIx::Class&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/DBIx::Class&#34;&gt;DBIx::Class&lt;/a&gt;, the Perl ORM uses the same underlying technology as DBI, but because it creates Perl classes representing each table, I can leverage that code to make the database setup even easier than with vanilla DBI:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::More;
+use SomeApp::Schema;
+
+# load an in-memory database and deploy the required tables
+SomeApp::Schema-&amp;gt;connection(&#39;dbi:SQLite:dbname=:memory:&#39;,&#39;&#39;,&#39;&#39;);
+SomeApp::Schema-&amp;gt;load_namespaces;
+SomeApp::Schema-&amp;gt;deploy;
+
+# add unit tests here ...
+
+done_testing;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;m using an example app, called &lt;code&gt;SomeApp&lt;/code&gt; to demonstrate. First the &lt;code&gt;connection&lt;/code&gt; is set to the same database connection string as with the DBI example. The &lt;code&gt;load_namespaces&lt;/code&gt; method loads all of the result and resultset DBIx::Class modules in the application and &lt;code&gt;deploy&lt;/code&gt; creates them on the in-memory database. Obviously this approach requires that you&amp;rsquo;ve already created the DBIx::Class files. If you haven&amp;rsquo;t done that yet, but you have an application database with the tables in it, you can use the &lt;code&gt;dbicdump&lt;/code&gt; command from &lt;a href=&#34;https://metacpan.org/pod/DBIx::Class::Schema::Loader&#34;&gt;DBIx::Class::Schema::Loader&lt;/a&gt; to auto generate them for you.&lt;/p&gt;
+
+&lt;h3 id=&#34;not-just-for-testing:03c65913e1217b9d9e3f5eed982602df&#34;&gt;Not just for testing&lt;/h3&gt;
+
+&lt;p&gt;The in-memory feature of SQLite is provided by &lt;a href=&#34;https://metacpan.org/pod/DBD::SQLite&#34;&gt;DBD::SQLite&lt;/a&gt;, the DBI driver. It&amp;rsquo;s a cool feature, and could be used for more than just unit testing. Anytime you have a need for a temporary relational datastore, consider this; it&amp;rsquo;s fast, is portable and automatically cleans itself up when the program ends.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Unix on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/unix/</link>
+    <description>Recent content in Unix on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 11 Oct 2013 01:54:20 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/unix/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How to schedule Perl scripts using cron</title>
+      <link>http://perltricks.com/article/43/2013/10/11/How-to-schedule-Perl-scripts-using-cron/</link>
+      <pubDate>Fri, 11 Oct 2013 01:54:20 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/43/2013/10/11/How-to-schedule-Perl-scripts-using-cron/</guid>
+      <description>
+
+&lt;p&gt;Cron is a job scheduling program available on UNIX-like platforms. Most system commands can be scheduled including the execution of Perl programs. Once a job is setup, cron will run it as scheduled even if the user is not logged in, which can be a great way to automate sysadmin tasks or repetitive jobs. This article describes how to run Perl scripts with cron.&lt;/p&gt;
+
+&lt;h3 id=&#34;perl-script-tips:033cbfb4558019e15a0feee3315d7625&#34;&gt;Perl script tips&lt;/h3&gt;
+
+&lt;p&gt;When preparing a script to be run by cron, there a few things to keep in mind. You may want to add a shebang line to the of the script for the Perl binary you want to execute. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/local/bin/perl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you plan to run the script on different platforms, you can omit the shebang line, as the location of the Perl binary may vary from platform to platform (more on this later).&lt;/p&gt;
+
+&lt;p&gt;Also ensure that any paths used in the script are absolute paths (such as for opening filehandles, database connection strings and external program paths).&lt;/p&gt;
+
+&lt;h3 id=&#34;setup-a-crontab:033cbfb4558019e15a0feee3315d7625&#34;&gt;Setup a crontab&lt;/h3&gt;
+
+&lt;p&gt;To schedule a job with cron, the job needs to be added to the user&amp;rsquo;s crontab. To do this open a terminal and type the following:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;crontab -e
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will open the crontab in a text editor. To add a job, a line must be added in the following format:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;* * * * * command to be executed
+| | | | |
+| | | | |
+| | | | +----- day of week  (0 - 6, Sunday=0)
+| | | +------- month        (1 - 12)
+| | +--------- day of month (1 - 31)
+| +----------- hour         (0 - 23)
++------------- min          (0 - 59)
+
+An asterisk (*) means all.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here are some example crontab entries:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# execute every minute
+* * * * * perl /path/to/Beacon.pl
+
+# execute every 5 minutes
+*/5 * * * * perl /path/to/Beacon.pl
+
+# execute every hour at 0 minutes past the hour
+0 * * * * perl /path/to/Beacon.pl
+
+# execute every 12 hours at half past the hour
+30 */12 * * * perl /path/to/Beacon.pl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If your script does not contain a shebang line, provide the absolute path to the Perl binary in the crontab. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;30 */12 * * * /usr/local/bin/perl /path/to/Beacon.pl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Save the crontab and exit the text editor. To check the job has been scheduled, you can check your crontab with this command from the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;crontab -l
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will print your current crontab to the terminal.&lt;/p&gt;
+
+&lt;h3 id=&#34;troubleshooting-cron:033cbfb4558019e15a0feee3315d7625&#34;&gt;Troubleshooting cron&lt;/h3&gt;
+
+&lt;p&gt;Working with cron is usually straightforward, but if you are having difficulty getting the Perl script to run, check the following:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Check the cron log to be sure that cron is running the job as you expect. It is usually found here: /var/log/cron&lt;/li&gt;
+&lt;li&gt;Check that you are providing the correct absolute path to the Perl binary. Either in the shebang line inside the script or in crontab (if you are not sure what this is type &amp;ldquo;which perl&amp;rdquo; at the terminal).&lt;/li&gt;
+&lt;li&gt;Make sure the script permissions allow execution (e.g. &amp;ldquo;chmod +x /path/to/file&amp;rdquo;)&lt;/li&gt;
+&lt;li&gt;If you are running additional programs within the Perl script, consider adding their binary paths to the crontab as cron does not have the same PATH as the user.&lt;/li&gt;
+&lt;li&gt;If you need to run a script as root, just create a crontab for root using sudo: &amp;ldquo;sudo crontab -e&amp;rdquo;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;A good list of general cron tips can be found &lt;a href=&#34;http://askubuntu.com/questions/23009/reasons-why-crontab-does-not-work&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Run local Perl as root</title>
+      <link>http://perltricks.com/article/36/2013/8/10/Run-local-Perl-as-root/</link>
+      <pubDate>Sat, 10 Aug 2013 14:33:18 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/36/2013/8/10/Run-local-Perl-as-root/</guid>
+      <description>&lt;p&gt;This is a simple trick for conveniently running local Perl as a root user on UNIX-based systems.&lt;/p&gt;
+
+&lt;p&gt;Occasionally it&amp;rsquo;s necessary to run locally-installed Perl as root. However at the command line if you type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sudo perl program.pl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By default the Perl that is executed is the system Perl binary. This can be problematic as the System Perl may not have the modules required, or even be the correct version of Perl that you need to run. An easy fix for this is to use the which command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sudo $(which perl) program.pl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By nesting which between a dollar sign parentheses, the terminal will resolve the command first, which returns a string to the local Perl binary. Sudo then operates on this binary instead of the system Perl binary. You can prove this with the following terminal commands:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;which perl
+/home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/bin/perl
+
+sudo which perl
+/bin/perl
+
+sudo echo $(which perl)
+/home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/bin/perl
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Test if the user is root</title>
+      <link>http://perltricks.com/article/16/2013/4/10/Test-if-the-user-is-root/</link>
+      <pubDate>Wed, 10 Apr 2013 21:48:42 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/16/2013/4/10/Test-if-the-user-is-root/</guid>
+      <description>&lt;p&gt;When Perl is executing a program, it maintains the user id of the process owner in a global variable ($&amp;lt;). When a Perl program is executed by root or a user with root privileges (e.g. using the sudo command), the user id variable is always set to zero. This can be checked at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -e &#39;print $&amp;lt; . \n;&#39;
+1000
+$ sudo perl -e &#39;print $&amp;lt; . \n;&#39;
+0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Because the root user id is always zero and in Perl zero is treated as false, it is a trivial task to test if the user is root during runtime. This can be used to for flow control, such as exiting the program early:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Carp qw/croak/;
+
+if ($&amp;lt;) {
+    croak &amp;quot;Error: exiting program as not executed by root\n&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In Windows the user id variable is always set to zero and is of limited use. However the Perl &lt;a href=&#34;https://metacpan.org/module/Win32&#34;&gt;Win32&lt;/a&gt; module has the Win32::IsAdminUser() method that can be used instead of $&amp;lt;, like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Win32;
+use Carp qw/croak/;
+
+if (not Win32::IsAdminUser()) {
+    croak &amp;quot;Error: exiting program as not executed by root\n&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

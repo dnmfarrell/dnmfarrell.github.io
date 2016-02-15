@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Hello perldoc, productivity booster Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Get to know perldoc to find Perl answers faster"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Hello perldoc, productivity booster</h1>
+            <p class="blog-post-meta">Feb 26, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>Imagine this scenario: you&rsquo;re using the DateTime module but you can&rsquo;t remember the exact name of a function it provides. What do you do? You could open your browser, go to <a href="https://metacpan.org/">MetaCPAN</a>, search for DateTime and look up the answer in the module&rsquo;s documentation. A faster way would be to switch to the command line, and type <code>perldoc DateTime</code> to display the module&rsquo;s documentation right there in the terminal.</p>
+
+<p><code>perldoc</code> is a command line program for reading Perl documentation. It comes with Perl, so if you&rsquo;ve got Perl installed, perldoc should be available too. Using perldoc is easy: as you&rsquo;ve already seen, to view the documentation of a module you&rsquo;ve installed, at the command line type:</p>
+
+<pre><code class="language-prettyprint">$ perldoc Module::Name
+</code></pre>
+
+<p>perldoc will search for the module and if it finds it, display the module&rsquo;s documentation (written in Pod). Using perldoc you can learn more about any aspect of Perl almost instantly. Want to know more about Pod? Try <code>perldoc pod</code>.</p>
+
+<h3 id="dial-f-for-functions:950e91211886bd6e410eb5c07d6bf43a">Dial -f for functions</h3>
+
+<p>Perl has a huge number of built-in functions, about 224 depending on the Perl version. Who can remember exactly how they all work? I know I can&rsquo;t. To lookup a Perl function, use perldoc with the <code>-f</code> switch. For instance to look up the documentation on the <code>rindex</code> function:</p>
+
+<pre><code class="language-prettyprint">$ perldoc -f rindex
+</code></pre>
+
+<p>Which will display:</p>
+
+<pre><code>rindex STR,SUBSTR,POSITION
+rindex STR,SUBSTR
+      Works just like index() except that it returns the position of the
+      last occurrence of SUBSTR in STR. If POSITION is specified,
+      returns the last occurrence beginning at or before that position.
+</code></pre>
+
+<p>Aha! This is all well and good, but what do you do if you can&rsquo;t remember the function name? Well you could use <a href="https://metacpan.org/pod/B::Keywords">B::Keywords</a>, but another way would be to check out <code>perlfunc</code> the Perl documentation on built-in functions. To read it, with perldoc just type:</p>
+
+<pre><code class="language-prettyprint">$ perldoc perlfunc
+</code></pre>
+
+<h3 id="predefined-variables:950e91211886bd6e410eb5c07d6bf43a">Predefined Variables</h3>
+
+<p>As with functions, Perl has a large number of predefined variables that do everything from storing the program name to tracking the state of the regex engine. They&rsquo;re really useful, but often have obscure names like <code>$^O</code> (the OS name). So if you find yourself needing to check whether you&rsquo;re looking at a list separator (<code>$&quot;</code>) or an output separator (<code>$/</code>), just use perldoc with the <code>-v</code> switch:</p>
+
+<pre><code class="language-prettyprint">$ perldoc -v $/
+</code></pre>
+
+<p>Because some predefined variables have weird names, you may need to quote them on the command line for perldoc to work:</p>
+
+<pre><code class="language-prettyprint">$ perldoc -v '$&quot;'
+</code></pre>
+
+<p>The predefined variables documentation is known as <code>perlvar</code>. It&rsquo;s well worth a read through at least once (<code>perldoc perlvar</code>).</p>
+
+<h3 id="searching-the-documentation:950e91211886bd6e410eb5c07d6bf43a">Searching the documentation</h3>
+
+<p>Perl has a lot of great documentation, but it can be hard to remember the names of all of the entries. If you ever want to browse the table of contents, use <code>perl</code>:</p>
+
+<pre><code class="language-prettyprint">$ perldoc perl
+</code></pre>
+
+<p>Many people recommend perltoc for this, but for finding relevant entries, I think the perl entry is easier to browse than perltoc.</p>
+
+<p>Perl also has an extensive FAQ, (another entry that&rsquo;s worth a read through). It has loads of answers to common queries. As usual you can read it with <code>perldoc faq</code>, but you can also search it using the <code>-q</code> switch. Want to know if there are any good IDEs for Perl? (a common newbie question):</p>
+
+<pre><code class="language-prettyprint">$ perl -q ide
+</code></pre>
+
+<pre><code>Is there an IDE or Windows Perl Editor?
+ Perl programs are just plain text, so any editor will do.
+
+ If you're on Unix, you already have an IDE--Unix itself. The Unix
+ philosophy is the philosophy of several small tools that each do one thing
+ and do it well. It's like a carpenter's toolbox.
+
+ If you want an IDE, check the following (in alphabetical order, not order
+ of preference):
+
+ Eclipse
+
+
+     The Eclipse Perl Integration Project integrates Perl editing/debugging
+     with Eclipse.
+
+ Komodo
+
+
+     ActiveState's cross-platform (as of October 2004, that's Windows,
+     Linux, and Solaris), multi-language IDE has Perl support, including a
+     regular expression debugger and remote debugging.
+...
+</code></pre>
+
+<h3 id="finding-module-install-locations:950e91211886bd6e410eb5c07d6bf43a">Finding module install locations</h3>
+
+<p>perldoc isn&rsquo;t just about documentation. If you need to find out where a module is installed, using the <code>-l</code> switch, perldoc will return the filepath of the module:</p>
+
+<pre><code class="language-prettyprint">$ perldoc -l Test::More
+</code></pre>
+
+<p>If you get the path, you can open it in an editor directly:</p>
+
+<pre><code class="language-prettyprint">$ vi $(perldoc -l Test::More)
+</code></pre>
+
+<p>One trick here: some modules don&rsquo;t have any POD in them, for those modules, use <code>-lm</code> to still return the path.</p>
+
+<h3 id="read-module-source-code-in-perldoc:950e91211886bd6e410eb5c07d6bf43a">Read module source code in perldoc</h3>
+
+<p>Finally, perldoc can also display module source code. Just use the <code>-m</code> switch:</p>
+
+<pre><code class="language-prettyprint">$ perldoc -m Test::More
+</code></pre>
+
+<h3 id="wrap-up:950e91211886bd6e410eb5c07d6bf43a">Wrap up</h3>
+
+<p>This article has covered the most common features, but perldoc has a bunch of other capabilities that you can read about at the command line with <code>man perldoc</code>. The Perl documentation is also <a href="http://perldoc.perl.org/">online</a>.</p>
+
+<p>Keep in mind that as you get more proficient with perldoc, you&rsquo;ll need the online resources less and less. Get in the habit of switching to the command line, looking up something in perldoc and flipping right back to programming - it&rsquo;s a productivity win.</p>
+
+<h3 id="perldoc-cheatsheet:950e91211886bd6e410eb5c07d6bf43a">perldoc cheatsheet</h3>
+
+<pre><code>perldoc [option]
+
+Module Options                               
+--------------                               
+         Module documentation     
+-l       Module filepath          
+-lm      Module filepath (alt.)   
+-m       Module source
+
+
+Search Options
+--------------
+-f     Get a built-in function definition
+-v     Get a variable definition
+-q      Search the faq for a keyword
+
+
+Commonly Used Entries
+---------------------
+perl         Language overview, list of all other entries
+perltoc      Table of contents
+perlfunc     Built-in functions documentation
+perlvar      Predefined variables documentation
+perlref      References documentation
+perlre       Regex documentation
+faq          The Perl FAQ
+
+Help
+----
+man perldoc     List of all perldoc options
+</code></pre>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/cpan">cpan</a></div>
+              
+                <div class="tag"><a href="/tags/documentation">documentation</a></div>
+              
+                <div class="tag"><a href="/tags/pod">pod</a></div>
+              
+                <div class="tag"><a href="/tags/terminal">terminal</a></div>
+              
+                <div class="tag"><a href="/tags/command_line">command_line</a></div>
+              
+                <div class="tag"><a href="/tags/perldoc">perldoc</a></div>
+              
+                <div class="tag"><a href="/tags/productivity">productivity</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

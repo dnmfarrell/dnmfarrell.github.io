@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Basic network hacking with Perl Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A few scripts to get going"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Basic network hacking with Perl</h1>
+            <p class="blog-post-meta">Jul 1, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/179/DE10A7B4-1FEF-11E5-99C3-3FFAF3FDEA84.jpeg"/>
+            </div>
+              
+
+<p>Recently I&rsquo;ve been reading <a href="https://www.packtpub.com/networking-and-servers/penetration-testing-perl-raw">Penetration Testing With Perl</a> by Douglas Berdeaux. The book was released late last year, and whilst Dave Cross gave it a fairly scathing <a href="http://perlhacks.com/2015/02/penetration-testing-perl/">review</a> I&rsquo;ve found it interesting so far. I&rsquo;ve been coding and refactoring the scripts presented in the book in a GitHub <a href="https://github.com/dnmfarrell/Penetration-Testing-With-Perl">repo</a> as I go. Here is some of the stuff I&rsquo;ve learned so far.</p>
+
+<h3 id="livehost-detection:f1808d343c8e37bf4bcdf4923d18881f">Livehost Detection</h3>
+
+<p>If you&rsquo;re connected to a network, it&rsquo;s helpful to know the IP addresses of all of the other hosts on the same network. This <a href="https://github.com/dnmfarrell/Penetration-Testing-With-Perl/blob/master/livehost_scanner">script</a> starts by detecting the network device name (or accepting it as an argument) and initializing a packet capture object:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use feature 'say';
+use Net::ARP;
+use Net::Address::IP::Local;
+use Net::Frame::Device;
+use Net::Frame::Dump::Online;
+use Net::Frame::Simple;
+use Net::Netmask;
+use Net::Pcap ();
+
+my $network_device_name = $ARGV[0] if @ARGV;
+
+unless ($network_device_name)
+{
+  $network_device_name = Net::Pcap::pcap_lookupdev(\my $error_msg);
+  die &quot;pcap device lookup failed &quot; . ($error_msg || '')
+    if $error_msg || not defined $network_device_name;
+}
+
+my $device = Net::Frame::Device-&gt;new(dev =&gt; $network_device_name);
+
+my $pcap = Net::Frame::Dump::Online-&gt;new(
+  dev =&gt; $network_device_name,
+  filter =&gt; 'arp and dst host ' . $device-&gt;ip,
+  promisc =&gt; 0,
+  unlinkOnStop =&gt; 1,
+  timeoutOnNext =&gt; 10
+);
+</code></pre>
+
+<p>It then detects the gateway IP (the Ip address of the network controller) and sends a broadcast packet to every IP address in the subnet. The packet capture object <code>$pcap</code> will detect any responses. It then prints out the respondent&rsquo;s IP and MAC address.</p>
+
+<pre><code class="language-prettyprint">printf &quot;Gateway IP: %s\nStarting scan\n&quot;, $device-&gt;gatewayIp;
+
+$pcap-&gt;start;
+
+for my $ip_address (Net::Netmask-&gt;new($device-&gt;subnet)-&gt;enumerate)
+{
+  Net::ARP::send_packet(
+    $network_device_name,
+    $device-&gt;ip,
+    $ip_address,
+    $device-&gt;mac,
+    &quot;ff:ff:ff:ff:ff:ff&quot;, # broadcast
+    &quot;request&quot;,
+  );
+}
+
+until ($pcap-&gt;timeout)
+{
+  if (my $next = $pcap-&gt;next)
+  {
+    my $frame = Net::Frame::Simple-&gt;newFromDump($next);
+    my $local_ip = Net::Address::IP::Local-&gt;public;
+    my $frame_ip = $frame-&gt;ref-&gt;{ARP}-&gt;srcIp;
+    my $frame_mac = $frame-&gt;ref-&gt;{ARP}-&gt;src;
+    say &quot;$frame_ip $frame_mac&quot;. ($local_ip eq $frame_ip ? ' (this machine)' : '');
+  }
+}
+END { say &quot;Exiting.&quot;; $pcap-&gt;stop }
+</code></pre>
+
+<p>If I run this script on my home network, I get the following output</p>
+
+<pre><code class="language-prettyprint">$ sudo $(which perl) livehost_scanner
+Gateway IP: 192.168.1.1
+Starting scan
+Gateway IP: 192.168.1.1
+Starting scan
+192.168.1.1 10:0d:7f:81:31:c2
+192.168.1.2 5c:c5:d4:47:0a:13 (this machine)
+192.168.1.3 68:09:27:03:d0:35
+Exiting.
+</code></pre>
+
+<p>From this I can deduce that there is one other machine connected to the network at <code>192.168.1.4</code>, in addition to the router at <code>192.168.1.1</code>.</p>
+
+<h3 id="fingerprinting:f1808d343c8e37bf4bcdf4923d18881f">Fingerprinting</h3>
+
+<p>Now I&rsquo;ve identified the addresses of two hosts on my network, if I was an attacker I would want to try and identify the types of hosts they are, in order to determine which types of attacks to use against them.</p>
+
+<p>One way to fingerprint a host is using their <a href="https://en.wikipedia.org/wiki/MAC_address">MAC address</a>. The first half of the address is the Organisationally Unique Identifier (OUI). The IEEE provide a <a href="http://standards-oui.ieee.org/oui.txt">file</a> that lists all authorized OUIs and their manufacturer. So to identify the Manufacturer of the network device of the host, all we have to do is lookup their OUI in the file. This <a href="https://github.com/dnmfarrell/Penetration-Testing-With-Perl/blob/master/id_target">script</a> does that:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+
+my $target_mac = shift or die &quot;Usage\n\t./id_target \n&quot;;
+
+printf &quot;Address: %s, MAC Manufacturer: %s\n&quot;,
+  $target_mac, oui_lookup($target_mac);
+
+sub oui_lookup
+{
+  my $mac_address = shift;
+  $mac_address =~ s/:/-/g;
+  my $oui = substr $mac_address, 0, 8;
+
+  open (my $oui_file, '&lt;', 'data/oui.txt') or die $!;
+  while (my $line = &lt;$oui_file&gt;)
+  {
+    if($line =~ /$oui/i)
+    {
+      my ($address, $manufacturer_name) = split /\t+/, $line;
+      return &quot;$manufacturer_name&quot;;
+      last;
+    }
+  }
+  return &quot;Unknown&quot;;
+}
+</code></pre>
+
+<p>If I run this script on the Gateway MAC address, I can identify the access point manufacturer:</p>
+
+<pre><code class="language-prettyprint">$ ./id_target 10:0d:7f:81:31:c2
+Address: 10:0d:7f:81:31:c2, MAC Manufacturer: NETGEAR INC.,
+</code></pre>
+
+<p>Aha! so the access point is made by Netgear. There was another host detected on my network at address <code>192.168.1.3</code>. I can try and fingerprint them too:</p>
+
+<pre><code class="language-prettyprint">$ ./id_target 68:09:27:03:d0:35
+Address: 68:09:27:03:d0:35, MAC Manufacturer: Apple
+</code></pre>
+
+<p>It&rsquo;s an Apple machine. With this data I can either try to fingerprint the hosts further, or I can start testing them for weaknesses, using a port scan or a known vulnerability. A good source of vulnerabilities is <a href="http://www.exploit-db.com">exploit-db.com</a>.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/infosec">infosec</a></div>
+              
+                <div class="tag"><a href="/tags/livehost">livehost</a></div>
+              
+                <div class="tag"><a href="/tags/port">port</a></div>
+              
+                <div class="tag"><a href="/tags/scan">scan</a></div>
+              
+                <div class="tag"><a href="/tags/hack">hack</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

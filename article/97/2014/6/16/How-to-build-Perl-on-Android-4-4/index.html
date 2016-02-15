@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>How to build Perl on Android 4.4 Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A step by step guide to installing Perl 5.20 on Android KitKat"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">How to build Perl on Android 4.4</h1>
+            <p class="blog-post-meta">Jun 16, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/97/ED232AE8-FF2E-11E3-9ABD-5C05A68B9E16.png"/>
+            </div>
+              
+
+<p><em>The recent release of Perl 5.20 came with the exciting news that Perl was now installable on Android, Google&rsquo;s mobile operating system. But before you get grand visions of flying phone-controlled drones via <a href="https://metacpan.org/pod/UAV::Pilot">UAV::Pilot</a>, know that right now, how to get a working Perl binary is just about all that&rsquo;s documented. This article shows you how to get that far - solving the rest is left for the pioneers!</em></p>
+
+<h3 id="requirements:914b0b08540fea0f7c86094ce2509280">Requirements</h3>
+
+<p>To build Perl on Android you&rsquo;ll need a unix-like environment (Cygwin may work too). This article describes installing Perl on an Android Virtual Device (AVD), so you do not need an Android phone to try Perl on Android.</p>
+
+<h3 id="preparation:914b0b08540fea0f7c86094ce2509280">Preparation</h3>
+
+<p>Download the Android &ldquo;SDK Tools Only&rdquo; <a href="https://developer.android.com/sdk/index.html">tarball</a>, and the NDK <a href="https://developer.android.com/tools/sdk/ndk/index.html">tarball</a>. At the command line, change to the directory where you downloaded the tarballs to and untar both tarballs:</p>
+
+<pre><code class="language-prettyprint">$ tar xvf android-ndk-r9d-linux-x86_64.tar.bz2
+$ tar xvf android-sdk_r22.6.2-linux.tgz
+</code></pre>
+
+<p>To save typing later, add &ldquo;android-sdk-*/tools&rdquo; and &ldquo;android-sdk-*/platform-tools&rdquo; to $PATH (you&rsquo;ll need to provide the absolute paths to the directories). For example if I had extracted android-sdk-tools to my user directory, on Linux I could add it to PATH with the following command:</p>
+
+<pre><code class="language-prettyprint">$ export PATH=$PATH:$HOME/android-sdk-linux/tools:$HOME/android-sdk-linux/platform-tools
+</code></pre>
+
+<p>With your PATH updated, launch the Android SDK Manager:</p>
+
+<pre><code class="language-prettyprint">$ android
+</code></pre>
+
+<p>This will open a GUI menu from where you can download and install the required Android tools and libraries. Using the menu, install Android SDK Tools, Android SDK Platform-tools, Android SDK Build-tools and Android 4.2.2.</p>
+
+<p><a href="/static/images/97/android_sdk_manager.png" title="The Android SDK Manager"><img src="/static/images/97/android_sdk_manager_small.png" alt="The Android SDK Manager" /></a></p>
+
+<p>You&rsquo;ll also need a copy of the Perl 5.20.0 <a href="http://www.cpan.org/src/5.0/perl-5.20.0.tar.gz">tarball</a>. Untar this at the command line too:</p>
+
+<pre><code class="language-prettyprint">$ tar xvf perl-5.20.0.tar.gz
+</code></pre>
+
+<h3 id="setup-the-android-emulator:914b0b08540fea0f7c86094ce2509280">Setup the Android emulator</h3>
+
+<p>Now we&rsquo;re going to create an Android Virtual Device that can be used by the emulator to run Android on your machine. At the command line type:</p>
+
+<pre><code class="language-prettyprint">$ android avd
+</code></pre>
+
+<p>This will launch the Android Virtual Device Manager:</p>
+
+<p><a href="/static/images/97/android_avd_1.png" title="The Android Virtual Device Manager"><img src="/static/images/97/android_avd_1_small.png" alt="The Android Virtual Device Manager" /></a></p>
+
+<p>Click &ldquo;new&rdquo; to create a new AVD. I created one with the following settings:</p>
+
+<p><a href="/static/images/97/android_avd_2.png" title="Create a new AVD"><img src="/static/images/97/android_avd_2.png" alt="Create a new AVD" /></a></p>
+
+<p>Make sure you select &ldquo;ARM (androideabi-v7a)&rdquo; as the CPU/ABI option. Keep in mind your platform&rsquo;s hardware when choosing these settings. I found higher resolution devices ran very slowly on my old MacBook. The &ldquo;use snapshot&rdquo; option is a timesaver that saves the virtual device&rsquo;s state post-boot, so saves you from waiting for the virtual device to boot up again after the first time. Once you&rsquo;ve created the AVD, you should see it listed in the AVD Manager window:</p>
+
+<p><a href="/static/images/97/android_avd_4.png" title="The AVD has been created"><img src="/static/images/97/android_avd_4_small.png" alt="The AVD has been created" /></a></p>
+
+<p>Having created a new AVD, you can close the AVD Manager window.</p>
+
+<h3 id="installation:914b0b08540fea0f7c86094ce2509280">Installation</h3>
+
+<p>The following commands will create environment variables we&rsquo;ll need for the install. Be sure to adjust the path for ANDROID_NDK to the location where you untarred the Android NDK archive earlier.</p>
+
+<pre><code class="language-prettyprint">$ export ANDROID_NDK=$HOME/android-ndk-r9d
+$ export TARGET_ARCH=arm-linux-androideabi
+$ export ANDROID_TOOLCHAIN=/tmp/my-toolchain-arm-linux-androideabi
+$ export SYSROOT=$ANDROID_TOOLCHAIN/sysroot
+$ export TARGETDIR=/mnt/asec/perl
+$ export PATH=$PATH:$ANDROID_NDK/toolchains/$TARGET_ARCH-4.8/prebuilt/linux-x86_64/bin
+</code></pre>
+
+<p>To create the toolchain, run this command:</p>
+
+<pre><code class="language-prettyprint"> $ $ANDROID_NDK/build/tools/make-standalone-toolchain.sh --platform=android-9 --install-dir=$ANDROID_TOOLCHAIN --system=`uname | tr '[A-Z]' '[a-z]'`-x86_64 --toolchain=arm-linux-androideabi-4.8
+</code></pre>
+
+<p>Launch your AVD with the emulator (replace kitkat with the name of the avd you created. If you can&rsquo;t remember the name, just run &ldquo;android avd&rdquo; again:</p>
+
+<pre><code class="language-prettyprint">$ emulator @kitkat&amp;
+</code></pre>
+
+<p>You should see your emulated device start booting in a new window:</p>
+
+<p><a href="/static/images/97/android_boot.png" title="The loaded AVD"><img src="/static/images/97/android_boot.png" alt="The loaded AVD" /></a></p>
+
+<p>Once it&rsquo;s booted, it will look like this:</p>
+
+<p><a href="/static/images/97/android_loaded.png" title="The AVD is booting"><img src="/static/images/97/android_loaded.png" alt="The AVD is booting" /></a></p>
+
+<p>With the fully booted AVD still running, return to the command line and type:</p>
+
+<pre><code class="language-prettyprint">$ adb devices
+</code></pre>
+
+<p>This will print out the names of all the connected Android devices.For example:</p>
+
+<pre><code class="language-prettyprint">List of devices attached 
+emulator-5554   device
+</code></pre>
+
+<p>Now we&rsquo;ve got the device name, we&rsquo;ll use adb to run shell commands on our emulated device. It&rsquo;s important that the AVD is booted and running:</p>
+
+<pre><code class="language-prettyprint">adb -s emulator-5554 shell &quot;echo sh -c '\&quot;mkdir $TARGETDIR\&quot;' | su --&quot;
+</code></pre>
+
+<p>Now change into the untarred perl-5.20.0 directory, and run configure (replace &ldquo;emulator-5554&rdquo; with your device name):</p>
+
+<pre><code class="language-prettyprint">$ ./Configure -des -Dusedevel -Dusecrosscompile -Dtargetrun=adb -Dcc=arm-linux-androideabi-gcc -Dsysroot=$SYSROOT -Dtargetdir=$TARGETDIR -Dtargethost=emulator-5554
+</code></pre>
+
+<p>You can now run make and make test to build and test Perl on the device:</p>
+
+<pre><code class="language-prettyprint">$ make
+$ make test
+</code></pre>
+
+<p>Bear in mind that the make test can take a long time - on my machine it ran for 4 hours. It will appear like the process has hung, this is because adb only prints out the results once the command has completed. Make isntall does not work, but this does not matter, as you can still run the Perl binary and use core modules. For example:</p>
+
+<pre><code class="language-prettyprint">$ adb -s emulator-5554 shell &quot;/mnt/asec/perl/perl -v&quot;
+This is perl 5, version 20, subversion 0 (v5.20.0) built for linux-androideabi
+
+Copyright 1987-2014, Larry Wall
+
+Perl may be copied only under the terms of either the Artistic License or the
+GNU General Public License, which may be found in the Perl 5 source kit.
+
+Complete documentation for Perl, including FAQ lists, should be found on
+this system using &quot;man perl&quot; or &quot;perldoc perl&quot;.  If you have access to the
+Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+</code></pre>
+
+<p>Core modules are located in /mnt/asec/perl/lib. To load them, just use the -I switch. For example this one liner:</p>
+
+<pre><code class="language-prettyprint">adb -s emulator-5554 shell '/mnt/asec/perl/perl -I/mnt/asec/perl/lib -MHTTP::Tiny -E &quot;say  HTTP::Tiny-&gt;new-&gt;get(q{http://perltricks.com})-&gt;{content}&quot;'
+</code></pre>
+
+<p>Or if running a script:</p>
+
+<pre><code class="language-prettyprint">adb -s emulator-5554 shell '/mnt/asec/perl/perl -I/mnt/asec/perl/lib my_script.pl'
+</code></pre>
+
+<p><strong>Be warned - if you stop the AVD, Perl will be removed.</strong> You can Google for solutions on how to persist changes across AVD reboots - I have not done this yet. Let me know if you find a reliable solution!</p>
+
+<h3 id="conclusion:914b0b08540fea0f7c86094ce2509280">Conclusion</h3>
+
+<p>This is not the only way to get Perl running on Android. For a different approach, checkout the <a href="https://github.com/damonkohler/sl4a">Scripting Layer 4 Android</a> project, however it is under-documented and the project may have stagnated.</p>
+
+<p>This article would not have been possible without the excellent Android perldoc page by Brian Fraser. You can read it on <a href="https://github.com/Perl/perl5/blob/blead/README.android">Github</a> or with Perl 5.20.0 installed you can read it with perldoc:</p>
+
+<pre><code class="language-prettyprint">$ perldoc android
+</code></pre>
+
+<p>Thanks Brian!</p>
+
+<p>Enjoyed this article? Help us out and <a href="https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F97%2F2014%2F6%2F16%2FHow-to-build-Perl-on-Android-4-4&amp;text=How+to+build+Perl+on+Android+4.4&amp;tw_p=tweetbutton&amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F97%2F2014%2F6%2F16%2FHow-to-build-Perl-on-Android-4-4&amp;via=perltricks">tweet</a> about it!</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/configuration">configuration</a></div>
+              
+                <div class="tag"><a href="/tags/sysadmin">sysadmin</a></div>
+              
+                <div class="tag"><a href="/tags/android">android</a></div>
+              
+                <div class="tag"><a href="/tags/kitkat">kitkat</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

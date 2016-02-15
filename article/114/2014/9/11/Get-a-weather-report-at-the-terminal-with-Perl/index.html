@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Get a weather report at the terminal with Perl Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="WWW::Wunderground::API makes it easy to pull weather data for your area"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Get a weather report at the terminal with Perl</h1>
+            <p class="blog-post-meta">Sep 11, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/114/41950882-3961-11E4-B399-BB21EAFEB715.jpeg"/>
+            </div>
+              
+
+<p>Getting a weather forecast can be a chore; you have to navigate to the right website, close the banner ad, type in your location, click the right link, and <em>maybe</em> then you can see a forecast. I wanted a more convenient way and found one using <a href="https://metacpan.org/pod/WWW::Wunderground::API">WWW::Wunderground::API</a>. As the name suggests, the module provides a Perl interface to the Wunderground.com API. In this article I&rsquo;ll show you how to use it.</p>
+
+<h3 id="setup:81c6a0b1c118f0273c807f4fd711a8ff">Setup</h3>
+
+<p>You&rsquo;ll need an API key for Wunderground.com (sign up <a href="http://www.wunderground.com/weather/api/">here</a> it&rsquo;s free). You&rsquo;ll also need to install WWW::Wunderground.::API. The CPAN Testers <a href="http://matrix.cpantesters.org/?dist=WWW-Wunderground-API+0.06">results</a> show that it runs on most platforms, including Windows. You can install the module at the command line:</p>
+
+<pre><code class="language-prettyprint">$ cpan WWW::Wunderground::API
+</code></pre>
+
+<h3 id="the-code:81c6a0b1c118f0273c807f4fd711a8ff">The Code</h3>
+
+<p>Using WWW::Wunderground::API, I created a script that would pull an hourly forecast for my local city:</p>
+
+<pre><code class="language-prettyprint">#!/usr/bin/env perl
+use strict;
+use warnings;
+use WWW::Wunderground::API;
+
+binmode STDOUT, ':utf8'; # for degrees symbol
+
+my $w = new WWW::Wunderground::API(
+    location =&gt; 'New York City, NY',
+    api_key  =&gt; '123456789012345',
+    auto_api =&gt; 1,
+);
+
+# print header
+printf &quot;%-10s%-4s%-4s%-8s%-20s\n&quot;,
+       'Time',
+       &quot;\x{2109}&quot;,
+       &quot;\x{2103}&quot;,
+       'Rain %',
+       'Conditions';
+
+# print hourly
+for (@{ $w-&gt;hourly })
+{
+    printf &quot;%8s%4i%4i%8i  %-30s\n&quot;,
+           $_-&gt;{FCTTIME}{civil},
+           $_-&gt;{temp}{english},
+           $_-&gt;{temp}{metric},
+           $_-&gt;{pop},
+           $_-&gt;{condition};
+}
+</code></pre>
+
+<p>In the script I use code&gt;binmode to switch the standard output to UTF8 mode. This lets me print some cool degrees symbols later on. I then connect to the Wunderground API, passing my API key and location (location can be a city name or a zip code). Finally I print out the weather forecast using printf to format the output nicely. I saved the script as <code>weather</code> and ran it at the command line:</p>
+
+<pre><code class="language-prettyprint">$ weather
+Time      ℉   ℃   Rain %  Conditions          
+11:00 PM  69  21       3  Partly Cloudy                 
+12:00 AM  69  21       3  Partly Cloudy                 
+ 1:00 AM  69  21       8  Partly Cloudy                 
+ 2:00 AM  69  21       9  Mostly Cloudy                 
+ 3:00 AM  69  21       8  Mostly Cloudy                 
+ 4:00 AM  69  21       5  Mostly Cloudy                 
+ 5:00 AM  69  21       5  Overcast                      
+ 6:00 AM  69  21       4  Overcast                      
+ 7:00 AM  69  21       4  Mostly Cloudy                 
+ 8:00 AM  70  21       4  Mostly Cloudy                 
+ 9:00 AM  72  22       3  Mostly Cloudy                 
+10:00 AM  74  23       2  Mostly Cloudy                 
+11:00 AM  77  25       2  Mostly Cloudy                 
+12:00 PM  80  27       2  Mostly Cloudy                 
+ 1:00 PM  82  28       1  Mostly Cloudy                 
+ 2:00 PM  84  29       7  Overcast                      
+ 3:00 PM  84  29      46  Chance of a Thunderstorm      
+ 4:00 PM  84  29      52  Chance of a Thunderstorm      
+ 5:00 PM  82  28      56  Chance of a Thunderstorm      
+ 6:00 PM  82  28      45  Chance of a Thunderstorm      
+ 7:00 PM  81  27      50  Chance of a Thunderstorm      
+ 8:00 PM  80  27      39  Chance of a Thunderstorm      
+ 9:00 PM  78  26      32  Chance of a Thunderstorm      
+10:00 PM  77  25      38  Chance of a Thunderstorm      
+11:00 PM  74  23       6  Partly Cloudy                 
+12:00 AM  71  22       3  Clear                         
+ 1:00 AM  69  21       3  Clear                         
+ 2:00 AM  67  19       2  Partly Cloudy                 
+ 3:00 AM  65  18       2  Clear                         
+ 4:00 AM  64  18       2  Clear                         
+ 5:00 AM  62  17       2  Clear                         
+ 6:00 AM  61  16       2  Clear                         
+ 7:00 AM  60  16       2  Clear                         
+ 8:00 AM  60  16       2  Clear                         
+ 9:00 AM  62  17       1  Clear                         
+10:00 AM  64  18       0  Clear  
+</code></pre>
+
+<p>The results show an hourly forecast with the temperature in Fahrenheit and Celsius, the probability of rain and an overall description. As I do most of my work from the terminal, this is much more convenient than using the browser and there are no ads!</p>
+
+<h3 id="multiple-locations:81c6a0b1c118f0273c807f4fd711a8ff">Multiple Locations</h3>
+
+<p>So the script is nice, but how can we make it better? Well, I&rsquo;m rarely in the same place all the time, and I expect most people mover around too, so it would good to be more flexible and let the user type in the location, rather than using the same location every time:</p>
+
+<pre><code class="language-prettyprint">#!/usr/bin/env perl
+use strict;
+use warnings;
+use WWW::Wunderground::API;
+
+my $home_location = 'New York City, NY';
+
+# capture location
+print &quot;Enter city or zip code ($home_location): &quot;;
+my $location = &lt;&gt;;
+chomp $location;
+
+binmode STDOUT, ':utf8'; # for degrees symbol
+my $w = new WWW::Wunderground::API(
+    location =&gt; $location || $home_location,
+    api_key  =&gt; '123456789012345',
+    auto_api =&gt; 1,
+);
+
+# print header
+printf &quot;%-10s%-4s%-4s%-8s%-20s\n&quot;,
+       'Time',
+       &quot;\x{2109}&quot;,
+       &quot;\x{2103}&quot;,
+       'Rain %',
+       'Conditions';
+
+# print hourly
+for (@{ $w-&gt;hourly })
+{
+    printf &quot;%8s%4i%4i%8i  %-30s\n&quot;,
+           $_-&gt;{FCTTIME}{civil},
+           $_-&gt;{temp}{english},
+           $_-&gt;{temp}{metric},
+           $_-&gt;{pop},
+           $_-&gt;{condition};
+}
+</code></pre>
+
+<p>I&rsquo;ve updated the code to store a default location called <code>$home_location</code>. I then ask the user to enter a City or zip code, making sure to <a href="http://perldoc.perl.org/functions/chomp.html">chomp</a> the result. Later in the API call, the code: <code>$location || $home_location</code> will submit the home location unless the user has entered a location. Running the script now, I can get the weather for London easily:</p>
+
+<pre><code class="language-prettyprint">$ weather
+Enter city or zip code (New York City, NY): London, UK
+Time      ℉   ℃   Rain %  Conditions          
+ 4:00 AM  50  10       4  Clear                         
+ 5:00 AM  50  10       4  Clear                         
+ 6:00 AM  49   9       4  Clear                         
+ 7:00 AM  49   9       4  Clear                         
+ 8:00 AM  52  11       4  Clear                         
+ 9:00 AM  55  13       4  Clear                         
+10:00 AM  59  15       4  Clear                         
+11:00 AM  62  17       3  Clear                         
+...
+</code></pre>
+
+<h3 id="caching:81c6a0b1c118f0273c807f4fd711a8ff">Caching</h3>
+
+<p>The <a href="https://metacpan.org/pod/WWW::Wunderground::API">WWW::Wunderground::API</a> documentation shows how to use <a href="https://metacpan.org/pod/Cache::FileCache">Cache::FileCache</a> to cache the weather results locally. When you setup the cache, you can specify an expiry parameter - until the cache expires the WWW::Wunderground::API will use the cached results instead of the Wunderground API. This prevents unnecessary API calls and makes the script faster:</p>
+
+<pre><code class="language-prettyprint">#!/usr/bin/env perl
+use strict;
+use warnings;
+use WWW::Wunderground::API;
+use Cache::FileCache;
+
+my $home_location = 'New York City, NY';
+
+#capture location
+print &quot;Enter city or zip code ($home_location): &quot;;
+my $location = &lt;&gt;;
+chomp $location;
+
+binmode STDOUT, ':utf8'; # for degrees symbol
+my $w = new WWW::Wunderground::API(
+    location =&gt; $location || $home_location,
+    api_key  =&gt; '123456789012345',
+    auto_api =&gt; 1,
+    cache    =&gt; Cache::FileCache-&gt;new({
+                    namespace          =&gt; 'wundercache',
+                    default_expires_in =&gt; 2400 }),
+);
+
+# print header
+printf &quot;%-10s%-4s%-4s%-8s%-20s\n&quot;,
+       'Time',
+       &quot;\x{2109}&quot;,
+       &quot;\x{2103}&quot;,
+       'Rain %',
+       'Conditions';
+
+# print hourly
+for (@{ $w-&gt;hourly })
+{
+    printf &quot;%8s%4i%4i%8i  %-30s\n&quot;,
+           $_-&gt;{FCTTIME}{civil},
+           $_-&gt;{temp}{english},
+           $_-&gt;{temp}{metric},
+           $_-&gt;{pop},
+           $_-&gt;{condition};
+}
+</code></pre>
+
+<p>Not much has changed in the code. The line <code>use Cache::FileCache;</code> imports the module and a <code>cache</code> parameter has been added to the Wunderground API call. WWW::Wunderground::API is smart enough to not return cached results for different locations.</p>
+
+<h3 id="conclusion:81c6a0b1c118f0273c807f4fd711a8ff">Conclusion</h3>
+
+<p>That&rsquo;s probably enough to get started, however there is more that could be done with this script. I could make the script more portable by using environment variables instead of the hard coded values for my API key and home location. Exception handling could better - checking for an internet connection before running the script, handling failed API calls more gracefully (for unknown locations for example). Finally, why have the user type in a location at all? We could use get the user&rsquo;s IP address and then geolocate them using the <a href="https://metacpan.org/pod/Geo::IP">Geo::IP</a> module.</p>
+
+<p>The Wunderground API provides a lot more than just a 24 hour forecast. Check out their API <a href="http://www.wunderground.com/weather/api/d/docs">documentation</a>.</p>
+
+<p><em>Cover image <a href="http://creativecommons.org/licenses/by/4.0/">©</a> <a href="https://www.flickr.com/photos/gsfc/5598148465/in/photolist-9wFYv8-kYwXMt-bsoJ2F-epZCJW-51zsz5-4xqurW-dQW1WX-ntLbig-47NhYw-8ha98x-gKjXSn-iGqBL8-fkVu7f-3bs6Hv-9C5Gp9-dfRRoo-ab4NaA-5nNgKY-hkfRe6-hSmCX2-97fCju-8fqUzR-e6xj8j-943upK-CaRbr-5sSeXx-6yuU9E-4adC2H-9YWWVQ-dK9bTn-piUN9-8NP9b5-8hdo8u-8xGTYN-mG2TTk-bmH4rF-7A8s15-97GPeg-fxsEhK-a1cDq-nMWvny-7xTFh6-ow6uvp-i7yjhS-82v13J-6DmEYb-c6BXa-5eCgsS-bo1p2k-nytJYo/">NASA Goddard Space Flight Center</a></em></p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/api">api</a></div>
+              
+                <div class="tag"><a href="/tags/weather">weather</a></div>
+              
+                <div class="tag"><a href="/tags/wundergound">wundergound</a></div>
+              
+                <div class="tag"><a href="/tags/script">script</a></div>
+              
+                <div class="tag"><a href="/tags/terminal">terminal</a></div>
+              
+                <div class="tag"><a href="/tags/command_line">command_line</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

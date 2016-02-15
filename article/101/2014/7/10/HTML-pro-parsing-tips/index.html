@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>HTML pro-parsing tips Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A few tips for parsing HTML with XML::LibXML"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">HTML pro-parsing tips</h1>
+            <p class="blog-post-meta">Jul 10, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p><em>Perl has some fantastic modules for parsing HTML and one of the best is XML::LibXML. It&rsquo;s an interface to the libxml2 C library; super fast but also super-picky. I&rsquo;ve often found XML::LibXML croaking on relatively simple - but incorrectly formed HTML. If you find this, do not give up! This article shares 3 simple techniques for overcoming malformed HTML when parsing with XML::LibXML.</em></p>
+
+<h3 id="tip-1-turn-on-recovery-mode:9d73a78b2b77c7daf47ac5782dcbfdfb">Tip 1: turn on recovery mode</h3>
+
+<p>If XML::LibXML is croaking on a later part of the HTML, try turning on recovery mode, which will return all of the correctly parsed HTML up until XML::LibXML encountered the error.</p>
+
+<pre><code class="language-prettyprint">use XML::LibXML;
+
+my $xml = XML::LibXML-&gt;new( recover =&gt; 1 );
+my $dom = $xml-&gt;load_html( string =&gt; $html );
+</code></pre>
+
+<p>With recovery mode set to 1, the parser will still warn about parsing errors. To suppress the warnings, set recover to 2.</p>
+
+<h3 id="tip-2-sanitize-the-input-first-with-html-scrubber:9d73a78b2b77c7daf47ac5782dcbfdfb">Tip 2: sanitize the input first with HTML::Scrubber</h3>
+
+<p>Sometimes recovery mode alone is not enough - XML::LibXML will croak at the first whiff of HTML if there are two doctype declarations for example. In these situations, consider sanitizing the HTML with <a href="https://metacpan.org/pod/HTML::Scrubber">HTML::Scrubber</a>.</p>
+
+<p>HTML::Scrubber provides both whitelist and blacklist functions to include or exclude HTML tags and attributes. It&rsquo;s a powerful combination which allows you to create a custom filter to scrub the HTML that you want to parse.</p>
+
+<p>By default HTML::Scrubber removes all tags, but in the case of a duplicate doctype declaration, you just need that one tag removed. Let&rsquo;s remove all div tags too for good measure:</p>
+
+<pre><code class="language-prettyprint">use HTML::Scrubber;
+
+my $scrubber = HTML::Scrubber-&gt;new( deny =&gt; [ 'doctype', 'div' ],
+                                    allow=&gt; '*' );
+my $scrubbed_html = $scrubber-&gt;scrub($html);
+my $dom = XML::LibXML-&gt;load_html( string =&gt; $scrubbed_html );
+</code></pre>
+
+<p>The &ldquo;deny&rdquo; rule sets the scrubber blacklist (what to exclude) and the &ldquo;allow&rdquo; rule specifies the whitelist (what to include). Here we passed an asterisk (&rdquo;*&rdquo;) to allow, which means allow everything, but because we&rsquo;re denying div and doctype tags, they&rsquo;ll be removed.</p>
+
+<h3 id="tip-3-extract-a-subset-of-data-with-a-regex-capture:9d73a78b2b77c7daf47ac5782dcbfdfb">Tip 3: extract a subset of data with a regex capture</h3>
+
+<p>If the subset HTML you want to parse has a unique identifier (such as an id attribute), consider using a regex capture to extract it from the HTML document. You can then scrub or immediately parse this subset with XML::LibXML.</p>
+
+<p>For example recently I had to extract an HTML table from a badly-formed web page. Fortunately the table had an id attribute, which made extracting it with a regex a piece-of-cake:</p>
+
+<pre><code class="language-prettyprint">if ( $html =~ /(&lt;table id=&quot;t2&quot;&gt;.*?&lt;\/table&gt;)/s ) {
+    my $dom = XML::LibXML-&gt;load_html( string =&gt; $1 );
+    ...
+}
+</code></pre>
+
+<p>Note the use of the &ldquo;s&rdquo; modifier in the regex to match multiline. Many HTML pages contain newlines and you don&rsquo;t want your match fail because of that.</p>
+
+<h3 id="conclusion:9d73a78b2b77c7daf47ac5782dcbfdfb">Conclusion</h3>
+
+<p>Hopefully these tips will make parsing HTML with XML::LibXML easier. My GitHub account has a web scraper <a href="https://gist.github.com/sillymoose/998b9199007589199dce#file-get_swift_code-pl-L42">script</a> that uses some of these tips. If you&rsquo;re looking for an entirely different approach to parsing HTML, check out <a href="https://metacpan.org/pod/XML::Rabbit">XML::Rabbit</a> and <a href="https://metacpan.org/pod/HTML::TreeBuilder">HTML::TreeBuilder</a>.</p>
+
+<p>Enjoyed this article? Help us out and <a href="https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F101%2F2014%2F7%2F10%2FHTML-pro-parsing-tips&amp;text=HTML+pro-parsing+tips&amp;tw_p=tweetbutton&amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F101%2F2014%2F7%2F10%2FHTML-pro-parsing-tips&amp;via=perltricks">tweet</a> about it!</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/html">html</a></div>
+              
+                <div class="tag"><a href="/tags/xml">xml</a></div>
+              
+                <div class="tag"><a href="/tags/parse">parse</a></div>
+              
+                <div class="tag"><a href="/tags/web">web</a></div>
+              
+                <div class="tag"><a href="/tags/libxml2">libxml2</a></div>
+              
+                <div class="tag"><a href="/tags/scrape">scrape</a></div>
+              
+                <div class="tag"><a href="/tags/xml_libxml">xml_libxml</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

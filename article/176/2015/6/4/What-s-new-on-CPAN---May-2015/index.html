@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>What&#39;s new on CPAN - May 2015 Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Our curated guide to last month&#39;s new CPAN uploads"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">What&#39;s new on CPAN - May 2015</h1>
+            <p class="blog-post-meta">Jun 4, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/176/2A6DE1D0-0ACE-11E5-A57F-EAC87F6D3C83.png"/>
+            </div>
+              
+
+<p>Welcome to &ldquo;What&rsquo;s new on CPAN&rdquo;, a curated look at last month&rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!</p>
+
+<h3 id="module-of-the-month:2afd27a972d8c2c6e60eb0b4d321004b">Module of the month</h3>
+
+<p><a href="https://metacpan.org/pod/App::GitHooks::Plugin::ForceBranchNamePattern">App::GitHooks::Plugin::ForceBranchNamePattern</a> will enforce a branch naming pattern using a regex. Author Guillaume Aubert gives the use case of building a Puppet environment from Git branches (Puppet environment names must be alphanumeric). Another example is when you want all Git branch names to map to an issue tracker id.</p>
+
+<p><a href="https://metacpan.org/author/AUBERTG">Guillaume Aubert</a> has developed many other useful Git hook plugins, such as emitting release messages into Slack and checking Perl code passes a Perl Critic review. Check them out!</p>
+
+<h3 id="apis-apps:2afd27a972d8c2c6e60eb0b4d321004b">APIs &amp; Apps</h3>
+
+<ul>
+<li><a href="https://metacpan.org/pod/Disque">Disque</a> is a distributed job queue built on top of Redis</li>
+<li><a href="https://metacpan.org/pod/HPCI">HPCI</a> is an application for performing distributed computing</li>
+<li>Use the watcher plugin with Elasticsearch using <a href="https://metacpan.org/pod/Search::Elasticsearch::Plugin::Watcher">Search::Elasticsearch::Plugin::Watcher</a></li>
+<li><a href="https://metacpan.org/pod/WWW::Pocket">WWW::Pocket</a> provides an interface for the Pocket v3 API</li>
+<li><a href="https://metacpan.org/pod/WWW::Marvel">WWW::Marvel</a> is an alpha-release interface for the Marvel comics API</li>
+<li>Looking for a faster XML library? TurboXSLT provides an interface to libturboxsl</li>
+<li><a href="https://metacpan.org/release/Net-Hadoop-YARN">Net::Hadoop::YARN</a> is an API for Apache Hadoop Next Generation</li>
+<li>Send Google Analytics user metrics from Perl using <a href="https://metacpan.org/pod/Net::Google::Analytics::MeasurementProtocol">Net::Google::Analytics::MeasurementProtocol</a></li>
+<li><a href="https://metacpan.org/pod/Net::Amazon::DirectConnect">Net::Amazon::DirectConnect</a> lets you interact with Amazon&rsquo;s DirectConnect service</li>
+<li>Use the Airbrake Notifier API V3 Client with <a href="https://metacpan.org/pod/Net::Airbrake">Net::Airbrake</a></li>
+</ul>
+
+<h3 id="config-devops:2afd27a972d8c2c6e60eb0b4d321004b">Config &amp; DevOps</h3>
+
+<ul>
+<li><a href="https://metacpan.org/pod/Config::Perl">Config::Perl</a> aims to be a safer alternative to loading Perl data structures than with <code>eval</code> by using PPI. Interesting approach, blackhat hackers start your engines&hellip;</li>
+<li><a href="https://metacpan.org/pod/Group::Git::Taggers::Perl">Group::Git::Taggers::Perl</a> provides a way to detect Perl git repos. Could be a useful complement to GitHub&rsquo;s API language detection</li>
+<li>Store SpamAssassin rules performance data in Redis using <a href="https://metacpan.org/pod/Mail::SpamAssassin::Plugin::RuleTimingRedis">Mail::SpamAssassin::Plugin::RuleTimingRedis</a></li>
+</ul>
+
+<h3 id="data:2afd27a972d8c2c6e60eb0b4d321004b">Data</h3>
+
+<ul>
+<li>Looking for a fast priority queue implementation? Check out <a href="https://metacpan.org/pod/Array::Heap::ModifiablePriorityQueue">Array::Heap::ModifiablePriorityQueue</a></li>
+<li><a href="https://metacpan.org/pod/DBIx::Class::AuditAny">DBIx::Class::AuditAny</a> is a configurable change tracking tool for DBIx::Class schemas. For example it could be used to track the changes of values in a table over time (insert, update, delete etc)</li>
+<li>Manage database relationships in DBIx::Class when the traditional route fails with <a href="https://metacpan.org/pod/DBIx::Class::Schema::Loader::DBI::RelPatterns">DBIx::Class::Schema::Loader::DBI::RelPatterns</a></li>
+<li><a href="https://metacpan.org/pod/DBIx::Class::InflateColumn::TimeMoment">DBIx::Class::InflateColumn::TimeMoment</a> provides a DBIx::Class column handler for the super fast date time implementation</li>
+<li>Generate HTML from data using <a href="https://metacpan.org/pod/HTML::AutoTag">HTML::AutoTag</a></li>
+<li>With <a href="https://metacpan.org/pod/Sereal::Path">Sereal::Path</a> you can use XPATH and JSONPath with Sereal-encoded data. Nice!</li>
+</ul>
+
+<h3 id="development-and-version-control:2afd27a972d8c2c6e60eb0b4d321004b">Development and Version Control</h3>
+
+<ul>
+<li>Find out the reverse dependencies of a module with <a href="https://metacpan.org/pod/App::CPAN::Dependents">App::CPAN::Dependents</a>. Has a neat command line option too</li>
+<li><a href="https://metacpan.org/pod/Acme::AutoloadAll">Acme::AutoloadAll</a> exports all subroutines from every loaded module by injecting an autoload function into them. Crazy!</li>
+<li>Keep your Dzil GitHub credentials in one place with <a href="https://metacpan.org/pod/Dist::Zilla::Stash::GitHub">Dist::Zilla::Stash::GitHub</a></li>
+<li><a href="https://metacpan.org/pod/Data::Object::Prototype">Data::Object::Prototype</a> makes prototype-style programming easy. Interesting approach</li>
+<li>Create application locks based on files or sockets with<a href="https://metacpan.org/pod/%20JIP::LockFile">JIP::LockFile</a> and <a href="https://metacpan.org/pod/JIP::LockSocket">JIP::LockSocket</a></li>
+<li><a href="https://metacpan.org/pod/List::Slice">List::Slice</a> provides head and tail functions for lists, plays nicely with functions that output lists like <code>map</code> and <code>grep</code></li>
+<li>Declare compile-time and class-safe constants with <a href="https://metacpan.org/pod/pluskeys">pluskeys</a></li>
+</ul>
+
+<h3 id="hardware:2afd27a972d8c2c6e60eb0b4d321004b">Hardware</h3>
+
+<ul>
+<li>Device::GPS can read GSP NMEA data via serial port</li>
+<li>Device::GPIB::Prologix provides a Perly interface for the Prologix GPIB-USB Controller</li>
+</ul>
+
+<h3 id="science-and-mathematics:2afd27a972d8c2c6e60eb0b4d321004b">Science and Mathematics</h3>
+
+<ul>
+<li><a href="https://metacpan.org/pod/Bio::CUA">Bio::CUA</a> provides &ldquo;comprehensive and flexible tools to analyze codon usage bias&rdquo;. Looks impressive</li>
+<li><a href="https://metacpan.org/pod/Bio::LITE::Taxonomy::NCBI">Bio::LITE::Taxonomy::NCBI</a> aims to be a Lightweight and efficient NCBI taxonomic manager</li>
+<li><a href="https://metacpan.org/pod/Dallycot::Manual::Intro">Dallycot</a> is &ldquo;an engine for running linked open code (algorithms expressed as linked open data) and exploring linked open data&rdquo;</li>
+<li>Read and write Graph6 / sparse6 graph formats with <a href="https://metacpan.org/pod/Graph::Graph6">Graph::Graph6</a></li>
+<li><a href="https://metacpan.org/pod/HEP::MCNS">HEP::MCNS</a> can convert Monte Carlo numbers into particle names</li>
+<li><a href="https://metacpan.org/pod/LCS::BV">LCS::BV</a> is a bit vector implementation (read: faster) of the LCS algorithm (used for diff among other things)</li>
+<li><a href="https://metacpan.org/pod/Math::EWMA">Math::EWMA</a> provides an exponential weighted moving average object</li>
+</ul>
+
+<h3 id="web:2afd27a972d8c2c6e60eb0b4d321004b">Web</h3>
+
+<ul>
+<li><a href="https://metacpan.org/pod/Catalyst::ActionSignatures">Catalyst::ActionSignatures</a> allows declaration of variables in Controller signatures</li>
+<li><a href="https://metacpan.org/pod/Dancer2::Plugin::Auth::HTTP::Basic::DWIW">Dancer2::Plugin::Auth::HTTP::Basic::DWIW</a> provides HTTP basic authentication for Dancer2 apps</li>
+<li><a href="https://metacpan.org/pod/HTTP::Tinyish">HTTP::Tinyish</a> is a wrapper for the popular Perl HTTP modules (HTTP::Tiny, LWP etc) and will fallback to using the appropriate module for the request made</li>
+<li><a href="https://metacpan.org/pod/IO::All::Securftp">IO::All::Securftp</a> implements a secure FTP handler for IO::All</li>
+<li>Interact with the JavaScript in your Mojo applications using <a href="https://metacpan.org/pod/Mojo::Phantom">Mojo::Phantom</a>. Cool!</li>
+</ul>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/git">git</a></div>
+              
+                <div class="tag"><a href="/tags/gps">gps</a></div>
+              
+                <div class="tag"><a href="/tags/marvel">marvel</a></div>
+              
+                <div class="tag"><a href="/tags/elasticsearch">elasticsearch</a></div>
+              
+                <div class="tag"><a href="/tags/spamassassin">spamassassin</a></div>
+              
+                <div class="tag"><a href="/tags/hadoop">hadoop</a></div>
+              
+                <div class="tag"><a href="/tags/directconnect">directconnect</a></div>
+              
+                <div class="tag"><a href="/tags/google_analytics">google_analytics</a></div>
+              
+                <div class="tag"><a href="/tags/pocket">pocket</a></div>
+              
+                <div class="tag"><a href="/tags/airbrake">airbrake</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

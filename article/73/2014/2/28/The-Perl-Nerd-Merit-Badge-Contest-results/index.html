@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>The Perl Nerd Merit Badge Contest results Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Three winners, three awesome Perl tricks. Read on to find out more..."/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">The Perl Nerd Merit Badge Contest results</h1>
+            <p class="blog-post-meta">Feb 28, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/73/EC75761E-FF2E-11E3-BD48-5C05A68B9E16.png"/>
+            </div>
+              
+
+<p><em>Four weeks ago we <a href="http://perltricks.com/article/64/2014/1/29/Announcing-the-Perl-Nerd-Merit-Badge-contest">announced</a>the Perl Nerd Merit Badge Contest, inviting readers to send us their favourite Perl code tricks large and small. After much deliberation, the winners have been chosen. Read on to find out about our winning entries &hellip;</em></p>
+
+<h3 id="memoizing-callers-paul-boyd:c519acf149acb8c5f15d6cd7b0b76d6f">Memoizing callers - Paul Boyd</h3>
+
+<p>Paul submitted a solution for <a href="http://en.wikipedia.org/wiki/Memoization">memoizing</a> calling subroutines using Perl&rsquo;s <a href="http://perldoc.perl.org/functions/caller.html">caller</a> function. Paul&rsquo;s demo script is below. The &ldquo;aggressively_memoize&rdquo; subroutine will memoize the results of the calling function so that when it is called repeatedly with the same arguments, the memoizer returns the stored result rather than re-calculating it. Cool huh?</p>
+
+<p>To see this in action, just copy and save the script below as &ldquo;memoizer.pl&rdquo;. Open up the terminal and type:</p>
+
+<pre><code class="language-prettyprint">$ chmod 755 memoizer.pl
+$ ./memoizer.pl
+</code></pre>
+
+<p>Or if you&rsquo;re on Windows, in cmd.exe or PowerShell:</p>
+
+<pre><code class="language-prettyprint">&gt;perl memoizer.pl
+</code></pre>
+
+<pre><code class="language-prettyprint">#!/bin/env perl
+
+use strict;
+use warnings;
+use v5.12;
+
+sub aggressively_memoize {
+    my $caller_num = shift // 1;
+
+    my $caller = (caller($caller_num))[3];
+    return unless $caller;
+
+    my ($package, $sub_name) = $caller =~ /(.*)::(.*?)$/;
+    return if $sub_name eq '__ANON__';
+
+    my $orig = $package-&gt;can($sub_name);
+    my %cache;
+
+    my $new_sub = sub {
+        aggressively_memoize(2);
+
+        my $key = join(&quot;\0&quot;, @_);
+
+        # FIXME: Should check wantarray, this doesn't work in list context.
+        unless (exists $cache{$key}) {
+            $cache{$key} = $orig-&gt;(@_);
+        }
+        # Uncomment this if you wonder whether or not the cache is getting hit:
+        #else {
+        #    warn 'hit';
+        #}
+
+        return $cache{$key};
+    };  
+    {   
+        no strict 'refs';
+        no warnings 'redefine';
+        *{$caller} = $new_sub;
+    }   
+    return;
+}
+
+sub add {
+    # Comment this out to see the performance difference
+    aggressively_memoize();
+
+    my $result = 0;
+    $result += $_ for @_;
+    return $result;
+}
+
+sub fib {
+    my $n = shift;
+    return 0 if $n &lt;= 0;
+    return 1 if $n == 1;
+    return fib(add($n, -1)) + fib(add($n, -2));
+}
+
+say fib(40);
+</code></pre>
+
+<h3 id="an-end-block-in-a-looping-one-liner-josh-goldberg:c519acf149acb8c5f15d6cd7b0b76d6f">An END block in a looping one liner - Josh Goldberg</h3>
+
+<p>Josh submitted a looping Perl one liner with a twist - once it has finished looping, the one liner executes a final block of code using Perl&rsquo;s <a href="http://perldoc.perl.org/perlmod.html#BEGIN,-UNITCHECK,-CHECK,-INIT-and-END">END</a> block. For example this can be used to process a web server log, and then summarize the log statistics:</p>
+
+<pre><code class="language-prettyprint">$ cat /var/log/httpd/access_log |perl -lne '/20\d\d:\d\d:\d\d/;$counts{$&amp;}++;$t++}END { for (sort keys %counts) { print &quot;$_: $counts{$_} (&quot;.sprintf(&quot;%.02f&quot;,$counts{$_}/$t*100).&quot;%)&quot; }'
+</code></pre>
+
+<p>Running the above code on an Apache or Nginx access log gives these results:</p>
+
+<pre><code class="language-prettyprint">2013:08:27: 1 (3.85%)
+2013:08:28: 4 (15.38%)
+2013:08:29: 1 (3.85%)
+2013:08:40: 1 (3.85%)
+2013:08:45: 1 (3.85%)
+2013:08:54: 1 (3.85%)
+2013:08:56: 2 (7.69%)
+2013:09:02: 9 (34.62%)
+2013:09:08: 1 (3.85%)
+2013:09:18: 1 (3.85%)
+2013:09:31: 2 (7.69%)
+2013:15:50: 1 (3.85%)
+2013:15:53: 1 (3.85%)
+</code></pre>
+
+<h3 id="a-multicore-mojolicous-web-app-justin-hawkins-and-mario-roy:c519acf149acb8c5f15d6cd7b0b76d6f">A multicore Mojolicous web app - Justin Hawkins and Mario Roy</h3>
+
+<p>Yes you read that right - Justin and Mario&rsquo;s submission was a parallel processing <a href="https://metacpan.org/pod/Mojolicious">Mojolicious</a> web app. The proof-of-concept app calculates the MD5 hash of all files in a directory. It combines Mojolicious&rsquo;s non-blocking web loop with Mario&rsquo;s MCE module (a PerlTricks favourite) to distribute the processing across all available cores on the host machine.</p>
+
+<p>To try out the app, you&rsquo;ll need to install the <a href="https://metacpan.org/pod/Mojolicious::Lite">Mojolicious::Lite</a> module, which you can get from CPAN. Just open a terminal and enter:</p>
+
+<pre><code class="language-prettyprint">$ cpan Mojolicious::Lite
+</code></pre>
+
+<p>Get the <a href="https://gist.github.com/tardisx/9088819">application code</a> and save it as &ldquo;mce_mojolicious.pl&rdquo;. At the terminal type:</p>
+
+<pre><code class="language-prettyprint">$ chmod 755 mce_mojolicious.pl
+$ ./mce_mojolicious.pl daemon
+</code></pre>
+
+<p>Or if you&rsquo;re on Windows, in cmd.exe or PowerShell type:</p>
+
+<pre><code class="language-prettyprint">&gt;perl mce_mojolicious.pl daemon
+</code></pre>
+
+<p>The app will start and point your browser at <a href="http://localhost:3000">http://localhost:3000</a> to see the app in action!</p>
+
+<h3 id="conclusion:c519acf149acb8c5f15d6cd7b0b76d6f">Conclusion</h3>
+
+<p>Thank you very much to everyone who entered the contest and congratulations to our winners. An exclusive Perl Nerd Merit Badge is on its way to them. Thanks also to brian d foy, for running the crowdtilt campaign, and making all of this possible.</p>
+
+<p>Enjoyed this article? Help us out and <a href="https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F73%2F2014%2F2%2F28%2FThe-Perl-Nerd-Merit-Badge-Contest-results&amp;text=The+Perl+Nerd+Merit+Badge+Contest+results&amp;tw_p=tweetbutton&amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F73%2F2014%2F2%2F28%2FThe-Perl-Nerd-Merit-Badge-Contest-results&amp;via=perltricks">retweet</a> it!</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

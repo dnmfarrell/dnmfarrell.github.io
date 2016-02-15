@@ -1,0 +1,1308 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Articles on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/article/</link>
+    <description>Recent content in Articles on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 10 Feb 2016 15:02:35 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/article/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>What&#39;s new on CPAN - January 2015</title>
+      <link>http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/</link>
+      <pubDate>Wed, 10 Feb 2016 15:02:35 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/</guid>
+      <description>
+
+&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;N.B.&lt;/strong&gt; Last year&amp;rsquo;s &amp;ldquo;module of the month&amp;rdquo; experiment has come to an end. I think there are better ways to promote Perl modules and developers (see &lt;a href=&#34;http://cpan-weekly.org/&#34;&gt;CPAN Weekly&lt;/a&gt; for example).&lt;/p&gt;
+
+&lt;h3 id=&#34;apis-apps:f7741ed44cc1868eb231f608e2ef499e&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Convert CPAN distributions into RPM packages with the newly-repackaged &lt;a href=&#34;https://metacpan.org/pod/App::CPANtoRPM&#34;&gt;App::CPANtoRPM&lt;/a&gt;!&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::Inspect&#34;&gt;App::Inspect&lt;/a&gt; helps you easily find the versions and locations of installed modules&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::tt&#34;&gt;App::tt&lt;/a&gt; is a command line time tracking app&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::Duo&#34;&gt;Net::Duo&lt;/a&gt; provides a Perl API for the popular multifactor authentication service&lt;/li&gt;
+&lt;li&gt;Read articles from two popular sources at the command line: &lt;a href=&#34;https://metacpan.org/pod/App::tldr&#34;&gt;App::tldr&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/WebService::TDWTF&#34;&gt;WebService::TDWTF&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;config-devops:f7741ed44cc1868eb231f608e2ef499e&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Conveniently find local outdated modules and for CPAN:&lt;a href=&#34;https://metacpan.org/pod/CPAN::Diff&#34;&gt;CPAN::Diff&lt;/a&gt; and Pinto: &lt;a href=&#34;https://metacpan.org/pod/DarkPAN::Compare&#34;&gt;DarkPAN::Compare&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Dispatch log events to Slack with log4perl and &lt;a href=&#34;https://metacpan.org/pod/Log::Dispatch::Slack&#34;&gt;Log::Dispatch::Slack&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;data:f7741ed44cc1868eb231f608e2ef499e&#34;&gt;Data&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Useful for low-level network tasks, &lt;a href=&#34;https://metacpan.org/pod/Net::Frame::Layer::VRRP&#34;&gt;Net::Frame::Layer::VRRP&lt;/a&gt; provides a Virtual Router Redundancy Protocol class&lt;/li&gt;
+&lt;li&gt;A simple way to get a high-resolution Unix epoch: &lt;a href=&#34;https://metacpan.org/pod/Time::TAI::Simple&#34;&gt;Time::TAI::Simple&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Types::SQL&#34;&gt;Types::SQL&lt;/a&gt; is library of SQL types; useful for Moo/Moose/Mouse classes&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;development-version-control:f7741ed44cc1868eb231f608e2ef499e&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Interesting; call functions / methods from a different caller with &lt;a href=&#34;https://metacpan.org/pod/Call::From&#34;&gt;Call::From&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Export::Declare&#34;&gt;Export::Declare&lt;/a&gt; provides simple and clean ways to export code and variables.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Importer&#34;&gt;Importer&lt;/a&gt; provides convenient routines for importing (and renaming!) code from modules&lt;/li&gt;
+&lt;li&gt;Easily test non-blocking Perl scripts (like Mojo apps) with &lt;a href=&#34;https://metacpan.org/pod/Test::Script::Async&#34;&gt;Test::Script::Async&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Test2::Workflow&#34;&gt;Test2::Workflow&lt;/a&gt; is a framework for building testing workflows (e.g. &lt;a href=&#34;https://metacpan.org/pod/Test2::Tools::Spec&#34;&gt;Test2::Tools::Spec&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Make scalars which execute a subroutine every time they&amp;rsquo;re accessed using &lt;a href=&#34;https://metacpan.org/pod/Tie::Scalar::Callback&#34;&gt;Tie::Scalar::Callback&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Run Visual Basic and JavaScript code via OLE with &lt;a href=&#34;https://metacpan.org/pod/Win32::VBScript&#34;&gt;Win32::VBScript&lt;/a&gt;. Fun!&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;hardware:f7741ed44cc1868eb231f608e2ef499e&#34;&gt;Hardware&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Paul Evans continues to deliver new hardware tools via &lt;a href=&#34;https://metacpan.org/pod/Device::Chip&#34;&gt;Device::Chip&lt;/a&gt;! Get a driver for the PCF8563 chip (&lt;a href=&#34;https://metacpan.org/pod/Device::Chip::PCF8563&#34;&gt;Device::Chip::PCF8563&lt;/a&gt;), and a driver for SD and MMC cards (&lt;a href=&#34;https://metacpan.org/pod/Device::Chip::SDCard&#34;&gt;Device::Chip::SDCard&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;other:f7741ed44cc1868eb231f608e2ef499e&#34;&gt;Other&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Poker::Eval&#34;&gt;Poker::Eval&lt;/a&gt; is a base class providing routines for Poker games including dealing, scoring and calculating expected win rates.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/URI::redis&#34;&gt;URI::redis&lt;/a&gt; provides a URI class specific to Redis URIs&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;science-mathematics:f7741ed44cc1868eb231f608e2ef499e&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Bio::HTS&#34;&gt;Bio::HTS&lt;/a&gt; is an early-stage Perl interface for htslib&lt;/li&gt;
+&lt;li&gt;Get cryptographically-secure and fast pseudo random number generators using &lt;a href=&#34;https://metacpan.org/pod/Crypt::DRBG&#34;&gt;Crypt::DRBG&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;web:f7741ed44cc1868eb231f608e2ef499e&#34;&gt;Web&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Create CGI (yes!) GitHub webhooks with&lt;a href=&#34;https://metacpan.org/pod/CGI::Github::Webhook&#34;&gt;CGI::Github::Webhook&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Curious: &lt;a href=&#34;https://metacpan.org/pod/Lemplate&#34;&gt;Lemplate&lt;/a&gt; compiles TT templates to standalone Lua modules for OpenResty&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Get an in-browser remote desktop with Mojolicious and noVNC</title>
+      <link>http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/</link>
+      <pubDate>Tue, 02 Feb 2016 13:41:18 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/</guid>
+      <description>
+
+&lt;p&gt;While SSH is a staple of remote system administration, sometimes only a GUI will do. Perhaps the remote system doesn&amp;rsquo;t have a terminal environment to connect to; perhaps the target application doesn&amp;rsquo;t present an adequate command line interface; perhaps there is an existing GUI session you need to interact with. There can be all kinds of reasons.&lt;/p&gt;
+
+&lt;p&gt;For this purpose, a generic type of remote desktop service called VNC is commonly used. The servers are easy to install, start on seemingly all platforms and lots of hardware has a VNC server embedded for remote administration. Clients are similarly easy to use, but when building a management console in the web, wouldn&amp;rsquo;t it be nice to have the console view right in your browser?&lt;/p&gt;
+
+&lt;p&gt;Luckily there is a pure JavaScript VNC client called &lt;a href=&#34;https://github.com/kanaka/noVNC&#34;&gt;noVNC&lt;/a&gt; noVNC listens for VNC traffic over WebSockets, which is convenient for browsers but isn&amp;rsquo;t supported by most VNC servers. To overcome this problem they provide a command-line application called &lt;a href=&#34;https://github.com/kanaka/websockify&#34;&gt;Websockify&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Websockify is a relay that connects to a TCP connection (the VNC server) and exposes the traffic as a WebSocket stream such that a browser client can listen on. While this does fix the problem it isn&amp;rsquo;t an elegant solution. Each VNC Server needs its own instance of Websockify requiring a separate port. Further you either need to leave these connected at all times in case of a web client or else spawn them on demand and clean them up later.&lt;/p&gt;
+
+&lt;h2 id=&#34;mojolicious-to-the-rescue:df6114835a8ce31097aba2ba4c9f0a9f&#34;&gt;Mojolicious to the Rescue&lt;/h2&gt;
+
+&lt;p&gt;Mojolicious has a built-in event-based &lt;a href=&#34;http://mojoliciou.us/perldoc/Mojo/IOLoop/Client&#34;&gt;TCP Client&lt;/a&gt; and native &lt;a href=&#34;http://mojolicious.org/perldoc/Mojolicious/Guides/Tutorial#WebSockets&#34;&gt;WebSocket&lt;/a&gt; handling. If you are already serving your site with Mojolicious, why not let it do the TCP/WebSocket relay work too? Even if you aren&amp;rsquo;t, the on-demand nature of the solution I&amp;rsquo;m going to show would be useful as a stand-alone app for this single purpose versus the websockify application.&lt;/p&gt;
+
+&lt;p&gt;Here is a &lt;a href=&#34;http://mojolicio.us/perldoc/Mojolicious/Guides/Tutorial&#34;&gt;Mojolicious::Lite&lt;/a&gt; application which serves the noVNC client when you request a url like &lt;code&gt;/192.168.0.1&lt;/code&gt;. When the page loads, the client requests the WebSocket route at &lt;code&gt;/proxy?target=192.168.0.1&lt;/code&gt; which establishes the bridge. This example is bundled with my forthcoming wrapper module with a working name of &lt;a href=&#34;https://github.com/jberger/Mojo-Websockify/blob/master/ex/client.pl&#34;&gt;Mojo::Websockify&lt;/a&gt;. The code is remarkably simple:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Mojolicious::Lite;
+
+use Mojo::IOLoop;
+
+websocket &#39;/proxy&#39; =&amp;gt; sub {
+  my $c = shift;
+  $c-&amp;gt;render_later-&amp;gt;on(finish =&amp;gt; sub { warn &#39;websocket closing&#39; });
+
+  my $tx = $c-&amp;gt;tx;
+  $tx-&amp;gt;with_protocols(&#39;binary&#39;);
+
+  my $host = $c-&amp;gt;param(&#39;target&#39;) || &#39;127.0.0.1&#39;;
+  my $port = $host =~ s{:(\d+)$}{} ? $1 : 5901;
+
+  Mojo::IOLoop-&amp;gt;client(address =&amp;gt; $host, port =&amp;gt; $port, sub {
+    my ($loop, $err, $tcp) = @_;
+
+    $tx-&amp;gt;finish(4500, &amp;quot;TCP connection error: $err&amp;quot;) if $err;
+    $tcp-&amp;gt;on(error =&amp;gt; sub { $tx-&amp;gt;finish(4500, &amp;quot;TCP error: $_[1]&amp;quot;) });
+
+    $tcp-&amp;gt;on(read =&amp;gt; sub {
+      my ($tcp, $bytes) = @_;
+      $tx-&amp;gt;send({binary =&amp;gt; $bytes});
+    });
+
+    $tx-&amp;gt;on(binary =&amp;gt; sub {
+      my ($tx, $bytes) = @_;
+      $tcp-&amp;gt;write($bytes);
+    });
+
+    $tx-&amp;gt;on(finish =&amp;gt; sub {
+      $tcp-&amp;gt;close;
+      undef $tcp;
+      undef $tx;
+    });
+  });
+};
+
+get &#39;/*target&#39; =&amp;gt; sub {
+  my $c = shift;
+  my $target = $c-&amp;gt;stash(&#39;target&#39;);
+  my $url = $c-&amp;gt;url_for(&#39;proxy&#39;)-&amp;gt;query(target =&amp;gt; $target);
+  $url-&amp;gt;path-&amp;gt;leading_slash(0); # novnc assumes no leading slash :(
+  $c-&amp;gt;render(
+    vnc  =&amp;gt;
+    base =&amp;gt; $c-&amp;gt;tx-&amp;gt;req-&amp;gt;url-&amp;gt;to_abs,
+    path =&amp;gt; $url,
+  );
+};
+
+app-&amp;gt;start;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;get&lt;/code&gt; route shown at the bottom and isn&amp;rsquo;t very exciting. It&amp;rsquo;s the frontend route that renders the noVNC client and tells it the WebSocket url.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;websocket&lt;/code&gt; route is the more interesting one, which I will explain in detail. After shifting off the controller, we tell the server not to attempt to render a template (&lt;code&gt;render_later&lt;/code&gt;), then subscribe to the finish handler. This is actually a hint to the server that we intend to initiate a WebSocket connection later. Typically this is done by either subscribing to one of the message events or else by sending data upon connection, but in this case we won&amp;rsquo;t do either until the TCP connection is established. Then after extracting the target host and port from the query argument we are ready to make the TCP connection.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://mojolicious.org/perldoc/Mojo/IOLoop#client&#34;&gt;&lt;code&gt;Mojo::IOLoop-&amp;gt;client&lt;/code&gt;&lt;/a&gt; simply takes connection arguments and a callback for what to do once connected. We use this callback to establish our relay. The WebSocket protocol reserves all closing statuses below 4000 for internal use, so I&amp;rsquo;ve taken to using the standard HTTP statuses and prepending a 4 to them. Thus when setting up the TCP error handling, either on initially connecting or for subsequent errors, the status passed to the WebSocket &lt;code&gt;finish&lt;/code&gt; method is 4500.&lt;/p&gt;
+
+&lt;p&gt;The relay itself is the next two method calls. First, when the TCP socket emits a &lt;code&gt;read&lt;/code&gt; event, we take its raw bytes and send them (as binary messages) to the WebSocket client. Then when the WebSocket emits a binary frame (i.e. when it receives a binary message) we write that back to the TCP connection. Finally when the Websocket is closed, we also close the TCP connection and cleanup our handlers.&lt;/p&gt;
+
+&lt;p&gt;Simple, isn&amp;rsquo;t it?!&lt;/p&gt;
+
+&lt;h2 id=&#34;additional-notes:df6114835a8ce31097aba2ba4c9f0a9f&#34;&gt;Additional Notes&lt;/h2&gt;
+
+&lt;p&gt;There are a few things missing. First is that I haven&amp;rsquo;t addressed security in this example. If any part of the stream is publicly available you will want to encrypt the traffic and put the servers behind authentication. Another risk is the issue of &amp;ldquo;back pressure&amp;rdquo; where a stream starts sending floods of data.&lt;/p&gt;
+
+&lt;p&gt;You may have noticed I skipped one line, which until a recent version of Chrome wasn&amp;rsquo;t necessary. When the WebSocket connection is first established it calls &lt;code&gt;with_protocols(&#39;binary&#39;)&lt;/code&gt;. Early versions of noVNC also supported sending the TCP traffic as base64 encoded text, since early implementations of WebSockets didn&amp;rsquo;t distinguish between text and binary frame types as the modern ones do. The WebSocket protocol allows the client to request an application-defined &amp;ldquo;sub-protocol&amp;rdquo; which noVNC used to request binary or base64, the latter of which has long since been deprecated and removed. The client still asks for the binary sub-protocol and recent versions of Chrome have started to refuse to connect if the server doesn&amp;rsquo;t indicate that it can handle this request.&lt;/p&gt;
+
+&lt;h2 id=&#34;shouldn-t-this-be-on-cpan:df6114835a8ce31097aba2ba4c9f0a9f&#34;&gt;Shouldn&amp;rsquo;t This Be On CPAN?&lt;/h2&gt;
+
+&lt;p&gt;I&amp;rsquo;m hoping to wrap this TCP/WebSocket bridge logic up as a module called &lt;code&gt;Mojo::Websockify&lt;/code&gt; and include the noVNC client as an example. It turns out however, that the logic which is simple to show here is remarkably hard to package in a generic, extensible way. For example, you may want to check if the TCP service is already in use via some database-locking table, or to allow remote-takeover of sessions using a message broker between clients. I&amp;rsquo;ll probably just simplify things for the common case and build in some protection for the &amp;ldquo;back pressure&amp;rdquo; problem. In the meantime I hope you have enjoyed seeing how beautifully simple Mojolicious&amp;rsquo; WebSocket and TCP services are.&lt;/p&gt;
+
+&lt;p&gt;Happy Perling!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Twitter as a datastore</title>
+      <link>http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/</link>
+      <pubDate>Thu, 21 Jan 2016 13:52:14 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/</guid>
+      <description>&lt;p&gt;Why doesn&amp;rsquo;t anyone talk about Twitter as a data store? It&amp;rsquo;s a free account, they mostly have uptime, and you can easily control who can see the information. If you can do it in 140 characters (and &lt;a href=&#34;http://www.theverge.com/2015/8/12/9134175/twitter-direct-message-character-limit&#34;&gt;soon to be 10,000&lt;/a&gt;), it&amp;rsquo;s an easy way to store data.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://twitter.com/excellent_nums&#34;&gt;Tweets by @excellent_nums&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m doing this for my &lt;a href=&#34;http://www.excellentnums.com&#34;&gt;excellent numbers project&lt;/a&gt; that does quite a bit of computing to find numbers with a particular property. This isn&amp;rsquo;t the only way I&amp;rsquo;m storing the numbers, but I had the idea of tweeting them as soon as I found them in case every other method failed. If I accidentally deleted the output files (did that), truncated and overwrote files (did that), or somehow screwed it up in another way (did that), the numbers are still on Twitter.&lt;/p&gt;
+
+&lt;p&gt;I had another compelling reason, though. I wanted to get an alert on my phone when my program found another excellent number. Unfortunately, I&amp;rsquo;ve hitched my wagon to the iPhone. There are all sorts of complicated ways for me to get an alert but I already use Twitter and get alerts for that. So, I can have a backup store and an alert system using stuff I already have installed. I can spend more time on the math and less time on installing and managing Redis (which is easy too and deserves an article here) then coming up with a way to send new entries to my phone.&lt;/p&gt;
+
+&lt;p&gt;I wrote about my setup in nonspecific terms in &lt;a href=&#34;http://www.masteringperl.org/2015/12/ive-found-over-200-excellent-numbers/&#34;&gt;Mastering Perl&lt;/a&gt;. I didn&amp;rsquo;t show any code, although it&amp;rsquo;s all in &lt;a href=&#34;https://github.com/briandfoy/excellent_numbers&#34;&gt;the excellent_numbers GitHub repository&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Before you start, you need some Twitter credentials to use their API through the &lt;a href=&#34;https://metacpan.org/pod/Net::Twitter&#34;&gt;Net::Twitter&lt;/a&gt; module. Start at &lt;a href=&#34;http://apps.twitter.com&#34;&gt;Twitter Application Management&lt;/a&gt; to get the four special strings you&amp;rsquo;ll need (&lt;a href=&#34;http://iag.me/socialmedia/how-to-create-a-twitter-app-in-8-easy-steps/&#34;&gt;&amp;ldquo;How to Register a Twitter App in 8 Easy Steps&amp;rdquo; has a good description of the steps&lt;/a&gt;:&lt;/p&gt;
+
+&lt;p&gt;Consumer Key (API Key)&lt;/p&gt;
+
+&lt;p&gt;Consumer Secret (API Secret)&lt;/p&gt;
+
+&lt;p&gt;Access Token&lt;/p&gt;
+
+&lt;p&gt;Access Token Secret&lt;/p&gt;
+
+&lt;p&gt;The Net::Twitter module needs these strings to create its object. The module handles all of the OAuth details without me having to think about them:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Net::Twitter;
+
+my $nt = Net::Twitter-&amp;gt;new(
+   traits   =&amp;gt; [qw/OAuth API::RESTv1_1/],
+   map { $_ =&amp;gt; $ENV{&amp;quot;$_&amp;quot;} || die &amp;quot;ENV $_ not set&amp;quot; }
+           qw(     
+                consumer_secret
+                consumer_key
+                access_token
+                access_token_secret
+                )
+   );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In my excellent number program, I wanted to be as simple as possible. I didn&amp;rsquo;t want to re-tweet numbers I already tweeted so I fetched everything I&amp;rsquo;ve tweeted so far and stored it in a hash. Twitter pages in groups of 200 tweets maximum, and this didn&amp;rsquo;t seem like it would be a problem a couple of months ago but I&amp;rsquo;m now up to over 350 of them.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s easy to fetch a bunch of statuses with the &lt;code&gt;user_timeline&lt;/code&gt; method. I need to tell it where to start (&lt;code&gt;min_id&lt;/code&gt; or &lt;code&gt;since_id&lt;/code&gt;). Twitter returns huge JSON structures with lots of information, but Net::Twitter turns that into a Perl data structure for me. I dump what they send and pull out the parts I want:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %tweets;
+STATUSES: while( 1 ) {
+  state $min_id = 1;
+  state $fetch_size = 200;
+
+  my $max_key = $min_id == 1 ? &#39;since_id&#39; : &#39;max_id&#39;;
+
+  my $statuses = $nt-&amp;gt;user_timeline({
+          count       =&amp;gt; $fetch_size,
+          screen_name =&amp;gt; &#39;excellent_nums&#39;,
+          $max_key    =&amp;gt; $min_id,
+          });     
+
+  say { interactive } &amp;quot;Found &amp;quot; . @$statuses . &amp;quot; statuses&amp;quot;;
+  $min_id = $statuses-&amp;gt;[-1]{id} - 1 if $min_id == 1;
+
+  foreach my $status ( @$statuses ) {
+          $min_id = $status-&amp;gt;{id} - 1 if $min_id &amp;gt; $status-&amp;gt;{id};
+          my( $number ) = $status-&amp;gt;{text} =~ m/(\d+)/;
+          warn &amp;quot;[$number] has more than one tweet!\n&amp;quot; if exists $tweets{$number};
+          $tweets{$number} = undef;
+          unless( is_excellent( $number ) ) {
+                  warn &amp;quot;Tweet for [$number] is an unexcellent error\n&amp;quot;;
+                  }       
+          }       
+
+  last if @$statuses &amp;lt; $fetch_size; # must be last page
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This part is complicated for another reason. At the start of the project I was generating the excellent numbers sequentially. When that&amp;rsquo;s the case I only needed to look at the previous tweet to see if it was less than the number I just discovered. When I got to the big numbers, I went wide and worked on different parts of the range in parallel and sometimes on several computers simultaneously. I started to discover the numbers out of order and tweet them out of order. Hence, the paging. I could store the list of tweeted numbers locally, but that&amp;rsquo;s a hassle to manage too since that can be out of sync. I still might do that when this method runs out of steam. I&amp;rsquo;m not likely to get far beyond 500 numbers though.&lt;/p&gt;
+
+&lt;p&gt;Notice that I also &lt;code&gt;warn&lt;/code&gt; if I run into a tweet with a number that I think is a duplicate:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;warn &amp;quot;[$number] has more than one tweet!\n&amp;quot; if exists $tweets{$number};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If this was a bigger problem (and it&amp;rsquo;s not anymore), I could use the &lt;code&gt;destroy_status&lt;/code&gt; method to automatically get rid of it:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$nt-&amp;gt;destroy_status( $status-&amp;gt;{id} ) if exists $tweets{$number};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I decided not to delete automatically from the program. It&amp;rsquo;s not a problem to have duplicates. It&amp;rsquo;s a bit messy, but it&amp;rsquo;s more messy to delete stuff I want to keep and to retweet it. That risk makes it not worth it for me. I don&amp;rsquo;t want another possible automated mess to clean up.&lt;/p&gt;
+
+&lt;p&gt;Now I know everything I&amp;rsquo;ve tweeted previously and I&amp;rsquo;ve put them in &lt;code&gt;%tweets&lt;/code&gt;. The next part is to tweet what I&amp;rsquo;ve found and haven&amp;rsquo;t stored yet. I also store that in a local file (but remember I want the alerts and the backup!) that I used to populate &lt;code&gt;%numbers&lt;/code&gt;. I skip the numbers I already tweeted and use &lt;code&gt;update&lt;/code&gt; to make the new tweets. Storing new numbers is easy, and when I do it I want to tweet the new numbers in ascending order:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;NUMBER: foreach my $number ( sort { $a &amp;lt;=&amp;gt; $b } keys %numbers ) {
+  next NUMBER if exists $tweets{$number};
+
+  $nt-&amp;gt;update( &amp;quot;$number is excellent&amp;quot; );
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This used to be part of the program that found the excellent numbers, but I switched to C for a huge performance bump. I still wanted to tweet from Perl, which is easy. Perl&amp;rsquo;s become the glue holding together lots of different things.&lt;/p&gt;
+
+&lt;p&gt;Once I can read from, post to, and delete from twitter, other applications (or even real people) can follow it. It can be public or private. It&amp;rsquo;s not sophisticated. It&amp;rsquo;s uptime isn&amp;rsquo;t going to win any awards. But it&amp;rsquo;s free and easy for my small task.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>What&#39;s new on CPAN - December 2015</title>
+      <link>http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/</link>
+      <pubDate>Wed, 13 Jan 2016 15:31:05 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/</guid>
+      <description>
+
+&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. December was a bumper month, full of exciting new stuff. Enjoy!&lt;/p&gt;
+
+&lt;h3 id=&#34;module-of-the-month:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Module of the month&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/Protocol::ACME&#34;&gt;Protocol::ACME&lt;/a&gt; is an alpha-stage implementation providing a perly interface to the &lt;a href=&#34;https://letsencrypt.readthedocs.org/en/latest/intro.html&#34;&gt;Let&amp;rsquo;s Encrypt&lt;/a&gt; ACME API. This lets you automate the business of fetching and validating Let&amp;rsquo;s Encrypt certificates, and any other certificate which is provided via the ACME protocol. If you build web applications with Mojolicious, you may also like &lt;a href=&#34;https://metacpan.org/pod/Toadfarm::Plugin::Letsencrypt&#34;&gt;Toadfarm::Plugin::Letsencrypt&lt;/a&gt;, a less ambitious module that provides Lets Encrypt domain verification.&lt;/p&gt;
+
+&lt;h3 id=&#34;apis-apps:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::Procapult&#34;&gt;App::Procapult&lt;/a&gt; is a process launcher / wrapper with a simple interface&lt;/li&gt;
+&lt;li&gt;Another process manager, &lt;a href=&#34;https://metacpan.org/pod/Schedule::LongSteps&#34;&gt;Schedule::LongSteps&lt;/a&gt; aims to manage long term processes over long periods of time.&lt;/li&gt;
+&lt;li&gt;Do you want to convert colored terminal output to HTML? Check out &lt;a href=&#34;https://metacpan.org/pod/App::Term2HTML&#34;&gt;App::Term2HTML&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Barracuda::Api&#34;&gt;Barracuda::Api&lt;/a&gt; provides a perly interface to Barracuda business IT services&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Google::reCAPTCHA&#34;&gt;Google::reCAPTCHA&lt;/a&gt; a lightweight implementation of Google&amp;rsquo;s reCAPTCHA service, also see (Captcha::reCAPTCHA::V2)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;config-devops:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Config::MethodProxy&#34;&gt;Config::MethodProxy&lt;/a&gt; integrates dynamic logic with static configuration.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Minion::Notifier&#34;&gt;Minion::Notifier&lt;/a&gt; notifies queue listeners when a Minion task has completed&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Queue::Priority&#34;&gt;Queue::Priority&lt;/a&gt; orders messages according to their priority, so the important stuff gets processed first&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/RBAC::Tiny&#34;&gt;RBAC::Tiny&lt;/a&gt; is a miniscule Role-Based Access Control implementation&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;data:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Data&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Get an Attean SPARQL store using &lt;a href=&#34;https://metacpan.org/pod/AtteanX::Store::SPARQL&#34;&gt;AtteanX::Store::SPARQL&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/DBIx::Class::ParameterizedJoinHack&#34;&gt;DBIx::Class::ParameterizedJoinHack&lt;/a&gt; provides relationship joins with dynamic logic&lt;/li&gt;
+&lt;li&gt;Cleanly get a locale-specific datetime duration string with &lt;a href=&#34;https://metacpan.org/pod/DateTime::Format::Human::Duration::Simple&#34;&gt;DateTime::Format::Human::Duration::Simple&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/JSON::Schema::AsType&#34;&gt;JSON::Schema::AsType&lt;/a&gt; generates Type::Tiny types out of JSON schemas, very nice! (I&amp;rsquo;m already using it).&lt;/li&gt;
+&lt;li&gt;Add cropmarks to existing PDFs for better printing using &lt;a href=&#34;https://metacpan.org/pod/PDF::Cropmarks&#34;&gt;PDF::Cropmarks&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;A Redis-like store implemented on Postgresql. Not &amp;ldquo;redisql&amp;rdquo; but &lt;a href=&#34;https://metacpan.org/pod/Postgredis&#34;&gt;Postgredis&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;development-version-control:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::CPAN::Search&#34;&gt;App::CPAN::Search&lt;/a&gt; provides a base class for and script for searching CPAN&lt;/li&gt;
+&lt;li&gt;Oooh look! A new Perl DBGp debugger: &lt;a href=&#34;https://metacpan.org/pod/Devel::Debug::DBGp&#34;&gt;Devel::Debug::DBGp&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Get a &amp;ldquo;quick and dirty&amp;rdquo; code coverage measurement with &lt;a href=&#34;https://metacpan.org/pod/Devel::QuickCover&#34;&gt;Devel::QuickCover&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Devel::SimpleProfiler&#34;&gt;Devel::SimpleProfiler&lt;/a&gt; makes it easy to profile subroutines.&lt;/li&gt;
+&lt;li&gt;Useful; include roles in serialization using &lt;a href=&#34;https://metacpan.org/pod/MooseX::Storage::Traits::WithRoles&#34;&gt;MooseX::Storage::Traits::WithRoles&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Readonly::Tiny&#34;&gt;Readonly::Tiny&lt;/a&gt; aims to provide &amp;ldquo;simple, correct, read only values&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;Test UNIX sockets with &lt;a href=&#34;https://metacpan.org/pod/Test::UNIXSock&#34;&gt;Test::UNIXSock&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Test::Alien&#34;&gt;Test::Alien&lt;/a&gt; provides testing tools for Alien modules&lt;/li&gt;
+&lt;li&gt;Reliably test if some code uses &lt;code&gt;exec&lt;/code&gt; with &lt;a href=&#34;https://metacpan.org/pod/Test::Exec&#34;&gt;Test::Exec&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Dump anything into a single line of 80 characters or fewer with &lt;a href=&#34;https://metacpan.org/pod/Test::Stream::Plugin::Explain::Terse&#34;&gt;Test::Stream::Plugin::Explain::Terse&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;hardware:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Hardware&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;An implementation of the Modbus communications protocol, &lt;a href=&#34;https://metacpan.org/pod/Device::Modbus&#34;&gt;Device::Modbus&lt;/a&gt; provides a base for developing Modbus clients and servers&lt;/li&gt;
+&lt;li&gt;Similarly, &lt;a href=&#34;https://metacpan.org/pod/ZWave::Protocol&#34;&gt;ZWave::Protocol&lt;/a&gt; provides helpers for the Z-Wave communication protocol&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;language-international:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Language &amp;amp; International&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Split identifiers into words with &lt;a href=&#34;https://metacpan.org/pod/Lingua::IdSplitter&#34;&gt;Lingua::IdSplitter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Protocol::IRC&#34;&gt;Protocol::IRC&lt;/a&gt; a base class for IRC protocol handling&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Text::Frundis&#34;&gt;Text::Frundis&lt;/a&gt; an object oriented interface for the &lt;a href=&#34;http://bardinflor.perso.aquilenet.fr/frundis/intro-en&#34;&gt;frundis&lt;/a&gt; markup language&lt;/li&gt;
+&lt;li&gt;Get a Perl FFI interface to the Hunspell library using &lt;a href=&#34;https://metacpan.org/pod/Text::Hunspell::FFI&#34;&gt;Text::Hunspell::FFI&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Text::Table::Any&#34;&gt;Text::Table::Any&lt;/a&gt; generates beautiful text tables using many different backends/li&amp;gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Ufal::Parsito&#34;&gt;Ufal::Parsito&lt;/a&gt; provides bindings to the &lt;a href=&#34;http://ufal.mff.cuni.cz/parsito&#34;&gt;Parsito&lt;/a&gt; library&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;science-mathematics:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Get a perly interface to the HTS library for DNA sequencing using &lt;a href=&#34;https://metacpan.org/pod/Bio::DB::HTS&#34;&gt;Bio::DB::HTS&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Graph::Dijkstra&#34;&gt;Graph::Dijkstra&lt;/a&gt; provides Dijkstra&amp;rsquo;s shortest path algorithm and additional helper methods&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;web:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Web&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Great idea: use the popular HTTP::Tiny user agent with limited download/upload speed using &lt;a href=&#34;https://metacpan.org/pod/HTTP::Tiny::Bandwidth&#34;&gt;HTTP::Tiny::Bandwidth&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Dancer::Plugin::Swagger&#34;&gt;Dancer::Plugin::Swagger&lt;/a&gt; creates Swagger documentation of the Dancer app&amp;rsquo;s REST interface. Nice!&lt;/li&gt;
+&lt;li&gt;Another wrapper for wget / curl: &lt;a href=&#34;https://metacpan.org/pod/HTTP::Command::Wrapper&#34;&gt;HTTP::Command::Wrapper&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Save time with compile tests</title>
+      <link>http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/</link>
+      <pubDate>Tue, 05 Jan 2016 14:32:45 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/</guid>
+      <description>
+
+&lt;p&gt;Over the past year I&amp;rsquo;ve been working on several large Perl projects, sometimes as part of a team and sometimes alone. As the codebase grows, testing becomes increasingly important and one test in particular that pays dividends is the compile test. That is, before running any other tests, simply check if that every module in the codebase compiles.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-basics:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;The basics&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s look at a simple compile test, I&amp;rsquo;ve adapted this example from &lt;a href=&#34;https://github.com/dnmfarrell/Perly-Bot&#34;&gt;Perly-Bot&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Test::More;
+use lib &#39;lib&#39;;
+
+my @modules = qw(
+  Perly::Bot
+  Perly::Bot::Feed
+  Perly::Bot::Feed::Post
+  Perly::Bot::Cache
+  Perly::Bot::Media
+  Perly::Bot::Media::Twitter
+  Perly::Bot::Media::Reddit
+);
+for my $module ( @modules )
+{
+  BAIL_OUT( &amp;quot;$module does not compile&amp;quot; ) unless require_ok( $module );
+}
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code is simple enough; it adds the local &lt;code&gt;lib&lt;/code&gt; directory to the list of directories for Perl to search for modules. Then it declares an array of module names called &lt;code&gt;@modules&lt;/code&gt;. Finally it loops through each module name and tries to import it, bailing out if any module fails to load. Because tests are usually run in alphabetical order, this file is called &lt;code&gt;00-compile.t&lt;/code&gt; so that it is run first. I can run this test at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./t/00-compile.t
+perl t/00-compile.t 
+ok 1 - use Perly::Bot;
+ok 2 - use Perly::Bot::Feed;
+ok 3 - use Perly::Bot::Feed::Post;
+ok 4 - use Perly::Bot::Cache;
+ok 5 - use Perly::Bot::Media;
+ok 6 - use Perly::Bot::Media::Twitter;
+ok 7 - use Perly::Bot::Media::Reddit;
+1..7
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;write-once-compile-tests:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;Write-once compile tests&lt;/h3&gt;
+
+&lt;p&gt;The basic compile test example has an obvious flaw: it requires the programmer to list all the module names to be tested. This means that every time a new module is added to the codebase or a module is renamed, this test needs to be updated. This also introduces the risk of error - a failing module could exist in the codebase and never be tested. Instead of a static list of modules, I can tell Perl to search the &lt;code&gt;lib&lt;/code&gt; directory and try to import any module it finds:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Test::More;
+use lib &#39;lib&#39;;
+use Path::Tiny;
+
+# try to import every .pm file in /lib
+my $dir = path(&#39;lib/&#39;);
+my $iter = $dir-&amp;gt;iterator({
+            recurse         =&amp;gt; 1,
+            follow_symlinks =&amp;gt; 0,
+           }); 
+while (my $path = $iter-&amp;gt;())
+{
+  next if $path-&amp;gt;is_dir || $path !~ /\.pm$/;
+  BAIL_OUT( &amp;quot;$path does not compile&amp;quot; ) unless require_ok( $path );
+}
+done_testing;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here I use &lt;a href=&#34;https://metacpan.org/pod/Path::Tiny&#34;&gt;Path::Tiny&lt;/a&gt; to iterate through the files in &lt;code&gt;lib&lt;/code&gt;. Instead of passing module names, I pass the filepath to &lt;code&gt;require_ok&lt;/code&gt;. Now this compile test is dynamic, it will always pick up any new modules added or removed from the codebase. Nice!&lt;/p&gt;
+
+&lt;h3 id=&#34;require-warnings:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;Require warnings&lt;/h3&gt;
+
+&lt;p&gt;One problem with using &lt;a href=&#34;http://perldoc.perl.org/functions/require.html&#34;&gt;require&lt;/a&gt; to load filepaths instead of module names is that it can generate &amp;ldquo;subroutine redefined&amp;rdquo; warnings if the same module is loaded twice by different files. Imagine this code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;require &#39;lib/Game.pm&#39;;
+require &#39;lib/Game/Asset/Player.pm&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If &lt;code&gt;Game.pm&lt;/code&gt; loads &lt;code&gt;Game::Asset::Player&lt;/code&gt;, Perl will emit the subroutine redefined warning when the second &lt;code&gt;require&lt;/code&gt; statement is executed. I can deal with this in a couple of ways: I could suppress the warning by adding &lt;code&gt;no warnings &#39;redefine&#39;;&lt;/code&gt; to my compile test file. But this would mask genuine warnings that could be helpful, like if I have circular dependencies in my codebase. Or I can convert the filepath into a module name, and then &lt;code&gt;require&lt;/code&gt; won&amp;rsquo;t complain, for example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;require &#39;Game&#39;;
+require &#39;Game::Asset::Player&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For the compile tests, I can use substitute regexes to convert the filepath into a module name. When the compile tests run they won&amp;rsquo;t generate spurious &amp;ldquo;subroutine redefined&amp;rdquo; warnings.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Test::More;
+use lib &#39;lib&#39;;
+use Path::Tiny;
+
+# try to import every .pm file in /lib
+my $dir = path(&#39;lib/&#39;);
+my $iter = $dir-&amp;gt;iterator({
+            recurse         =&amp;gt; 1,
+            follow_symlinks =&amp;gt; 0,
+           });
+while (my $path = $iter-&amp;gt;())
+{
+  next if $path-&amp;gt;is_dir || $path !~ /\.pm$/;
+  my $module = $path-&amp;gt;relative;
+  $module =~ s/(?:^lib\/|\.pm$)//g;
+  $module =~ s/\//::/g;
+  BAIL_OUT( &amp;quot;$module does not compile&amp;quot; ) unless require_ok( $module );
+}
+done_testing;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;additional-thoughts:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;Additional thoughts&lt;/h3&gt;
+
+&lt;p&gt;Another way to write compile tests is using &lt;a href=&#34;https://metacpan.org/pod/Class::Load&#34;&gt;Class::Load&lt;/a&gt; to do the module importing. It has a several useful functions for dynamically loading modules.&lt;/p&gt;
+
+&lt;p&gt;Compile tests are an interesting class of test. They&amp;rsquo;re an implementation of the axiom: &amp;ldquo;the codebase should always compile&amp;rdquo;. Depending on the application, there are other axioms you can test for. For example with a web application, every admin URL should only be accessible to authenticated and authorized users. So you could write a dynamic test that enumerates every admin URL and attempts to fetch it unauthorized (the test fails if any request is successful). For testing Catalyst web applications, you might find my module &lt;a href=&#34;https://metacpan.org/pod/Catalyst::Plugin::ActionPaths&#34;&gt;Catalyst::Plugin::ActionPaths&lt;/a&gt; useful. Testing axioms usually has a high reward for little or no maintenance cost. Seek them out!&lt;/p&gt;
+
+&lt;p&gt;If you ever need to suppress a particular warning, in newer versions of Perl the warnings pragma &lt;a href=&#34;http://perldoc.perl.org/warnings.html&#34;&gt;documentation&lt;/a&gt; lists all of the types of warnings it recognizes. This is especially useful when using experimental features like &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;subroutine signatures&lt;/a&gt;. You can read it for your version of Perl at the command line with:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc warnings
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to get Perl 6 now</title>
+      <link>http://perltricks.com/article/207/2015/12/31/How-to-get-Perl-6-now/</link>
+      <pubDate>Thu, 31 Dec 2015 19:08:59 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/207/2015/12/31/How-to-get-Perl-6-now/</guid>
+      <description>
+
+&lt;p&gt;Great news, Perl 6 was &lt;a href=&#34;https://perl6advent.wordpress.com/2015/12/25/christmas-is-here/&#34;&gt;released&lt;/a&gt; on Christmas Day; finally us geeks got something we wanted for Christmas. Send the books back Grandma! (unless you got &lt;a href=&#34;http://perltricks.com/article/205/2015/12/21/Modern-Perl-4th-edition--a-review&#34;&gt;Modern Perl&lt;/a&gt;).&lt;/p&gt;
+
+&lt;h3 id=&#34;installation-on-linux-osx:961206b7582ff32549d5b3ed6ab9aa7e&#34;&gt;Installation on Linux, OSX&lt;/h3&gt;
+
+&lt;p&gt;On Linux and Mac the easiest way to get Perl 6 is with &lt;a href=&#34;https://github.com/tadzik/rakudobrew&#34;&gt;rakudobrew&lt;/a&gt;. You&amp;rsquo;ll need the typical software development tools like &lt;code&gt;git&lt;/code&gt;, &lt;code&gt;gcc&lt;/code&gt; and &lt;code&gt;make&lt;/code&gt;. On OSX Apple&amp;rsquo;s &lt;a href=&#34;https://developer.apple.com/opensource/&#34;&gt;Command Line Tools app&lt;/a&gt; provides most of these and is easy to install. On Linux they&amp;rsquo;re available via the package manager. Once you have the prerequisite tools installed, you can install rakudobrew via the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
+$ export PATH=~/.rakudobrew/bin:$PATH
+$ rakudobrew build moar
+$ rakudobrew build panda
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will install &lt;code&gt;perl6&lt;/code&gt; and &lt;code&gt;panda&lt;/code&gt; the Perl 6 package manager.&lt;/p&gt;
+
+&lt;h3 id=&#34;installation-on-windows:961206b7582ff32549d5b3ed6ab9aa7e&#34;&gt;Installation on Windows&lt;/h3&gt;
+
+&lt;p&gt;On Windows it&amp;rsquo;s a different story. I was unable to get rakudobrew to work on Windows, which is a shame as it&amp;rsquo;s such a convenient tool. If you&amp;rsquo;re feeling adventurous, you can &lt;a href=&#34;http://perltricks.com/article/135/2014/11/18/Building-Perl-6-with-Visual-Studio-2013&#34;&gt;build your own Perl 6 with Visual Studio&lt;/a&gt;. Sinan Unur has &lt;a href=&#34;https://www.nu42.com/2015/12/perl6-rakudo-released.html&#34;&gt;blogged&lt;/a&gt; about building panda with the same toolset.&lt;/p&gt;
+
+&lt;p&gt;Alternatively you can use the latest &lt;a href=&#34;http://rakudo.org/downloads/star/&#34;&gt;Rakudo Star distribution&lt;/a&gt; which comes with a convenient &lt;code&gt;.msi&lt;/code&gt; installer. Unfortunately the most recent Rakudo Star distribution is from September, so you won&amp;rsquo;t benefit from the last 3 months of updates to Perl 6 (a new version should be available soon). If you&amp;rsquo;ve installed Rakudo Star, you&amp;rsquo;ll need to add the Perl 6 binaries to your path. You can do that using &lt;code&gt;cmd.exe&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; SETX PATH &amp;quot;%PATH%;C:\rakudo\bin&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now start a new &lt;code&gt;cmd.exe&lt;/code&gt; terminal, and you&amp;rsquo;ll be use Perl 6. Rakudo Star ships with Panda too, so you&amp;rsquo;ll be able to start installing Perl 6 modules right away.&lt;/p&gt;
+
+&lt;h3 id=&#34;useful-perl-6-resources:961206b7582ff32549d5b3ed6ab9aa7e&#34;&gt;Useful Perl 6 resources&lt;/h3&gt;
+
+&lt;p&gt;So you&amp;rsquo;ve got Perl 6 installed, now what? To keep up to date with Perl 6 developments, I read the &lt;a href=&#34;https://p6weekly.wordpress.com/&#34;&gt;Perl 6 Weekly&lt;/a&gt; blog. The &lt;a href=&#34;http://perlweekly.com/&#34;&gt;Perl Weekly&lt;/a&gt; newsletter also includes Perl 6 articles, so be sure to subscribe if you haven&amp;rsquo;t already. The official website &lt;a href=&#34;http://perl6.org/&#34;&gt;Perl6.org&lt;/a&gt; is a good reference for all things Perl 6 related. Wendy has posted a &lt;a href=&#34;https://wendyga.wordpress.com/2015/12/25/why-would-you-want-to-use-perl-6-some-answers/&#34;&gt;useful list&lt;/a&gt; of Perl 6 features.&lt;/p&gt;
+
+&lt;p&gt;Here at PerlTricks.com, we&amp;rsquo;ve got several Perl 6 articles that may be of interest:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://perltricks.com/article/144/2015/1/13/How-to-create-a-grammar-in-Perl-6&#34;&gt;How to create a Grammar&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://perltricks.com/article/170/2015/4/30/Parsing-Perl-5-pod-with-Perl-6&#34;&gt;Parsing Perl 5 Pod with Perl 6&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://perltricks.com/article/136/2014/11/20/Get-started-with-Perl-6-one-liners&#34;&gt;Get started with Perl 6 One Liners&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://perltricks.com/article/177/2015/6/9/Get-to-grips-with-Prove--Perl-s-test-workhorse&#34;&gt;How to run Perl 6 tests with prove&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://perltricks.com/article/194/2015/9/22/Activating-Perl-6-syntax-highlighting-in-Vim&#34;&gt;Activate Perl 6 syntax highlighting in Vim&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Update&lt;/strong&gt; - Visual Studio article now includes instructions for VS2015. Added link to nu42.com. 2016-01-04&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Quick tip: git push origin hamster?</title>
+      <link>http://perltricks.com/article/206/2015/12/24/Quick-tip--git-push-origin-hamster-/</link>
+      <pubDate>Thu, 24 Dec 2015 17:20:05 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/206/2015/12/24/Quick-tip--git-push-origin-hamster-/</guid>
+      <description>&lt;p&gt;My typing is horrible. I make mistakes all the time. I&amp;rsquo;m an avid &lt;a href=&#34;http://www.vim.org/&#34;&gt;Vim&lt;/a&gt; user but I still use the arrow keys. I&amp;rsquo;m one of those people who need technology that does what they meant, not what they asked for. So if you&amp;rsquo;re a coder like me, you probably see this a lot:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git push origin amster
+error: src refspec amster does not match any.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Fortunately there is a simple workaround: Git&amp;rsquo;s &lt;a href=&#34;https://git-scm.com/docs/git-symbolic-ref&#34;&gt;symbolic references&lt;/a&gt;. I can add a symbolic reference for &lt;code&gt;amster&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git symbolic-ref refs/heads/amster refs/heads/master
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And now Git does what I meant:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git push origin amster
+Counting objects: 3, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 695 bytes | 0 bytes/s, done.
+Total 3 (delta 2), reused 0 (delta 0)
+To git@github.com:user/SomeProject.git
+   ec208c7..fb0cb8f  amster -&amp;gt; master
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Because it&amp;rsquo;s a symbolic reference, anytime I mean to type &lt;code&gt;master&lt;/code&gt; but actually type &lt;code&gt;amster&lt;/code&gt;, Git will do the right thing. Try it!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Modern Perl 4th edition, a review</title>
+      <link>http://perltricks.com/article/205/2015/12/21/Modern-Perl-4th-edition--a-review/</link>
+      <pubDate>Mon, 21 Dec 2015 00:02:25 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/205/2015/12/21/Modern-Perl-4th-edition--a-review/</guid>
+      <description>
+
+&lt;p&gt;The 4th edition of &lt;a href=&#34;https://pragprog.com/book/swperl/modern-perl-fourth-edition&#34;&gt;Modern Perl&lt;/a&gt; by chromatic is out. I was given an advance copy to review and the book features my praise quote, so I figured it was about time I wrote my notes up into a longer review. Overall I really like the changes to the new edition; in my opinion, Modern Perl continues to provide a valuable introduction to idiomatic Perl programming.&lt;/p&gt;
+
+&lt;h3 id=&#34;learn-the-idiomatic-perl-style:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;Learn the idiomatic Perl style&lt;/h3&gt;
+
+&lt;p&gt;Modern Perl isn&amp;rsquo;t like your typical dry programming book. For one thing, it&amp;rsquo;s opinionated. Author chromatic draws on his experience to provide an insiders&amp;rsquo; guide that shows the &lt;em&gt;right&lt;/em&gt; way to program in Perl.&lt;/p&gt;
+
+&lt;p&gt;The text is fast-moving and doesn&amp;rsquo;t baby the reader. Instead of &amp;ldquo;hello World&amp;rdquo;, the book begins by teaching the reader how to use &lt;code&gt;perldoc&lt;/code&gt; and draw upon the official documentation when they get stuck. Don&amp;rsquo;t waste time with Google when the answer &lt;a href=&#34;http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster&#34;&gt;can be found in seconds&lt;/a&gt; at the command line.&lt;/p&gt;
+
+&lt;p&gt;Chapters 1 and 2 introduce the Perl philosophy and Community. The book rapidly covers the major features of Perl (chapters 3 - 7) and even more advanced topics like recursion, anonymous functions and closures. Peppered throughout are gems of wisdom explaining the rationale behind a given concept. For instance, on including parentheses on all function calls (even ones without arguments):&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;While these parentheses are not strictly necessary for these examples—even with strict enabled—they provide clarity to human readers as well as Perl’s parser. When in doubt, use them.&lt;/p&gt;
+
+&lt;p&gt;Modern Perl 4th edition, Chapter 5, Declaring Functions&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The focus here, though is on the practical and chromatic quickly moves on to advising on elements of good Perl style and how to learn it (chapter 8) and real-World programming tips (chapter 9). This is an honest, expert&amp;rsquo;s account of Perl, and chapter 11 describes what to avoid in Perl (chapter 5 also has an entry on function misfeatures).&lt;/p&gt;
+
+&lt;p&gt;Whilst this is an introductory text, chromatic does find time to touch upon several intermediate concepts like taint, schwartzian transforms and tail call optimizations. There is something for everybody: re-reading the &lt;a href=&#34;http://modernperlbooks.com/books/modern_perl_2014/05-perl-functions.html#U3RhdGV2ZXJzdXNDbG9zdXJlcw&#34;&gt;section&lt;/a&gt; State-versus-Closures (chapter 5) I learned a nuance that I hadn&amp;rsquo;t appreciated before.&lt;/p&gt;
+
+&lt;p&gt;Modern Perl does assume a lot and this could make it challenging for complete novices. For example the code snippets assume the reader can distinguish between command line and Perl programming context. Map and grep are used in examples but are not covered in the language overview chapters. But these are minor nits.&lt;/p&gt;
+
+&lt;h3 id=&#34;modern-perl:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;&amp;ldquo;Modern&amp;rdquo; Perl?&lt;/h3&gt;
+
+&lt;p&gt;About 10 years ago, Perl enjoyed something of a &lt;a href=&#34;http://www.modernperlbooks.com/mt/2009/07/milestones-in-the-perl-renaissance.html&#34;&gt;renaissance&lt;/a&gt; called &amp;ldquo;Modern Perl&amp;rdquo;. This was a movement that developed powerful new libraries, tools and applications which invigorated Perl programming and gave it a new lease-of-life. Today the phrase is almost synonymous with Perl &amp;ldquo;best practices&amp;rdquo; and its ethos continues to help Perl flourish.&lt;/p&gt;
+
+&lt;h3 id=&#34;what-s-changed:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;What&amp;rsquo;s changed&lt;/h3&gt;
+
+&lt;p&gt;The 4th edition brings a lot of changes, but it&amp;rsquo;s a case of evolution, not revolution. New Perl features like the double-diamond operator (&lt;code&gt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&lt;/code&gt;) and &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;subroutine signatures&lt;/a&gt; are covered. Almost every paragraph has been &lt;a href=&#34;https://github.com/chromatic/modern_perl_book/commits/master&#34;&gt;updated&lt;/a&gt;), but the chapter structure remains the same and many of the edits are tweaks rather than wholesale re-writes. Many of the changes improve the readability of the text, others de-jargonize it, like this:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Functions are a prime mechanism for abstraction, encapsulation, and re-use in Perl.&lt;/p&gt;
+
+&lt;p&gt;Modern Perl, 3rd Edition, Chapter 5&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;became:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Functions are a prime mechanism for organizing code into similar groups, identifying individual pieces by name, and providing reusable units of behavior.&lt;/p&gt;
+
+&lt;p&gt;Modern Perl, 3rd Edition, Chapter 5&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Which is clearly easier for beginners to understand. Code-wise, many of the examples have changed from a BSD to K&amp;amp;R style, presumably to save vertical space. Overall the book length remains about the same (205 vs 204 pages).&lt;/p&gt;
+
+&lt;p&gt;The biggest change with the new edition comes from The Pragmatic Bookshelf - their version is simply &lt;em&gt;gorgeous&lt;/em&gt;. Full color with larger fonts, icons and callouts, the book really pops. This is the layout Modern Perl needs &lt;em&gt;and&lt;/em&gt; deserves. See this comparison between the Onyx Neon and Pragmatic Bookshelf versions:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://googledrive.com/host/0BwRnByTz2iUXUFN1Smo5WGJRZ0U/&#34; title=&#34;The Pragmatic Bookshelf edition is gorgeous&#34;&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXeDgzVlJRWmtkX0k/&#34; alt=&#34;Modern Perl side-by-side comparison of editions&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;alternatives:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;Alternatives&lt;/h3&gt;
+
+&lt;p&gt;As an opinionated introduction to Perl, Modern Perl is a compromise between a tutorial and a best-practices style cookbook. I love the direction and terse writing style, but the book might move too fast for complete beginners. So it depends on what you&amp;rsquo;re looking for - &lt;a href=&#34;http://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840&#34;&gt;Beginning Perl&lt;/a&gt; and &lt;a href=&#34;http://www.amazon.com/Learning-Perl-Randal-L-Schwartz/dp/1449303587&#34;&gt;Learning Perl&lt;/a&gt; are fine introductions to the language. &lt;a href=&#34;http://www.amazon.com/Effective-Perl-Programming-Idiomatic-Development/dp/0321496949&#34;&gt;Effective Perl Programming&lt;/a&gt; is my favorite Perl cookbook. But Modern Perl is a unique blend of both styles.&lt;/p&gt;
+
+&lt;h3 id=&#34;where-to-get-it:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;Where to get it&lt;/h3&gt;
+
+&lt;p&gt;You can read Modern Perl &lt;a href=&#34;http://modernperlbooks.com/books/modern_perl_2014/index.html&#34;&gt;online&lt;/a&gt; for free, and there are downloadable versions available from &lt;a href=&#34;http://onyxneon.com/books/modern_perl/index.html&#34;&gt;Onyx Neon&lt;/a&gt;. If you want it as an ebook, I would recommend the Pragmatic Bookshelf &lt;a href=&#34;https://pragprog.com/book/swperl/modern-perl-fourth-edition&#34;&gt;version&lt;/a&gt; - it&amp;rsquo;s beautifully styled, free, and you&amp;rsquo;ll be eligible for updates to the text as/when they appear.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Kitchen coding nightmares: JavaScript scope</title>
+      <link>http://perltricks.com/article/204/2015/12/17/Kitchen-coding-nightmares--JavaScript-scope/</link>
+      <pubDate>Thu, 17 Dec 2015 14:13:13 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/204/2015/12/17/Kitchen-coding-nightmares--JavaScript-scope/</guid>
+      <description>
+
+&lt;p&gt;Lately at the &lt;a href=&#34;https://www.recurse.com/&#34;&gt;Recurse Center&lt;/a&gt; I&amp;rsquo;ve been developing a JavaScript client for my &lt;a href=&#34;https://github.com/dnmfarrell/Settlers-Game&#34;&gt;Settlers game&lt;/a&gt;. As a Perl developer working with JavaScript, it has been a fun experience. JavaScript feels very perly - both share a flexible syntax, first class functions and objects as hashes. And both languages have a lax interpreter which should have been put in strict mode in the first place (ha-ha!). One way in which JavaScript is very different from Perl is its scoping rules. I was burned by these more than once, and so if you&amp;rsquo;re new to JavaScript, you might find the following summary and recommendations useful.&lt;/p&gt;
+
+&lt;h3 id=&#34;functional-scoping:6e2e047097a9f672ac378602b99db31f&#34;&gt;Functional scoping&lt;/h3&gt;
+
+&lt;p&gt;Variables are declared with the &lt;code&gt;var&lt;/code&gt; keyword:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;var name = &amp;quot;David&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Variables are functionally-scoped, which means that if declared within a function, the variable is private to the function block. Variables declared outside of functions are globally scoped. And there is no other type of block scoping (such as within if-else or for loops).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;var name = &amp;quot;David&amp;quot;;
+
+function log_name (name) // private
+{
+  console.log(name);
+}
+
+var names = [&amp;quot;Jen&amp;quot;, &amp;quot;Jim&amp;quot;, &amp;quot;Jem&amp;quot;, &amp;quot;Jon&amp;quot;];
+for (var i = 0; i &amp;lt; names.length; i++)
+{
+  var name = names[i]; // overwriting the global
+}
+console.log(name); // Jon NOT David
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;functions-as-variables:6e2e047097a9f672ac378602b99db31f&#34;&gt;Functions as variables&lt;/h3&gt;
+
+&lt;p&gt;Function names are stored as variables under the same scoping rules as ordinary variables. There are two ways to declare functions:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;function log_name () { }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;var log_name = function () { }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Both of these are the same. Which means it&amp;rsquo;s possible to inadvertently overwrite a function with another variable declaration:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;function name () { return &amp;quot;David&amp;quot;; }
+var name = &amp;quot;John&amp;quot;;
+name(); // error, name is not a function anymore
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;hoisting:6e2e047097a9f672ac378602b99db31f&#34;&gt;Hoisting&lt;/h3&gt;
+
+&lt;p&gt;JavaScript interpreters have a initial-runtime phase, (similar to Perl&amp;rsquo;s &lt;code&gt;BEGIN&lt;/code&gt;), where all variable declarations are executed before other code. This is known as &amp;ldquo;hoisting&amp;rdquo;, but practically what it means is that you can use a variable before you declare it!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;console.log(name); // yep, this works
+var name = &amp;quot;David&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;bind:6e2e047097a9f672ac378602b99db31f&#34;&gt;Bind&lt;/h3&gt;
+
+&lt;p&gt;JavaScript makes heavy use of anonymous functions and callbacks.To modify the scope of a function, JavaScript&lt;sup&gt;1&lt;/sup&gt; provides &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind?redirectlocale=en-US&amp;amp;redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FFunction%2Fbind&#34;&gt;bind&lt;/a&gt;. This is easier to understand by example. If I have a point object and I want a method to draw it to the canvas, by loading an image:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Point.prototype.draw = function()
+{
+  var ctx = get_canvas_context(); // declared elsewhere
+  var img = new Image();
+  img.onload = function () {  // anonymous function
+    ctx.drawImage(img, this.x, this.y);   
+  }.bind(this);
+  img.src = &amp;quot;/point.png&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here I use &lt;code&gt;bind&lt;/code&gt; to inject the point object&amp;rsquo;s scope into the anonymous function. Otherwise I wouldn&amp;rsquo;t be able to access the &lt;code&gt;x&lt;/code&gt; and &lt;code&gt;y&lt;/code&gt; properties of the point as &lt;code&gt;this&lt;/code&gt; would be referencing something else.&lt;/p&gt;
+
+&lt;p&gt;For a more thorough explanation of JavaScript scope, I recommend Todd Motto&amp;rsquo;s article, &lt;a href=&#34;https://toddmotto.com/everything-you-wanted-to-know-about-javascript-scope/&#34;&gt;Everything you wanted to know about JavaScript scope&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;coping-with-scoping:6e2e047097a9f672ac378602b99db31f&#34;&gt;Coping with scoping&lt;/h3&gt;
+
+&lt;p&gt;OK so that was the bad news; the good news is there are plenty of techniques for handling JavaScript&amp;rsquo;s scoping rules. Depending on the context you may find some or all of these methods useful.&lt;/p&gt;
+
+&lt;h4 id=&#34;naming-conventions:6e2e047097a9f672ac378602b99db31f&#34;&gt;Naming conventions&lt;/h4&gt;
+
+&lt;p&gt;The first thing you can do to avoid clashes is adopt a naming convention. For example, name all functions with verb-noun constructs (like &amp;ldquo;get_address&amp;rdquo;) and all value variables with plain nouns (like &amp;ldquo;addresses&amp;rdquo;). This is not a complete solution, but at a minimum it will reduce the chances of a function being replaced by a value variable.&lt;/p&gt;
+
+&lt;h4 id=&#34;one-var-per-scope:6e2e047097a9f672ac378602b99db31f&#34;&gt;One var per scope&lt;/h4&gt;
+
+&lt;p&gt;Another technique for managing variable scope is to only allow one &lt;code&gt;var&lt;/code&gt; statement per scope. So a typical program might look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;// declare global scope variables
+var foo = &amp;quot;/root/assets&amp;quot;,
+    bar = 0;
+
+function execute (foo)
+{
+  var i, j, bar; // functional scope
+
+  for (i = 0; i &amp;lt; foo.length; i++)
+  {
+    for (j = 0; j &amp;lt; foo.length; j++)
+    {
+      // do something
+    }
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;use-strict:6e2e047097a9f672ac378602b99db31f&#34;&gt;Use strict&lt;/h4&gt;
+
+&lt;p&gt;This is a convention all Perl programmers should be comfortable with. Enable &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode&#34;&gt;strict mode&lt;/a&gt; in JavaScript. Just like with Perl, JavaScript&amp;rsquo;s strict mode can catch &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode#Changes_in_strict_mode&#34;&gt;several&lt;/a&gt;cases of variable-related bugs. Enable it globally with:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;quot;use strict&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Generally JavaScript experts &lt;a href=&#34;http://yuiblog.com/blog/2010/12/14/strict-mode-is-coming-to-town/&#34;&gt;recommend&lt;/a&gt; using a functionally-scoped version of strict - in this case the declaration is placed inside a function block. This is useful to prevent script concatenation errors (where an imported script does not satisfy the strict rules).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;(function () {
+   &amp;quot;use strict&amp;quot;;
+   // this function is strict...
+}());
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;objects-as-namespaces:6e2e047097a9f672ac378602b99db31f&#34;&gt;Objects as namespaces&lt;/h4&gt;
+
+&lt;p&gt;If you were thinking a simple way to solve all of the namespace clashes was with modules, allow me to be the first to tell you that JavaScript has no notion of modules (being a &lt;a href=&#34;https://en.wikipedia.org/wiki/Prototype-based_programming&#34;&gt;prototyped language&lt;/a&gt;). There is no &lt;code&gt;import&lt;/code&gt; keyword. In HTML any code that is loaded with a &lt;code&gt;script&lt;/code&gt; tag is simply concatenated to the current scope.&lt;/p&gt;
+
+&lt;p&gt;There are solutions to this limitation though. In &lt;a href=&#34;http://www.amazon.com/JavaScript-Definitive-Guide-Activate-Guides/dp/0596805527/ref=dp_ob_title_bk&#34;&gt;JavaScript the Definitive Guide&lt;/a&gt;, author David Flanagan proposes using objects as namespaces (sixth edition, section 9.9.1). Each object&amp;rsquo;s scope can be used to encapsulate the behavior and data specific to that domain. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;// everything is scoped to point.*
+var point = {};
+point.Point = function (_x, _y) {
+  this.x = _x;
+  this.y = _y
+}
+
+point.Point.prototype.coordinates = function ()
+{
+  return [this.x, this.y];
+}
+
+// now lets try it out ...
+var p = new point.Point(1,3);
+console.log(p.coordinates());
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To package code as modules, there is the &lt;a href=&#34;http://www.adequatelygood.com/JavaScript-Module-Pattern-In-Depth.html&#34;&gt;module pattern&lt;/a&gt;. Finally although JavaScript has no native import method, there are several external libraries that can provide that behavior, like &lt;a href=&#34;http://www.requirejs.org/&#34;&gt;RequireJS&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;let:6e2e047097a9f672ac378602b99db31f&#34;&gt;Let&lt;/h4&gt;
+
+&lt;p&gt;The next major version of JavaScript, ES6 provides &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let&#34;&gt;let&lt;/a&gt;. This keyword provides block-level scoping of variables, similar to other mainstream languages. ES6 is not supported everywhere yet, but you can use a transpiler like &lt;a href=&#34;https://babeljs.io/&#34;&gt;Babel&lt;/a&gt; to convert ES6 JavaScript back to ES5.&lt;/p&gt;
+
+&lt;h4 id=&#34;use-a-code-linter:6e2e047097a9f672ac378602b99db31f&#34;&gt;Use a code linter&lt;/h4&gt;
+
+&lt;p&gt;Browsers do not throw enough exceptions when processing JavaScript. Instead they try to soldier on and do what the programmer &lt;em&gt;meant&lt;/em&gt; rather than what they typed. This is good&lt;sup&gt;2&lt;/sup&gt; for users as they get a uninterrupted browsing experience, but for us programmers this is definitely a bad thing™. Browser robustness makes JavaScript difficult to debug, and which is where a code linter steps in - it analyzes code and reports any errors or warnings they find. For JavaScript I like &lt;a href=&#34;http://jshint.com/&#34;&gt;JSHint&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;sup&gt;1&lt;/sup&gt; Introduced in ES5 JavaScript - which is supported by all modern browsers. For solutions for older JavaScript versions, use &lt;code&gt;call&lt;/code&gt; or &lt;code&gt;apply&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;sup&gt;2&lt;/sup&gt; It&amp;rsquo;s probably a bad thing for users too - the overhead in processing syntactically wrong code degrades performance and worse, encourages more incorrect code to be written.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Create GitHub files automatically with Dist::Zilla</title>
+      <link>http://perltricks.com/article/203/2015/12/9/Create-GitHub-files-automatically-with-Dist--Zilla/</link>
+      <pubDate>Wed, 09 Dec 2015 13:46:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/203/2015/12/9/Create-GitHub-files-automatically-with-Dist--Zilla/</guid>
+      <description>
+
+&lt;p&gt;I use &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla&#34;&gt;Dist::Zilla&lt;/a&gt; to release my code to CPAN. I really like it as with a single command I can build, package and ship a distribution. But most of my code lives on GitHub. In fact, a quick check shows that I have 90 &lt;a href=&#34;https://github.com/dnmfarrell&#34;&gt;repos&lt;/a&gt;, but only 13 distributions on &lt;a href=&#34;https://metacpan.org/author/DFARRELL&#34;&gt;CPAN&lt;/a&gt;. So only 14% of my code makes it to CPAN.&lt;/p&gt;
+
+&lt;p&gt;Traditionally Dist::Zilla makes a distinction between your code and the files needed for CPAN and PAUSE to work, (like package metadata, a readme etc). The basic use case goes like this: you write your class files, scripts and unit tests, and when you tell Dist::Zilla to release the distribution, it generates all of the extra files, creates a tarball and uploads it to &lt;a href=&#34;https://pause.perl.org/pause/query&#34;&gt;PAUSE&lt;/a&gt;. The problem is though, some of those additional files would be nice to have in my GitHub repos too. I don&amp;rsquo;t want to write another &lt;code&gt;readme.md&lt;/code&gt;, or spend time copying the license file into the repo if Dist::ZIlla can already generate one. To solve this issue I use two Dist::Zilla plugins from &lt;a href=&#34;https://metacpan.org/author/RTHOMPSON&#34;&gt;Ryan Thompson&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;setup:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Setup&lt;/h3&gt;
+
+&lt;p&gt;To use the code in this article, you&amp;rsquo;ll need to install Dist::Zilla and the two plugin modules described below. You can do that with &lt;code&gt;cpan&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Dist::Zilla \
+  Dist::Zilla::Plugin::ReadmeAnyFromPod  \
+  Dist::Zilla::Plugin::CopyFilesFromBuild
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you&amp;rsquo;re installing Dist::Zilla consider using &lt;a href=&#34;https://metacpan.org/pod/App::cpanminus&#34;&gt;cpanminus&lt;/a&gt; instead, with no tests for a much faster install:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpanm --notest Dist::Zilla \ 
+  Dist::Zilla::Plugin::ReadmeAnyFromPod \
+  Dist::Zilla::Plugin::CopyFilesFromBuild
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;creating-a-readme-automatically:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Creating a readme automatically&lt;/h3&gt;
+
+&lt;p&gt;Ryan&amp;rsquo;s module &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::ReadmeAnyFromPod&#34;&gt;Dist::Zilla::Plugin::ReadmeAnyFromPod&lt;/a&gt; can generate a readme automatically, in any common format. It uses the Pod text from the main modules in the distribution. I use it to create my GitHub readme files in Pod, by adding the following text to my &lt;code&gt;dist.ini&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[ReadmeAnyFromPod]
+type = pod 
+filename = README.pod
+location = root
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If I build the distribution with Dist::Zilla, it will generate a new readme for me, including the author, copyright and version information in addition to the documentation already in the main module.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ dzil build &amp;amp;&amp;amp; dzil clean
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This line instructs Dist::Zilla to build the distribution, which generates the new &lt;code&gt;README.pod&lt;/code&gt; and then clean up the build files that it generated, leaving a clean working directory.&lt;/p&gt;
+
+&lt;h3 id=&#34;adding-a-license:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Adding a license&lt;/h3&gt;
+
+&lt;p&gt;I use another module from Ryan, &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::CopyFilesFromBuild&#34;&gt;Dist::Zilla::Plugin::CopyFilesFromBuild&lt;/a&gt; to copy the software license from the Dist::Zilla build into my project directory:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[CopyFilesFromBuild]
+copy = LICENSE
+[GatherDir]
+exclude_filename = LICENSE
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will copy the license out of the build directory into the root project directory. The &lt;code&gt;exclude_filename&lt;/code&gt; clause is there so that during the &lt;em&gt;next&lt;/em&gt; build, Dist::Zilla does not include the generated license in the working directory of files. Running this in the same way as before, I can generate whatever license text I want for my distribution (the type of license is specified in the &lt;code&gt;dist.ini&lt;/code&gt;).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ dzil build &amp;amp;&amp;amp; dzil clean
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;helping-others:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Helping others&lt;/h3&gt;
+
+&lt;p&gt;Dist::Zilla is great, but if you don&amp;rsquo;t have it, installing a distribution from GitHub can really suck. Recently a friend was trying to deploy some code of mine to his Macbook with a vanilla Perl install. I didn&amp;rsquo;t want to upload the code to CPAN and wait for PAUSE to index it. Installing Dist::Zilla on the his machine was not a great option either: Dist::Zilla is a beast. According to Devel::Modlist, Dist::Zilla has &lt;strong&gt;178&lt;/strong&gt; non-core dependencies (including indirectly-used modules). That&amp;rsquo;s the price you pay for automation and modularity - Dist::Zilla is working hard so us module authors don&amp;rsquo;t have to. But for someone who barely knows Perl, installing Dist::Zilla in a virgin environment can be a nightmare.&lt;/p&gt;
+
+&lt;p&gt;To get around this issue, I used &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::CopyFilesFromBuild&#34;&gt;Dist::Zilla::Plugin::CopyFilesFromBuild&lt;/a&gt; again to copy the Makefile.PL and cpanfile into the project directory. My friend then cloned the directory with Git and used &lt;a href=&#34;https://metacpan.org/pod/App::cpanminus&#34;&gt;cpanminus&lt;/a&gt; to install it. Easy! It worked so well, I&amp;rsquo;m going to include a Makefile and cpanfile in my GitHub repos from now on.&lt;/p&gt;
+
+&lt;h3 id=&#34;a-sample-dist-zilla-config:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;A sample Dist::Zilla config&lt;/h3&gt;
+
+&lt;p&gt;Here&amp;rsquo;s a &lt;code&gt;dist.ini&lt;/code&gt; from a &lt;a href=&#34;https://github.com/dnmfarrell/Settlers-Game&#34;&gt;repo&lt;/a&gt; of mine that uses the code in this article. As certain directives are required in order, it can be useful to see the entire context:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;name    = Settlers-Game
+author  = David Farrell 
+license = FreeBSD
+copyright_holder = David Farrell
+copyright_year   = 2015
+version = 0.06
+
+[CPANFile]
+[License]
+[CopyFilesFromBuild]
+copy = cpanfile
+copy = LICENSE
+copy = Makefile.PL
+[GatherDir]
+exclude_filename = cpanfile
+exclude_filename = LICENSE
+exclude_filename = Makefile.PL
+[PkgVersion]
+[AutoPrereqs]
+[GithubMeta]
+[ChangelogFromGit]
+[MetaYAML]
+[MetaJSON]
+[MakeMaker]
+[ModuleBuild]
+[ManifestSkip]
+[Manifest]
+[PodWeaver]
+[ReadmeAnyFromPod]
+type = pod
+filename = README.pod
+location = root
+[PodSyntaxTests]
+[PodCoverageTests]
+[TestRelease]
+[Test::EOL]
+[UploadToCPAN]
+[ConfirmRelease]
+[Clean]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To use this config with Dist::Zilla you&amp;rsquo;ll need some additional plugins:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Dist::Zilla::Plugin::Clean \
+  Dist::Zilla::Plugin::GithubMeta \
+  Dist::Zilla::Plugin::ChangelogFromGit \
+  Dist::Zilla::Plugin::PodWeaver
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Ok it&amp;rsquo;s not &lt;em&gt;all&lt;/em&gt; gravy. The copy file method has one downside: it overwrites the copied files every time they&amp;rsquo;re generated. This isn&amp;rsquo;t an issue for me; the commit diff only shows the changed lines, but some people may not like it.&lt;/p&gt;
+
+&lt;p&gt;For more information on Dist::Zilla, check out the official &lt;a href=&#34;http://dzil.org/tutorial/contents.html&#34;&gt;documentation&lt;/a&gt;. For a completely different approach to releasing code to CPAN, you may like&lt;a href=&#34;https://metacpan.org/pod/%20Module::Release&#34;&gt;Module::Release&lt;/a&gt;. Oh and if you find yourself in a new development environment, needing to install dependencies for a local module, David Golden has a useful &lt;a href=&#34;http://www.dagolden.com/index.php/1528/five-ways-to-install-modules-prereqs-by-hand/&#34;&gt;post&lt;/a&gt; that includes five different ways to do it.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>What&#39;s new on CPAN - November 2015</title>
+      <link>http://perltricks.com/article/202/2015/12/8/What-s-new-on-CPAN---November-2015/</link>
+      <pubDate>Tue, 08 Dec 2015 04:34:15 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/202/2015/12/8/What-s-new-on-CPAN---November-2015/</guid>
+      <description>
+
+&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!&lt;/p&gt;
+
+&lt;h3 id=&#34;apis-apps:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::Highlander&#34;&gt;App::Highlander&lt;/a&gt; can provides simple named locks. Useful!&lt;/li&gt;
+&lt;li&gt;Pick one or more random lines from input using &lt;a href=&#34;https://metacpan.org/pod/App::PickRandomLines&#34;&gt;App::PickRandomLines&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;A &amp;ldquo;Random Access Machine&amp;rdquo; Emulator: &lt;a href=&#34;https://metacpan.org/pod/Language::RAM&#34;&gt;Language::RAM&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Sync data across multiple regions with &lt;a href=&#34;https://metacpan.org/pod/Net::Amazon::DynamoDB::HighlyAvailable&#34;&gt;Net::Amazon::DynamoDB::HighlyAvailable&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::Amazon::DynamoDB::Table&#34;&gt;Net::Amazon::DynamoDB::Table&lt;/a&gt; provides a high-level interface to Net::Amazon::DyamoDB::Lite&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WWW::KeenIO&#34;&gt;WWW::KeenIO&lt;/a&gt; provides a Perl API for the event storage and analytics service&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WWW::Saucelabs&#34;&gt;WWW::Saucelabs&lt;/a&gt; is a &amp;ldquo;perilously incomplete&amp;rdquo;, yet useful, Perly interface to the Saucelabs REST API&lt;/li&gt;
+&lt;li&gt;Find out what&amp;rsquo;s on TV using the TVMaze API and &lt;a href=&#34;https://metacpan.org/pod/WWW::TVMaze&#34;&gt;WWW::TVMaze&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WebService::Zendesk&#34;&gt;WebService::Zendesk&lt;/a&gt; is another work-in-progress but useful API, this time for Zendesk&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;config-devops:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::FTPTLS&#34;&gt;Net::FTPTLS&lt;/a&gt; is a super-simple Perl FTP client with TLS support. Cool!&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::SSH2::Cisco&#34;&gt;Net::SSH2::Cisco&lt;/a&gt; let&amp;rsquo;s you talk to Cisco routers via SSH!&lt;/li&gt;
+&lt;li&gt;Configure, control and monitor rate limits for services with &lt;a href=&#34;https://metacpan.org/pod/RateLimitations&#34;&gt;RateLimitations&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;data:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Data&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Compress data at &lt;em&gt;outrageous&lt;/em&gt; speeds with &lt;a href=&#34;https://metacpan.org/pod/Compress::LZ4Frame&#34;&gt;Compress::LZ4Frame&lt;/a&gt;, which ships with the &lt;a href=&#34;https://github.com/Cyan4973/lz4&#34;&gt;LZ4 compression library&lt;/a&gt; written in C.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/DBIx::BulkUtil&#34;&gt;DBIx::BulkUtil&lt;/a&gt; provides bulk load and other features for relational databases&lt;/li&gt;
+&lt;li&gt;Wow, &lt;a href=&#34;https://metacpan.org/pod/DOM::Tiny&#34;&gt;DOM::Tiny&lt;/a&gt; is a minimalist but feature-rich DOM parser using CSS selectors&lt;/li&gt;
+&lt;li&gt;Interesting, play with a virtual file system using &lt;a href=&#34;https://metacpan.org/pod/Filesys::Virtual::Chroot&#34;&gt;Filesys::Virtual::Chroot&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/IMAP::Query&#34;&gt;IMAP::Query&lt;/a&gt; can generateIMAP search queries&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mail::DKIM::Iterator&#34;&gt;Mail::DKIM::Iterator&lt;/a&gt; validates DKIM signatures and signs asynchronously&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;development-version-control:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Devel::Trepan::Deparse&#34;&gt;Devel::Trepan::Deparse&lt;/a&gt; adds deparse support to Devel::Trepan&lt;/li&gt;
+&lt;li&gt;Call the JavaScript Handlebars template library from Perl, with &lt;a href=&#34;https://metacpan.org/pod/JavaScript::V8::Handlebars&#34;&gt;JavaScript::V8::Handlebars&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Test &lt;em&gt;some&lt;/em&gt;? Only execute a subset of your test suite using &lt;a href=&#34;https://metacpan.org/pod/Test::Some&#34;&gt;Test::Some&lt;/a&gt;, author Yanick &lt;a href=&#34;http://techblog.babyl.ca/entry/test-some&#34;&gt;blogged&lt;/a&gt; about why this might be useful&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Unix::Pledge&#34;&gt;Unix::Pledge&lt;/a&gt; restrict system operations on BSD using &lt;code&gt;pledge&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Talk to Windows machines over the network using &lt;a href=&#34;https://metacpan.org/pod/Win32::Netsh&#34;&gt;Win32::Netsh&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;hardware:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Hardware&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/author/PEVANS&#34;&gt;Paul Evans&lt;/a&gt; has been hard at work releasing several new chip driver modules, way to go Paul!&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;BV4243 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::BV4243&#34;&gt;Device::Chip::BV4243&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;DS1307 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::DS1307&#34;&gt;Device::Chip::DS1307&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;INA219 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::INA219&#34;&gt;Device::Chip::INA219&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;MAX7219 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::MAX7219&#34;&gt;Device::Chip::MAX7219&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;MCP23x17 family &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::MCP23x17&#34;&gt;Device::Chip::MCP23x17&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;MPL3115A2 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::MPL3115A2&#34;&gt;Device::Chip::MPL3115A2&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;other:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Other&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Generate CSS sprites from a series of images using &lt;a href=&#34;https://metacpan.org/pod/CSS::SpriteMaker::Simple&#34;&gt;CSS::SpriteMaker::Simple&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Look up zodiac sign for a given date with &lt;a href=&#34;https://metacpan.org/pod/Zodiac::Tiny&#34;&gt;Zodiac::Tiny&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;science-mathematics:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/LCS::Similar&#34;&gt;LCS::Similar&lt;/a&gt; allows differences in the compared elements of Longest Common Subsequence (LCS) Algorithm&lt;/li&gt;
+&lt;li&gt;Simulate genomic restriction digests with &lt;a href=&#34;https://metacpan.org/pod/RestrictionDigest&#34;&gt;RestrictionDigest&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;web:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Web&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Catalyst::Plugin::URI&#34;&gt;Catalyst::Plugin::URI&lt;/a&gt; provides nicer and &lt;em&gt;safer&lt;/em&gt; way to get Controller action methods as URIs&lt;/li&gt;
+&lt;li&gt;Read and write PhantomJS cookies file using &lt;a href=&#34;https://metacpan.org/pod/HTTP::Cookies::PhantomJS&#34;&gt;HTTP::Cookies::PhantomJS&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mojolicious::Plugin::ErrorsAndWarnings&#34;&gt;Mojolicious::Plugin::ErrorsAndWarnings&lt;/a&gt; stores errors and warnings during a request for powerful introspection&lt;/li&gt;
+&lt;li&gt;Run a consul server for testing using &lt;a href=&#34;https://metacpan.org/pod/Test::Consul&#34;&gt;Test::Consul&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Making the Larry Wall shirt</title>
+      <link>http://perltricks.com/article/201/2015/12/3/Making-the-Larry-Wall-shirt/</link>
+      <pubDate>Thu, 03 Dec 2015 12:52:01 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/201/2015/12/3/Making-the-Larry-Wall-shirt/</guid>
+      <description>
+
+&lt;p&gt;A few months ago &lt;a href=&#34;http://www.learning-perl.com/&#34;&gt;brian d foy&lt;/a&gt;and I were throwing around some t-shirt ideas and we came up with a concept for series of shirts highlighting our computer heroes. This culminated in us recently launching our first &lt;a href=&#34;https://www.kickstarter.com/projects/1422827986/heroes-of-the-revolution-t-shirts-larry-wall&#34;&gt;Kickstarter project&lt;/a&gt; for the Larry Wall shirt (shown above). If you like the design &lt;a href=&#34;https://www.kickstarter.com/projects/1422827986/heroes-of-the-revolution-t-shirts-larry-wall&#34;&gt;back it&lt;/a&gt;! - we&amp;rsquo;d love to produce more designs for other famous programmers like Ritchie, Norvig et al. This article is about how to create similar pop art style images using &lt;a href=&#34;http://www.gimp.org/&#34;&gt;GIMP&lt;/a&gt; and &lt;a href=&#34;https://inkscape.org/en/&#34;&gt;Inkscape&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;selecting-preparing-an-image:302dac8623db7aacc9a2f705893b1575&#34;&gt;Selecting &amp;amp; preparing an image&lt;/h3&gt;
+
+&lt;p&gt;First find an image you want to convert and open it in GIMP. I&amp;rsquo;m going to use my profile photo:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXNWNOWmlnb1lxT1E&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;To prepare the image for stenciling, I need to reduce the image contrast. The first thing I do is remove the background. I use a variety of techniques for this: if it is a single color, I use the color selection tool and delete it; else a combination of the lasso select with delete and the eraser usually do the trick:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXSEN5ZHBTOFRvcHM&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I use the same techniques to remove my body:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXd3FCS0tsZ2hRSVE&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Next I convert the image to black and white (go to Image-&amp;gt;mode-&amp;gt;grayscale) and crop it (Image-&amp;gt;Autocrop Image).&lt;/p&gt;
+
+&lt;h3 id=&#34;creating-the-stencil:302dac8623db7aacc9a2f705893b1575&#34;&gt;Creating the stencil&lt;/h3&gt;
+
+&lt;p&gt;With the image adequately prepped, I can use GIMP&amp;rsquo;s color threshold tool to convert it to a rough stencil (Colors-&amp;gt;Threshold). I adjust the default threshold until I get an appearance I like:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXTE9aR0F6RGNSVkk&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I export this image from GIMP as a PNG file and open it with Inkscape. Within Inkscape I left-click the image so that it is selected and then trace the bitmap (Path-&amp;gt;Trace Bitmap). This creates a new, smoother version of the image. Then I delete the original image from Inkscape. At this point the image is good but it&amp;rsquo;s too small for general use, so when I export it as a PNG (File-&amp;gt;Export PNG Image) I adjust the image dimensions to the size required. This works because an SVG will scale to any dimension (click image for a larger sample).&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://googledrive.com/host/0BwRnByTz2iUXQnJvajhCY3VWMmM&#34; title=&#34;The SVG version&#34;&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXc1l5NXlldGV4OE0&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;At this stage I could put this image on any color of t-shirt. Instead I&amp;rsquo;ll re-import the image into GIMP and add a funky background color:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://googledrive.com/host/0BwRnByTz2iUXVXg3eDRPMmVyT1U&#34; title=&#34;The final version&#34;&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXeUs0WGpVdDQ1Q0E&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Don&amp;rsquo;t forget to back the &lt;a href=&#34;https://www.kickstarter.com/projects/1422827986/heroes-of-the-revolution-t-shirts-larry-wall&#34;&gt;Kickstarter&lt;/a&gt; project if you want a t-shirt. Best of all, it&amp;rsquo;s Larry Wall approved ™&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to install any* Perl module</title>
+      <link>http://perltricks.com/article/200/2015/11/28/How-to-install-any--Perl-module/</link>
+      <pubDate>Sat, 28 Nov 2015 00:11:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/200/2015/11/28/How-to-install-any--Perl-module/</guid>
+      <description>&lt;p&gt;It&amp;rsquo;s our 200th article! Installing CPAN modules can be a pain, particularly for users not familiar with the Perl toolchain. To try something different, I&amp;rsquo;m uploading the article as an image file under creative commons. Feel free to share it, use it, whatever. If you use Perl at your office, maybe print it out for reference. You can download a copy &lt;a href=&#34;https://drive.google.com/file/d/0BwRnByTz2iUXQk5KcVNHcElJRUU/view?usp=sharing&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://googledrive.com/host/0BwRnByTz2iUXQk5KcVNHcElJRUU&#34; title=&#34;Install Any Perl Module&#34;&gt;&lt;img src=&#34;https://googledrive.com/host/0BwRnByTz2iUXUVBJSllmeUJiU00&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;[*] You can install any Perl module, but it may not be a good idea™&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Run only one instance of a program at a time</title>
+      <link>http://perltricks.com/article/2/2015/11/4/Run-only-one-instance-of-a-program-at-a-time/</link>
+      <pubDate>Wed, 04 Nov 2015 13:03:49 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/2/2015/11/4/Run-only-one-instance-of-a-program-at-a-time/</guid>
+      <description>
+
+&lt;p&gt;Recently I wanted to schedule a Perl app to run every minute on a server, but if an instance of the app was already running, it should exit and do nothing. This is a common problem and I was able to solve it with a lockfile. Let&amp;rsquo;s see how to use lockfiles in Perl.&lt;/p&gt;
+
+&lt;h3 id=&#34;lockfiles-you-say:e2b49cd805c9d1d81412d3e39a65e7e9&#34;&gt;Lockfiles you say?&lt;/h3&gt;
+
+&lt;p&gt;Most operating systems support file locking - it&amp;rsquo;s an essential tool to prevent multiple processes updating a file at the same time and causing data loss. Processes obtain file locks when they are accessing a file to prevent other processes changing them, and release the file lock when they&amp;rsquo;re done, freeing the file to be used by other processes again.&lt;/p&gt;
+
+&lt;p&gt;Programs can use the lock file principle to prevent multiple instances of themselves running at the same time. When the program starts it tries to lock the lockfile, if successful it executes the program, else it exits. When the program process ends, any locks it obtained are removed by the OS. You may have seen lockfiles before, they are usually ordinary files with a &lt;code&gt;.lock&lt;/code&gt; extension.&lt;/p&gt;
+
+&lt;h3 id=&#34;file-locking-in-perl:e2b49cd805c9d1d81412d3e39a65e7e9&#34;&gt;File locking in Perl&lt;/h3&gt;
+
+&lt;p&gt;Perl provides the &lt;a href=&#34;http://perldoc.perl.org/functions/flock.html&#34;&gt;flock&lt;/a&gt; function for file locking. It takes a filehandle and a constant value for the lock type. So to get an exclusive lock on a file, I could do:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $file, &amp;quot;&amp;gt;&amp;quot;, &amp;quot;app.lock&amp;quot; or die $!; 
+flock $file, 2 or die &amp;quot;Unable to lock file $!&amp;quot;;
+# we have the lock
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code starts by opening a write filehandle to the file &lt;code&gt;app.lock&lt;/code&gt;. If successful, it attempts to get an exclusive lock on the file by calling flock with the number 2. An exclusive lock means no other process can access the file whilst the lock is active. Remembering the constant values for lock types can be a pain, so helpfully the &lt;a href=&#34;https://metacpan.org/pod/Fcntl&#34;&gt;Fcntl&lt;/a&gt; module will export constant names if you ask nicely. I&amp;rsquo;ll update the code to do that:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Fcntl qw(:flock);
+open my $file, &amp;quot;&amp;gt;&amp;quot;, &amp;quot;app.lock&amp;quot; or die $!; 
+flock $file, LOCK_EX or die &amp;quot;Unable to lock file $!&amp;quot;;
+# we have the lock
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code does the same thing as before but we don&amp;rsquo;t need to remember the constant value for the lock type (LOCK_EX == exclusive lock). Note there is no need to unlock the file - when the program exits, the lock will be removed automatically.&lt;/p&gt;
+
+&lt;h3 id=&#34;non-blocking-flock:e2b49cd805c9d1d81412d3e39a65e7e9&#34;&gt;Non-blocking flock&lt;/h3&gt;
+
+&lt;p&gt;So far so good but we have a problem. If the file is locked, &lt;code&gt;flock&lt;/code&gt; will block and keep our program waiting around until the lock is removed. I want is the program to exit immediately if it can&amp;rsquo;t obtain the lock. The only way to check if a file is locked is with &lt;code&gt;flock&lt;/code&gt; though! Fortunately the &lt;code&gt;flock&lt;/code&gt; developers had considered this issue, and I can pass an extra argument to indicate I want a non-blocking lock.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Fcntl qw(:flock);
+open my $file, &amp;quot;&amp;gt;&amp;quot;, &amp;quot;app.lock&amp;quot; or die $!; 
+flock $file, LOCK_EX|LOCK_NB or die &amp;quot;Unable to lock file $!&amp;quot;;
+# we have the lock
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve added &lt;code&gt;|LOCK_NB&lt;/code&gt; to the flock arguments and now it will return false immediately if it cannot obtain an exclusive lock.This provides the non-blocking behavior I need.&lt;/p&gt;
+
+&lt;h3 id=&#34;testing-it-out:e2b49cd805c9d1d81412d3e39a65e7e9&#34;&gt;Testing it out&lt;/h3&gt;
+
+&lt;p&gt;I&amp;rsquo;m going to put this locking code into a quick script so I can test the lock functionality:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Fcntl qw(:flock);
+open my $file, &amp;quot;&amp;gt;&amp;quot;, &amp;quot;app.lock&amp;quot; or die $!; 
+flock $file, LOCK_EX|LOCK_NB or die &amp;quot;Unable to lock file: $!&amp;quot;;
+
+sleep(60);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ll save the script as &lt;code&gt;sleep60.pl&lt;/code&gt; and test it at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ chmod 700 sleep60.pl
+$ ./sleep60.pl&amp;amp;
+[2] 21505
+$ ./sleep60.pl
+Unable to lock file Resource temporarily unavailable at ./sleep60.pl line 4.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Looking good! I tried to run the script twice and the second time, the system printed the expected error message and exited.&lt;/p&gt;
+
+&lt;h3 id=&#34;avoiding-external-files:e2b49cd805c9d1d81412d3e39a65e7e9&#34;&gt;Avoiding external files&lt;/h3&gt;
+
+&lt;p&gt;Using an external file feels kind-of-dirty. What I&amp;rsquo;d really like to do is tidy up by deleting the lockfile once the program has finished. However unlocking and deleting the file involves extra steps which may introduce a &lt;a href=&#34;https://en.wikipedia.org/wiki/Race_condition&#34;&gt;race condition&lt;/a&gt;. Instead of deleting the file, what if we never created it? One way to do this is to use the &lt;a href=&#34;http://perltricks.com/article/24/2013/5/11/Perl-tokens-you-should-know&#34;&gt;__DATA__&lt;/a&gt; filehandle, like so:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Fcntl qw(:flock);
+flock DATA, LOCK_EX|LOCK_NB or die &amp;quot;Unable to lock file $!&amp;quot;;
+
+sleep(60);
+__DATA__
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This version of the script opens a lock on the &lt;code&gt;DATA&lt;/code&gt; filehandle and creates no external files. Mark Jason Dominus &lt;a href=&#34;http://perl.plover.com/yak/flock/samples/slide006.html&#34;&gt;showed&lt;/a&gt; this ingenious trick years ago. Another trick Mark showed was to open the lockfile on the program file itself:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Fcntl qw(:flock);
+open our $file, &#39;&amp;lt;&#39;, $0 or die $!;
+flock $file, LOCK_EX|LOCK_NB or die &amp;quot;Unable to lock file $!&amp;quot;;
+
+sleep(60);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This frees up &lt;code&gt;DATA&lt;/code&gt; and has the added benefit that the code can be exported by a module (by using &lt;code&gt;our&lt;/code&gt; instead of &lt;code&gt;my&lt;/code&gt;). Note that the &lt;code&gt;open&lt;/code&gt; arguments have been changed to use a read-only filehandle to avoid truncating the source code of the program! If you need this behavior, you can implement it yourself as shown above, or use my module &lt;a href=&#34;https://metacpan.org/pod/IPC::Lockfile&#34;&gt;IPC::Lockfile&lt;/a&gt;, which will do it for you. If you need more refined lockfile functionality, have a look at &lt;a href=&#34;https://metacpan.org/pod/Sys::RunAlone&#34;&gt;Sys::RunAlone&lt;/a&gt; which uses the same trick (thanks to &lt;a href=&#34;https://metacpan.org/author/BOOK&#34;&gt;BooK&lt;/a&gt; for the reference). There are also plenty of other options on &lt;a href=&#34;https://metacpan.org/search?size=20&amp;amp;q=lockfile&amp;amp;search_type=modules&#34;&gt;CPAN&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update:&lt;/strong&gt; &lt;em&gt;added Sys::RunAlone reference - 2015-11-28.&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>What&#39;s new on CPAN - October 2015</title>
+      <link>http://perltricks.com/article/199/2015/11/3/What-s-new-on-CPAN---October-2015/</link>
+      <pubDate>Tue, 03 Nov 2015 15:24:04 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/199/2015/11/3/What-s-new-on-CPAN---October-2015/</guid>
+      <description>
+
+&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!&lt;/p&gt;
+
+&lt;h3 id=&#34;module-of-the-month:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Module of the month&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/App::Skeletor&#34;&gt;App::Skeletor&lt;/a&gt; bootstraps new Perl projects based on customizable templates. Similar to Dist::Zilla (&lt;em&gt;why do all these builder tools have such great names?&lt;/em&gt;) but intentionally less ambitious, App::Skeletor looks more useful as a component of a Perl app or a starter kit for module developers. You can run it from the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ skeletor --template Skeletor::Template::Example \
+  --as My::App \
+  --directory ~/Projects \ 
+  --author &#39;John Doe&#39; \
+  --year 2015
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;rsquo;s early days but module author John Napiorkowski has already written enough &lt;a href=&#34;https://metacpan.org/pod/App::Skeletor&#34;&gt;documentation&lt;/a&gt; to get you started. It would be great if we could develop a set of community templates for Perl modules. Take a look today!&lt;/p&gt;
+
+&lt;h3 id=&#34;apis-apps:e5833c090d1cf186b0a95931b7696f03&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::JIRAPrint&#34;&gt;App::JIRAPrint&lt;/a&gt; posts JIRA Tickets on Postit notes!&lt;/li&gt;
+&lt;li&gt;Send repository commit digest emails with &lt;a href=&#34;https://metacpan.org/pod/App::SCM::Digest&#34;&gt;App::SCM::Digest&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Get terminal access to the Wikidata Query Service using &lt;a href=&#34;https://metacpan.org/pod/App::wdq&#34;&gt;App::wdq&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Get Airbrake notifications with &lt;a href=&#34;https://metacpan.org/pod/Net::Airbrake::V2&#34;&gt;Net::Airbrake::V2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WebService::ConstructorIO&#34;&gt;WebService::ConstructorIO&lt;/a&gt; provides a Perly interface to the predictive search service&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WebService::Pingboard&#34;&gt;WebService::Pingboard&lt;/a&gt; is an API for the employee directory service&lt;/li&gt;
+&lt;li&gt;Send newsletters via SendGrid using &lt;a href=&#34;https://metacpan.org/pod/WebService::SendGrid::Newsletter&#34;&gt;WebService::SendGrid::Newsletter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;config-devops:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Authenticate users via LinkedIn with &lt;a href=&#34;https://metacpan.org/pod/Linkedin::OAuth2&#34;&gt;Linkedin::OAuth2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/IPC::Lockfile&#34;&gt;IPC::Lockfile&lt;/a&gt; - run only one instance of a program at a time using flock (disclosure - I am the module author)&lt;/li&gt;
+&lt;li&gt;Instead of a file, &lt;a href=&#34;https://metacpan.org/pod/Lock::Server&#34;&gt;Lock::Server&lt;/a&gt; provides a light-weight socket based resource locking manager&lt;/li&gt;
+&lt;li&gt;Asynchronously wait for a port to open using &lt;a href=&#34;https://metacpan.org/pod/Net::Async::EmptyPort&#34;&gt;Net::Async::EmptyPort&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;data:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Data&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Get a fast, integer-based memory cache with &lt;a href=&#34;https://metacpan.org/pod/Cache::Memory::Simple::ID&#34;&gt;Cache::Memory::Simple::ID&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/DB::DataStore&#34;&gt;DB::DataStore&lt;/a&gt; A simple record-based data store with no non-core dependencies&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Digest::FNV::XS&#34;&gt;Digest::FNV::XS&lt;/a&gt; implements the speedy FNV hash algorithm, with support for binary data&lt;/li&gt;
+&lt;li&gt;Exchange contact data with CardDAV servers using &lt;a href=&#34;https://metacpan.org/pod/Net::CardDAVTalk&#34;&gt;Net::CardDAVTalk&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;development-version-control:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Get All Tests Passing™ with &lt;a href=&#34;https://metacpan.org/pod/Acme::Test::VW&#34;&gt;Acme::Test::VW&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Bootstrap a new project from a shared template with &lt;a href=&#34;https://metacpan.org/pod/App::Skeletor&#34;&gt;App::Skeletor&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Attribute::Universal&#34;&gt;Attribute::Universal&lt;/a&gt; makes working with subroutine attributes far less painful - woohoo!&lt;/li&gt;
+&lt;li&gt;Create enum-like classes using &lt;a href=&#34;https://metacpan.org/pod/Class::Type::Enum&#34;&gt;Class::Type::Enum&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Disable the &lt;code&gt;state&lt;/code&gt; keyword with &lt;a href=&#34;https://metacpan.org/pod/Devel::Unstate&#34;&gt;Devel::Unstate&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Export symbols by attributes with &lt;a href=&#34;https://metacpan.org/pod/Exporter::Attributes&#34;&gt;Exporter::Attributes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;hardware:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Hardware&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Send packets compatible with the Spektrum RC protoocol with &lt;a href=&#34;https://metacpan.org/pod/Device::Spektrum&#34;&gt;Device::Spektrum&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Not *strictly* hardware but &amp;hellip; get Software-Defined Radio with &lt;a href=&#34;https://metacpan.org/pod/SDR&#34;&gt;SDR&lt;/a&gt; - nice!&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WebService::FritzBox&#34;&gt;WebService::FritzBox&lt;/a&gt; - communicate with &lt;a href=&#34;https://en.wikipedia.org/wiki/FRITZ!Box&#34;&gt;FritzBox&lt;/a&gt; devices&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;language-international:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Language &amp;amp; International&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Map Slack &lt;code&gt;:emoji_strings:&lt;/code&gt; to Unicode text using &lt;a href=&#34;https://metacpan.org/pod/Text::SlackEmoji&#34;&gt;Text::SlackEmoji&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WWW::YahooJapan::Baseball&#34;&gt;WWW::YahooJapan::Baseball&lt;/a&gt; provides an interface to Yahoo Japan&amp;rsquo;s baseball stats service&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;other:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Other&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Hilarious - &lt;a href=&#34;https://metacpan.org/pod/Acme::Excuse&#34;&gt;Acme::Excuse&lt;/a&gt; provides excuses when your code fails&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;science-mathematics:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/MarpaX::RFC::RFC3629&#34;&gt;MarpaX::RFC::RFC3629&lt;/a&gt; Marpa parsing of UTF-8 byte sequences as per RFC3629&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Math::HexGrid&#34;&gt;Math::HexGrid&lt;/a&gt; - create hex coordinate grids (disclosure - I am the module author)&lt;/li&gt;
+&lt;li&gt;Apply a function to data in different ways using &lt;a href=&#34;https://metacpan.org/pod/PDL::Apply&#34;&gt;PDL::Apply&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/PDL::DateTime&#34;&gt;PDL::DateTime&lt;/a&gt; stores high precision timestamps&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;web:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Web&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Interesting, &lt;a href=&#34;https://metacpan.org/pod/Dancer2::Plugin::ProbabilityRoute&#34;&gt;Dancer2::Plugin::ProbabilityRoute&lt;/a&gt; is a plugin to define behavior with probability matching rules&lt;/li&gt;
+&lt;li&gt;Gracefully shutdown your Dancer2 application using &lt;a href=&#34;https://metacpan.org/pod/Dancer2::Plugin::Shutdown&#34;&gt;Dancer2::Plugin::Shutdown&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Use SQLite as a backend for a Minion job queue with &lt;a href=&#34;https://metacpan.org/pod/Minion::Backend::SQLite&#34;&gt;Minion::Backend::SQLite&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

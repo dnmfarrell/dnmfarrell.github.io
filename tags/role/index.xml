@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Role on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/role/</link>
+    <description>Recent content in Role on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 11 Nov 2013 04:48:50 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/role/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Use roles in object oriented Perl with Role::Tiny</title>
+      <link>http://perltricks.com/article/47/2013/11/11/Use-roles-in-object-oriented-Perl-with-Role--Tiny/</link>
+      <pubDate>Mon, 11 Nov 2013 04:48:50 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/47/2013/11/11/Use-roles-in-object-oriented-Perl-with-Role--Tiny/</guid>
+      <description>
+
+&lt;p&gt;Roles are a label for a set of methods that a class provides. Similar to traits in Smalltalk or an interface in Java, adding a Perl role to a class is like adding a guarantee that the class will implement that role&amp;rsquo;s API. Roles are an alternative to inheritance; instead of extending a class hierarchy through subclassing, a programmer composes a class using roles for what the class does. This article describes how by using the &lt;a href=&#34;https://metacpan.org/pod/Role::Tiny&#34;&gt;Role::Tiny&lt;/a&gt; module you can imbue native Perl object oriented code with roles.&lt;/p&gt;
+
+&lt;h3 id=&#34;install-role-tiny:7cfcfc217e7b77b8ee4fa1cc7fe4d090&#34;&gt;Install Role::Tiny&lt;/h3&gt;
+
+&lt;p&gt;In order to use the code examples in this article you&amp;rsquo;ll need to install &lt;a href=&#34;https://metacpan.org/pod/Role::Tiny&#34;&gt;Role::Tiny&lt;/a&gt;. You can install it via CPAN from the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan Role::Tiny
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;creating-a-role:7cfcfc217e7b77b8ee4fa1cc7fe4d090&#34;&gt;Creating a role&lt;/h3&gt;
+
+&lt;p&gt;A role is a declared in a module file (*.pm). Let&amp;rsquo;s create a role called &amp;ldquo;Shape&amp;rdquo;, which we would expect all Shape classes to implement:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Shape;
+
+use Role::Tiny;
+
+requires &#39;getArea&#39;;
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code starts with the usual package declaration. By importing &lt;a href=&#34;https://metacpan.org/pod/Role::Tiny&#34;&gt;Role::Tiny&lt;/a&gt; with the use statement, we can automatically treat this module as a role by using its package name. The &amp;ldquo;requires&amp;rdquo; function adds a requirement that any class using this role must implement a &amp;lsquo;getArea&amp;rsquo; method.&lt;/p&gt;
+
+&lt;h3 id=&#34;using-a-role:7cfcfc217e7b77b8ee4fa1cc7fe4d090&#34;&gt;Using a role&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s develop a Point class that will implement the Shape role. A point is a simple 2d shape located using an x and y value for Cartesian coordinates.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Point;
+
+use Role::Tiny::With;
+
+with &#39;Shape&#39;;
+
+sub new {
+    my ($class, $x, $y) = @_;
+    return bless {  
+                  x =&amp;gt; $x,
+                  y =&amp;gt; $y,
+                 }, $class;
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As before the file begins with a package declaration. To be able to add roles to a class, we use &amp;ldquo;Role::Tiny::With&amp;rdquo;. This imports the &amp;ldquo;with&amp;rdquo; function which is use to import roles. We&amp;rsquo;ve also declared a constructor method that takes an x and y coordinate as parameters to store the point&amp;rsquo;s location. At this stage we have not added the &amp;ldquo;getArea&amp;rdquo; method required by the Shape role - so what would happen if we tried to create a Point object? We can test this at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl -MPoint -we &#39;my $p = Point-&amp;gt;new(5,5)&#39;
+Can&#39;t apply Shape to Point - missing getArea at /home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/lib/site_perl/5.16.3/Role/Tiny.pm line 306.
+Compilation failed in require.
+BEGIN failed--compilation aborted.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As shown above, Perl will raise an exception if a class uses a role but doesn&amp;rsquo;t implement its required methods. Let&amp;rsquo;s add a &amp;ldquo;getArea&amp;rdquo; method to the Point class:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Point;
+
+use Role::Tiny::With;
+
+with &#39;Shape&#39;;
+
+sub new {
+    my ($class, $x, $y) = @_;
+    return bless {
+                  x =&amp;gt; $x,
+                  y =&amp;gt; $y,
+                 }, $class;
+}
+
+sub getArea { return 1 }
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &amp;ldquo;getArea&amp;rdquo; sub returns the area of the point object (1). For other shapes such as a rectangle, &amp;ldquo;getArea&amp;rdquo; would have to calculate the area before returning it. Now that the Point class has the &amp;ldquo;getArea&amp;rdquo; method, we can create Point objects without Perl raising an exception.&lt;/p&gt;
+
+&lt;h3 id=&#34;roles-can-define-methods:7cfcfc217e7b77b8ee4fa1cc7fe4d090&#34;&gt;Roles can define methods&lt;/h3&gt;
+
+&lt;p&gt;A can be more than just a list of required methods - roles can define methods which the consuming class can use, just like a subclass inherits methods from its parent class. To see this in action let&amp;rsquo;s add get and set color methods to the Shape role.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Shape;
+
+use Role::Tiny;
+
+requires &#39;getArea&#39;;
+
+sub getColor {
+    my $self = shift;
+    return $self-&amp;gt;{color} ? $self-&amp;gt;{color} : &#39;none&#39;;
+}
+
+sub setColor {
+    my ($self, $color) = @_;
+    $self-&amp;gt;{color} = $color;
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we can get and set the color of any Point object. We can test this at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl -MPoint -we &#39;my $p = Point-&amp;gt;new(5,5); $p-&amp;gt;setColor(&amp;quot;blue&amp;quot;); print $p-&amp;gt;getColor&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;how-to-check-if-an-object-does-a-role:7cfcfc217e7b77b8ee4fa1cc7fe4d090&#34;&gt;How to check if an object does a role&lt;/h3&gt;
+
+&lt;p&gt;When a class uses a role, it also gets a boolean &amp;ldquo;does&amp;rdquo; method. This can be used to check if the class implements a specific role. For example we can quickly check for the presence of our &amp;ldquo;Shape&amp;rdquo; role in our Point class at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl -MPoint -we &#39;my $p = Point-&amp;gt;new(5,5); print $p-&amp;gt;does(&amp;quot;Shape&amp;quot;)&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:7cfcfc217e7b77b8ee4fa1cc7fe4d090&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Roles are a useful alternative to inheritance - they focus on what a class does rather than what it is. Using &lt;a href=&#34;https://metacpan.org/pod/Role::Tiny&#34;&gt;Role::Tiny&lt;/a&gt; is a nimble way to add roles to the existing Perl object oriented syntax without using an entire object system such as Moose.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Shift on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/shift/</link>
+    <description>Recent content in Shift on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 04 Apr 2013 20:22:51 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/shift/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Perl arrays 101 - create, loop and manipulate</title>
+      <link>http://perltricks.com/article/11/2013/4/4/Perl-arrays-101---create--loop-and-manipulate/</link>
+      <pubDate>Thu, 04 Apr 2013 20:22:51 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/11/2013/4/4/Perl-arrays-101---create--loop-and-manipulate/</guid>
+      <description>
+
+&lt;p&gt;Arrays in Perl contain an ordered list of values that can be accessed using built-in functions. They are one of the most useful data structures and frequently used in Perl programming.&lt;/p&gt;
+
+&lt;h3 id=&#34;creating-an-array:0fc1cff51f8e8b6779283bd677e343f0&#34;&gt;Creating an array&lt;/h3&gt;
+
+&lt;p&gt;In Perl variables are identified using sigils. Arrays use @ (as in &amp;lsquo;a&amp;rsquo; for array), so the format is: @any_name_you_choose_here. Arrays are initialised by assigning a list of values (comma separated values between parentheses). Unlike more formal languages, Perl arrays can contain a mix of numbers, strings, objects and references.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @empty_array;
+
+my @another_empty_array = ();
+
+my @numbers = (1, 2, 3, 4, 5);
+
+my @names_start_with_j = (&#39;John&#39;, &#39;Judy&#39;, &#39;Julia&#39;, &#39;James&#39;, &#39;Jennifer&#39;);
+
+my @random_collection = (2013, &#39;keyboard&#39;, &#39;perltricks.com&#39;, 30);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;finding-the-array-length-size:0fc1cff51f8e8b6779283bd677e343f0&#34;&gt;Finding the array length / size&lt;/h3&gt;
+
+&lt;p&gt;The length of an array (aka the &amp;lsquo;size&amp;rsquo;) is the count of the number of elements in the array. To find the array length, use the array in a scalar context:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @numbers = (1, 2, 3, 4, 5);
+my $array_length = @numbers; 
+print $array_length;
+# 5
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;accessing-array-elements-directly:0fc1cff51f8e8b6779283bd677e343f0&#34;&gt;Accessing array elements directly&lt;/h3&gt;
+
+&lt;p&gt;Arrays can be accessed in a variety of ways: by directly accessing an element, slicing a group of elements or looping through the entire array, accessing one element at a time.&lt;/p&gt;
+
+&lt;p&gt;When directly accessing an array element, use the array name prefaced with the scalar sigil ($) instead of (@) and the index number of the element enclosed in square brackets. Arrays are zero-based, which means that the first element&amp;rsquo;s index number is 0 (not 1!).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @names_start_with_j = (&#39;John&#39;, &#39;Judy&#39;, &#39;Julia&#39;, &#39;James&#39;, &#39;Jennifer&#39;);
+$names_start_with_j[0]; # John
+$names_start_with_j[4]; # Jennifer
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The implication of zero-based indexing is that the index number of the last element in an array is equal to the length of the array minus one.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @numbers = (11, 64, 29, 22, 100);
+my $numbers_array_length = @numbers;
+my $last_element_index = numbers_array_length - 1;
+# therefore ...
+print $numbers[$last_element_index]; 
+# 100
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For simpler ways to access the last element of an array - see our &lt;a href=&#34;http://perltricks.com/article/6/2013/3/28/Find-the-index-of-the-last-element-in-an-array&#34;&gt;recent article&lt;/a&gt; for examples.&lt;/p&gt;
+
+&lt;h3 id=&#34;loop-through-an-array-with-foreach:0fc1cff51f8e8b6779283bd677e343f0&#34;&gt;Loop through an array with foreach&lt;/h3&gt;
+
+&lt;p&gt;Arrays elements can be accessed sequentially using a foreach loop to iterate through the array one element at a time.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @names_start_with_j = (&#39;John&#39;, &#39;Judy&#39;, &#39;Julia&#39;, &#39;James&#39;, &#39;Jennifer&#39;);
+foreach my $element (@names_start_with_j) {
+    print &amp;quot;$element\n&amp;quot;;
+}
+# John
+# Judy
+# Julia
+# James
+# Jennifer
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Other common functions for looping through arrays are &lt;a href=&#34;http://perldoc.perl.org/functions/grep.html&#34;&gt;grep&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/functions/map.html&#34;&gt;map&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;shift-unshift-push-and-pop:0fc1cff51f8e8b6779283bd677e343f0&#34;&gt;shift, unshift, push and pop&lt;/h3&gt;
+
+&lt;p&gt;Perl arrays are dynamic in length, which means that elements can be added to and removed from the array as required. Perl provides four functions for this: shift, unshift, push and pop.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;shift&lt;/strong&gt; removes and returns the first element from the array, reducing the array length by 1.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @compass_points = (&#39;north&#39;, &#39;east&#39;, &#39;south&#39;, &#39;west&#39;);
+my $direction = shift @compass_points;
+print $direction; 
+# north
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If no array is passed to shift, it will operate on @_. This makes it useful in subroutines and methods where by default @_ contains the arguments from the subroutine / method call. E.G.:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;print_caller(&amp;quot;perltricks&amp;quot;);
+sub print_caller {
+    my $caller_name = shift;
+    print $caller_name;
+}
+# perltricks
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The other three array functions work similarly to shift. &lt;strong&gt;unshift&lt;/strong&gt; receives and inserts a new element into the front of the array increasing the array length by 1.&lt;strong&gt;push&lt;/strong&gt; receives and inserts a new element to the end of the array, increasing the array length by 1. &lt;strong&gt;pop&lt;/strong&gt; removes and returns the last element in the array, reducing the array length by 1.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @compass_points = (&#39;north&#39;, &#39;east&#39;, &#39;south&#39;, &#39;west&#39;);
+my $direction = &#39;north-east&#39;;
+unshift @compass_points, $direction;
+# @compass_points contains: north-east, north, east, south and west
+
+my $west = pop @compass; 
+push @compass, $new_direction; # put $west back
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;check-an-array-is-null-or-undefined:0fc1cff51f8e8b6779283bd677e343f0&#34;&gt;Check an array is null or undefined&lt;/h3&gt;
+
+&lt;p&gt;A simple way to check if an array is null or defined is to examine it in a scalar context to obtain the number of elements in the array. If the array is empty, it will return 0, which Perl will also evaluate as boolean false. Bear in mind that this is not quite the same thing as undefined, as it is possible to have an empty array.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @empty_array;
+if (@empty_array) {
+    # do something - will not be reached if the array has 0 elements
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

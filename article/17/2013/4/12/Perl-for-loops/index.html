@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Perl for loops Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Perl&#39;s for loops are a powerful feature that, like the rest of Perl can be as concise, flexible and versatile required. This article covers the core features for Perl&#39;s for loops."/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Perl for loops</h1>
+            <p class="blog-post-meta">Apr 12, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>Perl&rsquo;s for loops are a powerful feature that, like the rest of Perl can be as concise, flexible and versatile required. This article covers the core features for Perl&rsquo;s for loops.</p>
+
+<h3 id="c-style-for-loops:cec02722abe304de2cce1d85500b5003">C-style for loops</h3>
+
+<p>The C-style for loop follows programming tradition and requires three parameters (count; logical test; count modifier). It looks like this:</p>
+
+<pre><code class="language-prettyprint">use feature qw/say/;
+# print numbers 0 to 9
+for (my $i = 0; $i &lt; 10; $i++) {
+    say $i;
+}
+</code></pre>
+
+<p>Let&rsquo;s review the code above. First of all we import the feature &lsquo;say&rsquo; which works like the print command except that it appends a newline to the printed string. Before the loop begins, Perl initialises the scalar variable $i as zero. Perl will then check the logical condition ($i &lt; 10). If the condition is true, Perl will execute all the code between the braces { } once. Perl will also increment $i by 1 because the count modifier condition is set to $i++. Having finished one iteration, Perl will then check the logical condition again. After one iteration, $i is equal to 1, so Perl will loop through the code again. This will continue until $i is equal to 10 and the logical condition returns false, at which point Perl will then move on to process any code below the loop. The loop above used an increment modifier ($i++), however it can decrement as well:</p>
+
+<pre><code class="language-prettyprint">use feature qw/say/;
+# print numbers 10 to 1
+for (my $i = 10; $i &gt; 0; $i--) {
+    say $i;
+}
+</code></pre>
+
+<p>In fact we can use any modifier we choose, for example to print only odd numbers, we can use Perl&rsquo;s add-to operator $i += 2 which is a shortcut for ($i = $i + 2).</p>
+
+<pre><code class="language-prettyprint">use feature qw/say/;
+# print only odd numbers 1 - 9
+for (my $i = 1; $i &lt; 10; $i += 2) {
+    say $i;
+}
+</code></pre>
+
+<p>The C-style for loop can be used to access elements of an array.</p>
+
+<pre><code class="language-prettyprint">use feature qw/say/;
+my @weather_elements = ('wind', 'rain', 'snow', 'cloud', 'sunshine');
+for (my $i = 0; $i &lt; @weather_elements; $i++) {
+    say $weather_elements[$i];
+}
+</code></pre>
+
+<p>Note that the count is started at zero because Perl array indexes are zero-based, and the array is used as one-side of the logical condition ($i &lt; @weather_elements) because in this context Perl will helpfully return the length of the array (5).</p>
+
+<h3 id="for-loops-with-arrays:cec02722abe304de2cce1d85500b5003">for loops with arrays</h3>
+
+<p>There are simpler ways than using the C-style for loop to iterate through every element of an array in Perl. If an array is passed to a for loop, it will iterate through every element of the array until it reaches the end. For example this is the same loop as above, written using the array technique:</p>
+
+<pre><code class="language-prettyprint">use feature qw/say/;
+my @weather_elements = ('wind', 'rain', 'snow', 'cloud', 'sunshine');
+for my $weather_element (@weather_elements) {
+    say $weather_element;
+}
+</code></pre>
+
+<p>In the code above Perl iterates through the array, assigning the value of the current element to $weather_element. Once the loop finishes $weather_element goes out of scope and will be garbage collected.</p>
+
+<p>We can simplify this code further. If no scalar variable is included in the argument, Perl will use $_ as the temporary variable:</p>
+
+<pre><code class="language-prettyprint">use feature qw/say/;
+my @weather_elements = ('wind', 'rain', 'snow', 'cloud', 'sunshine');
+for (@weather_elements) {
+    say $_;
+}
+</code></pre>
+
+<p>Instead of using &lsquo;for&rsquo;, some Perl programmers use a &lsquo;foreach&rsquo; loop, although in Perl &lsquo;for&rsquo; and &lsquo;foreach&rsquo; are synonyms and can be used interchangeably. I like &lsquo;foreach&rsquo; because it clarifies the programmer&rsquo;s intentions. For example this code will do the same thing as the previous code example above:</p>
+
+<pre><code class="language-prettyprint">use feature qw/say/;
+my @weather_elements = ('wind', 'rain', 'snow', 'cloud', 'sunshine');
+foreach (@weather_elements) {
+    say $_;
+}
+</code></pre>
+
+<p>The for / foreach loop also accepts a list instead of an array:</p>
+
+<pre><code class="language-prettyprint">use feature qw/say/;
+foreach ('wind', 'rain', 'snow', 'cloud', 'sunshine') {
+    say $_;
+}
+</code></pre>
+
+<h3 id="for-loops-with-ranges:cec02722abe304de2cce1d85500b5003">for loops with ranges</h3>
+
+<p>Sometimes you just need Perl to &lsquo;do something n number of times&rsquo;. A quick way to do this is using a range i..n. For example, if we wanted to print 6 random lottery numbers:</p>
+
+<pre><code class="language-prettyprint">use feature qw/say/;
+for (1..6) {
+    say int(rand(58)) + 1;
+}
+</code></pre>
+
+<h3 id="for-loop-functions-redo-next-and-last:cec02722abe304de2cce1d85500b5003">for loop functions: redo, next and last</h3>
+
+<p>Perl provides several functions which can be used to control the for loop iterations. <strong>redo</strong> instructs Perl to re-run the current iteration. Let&rsquo;s modify the lottery numbers example above to redo the loop if we generate an unlucky number 13.</p>
+
+<pre><code class="language-prettyprint">for (1..6) {
+    my $number = int(rand(58)) + 1;
+    redo if $number == 13;
+    say $number;
+}
+</code></pre>
+
+<p>In the example above, if a number 13 is generated, the redo function will restart the iteration and the code will never reach the say $number statement.</p>
+
+<p>The <strong>next</strong> function stops the current iteration and moves to the next iteration. This can be useful when we have additional processing that we want to be done only for certain elements. For example if we were surveying a group of people about their education, it only makes sense to ask what school the person attended, if they have a degree:</p>
+
+<pre><code class="language-prettyprint">use feature qw/say/;
+for (1..5){
+        print &quot;Please type your name and press enter: &quot;;
+        my $name = &lt;&gt;;
+        say $name;
+        print &quot;Do you have a bachelors degree? (y/n) &quot;;
+        my $degree_flag = &lt;&gt;;
+        say $degree_flag;
+        chomp $degree_flag;
+        next if $degree_flag eq 'n';
+        print &quot;Which school did you get the degree from?&quot;;
+        my $school = &lt;&gt;;
+        say $school;
+        # continues ...
+}
+</code></pre>
+
+<p>The <strong>last</strong> function allows the current iteration to finish and then exits loop entirely. This is often used when doing pattern matching as once a match has been found, there is no need to check other possibilities:</p>
+
+<pre><code class="language-prettyprint">my $variable_type = '$scalar';
+my @perlvariable_regexes = ('^\$', '^@', '^%');
+foreach (@perlvariable_regexes ){
+    if ($variable_type =~ m/$_/) {
+        say &quot;match found with $_&quot;;
+        last;
+    }
+}
+</code></pre>
+
+<p>For further detail on Perl&rsquo;s for loops, check out the <a href="http://perldoc.perl.org/perlsyn.html#For-Loops">official Perl documentation</a></p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/loop">loop</a></div>
+              
+                <div class="tag"><a href="/tags/array">array</a></div>
+              
+                <div class="tag"><a href="/tags/foreach">foreach</a></div>
+              
+                <div class="tag"><a href="/tags/for">for</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

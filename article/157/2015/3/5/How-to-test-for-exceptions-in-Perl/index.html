@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>How to test for exceptions in Perl Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Does your code blow up the way you expect it to?"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">How to test for exceptions in Perl</h1>
+            <p class="blog-post-meta">Mar 5, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/157/95B8DF42-C33B-11E4-8714-11450EA848F6.jpeg"/>
+            </div>
+              
+
+<p>Most Perl programmers are familiar with <a href="https://metacpan.org/pod/Test::More">Test::More</a>; it&rsquo;s the go-to library for writing unit tests in Perl. But Test::More doesn&rsquo;t provide functions for testing exceptions. For that you&rsquo;ll need <a href="https://metacpan.org/pod/Test::Exception">Test::Exception</a>. And good code throws exceptions - Paul Fenwick <a href="http://perltraining.com.au/tips/2008-08-20.html">once</a> summed this approach nicely:</p>
+
+<pre><code>bIlujDI' yIchegh()Qo'; yIHegh()!
+
+It is better to die() than to return() in failure.
+
+    -- Klingon programming proverb.
+</code></pre>
+
+<p>The simplest way to throw an exception is with Perl&rsquo;s built-in <code>die</code> function. Just like Test::More makes it easy to test that subroutines return the right values, Test::Exception makes it easy to check the code is <em>dying</em> in the right way (and <a href="https://metacpan.org/pod/Test::Fatal">Test::Fatal</a> is a good alternative).</p>
+
+<h3 id="did-my-code-die-ok:e7d97283f2b325db6a8881183934ffb4">Did my code die ok?</h3>
+
+<p>Let&rsquo;s say we&rsquo;re writing unit tests for the following package which exports the <code>double_integer</code> subroutine:</p>
+
+<pre><code class="language-prettyprint">package Double;
+use Exporter;
+@ISA = 'Exporter';
+@EXPORT = 'double_integer';
+
+sub double_integer
+{
+  my ($number) = @_;
+  die 'double_integer() requires a positive integer as an argument'
+    unless defined $number &amp;&amp; $number =~ /^\d+$/;
+
+  return $number * 2;
+}
+
+1;
+</code></pre>
+
+<p>This code will <code>die</code> unless the double_integer subroutine is called with a positive integer. I&rsquo;ll save this package as <code>Double.pm</code>. Let&rsquo;s write a test script for this package. Test::Exception exports the <code>dies_ok</code> function that checks the code dies as expected:</p>
+
+<pre><code class="language-prettyprint">use Test::Exception tests =&gt; 1;
+use Double;
+
+dies_ok { double_integer() } 'double_integer() dies with no number';
+</code></pre>
+
+<p><code>dies_ok</code> is clever, it won&rsquo;t actually let your code die and the program exit, as that would interrupt testing! Instead it catches any thrown exceptions so testing can continue. My program should also die if <code>double_integer</code> is called with a non-number as an argument. I can add more tests for some common scenarios:</p>
+
+<pre><code class="language-prettyprint">use Test::Exception test =&gt; 6;
+use Double;
+
+dies_ok { double_integer() } 'double_integer() dies with no number';
+dies_ok { double_integer(undef) } 'double_integer() dies with undef';
+dies_ok { double_integer('abc') } 'double_integer() dies with text';
+dies_ok { double_integer('1 two') } 'double_integer() dies with mixed';
+dies_ok { double_integer('-7') } 'double_integer() dies with a negative';
+dies_ok { double_integer('2.5') } 'double_integer() dies with a decimal';
+</code></pre>
+
+<p>I can also check the code throws the right exception with <code>throws_ok</code>:</p>
+
+<pre><code class="language-prettyprint">use Test::Exception tests =&gt; 1;
+use Double;
+
+throws_ok { double_integer() } qr/requires a positive integer/, 
+  'double_integer() requires a positive integer';
+</code></pre>
+
+<p>The <code>throws_ok</code> function checks that the code throws an exception, but also that the exception message matches a regex. This is useful if you have several different conditions that may throw different types of exceptions: imagine with a web application, you&rsquo;d want to throw a different exception code if the user requested a page they didn&rsquo;t have permission to access (403) versus requesting a non-existent page (404).</p>
+
+<p>Test::Exception is fully compatible with Test::More so you can combine functions from both libraries in the same file:</p>
+
+<pre><code class="language-prettyprint">use Test::More;
+use Test::Exception;
+use Double;
+
+# test arg validation works
+dies_ok { double_integer() } 'double_integer() dies with no number';
+dies_ok { double_integer(undef) } 'double_integer() dies with undef';
+dies_ok { double_integer('abc') } 'double_integer() dies with text';
+dies_ok { double_integer('1 two') } 'double_integer() dies with mixed';
+dies_ok { double_integer('-7') } 'double_integer() dies with a negative';
+dies_ok { double_integer('2.5') } 'double_integer() dies with a decimal';
+
+# test exception message
+throws_ok { double_integer() } qr/requires a positive integer/, 
+  'double_integer() requires a positive integer';
+
+# test double_integer works
+lives_ok { double_integer(1) } 'calling double() with a number lives';
+is double_integer(0), 0, 'zero doubled is zero';
+is double_integer(2), 4, 'two doubled is four';
+is double_integer(999), 1998, 
+  'nine nine nine doubled is one nine nine eight';
+
+done_testing();
+</code></pre>
+
+<p>Now the test script checks both that the function throws the appropriate exception when the argument is wrong, and it returns the argument doubled when the argument is valid. If I save this test file as <code>Double.t</code> I can run the tests at the terminal:</p>
+
+<pre><code class="language-prettyprint">$ perl Double.t
+ok 1 - double_integer() dies with no number
+ok 2 - double_integer() dies with undef
+ok 3 - double_integer() dies with text
+ok 4 - double_integer() dies with mixed
+ok 5 - double_integer() dies with a negative
+ok 6 - double_integer() dies with a decimal
+ok 7 - double_integer() requires a positive integer
+ok 8 - calling double() with a number lives
+ok 9 - zero doubled is zero
+ok 10 - two doubled is four
+ok 11 - nine nine nine doubled is one nine nine eight
+1..11
+</code></pre>
+
+<p>All the tests pass. <a href="https://metacpan.org/pod/Test::Exception">Test::Exception</a> has great documentation and is easy to use, so add exception testing to your code today!</p>
+
+<p><strong>Updated:</strong> <em>Added Test::Fatal reference 2015-03-10</em></p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/test_more">test_more</a></div>
+              
+                <div class="tag"><a href="/tags/test">test</a></div>
+              
+                <div class="tag"><a href="/tags/unit_test">unit_test</a></div>
+              
+                <div class="tag"><a href="/tags/test_exception">test_exception</a></div>
+              
+                <div class="tag"><a href="/tags/tap">tap</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

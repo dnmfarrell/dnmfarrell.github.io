@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Svg on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/svg/</link>
+    <description>Recent content in Svg on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 23 Jan 2015 13:55:03 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/svg/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Introducing 3 new Perl Glyphs</title>
+      <link>http://perltricks.com/article/146/2015/1/23/Introducing-3-new-Perl-Glyphs/</link>
+      <pubDate>Fri, 23 Jan 2015 13:55:03 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/146/2015/1/23/Introducing-3-new-Perl-Glyphs/</guid>
+      <description>
+
+&lt;p&gt;Recently I changed our site&amp;rsquo;s menu links from bitmap images to glyphs. A glyph (or &amp;ldquo;font icon&amp;rdquo;) is an svg file which can be packaged in a font file. Glyphs hold several advantages over bitmaps as icons: they look smooth at any resolution, can be colored and aligned just like text, and usually occupy less disk space than a regular bitmap.&lt;/p&gt;
+
+&lt;p&gt;PerlTricks.com uses bootstrap, which comes with &lt;a href=&#34;http://getbootstrap.com/components/&#34;&gt;many&lt;/a&gt; stock glyphs, but alas! no Perl ones. Seeing as Perl culture has some pretty powerful iconography, it seemed high time the community had some ready-made glyphs to use. So over the holidays, I learned how to make svgs, and have created 3 new Perl glyphs to share.&lt;/p&gt;
+
+&lt;p&gt;First a couple of Perl 5 classics, colored:&lt;/p&gt;
+
+&lt;p&gt;image/svg+xml&lt;/p&gt;
+
+&lt;p&gt;image/svg+xml&lt;/p&gt;
+
+&lt;p&gt;And a black-and-white Camelia for Perl 6:&lt;/p&gt;
+
+&lt;p&gt;image/svg+xml&lt;/p&gt;
+
+&lt;p&gt;Of course, being svg you can color them however you like.&lt;/p&gt;
+
+&lt;h3 id=&#34;creating-font-icon-sets:365f506fd2ded6f68e2b691499a8484b&#34;&gt;Creating font icon sets&lt;/h3&gt;
+
+&lt;p&gt;These svg files are nice, but they&amp;rsquo;re easier to use in a font file. I like to use IcoMoon.io&amp;rsquo;s app for compiling font files. It&amp;rsquo;s free, simple and fast. To create your own font Perl icon set, first download the svg &lt;a href=&#34;https://github.com/dnmfarrell/Perl-Icons/tree/master/Icons&#34;&gt;files&lt;/a&gt; or clone the &lt;a href=&#34;https://github.com/dnmfarrell/Perl-Icons&#34;&gt;repo&lt;/a&gt;. Now point your browser at the IcoMoon.io app &lt;a href=&#34;http://icomoon.io/app&#34;&gt;page&lt;/a&gt;. Click the &amp;ldquo;import&amp;rdquo; button, and select the Perl svg files you downloaded.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://farm8.staticflickr.com/7543/16158980357_1b37c2a633.jpg&#34; alt=&#34;icomoon\_app&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;You should see the icons appear as an &amp;ldquo;untitled set&amp;rdquo;. Click each icon so that it is selected for inclusion in the font file.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://farm8.staticflickr.com/7567/15724931783_ff9a3cbf19.jpg&#34; alt=&#34;icomoon\_import&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Click the &amp;ldquo;Generate Font&amp;rdquo; button in the bottom-right corner of the screen. This will load the download font window. The window should show the 3 Perl glyph, and a unicode identifier for each glyph (like &amp;ldquo;e600&amp;rdquo; etc). Remember these unicode ids as you&amp;rsquo;ll need them to use the font icons.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://farm9.staticflickr.com/8660/16318921836_8ce352635b.jpg&#34; alt=&#34;icomoon\_download&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Finally, click the &amp;ldquo;download&amp;rdquo; button to download the fonts archive. Inside the archive you&amp;rsquo;ll find the font files in eot, ttf, woff and svg formats, along with examples of how to use them. The easiest way to test the icons is by opening &lt;code&gt;demo.html&lt;/code&gt; that comes with the IcoMoon fonts archive. Test out the glyphs by typing into the &amp;ldquo;Font Test Drive&amp;rdquo; editor. To type a glyph in HTML just type: &lt;code&gt;&lt;/code&gt; replacing &amp;ldquo;e600&amp;rdquo; with the unicode id of the glyph, for example:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://farm8.staticflickr.com/7494/16161405249_fc513e7389.jpg&#34; alt=&#34;icomoon\_demo\_html&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;When you go to use the fonts on the web, make sure you use the bulletproof @font-face &lt;a href=&#34;http://www.paulirish.com/2009/bulletproof-font-face-implementation-syntax/&#34;&gt;syntax&lt;/a&gt;. Another benefit of using IcoMoon.io&amp;rsquo;s app: the &lt;code&gt;style.css&lt;/code&gt; file in the archive includes the bulletproof syntax.&lt;/p&gt;
+
+&lt;p&gt;If you want lower-level access to font files, check out &lt;a href=&#34;http://sourceforge.net/projects/fontforge/&#34;&gt;FontForge&lt;/a&gt;. Using FontForge you can create or edit font files in a variety of formats. You can set the font metadata (creator, name etc), and specify the alignment of individual glyphs more precisely than with IcoMoon.io&amp;rsquo;s free app.&lt;/p&gt;
+
+&lt;h3 id=&#34;licensing:365f506fd2ded6f68e2b691499a8484b&#34;&gt;Licensing&lt;/h3&gt;
+
+&lt;p&gt;I&amp;rsquo;ve released these files under the FreeBSD license, but keep in mind that there may be additional restrictions on use, which is out of my hands. Check out the repo &lt;a href=&#34;https://github.com/dnmfarrell/Perl-Icons/blob/master/README.pod&#34;&gt;README&lt;/a&gt; for the specifics.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update&lt;/strong&gt; &lt;em&gt;I&amp;rsquo;ve added a fourth glyph to the repo, the Perl 5 Raptor! Thanks to Marcus Smith for the suggestion. 2015-01-23&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

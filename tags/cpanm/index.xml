@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Cpanm on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/cpanm/</link>
+    <description>Recent content in Cpanm on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 27 Mar 2013 00:00:17 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/cpanm/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How to cleanly uninstall a Perl module</title>
+      <link>http://perltricks.com/article/3/2013/3/27/How-to-cleanly-uninstall-a-Perl-module/</link>
+      <pubDate>Wed, 27 Mar 2013 00:00:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/3/2013/3/27/How-to-cleanly-uninstall-a-Perl-module/</guid>
+      <description>
+
+&lt;p&gt;CPAN makes installing Perl modules easy but when it comes to removing Perl modules, you have to roll your own solution*. Fortunately the Perl core includes the ExtUtils modules that can help. The script below accepts the Module::Name as an argument, and will delete all files and empty directories associated with that module.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# uninstall_perl_module.pl from PerlTricks.com
+
+use 5.14.2;
+use ExtUtils::Installed;
+use ExtUtils::Packlist;
+
+# Exit unless a module name was passed
+die (&amp;quot;Error: no Module::Name passed as an argument. E.G.\n\t perl $0 Module::Name\n&amp;quot;) unless $#ARGV == 0;
+
+my $module = shift @ARGV;
+
+my $installed_modules = ExtUtils::Installed-&amp;gt;new;
+
+# iterate through and try to delete every file associated with the module
+foreach my $file ($installed_modules-&amp;gt;files($module)) {
+    print &amp;quot;removing $file\n&amp;quot;;
+    unlink $file or warn &amp;quot;could not remove $file: $!\n&amp;quot;;
+}
+
+# delete the module packfile
+my $packfile = $installed_modules-&amp;gt;packlist($module)-&amp;gt;packlist_file;
+print &amp;quot;removing $packfile\n&amp;quot;;
+unlink $packfile or warn &amp;quot;could not remove $packfile: $!\n&amp;quot;;
+
+# delete the module directories if they are empty
+foreach my $dir (sort($installed_modules-&amp;gt;directory_tree($module))) {
+    print(&amp;quot;removing $dir\n&amp;quot;);
+    rmdir $dir or warn &amp;quot;could not remove $dir: $!\n&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Save the script code above into a text file saved as &amp;lsquo;uninstall_perl_module.pl&amp;rsquo;. So if we wanted to uninstall the venerable &lt;code&gt;Acme::Dot&lt;/code&gt; module, we would open up the terminal, navigate to directory containing uninstall_perl_module.pl and type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl uninstall_perl_module.pl Acme::Dot
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and the script will remove the module for you. It will &lt;strong&gt;retain non-empty directories&lt;/strong&gt;, as it uses &lt;a href=&#34;http://perldoc.perl.org/functions/rmdir.html&#34;&gt;rmdir&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;removing /home/sillymoose/perl5/perlbrew/perls/perl-5.14.2/man/man3/Acme::Dot.3
+removing /home/sillymoose/perl5/perlbrew/perls/perl-5.14.2/lib/site_perl/5.14.2/Acme/Dot.pm
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;app-cpanminus:7ea57b3fc659fb64a7195ff61e625333&#34;&gt;*App::cpanminus&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/App::cpanminus&#34;&gt;App::cpanminus&lt;/a&gt; is a popular alternative CPAN client that can be used to manage Perl distributions. It has many great features, including uninstalling modules. Once you&amp;rsquo;ve installed App::cpanminus, to remove the &lt;code&gt;Acme::Dot&lt;/code&gt; module, at the command line type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpanm --uninstall Acme::Dot
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;App::cpanminus has loads of other great features, to see them, just run &lt;code&gt;cpanm --help&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Updated:&lt;/strong&gt; added cpanm example and clarified directory removal process. 2015-02-21**&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

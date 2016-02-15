@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Dereference on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/dereference/</link>
+    <description>Recent content in Dereference on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 02 May 2013 20:16:55 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/dereference/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Dynamic variable names with a dereferencing block</title>
+      <link>http://perltricks.com/article/23/2013/5/2/Dynamic-variable-names-with-a-dereferencing-block/</link>
+      <pubDate>Thu, 02 May 2013 20:16:55 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/23/2013/5/2/Dynamic-variable-names-with-a-dereferencing-block/</guid>
+      <description>&lt;p&gt;Perl is remarkably flexible and allows you to achieve all kinds of wizardry with the language. One example of this is using a dereferencing block to use a scalar value as a variable name. This allows you to use variables with dynamic names.&lt;/p&gt;
+
+&lt;p&gt;An interesting example of this can be seen in &lt;a href=&#34;https://metacpan.org/source/NRG/Nginx-ParseLog-1.01/lib/Nginx/ParseLog.pm&#34;&gt;Nginx::ParseLog&lt;/a&gt;, I&amp;rsquo;ve reproduced the relevant code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;if ( $log_string =~ m/^($ip)\s-\s (.*?)\s         \[(.*?)\]\s  &amp;quot;(.*?)&amp;quot;\s  (\d+)\s  (\d+)\s     &amp;quot;(.*?)&amp;quot;\s  &amp;quot;(.*?)&amp;quot;$/x) {
+    my $deparsed = { };
+    my $c = 0;
+         
+    my @field_list = qw/
+            ip     
+        remote_user
+            time    
+            request
+            status 
+            bytes_send
+            referer 
+            user_agent
+    /;
+ 
+    {
+        no strict &#39;refs&#39;; # some Perl magic
+ 
+        for (@field_list) {
+            $deparsed-&amp;gt;{ $_  } = ${ ++$c };
+            }
+    }
+     
+    return $deparsed;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;What this code does is match $log_string against a regex - if the match is successful, it iterates through the regex capture global variables ($1-$8), using the values of @field_list as the key values for the captures. The dynamic variable name is stored in $c.&lt;/p&gt;
+
+&lt;p&gt;Using dynamic variable names can provide useful shortcuts when used in the right context. Dynamic variables can also increase the risk of error (note that strict &amp;lsquo;refs&amp;rsquo; had to be disabled for this code to work). What&amp;rsquo;s nice about this example is using the regex match in the if statement provides the assurance that every capture was successful, hence in this context it should be ok to turn strict refs off briefly.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Find the index of the last element in an array</title>
+      <link>http://perltricks.com/article/6/2013/3/28/Find-the-index-of-the-last-element-in-an-array/</link>
+      <pubDate>Thu, 28 Mar 2013 23:30:33 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/6/2013/3/28/Find-the-index-of-the-last-element-in-an-array/</guid>
+      <description>
+
+&lt;p&gt;Most Perl programmers know that to find the size of an array, the array must called in a scalar context like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# Declare the array
+my @numbers_array = (41,67,13,9,62); 
+# Get the array size
+my $size_of_array = @numbers_array;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This understanding can lead to programmers applying a scalar context to an array to access its last element (subtracting 1 because arrays are zero-based).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;print $numbers_array[@numbers_array - 1];
+# 62
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;the-last-index-variable:65383929869db9a593a341e187dc3897&#34;&gt;The last-index variable&lt;/h3&gt;
+
+&lt;p&gt;Perl has a &amp;lsquo;last-index&amp;rsquo; variable for arrays ($#array_name).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;print $#numbers_array; 
+# 5
+print $numbers_array[$#numbers_array]; 
+# 62
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The last index operator ($#array_name) also works on arrayrefs if you insert an extra dollar sigil:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $arrayref = [41, 67, 13, 9, 62];
+print $#$arrayref;
+# 5
+print $$arrayref[$#$arrayref]; 
+# 62 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;negative-indexing:65383929869db9a593a341e187dc3897&#34;&gt;Negative indexing&lt;/h3&gt;
+
+&lt;p&gt;Perl provides a shorter syntax for accessing the last element of an array: negative indexing. Negative indices track the array from the end, so -1 refers to the last element, -2 the second to last element and so on.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# Declare the array
+my @cakes = qw(victoria_sponge chocolate_gateau carrot);
+print $cakes[-1]; # carrot
+print $cakes[-2]; # chocolate_gateau
+print $cakes[-3]; # victoria_sponge
+print $cakes[0];  # victoria_sponge
+print $cakes[1];  # chocolate_gateau
+print $cakes[2];  # carrot
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

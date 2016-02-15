@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Analyzing GitHub with the search API Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Net::GitHub makes it easy to search GitHub"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Analyzing GitHub with the search API</h1>
+            <p class="blog-post-meta">Sep 5, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/112/87727BBA-34A1-11E4-B2A5-54317BB45C3F.png"/>
+            </div>
+              
+
+<p>The Net::GitHub module provides a perly interface to GitHub&rsquo;s feature-rich API. You can do everything with it, from creating new repos to managing issues and initiating pull requests. Today I&rsquo;m going to focus on search.</p>
+
+<h3 id="setup:aca40df9e1d07f7ddcf3dfd9a21817db">Setup</h3>
+
+<p>Grab yourself a copy of <a href="https://metacpan.org/pod/Net::GitHub">Net::GitHub</a> (make sure it&rsquo;s version 0.68 or higher). The CPAN Testers <a href="http://matrix.cpantesters.org/?dist=Net-GitHub+0.68">results</a> show that it builds on all major platforms, including Windows. You can install it via from CPAN at the command line:</p>
+
+<pre><code class="language-prettyprint">$ cpan Net::GitHub
+</code></pre>
+
+<h3 id="first-steps:aca40df9e1d07f7ddcf3dfd9a21817db">First steps</h3>
+
+<p>First we need to create a search object. You can search GitHub anonymously up to 5 times per minute or if you authenticate, 20 times per minute. The module <a href="https://metacpan.org/pod/Net::GitHub">documentation</a> shows examples of how to authenticate, so we&rsquo;ll proceed here unauthenticated.</p>
+
+<pre><code class="language-prettyprint">use Net::GitHub::V3;
+
+# unauthenticated
+my $gh = Net::GitHub::V3-&gt;new;
+my $search = $gh-&gt;search;
+my %data = $search-&gt;repositories({ q =&gt; 'docker'});
+</code></pre>
+
+<p>The code above creates a <code>$search</code> object, and initiates a repo search for docker. The <code>%data</code> hash contains the search results. Let&rsquo;s have a look at them:</p>
+
+<pre><code class="language-prettyprint">{'incomplete_results' =&gt; bless( do{\(my $o = 0)}, 'JSON::XS::Boolean' ),
+ 'total_count' =&gt; 12830,
+ 'items' =&gt; [ {
+                   'open_issues_count' =&gt; 771,
+                   'url' =&gt; 'https://api.github.com/repos/docker/docker',
+                   'has_downloads' =&gt; bless( do{\(my $o = 1)}, 'JSON::XS::Boolean' ),
+                   'tags_url' =&gt; 'https://api.github.com/repos/docker/docker/tags',
+                   'forks_count' =&gt; 2794,
+                   'has_issues' =&gt; $VAR1-&gt;{'items'}[0]{'has_downloads'},
+                   'clone_url' =&gt; 'https://github.com/docker/docker.git',
+                   'name' =&gt; 'docker',
+                   'private' =&gt; $VAR1-&gt;{'incomplete_results'},
+                   'watchers_count' =&gt; 14846,
+                   'pushed_at' =&gt; '2014-09-05T00:32:46Z',
+                   'description' =&gt; 'Docker - the open-source application container engine',
+                   'updated_at' =&gt; '2014-09-04T21:59:25Z',
+                   'html_url' =&gt; 'https://github.com/docker/docker',
+                   'stargazers_count' =&gt; 14846,
+                   'size' =&gt; 135198,
+                   'watchers' =&gt; 14846,
+                   'created_at' =&gt; '2013-01-18T18:10:
+                   'open_issues' =&gt; 771,
+                   'language' =&gt; 'Go',
+                   'git_url' =&gt; 'git://github.com/docker/docker.
+                   'full_name' =&gt; 'docker/docker',
+                   'homepage' =&gt; 'http://www.docker.com',
+                   'forks' =&gt; 2794,
+                   'score' =&gt; '89.950935',
+                    ...
+                   },
+            ]
+};
+</code></pre>
+
+<p>I&rsquo;ve truncated the results for the sake of brevity, to show the top level key values and one simplified repo:</p>
+
+<ul>
+<li><code>incomplete_results</code> is a key value pair that returns a boolean true if the are more search results than those returned by the search</li>
+<li><code>total_count</code> shows the total number of repos returned by the search</li>
+<li><code>items</code> is the interesting one - it&rsquo;s an arrayref of repo hashes</li>
+</ul>
+
+<h3 id="getting-more-results:aca40df9e1d07f7ddcf3dfd9a21817db">Getting more results</h3>
+
+<p>Let&rsquo;s update the code to pull more results. GitHub permits up to 100 results per API call and a 1,000 results per search.</p>
+
+<pre><code class="language-prettyprint">use Net::GitHub::V3;
+
+my $gh = Net::GitHub::V3-&gt;new;
+my $search = $gh-&gt;search;
+
+my @data = @{ $search-&gt;repositories({ q =&gt; 'docker',
+                                      per_page =&gt; 100 })-&gt;{items} };
+
+while ($search-&gt;has_next_page) {
+    sleep 12; # 5 queries max per minute
+    push @data, @{ $search-&gt;next_page-&gt;{items} };
+}
+</code></pre>
+
+<p>The code above executes the same search as before, except now I&rsquo;m passing the <code>per_page</code> parameter to get 100 results per call. I also extract the <code>items</code> arrayref directly into the <code>@data</code> array. The while loop will continue to call the search API until no further results are returned or we hit the 1,000 result limit.</p>
+
+<h3 id="analyzing-the-data:aca40df9e1d07f7ddcf3dfd9a21817db">Analyzing the data</h3>
+
+<p>So now we have a full set of results in , what can we do with it? One analysis that could be interesting is a count by programming language. Every repo hash contains a <code>language</code> key value pair, so we can extract and count it. Lets see which language most docker-related repos are written in.</p>
+
+<pre><code class="language-prettyprint">use Net::GitHub::V3;
+
+my $gh = Net::GitHub::V3-&gt;new;
+my $search = $gh-&gt;search;
+
+my @data = @{ $search-&gt;repositories({ q =&gt; 'docker+created:&gt;2014-09-01',
+                                      per_page =&gt; 100 })-&gt;{items} };
+
+while ($search-&gt;has_next_page) {
+    sleep 12; # 5 queries max per minute
+    push @data, @{ $search-&gt;next_page-&gt;{items} };
+}
+
+my %languages;
+
+for my $repo (@data) {
+    my $language = $repo-&gt;{language} ? $repo-&gt;{language} : 'Other';
+    $languages{ $language }++;
+}
+
+for (sort { $languages{$b} &lt;=&gt; $languages{$a} } keys %languages) {
+    printf &quot;%10s: %5i\n&quot;, $_, $languages{$_};
+}
+</code></pre>
+
+<p>Let&rsquo;s walk through this code. First of all, I changed the search argument to limit results to repos created since September 2014 using the <code>created</code> qualifier. This was to ensure we didn&rsquo;t hit the 1,000 result search limit. The GitHub search API supports a whole range of useful <a href="https://developer.github.com/v3/search/#parameters">search qualifiers</a> (although it&rsquo;s not documented, <code>created</code> will take a full timestamp like <code>2014-09-01T00:00:00Z</code>).</p>
+
+<p>Next I declared the <code>%languages</code> hash and iterated through the results, extracting each repo&rsquo;s language. Where language was <code>undef</code>, I labelled the repo &ldquo;Other&rdquo;. Finally I sorted the results and printed them using <a href="http://perldoc.perl.org/functions/printf.html">printf</a>to get a nicely formatted output. Here are the results:</p>
+
+<pre><code class="language-prettyprint">     Shell:   238
+     Other:    58
+    Python:    13
+      Ruby:    10
+JavaScript:     8
+        Go:     6
+      Perl:     2
+       PHP:     2
+   Clojure:     1
+      Java:     1
+</code></pre>
+
+<p>Perhaps as is to be expected, the results show shell programs dominating the Docker space in September.</p>
+
+<h3 id="further-info:aca40df9e1d07f7ddcf3dfd9a21817db">Further Info</h3>
+
+<p>GitHub&rsquo;s search API supports more than just repo search. You can search issues, code and users as well. Check out the official GitHub search API <a href="https://developer.github.com/v3/search/">documentation</a> for more examples.</p>
+
+<p><a href="https://metacpan.org/pod/Net::GitHub">Net::GitHub</a> provides an interface for far more than just search though. It&rsquo;s a full-featured API - you can literally manage your GitHub account via Perl code with Net::GitHub. The developer Fayland Lam has provided loads of documentation, and I found him helpful responsive to enquiries. Thanks Fayland!</p>
+
+<p>If you&rsquo;re looking for more than just search, you may also want to look at Ingy döt Net&rsquo;s awesome <a href="https://github.com/ingydotnet/git-hub">git-hub</a>, which provides the full power of GitHub at the command line.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/github">github</a></div>
+              
+                <div class="tag"><a href="/tags/git">git</a></div>
+              
+                <div class="tag"><a href="/tags/docker">docker</a></div>
+              
+                <div class="tag"><a href="/tags/search">search</a></div>
+              
+                <div class="tag"><a href="/tags/api">api</a></div>
+              
+                <div class="tag"><a href="/tags/net_github">net_github</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

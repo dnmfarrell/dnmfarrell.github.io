@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Is your login page secure? Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A bumper article on secure web application logins with Catalyst"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Is your login page secure?</h1>
+            <p class="blog-post-meta">Apr 28, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/84/ECC1012E-FF2E-11E3-B566-5C05A68B9E16.jpeg"/>
+            </div>
+              
+
+<p>How many criteria do you think there are for a web application to securely login its users? <a href="http://www.amazon.com/gp/product/1118026470/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=1118026470&amp;linkCode=as2&amp;tag=perltrickscom-20">The Web Application Hacker&rsquo;s Handbook</a> (affiliate link) lists 5:</p>
+
+<ol>
+<li>Prevent information leaks</li>
+<li>Handle credentials secretively</li>
+<li>Validate credentials properly</li>
+<li>Prevent brute-force attacks</li>
+<li>Log, monitor and notify</li>
+</ol>
+
+<p>So there are 5 criteria, but how you do implement them? I&rsquo;ve created a <a href="https://github.com/sillymoose/SecApp_login">new web application</a> called &ldquo;SecApp&rdquo; using Perl&rsquo;s Catalyst web framework that attempts to satisfy these criteria - we&rsquo;ll step through each one and you can judge for yourself if it does.</p>
+
+<h3 id="how-to-setup-the-app:ba4c9275de3995b673588b08da4e28c2">How to setup the app</h3>
+
+<p>If you&rsquo;d like to download the app and follow along you can, but this step is optional. You&rsquo;re going to need at least Perl 5.14.4 and a git installed. To download the app from our github page, just open up the command line and enter:</p>
+
+<pre><code class="language-prettyprint">$ git clone https://github.com/sillymoose/SecApp_login
+</code></pre>
+
+<p>There&rsquo;s no way around it; this app has a lot of dependencies. To ease the burden, start by installing <a href="https://metacpan.org/pod/App::cpanminus">cpanminus</a> at the command line:</p>
+
+<pre><code class="language-prettyprint">$ cpan App::cpanminus
+</code></pre>
+
+<p>I prefer to use cpanminus when installing lots of modules: it&rsquo;s less of a memory hog than cpan, outputs less line noise by default, and has the useful &ldquo;&ndash;notest&rdquo; option if you want to install modules without testing them (and save a lot of time). Now change into the newly cloned app directory, and use cpanminus to install the app&rsquo;s dependencies:</p>
+
+<pre><code class="language-prettyprint">$ cd SecApp_login
+$ cpanm --installdeps .
+--&gt; Working on .
+Configuring SecApp-0.01 ... OK
+&lt;== Installed dependencies for .. Finishing.
+</code></pre>
+
+<p>The &ldquo;&ndash;installdeps&rdquo; switch instructs cpanminus to search the current directory for dependencies. All of of the app&rsquo;s dependencies are listed in Makefile.PL, so cpanminus finds those and begins installing all of the Perl modules that the app requires but your system does not have installed. If you&rsquo;re working with a fresh install of Perl, this can take up to an hour or so, so go make a cup of coffee or something else whilst the installs happen.</p>
+
+<p>Once all the modules are installed, test run the application with the following command:</p>
+
+<pre><code class="language-prettyprint">$ TESTING=1 script/secapp_server.pl 
+HTTP::Server::PSGI: Accepting connections at http://0:3000/
+</code></pre>
+
+<p>Open your browsers and navigate to <a href="http://localhost:3000">http://localhost:3000</a>. You see this simple welcome message:</p>
+
+<p><a href="/static/images/84/secapp_welcome.png"><img src="/static/images/84/secapp_welcome_600.png" alt="secapp" /></a></p>
+
+<p>If you visit <a href="http://localhost/login">http://localhost/login</a>, it should load the login page:</p>
+
+<p><a href="/static/images/84/secapp_login.png"><img src="/static/images/84/secapp_login_600.png" alt="secapp" /></a></p>
+
+<p>Using the username &ldquo;test_user_01&rdquo; and &ldquo;Hfa *-£(&amp;&amp;%HBbWqpV%&rdquo;_=asd&rdquo; you should be able to login.</p>
+
+<p><a href="/static/images/84/secapp_login_credentials.png"><img src="/static/images/84/secapp_login_credentials_600.png" alt="secapp" /></a></p>
+
+<p>A successful login will display a simple message and logout link:</p>
+
+<p><a href="/static/images/84/secapp_landing.png"><img src="/static/images/84/secapp_landing_600.png" alt="secapp" /></a></p>
+
+<h3 id="1-prevent-information-leaks:ba4c9275de3995b673588b08da4e28c2">1. Prevent information leaks</h3>
+
+<p>Information leaks give would-be attackers clues that undermine the login security. One way they do this is by giving information about the software running the web application (which may have known weaknesses).</p>
+
+<p>In SecApp I&rsquo;ve turned off the typical Catalyst information leaks. In the root application file <a href="https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp.pm">SecApp.pm</a> the &ldquo;-Debug&rdquo; plugin has been removed, which prints a full stack trace in the case of an error:</p>
+
+<pre><code class="language-prettyprint">use Catalyst qw/
+    Static::Simple
+    Authentication
+    Session
+    Session::Store::File
+    Session::State::Cookie
+/;
+</code></pre>
+
+<p>Further down the same file, the &ldquo;X-Catalyst&rdquo; HTTP header has been disabled by modifying the package configuration. This stops the header from being inserted to every response:</p>
+
+<pre><code class="language-prettyprint"># Disable X-Catalyst header
+enable_catalyst_header =&gt; 0,
+</code></pre>
+
+<p>These two changes stop the application from informing users the underlying application framework and language. Now they won&rsquo;t know if they&rsquo;re dealing with a Ruby, Python or Perl application!</p>
+
+<p>The other type of information leak we need to prevent is indicating logical vulnerabilities by responding differently to similar requests. For example, by responding to login attempts with incorrect usernames with the error message &ldquo;incorrect username&rdquo;, attackers can brute-force attack the username until they receive the message &ldquo;incorrect password&rdquo;, at which point they know they have guessed a correct username.</p>
+
+<p>In SecApp, we want to respond with a generic message every time the login attempt fails, and not indicate which field was incorrect. The login function is implemented in our <a href="https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp/Controller/Root.pm#L42">Root.pm</a> controller - we&rsquo;ll look at the code later, but for now you can see that there is only one error message returned.</p>
+
+<h3 id="2-handle-credentials-secretively:ba4c9275de3995b673588b08da4e28c2">2. Handle credentials secretively</h3>
+
+<p>The <a href="http://www.amazon.com/gp/product/1118026470/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=1118026470&amp;linkCode=as2&amp;tag=perltrickscom-20">The Web Application Hacker&rsquo;s Handbook</a> summarizes this as:</p>
+
+<blockquote>
+<p>All credentials should be created, stored, and transmitted in a manner that does not lead to unauthorized disclosure.</p>
+</blockquote>
+
+<p>In SecApp <a href="https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp/Controller/Root.pm#L11">Root.pm</a>, we use Catalyst&rsquo;s auto Controller function to check that every request is over SSL:</p>
+
+<pre><code class="language-prettyprint"># this method will be called everytime
+sub auto :Private {
+    my ($self, $c) = @_;
+
+    # 404 unless https/testing &amp; request method is GET/HEAD/POST
+    unless( ( $c-&gt;req-&gt;secure or $c-&gt;config-&gt;{testing} == 1 )
+            &amp;&amp; grep /^(?:GET|HEAD|POST)$/, $c-&gt;req-&gt;method )
+        {
+            $c-&gt;detach('default');
+        }
+    ...
+    return 1;
+}
+</code></pre>
+
+<p>The method &ldquo;$c-&gt;req-&gt;secure&rdquo; will return true if the connection is via SSL. If it isn&rsquo;t we detach the request to the &ldquo;default&rdquo; method, which returns a 404 request error. The clause &ldquo;or $c-&gt;config-&gt;{testing} == 1&rdquo; is so that when testing the application we can try out the functions without needing SSL, as Catalyst&rsquo;s test server does not support it.</p>
+
+<p>Now it could be irritating for users who try to load the login page and get a 404 error. So using Catalyst&rsquo;s end method, we also set the Strict-Transport-Security HTTP header which instructs browsers to load all pages via https. This is the code:</p>
+
+<pre><code class="language-prettyprint">sub end : ActionClass('RenderView') {
+  my ($self, $c) = @_;
+
+  # don't require TLS for testing
+  unless ($c-&gt;config-&gt;{testing} == 1) {
+    $c-&gt;response-&gt;header('Strict-Transport-Security' =&gt; 'max-age=3600');
+  }
+  ...
+}
+</code></pre>
+
+<p>SecApp sets several other security headers in the <a href="https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp/Controller/Root.pm#L90">end method</a>, you can read about what they do <a href="http://perltricks.com/article/81/2014/3/31/Perl-web-application-security-HTTP-headers">here</a>.</p>
+
+<p>SecApp only authenticates login requests received via POST. We achieve this by using Catalyst&rsquo;s chained dispatching and HTTP method matching:</p>
+
+<pre><code class="language-prettyprint">sub login :Chained('/') PathPart('login') CaptureArgs(0) {}
+
+sub login_auth :Chained('login') PathPart('') Args(0) POST {
+    # authentication code
+    ...
+
+    # authentication failed, load the login form
+    $c-&gt;forward('login_form');
+}
+
+sub login_form :Chained('login') PathPart('') Args(0) GET {
+    my ($self, $c) = @_;
+
+    # load the login template
+    $c-&gt;stash(template =&gt; 'login.tt');
+    ...
+}
+</code></pre>
+
+<p>The <a href="https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp/Controller/Root.pm#L42">code</a> has been abbreviated here for clarity. But effectively the &ldquo;login_auth&rdquo; subroutine will only fire if the request to &ldquo;/login&rdquo; was made via POST, else just load the login page with the &ldquo;login_form&rdquo; sub. Cool right? Catalyst project manager John Napiorkowski mused on these features in an illustrative <a href="http://jjnapiorkowski.typepad.com/modern-perl/2013/08/thoughts-on-catalyst-soa-and-web-services.html#.U11rEjnXvqg">blog post</a>.</p>
+
+<p>Finally, SecApp stores the passwords in an hashed format, using a relatively strong algorithm (bcrypt). The following code in <a href="https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp/Schema/Result/User.pm#L130">User.pm</a> adds the functionality:</p>
+
+<pre><code class="language-prettyprint">__PACKAGE__-&gt;add_columns(
+            'password' =&gt; {
+                passphrase =&gt; 'rfc2307',
+                passphrase_class =&gt; 'BlowfishCrypt',
+                passphrase_args =&gt; {
+                    cost =&gt; 14,
+                    salt_random =&gt; 20,
+                },
+                passphrase_check_method =&gt; 'check_password',
+            });
+</code></pre>
+
+<p>So even if attackers obtained the application password file, the passwords are salted and hashed and not easily broken. SecApp comes with a sample SQLite3 test database with one test user account already created.</p>
+
+<h3 id="3-validate-credentials-properly:ba4c9275de3995b673588b08da4e28c2">3. Validate credentials properly</h3>
+
+<p>The code that validates credentials can also contain weaknesses. Passwords should be validated in full, without modification or truncation and in a case-sensitive comparison. Multi-stage login processes are particularly susceptible to attacks. The login code should be peer-reviewed and substantially tested for errors.</p>
+
+<p>The <a href="https://metacpan.org/pod/Catalyst::Plugin::Authentication">Catalyst::Plugin::Authentication</a> module makes authentication easy. SecApp keeps the login process simple: just a username and password form, with an optional CAPTCHA. Here is the full login code:</p>
+
+<pre><code class="language-prettyprint">sub login_auth :Chained('login') PathPart('') Args(0) POST {
+  my ($self, $c) = @_;
+  my $captcha_response 
+    = $c-&gt;request-&gt;params-&gt;{recaptcha_response_field};
+  my $captcha_challenge 
+    = $c-&gt;request-&gt;params-&gt;{recaptcha_challenge_field};
+
+  # proceed if config has switched off CAPTCHA, or if the submission is valid, proceed
+  if ($c-&gt;config-&gt;{Captcha}-&gt;{enabled} == 0
+      || Captcha::reCAPTCHA-&gt;new-&gt;check_answer(
+                   $c-&gt;config-&gt;{Captcha}-&gt;{private_key},
+                   $c-&gt;request-&gt;address,
+                   $captcha_challenge,
+                   $captcha_response)-&gt;{is_valid})
+  {
+    $username = $c-&gt;req-&gt;params-&gt;{username};
+    my $password = $c-&gt;req-&gt;params-&gt;{password};
+
+    # if username and passwords were supplied, authenticate
+    if ($username &amp;&amp; $password) {
+      if ($c-&gt;authenticate({ username =&gt; $username,
+                             password =&gt; $password } ))
+      {
+      # authentication success, check user active and redirect to the secure landing page
+        if ($c-&gt;user-&gt;get_object-&gt;active) {
+          $c-&gt;response-&gt;redirect($c-&gt;uri_for($c-&gt;controller('Admin')-&gt;action_for('landing')));
+          return;
+        }
+      }
+      else {
+        $c-&gt;stash(error_msg =&gt; &quot;Bad username or password.&quot;);
+      }
+    }
+  }
+  $c-&gt;forward('login_form');
+}
+</code></pre>
+
+<p>Let&rsquo;s walk through the code. If the CAPTCHA functionality is enabled, the login function will attempt to validate the CAPTCHA. If successful, the code then retrieves the username and password, and if they exist, attempts to validate them using the authenticate method. The authenticate method checks both username and password in full against the database. If the username and password are validated, then the user will be re-directed to the landing page which is in the secure Admin.pm controller. Else an error message will set indicating a bad username or password. In all failing cases, the login form will be reloaded and displayed.</p>
+
+<p>So the code looks good, but how do we know if it will do the right thing in all cases? Fortunately <a href="https://metacpan.org/pod/Catalyst::Test">Catalyst::Test</a> can make unit testing an application&rsquo;s methods easy. SecApp has the test file <a href="https://github.com/sillymoose/SecApp_login/blob/master/t/Root.t">Root.t</a> which tests the login function with many different combinations of credentials, such as null, zero-length string, correct username incorrect password etc. Running these tests makes it easy to confirm that the login function does the right thing. Want to check for yourself? At the command line run:</p>
+
+<pre><code class="language-prettyprint">$ TESTING=1 perl -Ilib t/Root.t
+</code></pre>
+
+<h3 id="4-prevent-brute-force-attacks:ba4c9275de3995b673588b08da4e28c2">4. Prevent brute-force attacks</h3>
+
+<p>Brute force attacks are attempts to crack the username and password of an account by repeatedly trying different combinations until one succeeds. SecApp uses <a href="https://metacpan.org/pod/Captcha::reCAPTCHA">Captcha::reCAPTCHA</a> to prevent automated brute force attacks. You&rsquo;ll need a Google account and web domain to sign up for it (it&rsquo;s free). The difficulty of the captcha puzzles presented are very difficult to reliably pass with automation. If you do have a Google <a href="https://www.google.com/recaptcha/intro/index.html">reCAPtCHA account</a>, you can try it out with SecApp by updating <a href="https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp.pm#L54">SecApp.pm</a> with your account credentials.</p>
+
+<p><a href="/static/images/84/secapp_login_catpcha.png"><img src="/static/images/84/secapp_login_catpcha_600.png" alt="secapp" /></a></p>
+
+<p>Seeing as brute-force attacks can only succeed if they can try millions of attempts, why not just add a time-delay like &ldquo;sleep(2)&rdquo; to the login function? The problem with that defence is that it opens the web application up to another attack-vector: denial of service. If an attacker can issue several requests every 2 seconds to the login function, it may tie up all of the application&rsquo;s processes and stop it from responding to regular web requests. Not good!</p>
+
+<p>Using CAPTCHA combined with front-end proxy web server request and connection limiting methods that can largely eliminate the brute-force risk.</p>
+
+<h3 id="5-log-monitor-and-notify:ba4c9275de3995b673588b08da4e28c2">5. Log, monitor and notify</h3>
+
+<p>Catalyst comes with built-in logging capabilities. If you&rsquo;re using Catalyst::Plugin::Authentication, any failed login attempt automatically logs a critical error. So the good news is if you&rsquo;re using a web server like nginx, Catalyst will write the critical error to the server error log (this is a simplification). SecApp does not implement any monitoring or notification services, but I think this is more the domain of the server and not the web application. It&rsquo;s trivial to configure <a href="http://www.fail2ban.org/wiki/index.php/Main_Page">fail2ban</a> to monitor the error.log and jail any suspicious repeat login attempts.</p>
+
+<h3 id="conclusion:ba4c9275de3995b673588b08da4e28c2">Conclusion</h3>
+
+<p>Is the SecApp login function secure? One thing to consider is that although it utilizes many good practices, user registration and password reset is not implemented. These features must be secure too, else they can undermine the login security altogether, for example by allowing weak passwords to be set. We&rsquo;ll consider these areas of authentication in a future article. In the meantime, SecApp is released under the Artistic 2.0 license, feel free to use it.</p>
+
+<p>Enjoyed this article? Help us out and <a href="https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F84%2F2014%2F4%2F28%2FIs-your-login-page-secure-&amp;text=Is+your+login+page+secure%3F&amp;tw_p=tweetbutton&amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F84%2F2014%2F4%2F28%2FIs-your-login-page-secure-&amp;via=perltricks">tweet</a> about it!</p>
+
+<p>*<strong>Updated:</strong> corrected hashing algorithm name and description 04/28/2014*</p>
+
+<p><em>Cover image <a href="https://creativecommons.org/licenses/by/2.0/">©</a> <a href="https://www.flickr.com/photos/motograf/1269439152/in/photolist-2Wbd2W-9VxeqP-8v6WhC-8v3ToK-8v6W4h-fcDhWQ-6boP72-LNv8s-4pkUnM-aj6wD3-4rL1UA-9Ziy7V-jP5Sc-51f4ck-4ppX9S-dWGQed-dWGuMs-dQRyD-b9SUT-9cBRYL-5UB8BE-8BFgnW-6boNpR-6bsWUQ-6bsX9C-FXJTL-8AuQei-8AuRVc-8AuSzH-6gA6Lx-8v5M9x-91rH7R-dWsFmy-ZQRR-jP6a9-4HKkvg-4HPzk1-5eWG8T-8v8Q6d-8v8Q7N-4HKmZ6-kJrvqx-fcp9cZ-4rsdJ3-aFebHa-4HPALy-7HrEuY-6Pk9RC-hX3MVF-7xoEF6">motograf</a></em></p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/catalyst">catalyst</a></div>
+              
+                <div class="tag"><a href="/tags/mvc">mvc</a></div>
+              
+                <div class="tag"><a href="/tags/security">security</a></div>
+              
+                <div class="tag"><a href="/tags/authentication">authentication</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

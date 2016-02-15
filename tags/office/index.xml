@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Office on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/office/</link>
+    <description>Recent content in Office on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 05 Aug 2014 13:41:48 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/office/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Parse Excel with ease using Perl</title>
+      <link>http://perltricks.com/article/108/2014/8/5/Parse-Excel-with-ease-using-Perl/</link>
+      <pubDate>Tue, 05 Aug 2014 13:41:48 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/108/2014/8/5/Parse-Excel-with-ease-using-Perl/</guid>
+      <description>
+
+&lt;p&gt;In the business world, it seems like Excel spreadsheets are everywhere. Recently I had to parse several hundred spreadsheets under a tight deadline for a client. To make matters worse, the spreadsheets were in a mix of Excel 2003 (xls) and 2007 (xlsx) formats. Fortunately I know Perl, and using the Spreadsheet::Read module, it was easy. This article will show you how to use Spreadsheet::Read to parse Excel spreadsheets.&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:0b46a0650427715cdfe7d0a01e84588d&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need to install &lt;a href=&#34;https://metacpan.org/pod/Spreadsheet::Read&#34;&gt;Spreadsheet::Read&lt;/a&gt; and a couple of interface modules. &lt;a href=&#34;https://metacpan.org/pod/Spreadsheet::ParseExcel&#34;&gt;Spreadsheet::ParseExcel&lt;/a&gt; is an interface for Excel 2003 spreadsheets and &lt;a href=&#34;https://metacpan.org/pod/Spreadsheet::XLSX&#34;&gt;Spreadsheet::XLSX&lt;/a&gt; is for reading the modern Excel format. You can install all three modules from the terminal using cpan:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Spreadsheet::ParseExcel Spreadsheet::XLSX Spreadsheet::Read
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;using-spreadsheet-read:0b46a0650427715cdfe7d0a01e84588d&#34;&gt;Using Spreadsheet::Read&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s parse the spreadsheet shown in the cover image, which contains an income statement. Spreadsheet::Read provides a simple, unified interface for reading spreadsheets. It exports the &lt;code&gt;ReadData&lt;/code&gt; function which requires a filepath to the spreadsheet:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Spreadsheet::Read;
+
+my $workbook = ReadData(&#39;income_statement.xlsx&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now &lt;code&gt;$workbook&lt;/code&gt; contains the data structure representing the spreadsheet. We can inspect this structure by printing it with &lt;a href=&#34;https://metacpan.org/pod/Data::Printer&#34;&gt;Data::Printer&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ [
+    [0] {
+        error     undef,
+        parser    &amp;quot;Spreadsheet::XLSX&amp;quot;,
+        sheet     {
+            Sheet1   1
+        },
+        sheets    1,
+        type      &amp;quot;xlsx&amp;quot;,
+        version   0.13
+    },
+    [1] {
+        attr     [],
+        B1       &amp;quot;Income Statement 2014&amp;quot;,
+        B2       &amp;quot;Revenue&amp;quot;,
+        B3       &amp;quot;Cost of goods sold&amp;quot;,
+        B4       &amp;quot;Gross profit&amp;quot;,
+        B5       &amp;quot;Financing costs&amp;quot;,
+        B6       &amp;quot;Tax&amp;quot;,
+        B7       &amp;quot;Net profit&amp;quot;,
+        cell     [
+            [0] [],
+            [1] [],
+            [2] [
+                [0] undef,
+                [1] &amp;quot;Income Statement 2014&amp;quot;,
+                [2] &amp;quot;Revenue&amp;quot;,
+                [3] &amp;quot;Cost of goods sold&amp;quot;,
+                [4] &amp;quot;Gross profit&amp;quot;,
+                [5] &amp;quot;Financing costs&amp;quot;,
+                [6] &amp;quot;Tax&amp;quot;,
+                [7] &amp;quot;Net profit&amp;quot;
+            ],
+            [3] [
+                [0] undef,
+                [1] undef,
+                [2] 50000,
+                [3] 2500,
+                [4] 47500,
+                [5] 7150,
+                [6] 10087.5,
+                [7] 30262.5
+            ]
+        ],
+        C2       &amp;quot; $ 50,000.00 &amp;quot;,
+        C3       &amp;quot; $ 2,500.00 &amp;quot;,
+        C4       &amp;quot; $ 47,500.00 &amp;quot;,
+        C5       &amp;quot; $ 7,150.00 &amp;quot;,
+        C6       &amp;quot; $ 10,087.50 &amp;quot;,
+        C7       &amp;quot; $ 30,262.50 &amp;quot;,
+        label    &amp;quot;Sheet1&amp;quot;,
+        maxcol   3,
+        maxrow   7
+    }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This shows that &lt;code&gt;$workbook&lt;/code&gt; is an arrayref, whose first element describes the file, and subsequent elements represent the individual worksheets. The &lt;code&gt;label&lt;/code&gt; key pair contains the worksheet name, access it like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$workbook-&amp;gt;[1]{label}; #Sheet1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Cells can be referenced using Excel&amp;rsquo;s grid notation (&amp;ldquo;A3&amp;rdquo;) or via standard Perl array access. The different between these is formatting:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$workbook-&amp;gt;[1]{C2}; #$ 50,000.00
+
+$workbook-&amp;gt;[1]{cell}[3][2]; #50000
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So if you need to perform additional processing on the data you&amp;rsquo;re extracting (such as saving to a database), you probably want to use the &lt;code&gt;{cell}&lt;/code&gt; notation, to obtain clean data. With Spreadsheet::Read array indexes begin at 1, so cell &amp;ldquo;C2&amp;rdquo; is [3][2].&lt;/p&gt;
+
+&lt;p&gt;Perhaps you want to loop through two columns at once and print them? No problem:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;for (2..7) {
+    print &amp;quot;$workbook-&amp;gt;[1]{cell}[2][$_]: $workbook-&amp;gt;[1]{cell}[3][$_]\n&amp;quot;; 
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There are some data points which Spreadsheet::Read does not provide: you cannot access the underlying formula of a cell and the styling data is also not available.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:0b46a0650427715cdfe7d0a01e84588d&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Spreadsheet::Read isn&amp;rsquo;t just great for command line apps, it has many uses. Unlike the Microsoft .Net interop library, Perl&amp;rsquo;s Excel interfaces are not single threaded and do not require Excel to be installed to work. Instead Spreadsheet::Read directly parses the Excel file. That makes it possible to process large computing tasks in parallel. Another possible use case is for a spreadsheet upload interface on a web application; Spreadsheet::Read also supports the Libre / Open Office formats as well as CSV text files.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

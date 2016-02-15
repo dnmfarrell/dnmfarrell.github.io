@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Role_basic on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/role_basic/</link>
+    <description>Recent content in Role_basic on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 16 Oct 2014 13:16:03 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/role_basic/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How to test Perl roles without creating test classes</title>
+      <link>http://perltricks.com/article/120/2014/10/16/How-to-test-Perl-roles-without-creating-test-classes/</link>
+      <pubDate>Thu, 16 Oct 2014 13:16:03 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/120/2014/10/16/How-to-test-Perl-roles-without-creating-test-classes/</guid>
+      <description>
+
+&lt;p&gt;Recently I&amp;rsquo;ve been working on a &lt;a href=&#34;https://github.com/sillymoose/March&#34;&gt;game engine&lt;/a&gt; which uses a composition pattern for its actors. I&amp;rsquo;m using &lt;a href=&#34;https://metacpan.org/pod/Role::Tiny&#34;&gt;Role::Tiny&lt;/a&gt; to create the roles. Role::Tiny is really convenient as it lets you use roles with native OO Perl, without committing to a whole object system like Moose. A typical role looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package March::Attribute::Id;
+use 5.020;
+use Role::Tiny;
+use feature &#39;signatures&#39;;
+no warnings &#39;experimental&#39;;
+
+sub id ($self)
+{
+    $self-&amp;gt;{id};
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All this role does is return the id attribute of the consuming class (yes I&amp;rsquo;m using &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;signatures&lt;/a&gt; throughout). I wanted to write unit tests for this role, but I didn&amp;rsquo;t want to a create test class to test the role. So how do you construct an object from a package that has no constructor? The answer is by using &lt;code&gt;bless&lt;/code&gt; in your test file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Test::More;
+
+my $self = bless { id =&amp;gt; 5 }, &#39;March::Attribute::Id&#39;;
+
+BEGIN { use_ok &#39;March::Attribute::Id&#39; }
+
+is $self-&amp;gt;id, 5, &#39;id()&#39;;
+
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code creates an object called &lt;code&gt;$self&lt;/code&gt; by blessing a hashref with the package name of the role that I want to test. It adds a key value pair for the id attribute, and then tests that the role&amp;rsquo;s id method returns the correct id value. I can execute the tests using &lt;code&gt;prove&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -vl t/Attribute/Id.t 
+t/Attribute/Id.t .. 
+ok 1 - use March::Attribute::Id;
+ok 2 - id()
+1..2
+ok
+All tests successful.
+Files=1, Tests=2,  0 wallclock secs ( 0.02 usr  0.00 sys +  0.02 cusr  0.00 csys =  0.04 CPU)
+Result: PASS
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is another role I want to test:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package March::Attribute::Direction;
+use 5.020;
+use Role::Tiny;
+use feature &#39;signatures&#39;;
+no warnings &#39;experimental&#39;;
+use March::Game;
+use March::Msg;
+
+requires &#39;id&#39;;
+
+sub direction ($self, $new_direction = 0)
+{
+    if ($new_direction &amp;amp;&amp;amp; $new_direction-&amp;gt;isa(&#39;Math::Shape::Vector&#39;))
+    {
+        $self-&amp;gt;{direction} = $new_direction;
+
+        # publish direction to game queue
+        March::Game-&amp;gt;publish(
+            March::Msg-&amp;gt;new(__PACKAGE__, $self-&amp;gt;id, $new_direction)
+        );
+    }
+    $self-&amp;gt;{direction};
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This role gets and sets the direction vector for the consuming class. The challenge with testing this role is that it requires the consuming class to implement an &lt;code&gt;id&lt;/code&gt; method. Role::Tiny&amp;rsquo;s &lt;code&gt;requires&lt;/code&gt; function is a great way to ensure that the consuming class meets the requirements of the role. But how do we test it without creating a real class with an &lt;code&gt;id&lt;/code&gt; sub? What I do is declare the required sub in the test file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Test::More;
+use Math::Shape::Vector;
+
+# create an object
+my $self = bless { direction =&amp;gt; Math::Shape::Vector-&amp;gt;new(1, 2) 
+                  }, &#39;March::Attribute::Direction&#39;;
+
+# add required sub
+sub March::Attribute::Direction::id { 107 };
+
+BEGIN { use_ok &#39;March::Attribute::Direction&#39; }
+
+is $self-&amp;gt;direction-&amp;gt;{x}, 1, &#39;Check direction x is 1&#39;;
+is $self-&amp;gt;direction-&amp;gt;{y}, 2, &#39;Check direction y is 2&#39;;
+ok $self-&amp;gt;direction( Math::Shape::Vector-&amp;gt;new(1, 0) ),
+    &#39;Update direction to new vector&#39;;
+is $self-&amp;gt;direction-&amp;gt;{x}, 1, &#39;Check direction x is still 1&#39;;
+is $self-&amp;gt;direction-&amp;gt;{y}, 0, &#39;Check direction y is now 0&#39;;
+
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The magic line is &lt;code&gt;sub March::Attribute::Direction::id { 107 };&lt;/code&gt; which adds the sub to the role I&amp;rsquo;m testing (it just returns the value 107). Now I can test the &lt;code&gt;direction&lt;/code&gt; method, again using &lt;code&gt;prove&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -lv t/Attribute/Direction.t 
+t/Attribute/Direction.t .. 
+ok 1 - use March::Attribute::Direction;
+ok 2 - Check direction
+ok 3 - Check direction
+ok 4 - Update direction to new vector
+ok 5 - Check direction
+ok 6 - Check direction
+1..6
+ok
+All tests successful.
+Files=1, Tests=6,  0 wallclock secs ( 0.02 usr  0.00 sys +  0.08 cusr  0.00 csys =  0.10 CPU)
+Result: PASS
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;it-s-not-all-gravy:b7f53836af028eb45de42bcacd025737&#34;&gt;It&amp;rsquo;s not all gravy&lt;/h3&gt;
+
+&lt;p&gt;One drawback I&amp;rsquo;ve encountered with this approach can be seen with the following role and test file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Data::Inspector;
+use Role::Tiny;
+
+sub inspect_data
+{
+    my ($self, $data);
+    Data::Dumper-&amp;gt;Dump([&#39;Inspecting:&#39;, $data]);
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This role has a method called &lt;code&gt;inspect_data&lt;/code&gt; which simply returns a dump of any data reference pass to it. This is the test file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::More;
+use Data::Dumper;
+
+my $self = bless {}, &#39;Data::Inspector&#39;;
+
+BEGIN { use_ok &#39;Data::Inspector&#39; } 
+
+ok $self-&amp;gt;inspect_data({ test =&amp;gt; &#39;data&#39; });
+
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As before I bless the role in the test file and then proceed to test the &lt;code&gt;inspect_data&lt;/code&gt; method. This test file runs and all the tests pass. Can you spot this issue here? Notice that the Data::Inspector role uses &lt;a href=&#34;https://metacpan.org/pod/Data::Dumper&#34;&gt;Data::Dumper&amp;rsquo;s&lt;/a&gt; &lt;code&gt;Dump&lt;/code&gt; method, but it doesn&amp;rsquo;t load the Data::Dumper module, the test file does! This is a problem as when the Data::Inspector role is used elsewhere in real code, it will crash and burn when it doesn&amp;rsquo;t find Data::Dumper loaded in memory.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:b7f53836af028eb45de42bcacd025737&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;With this project I intend to create a lot of simple roles, so this approach provides a lightweight way for me to test roles within the test file without creating test classes for every role.&lt;/p&gt;
+
+&lt;p&gt;I really like &lt;a href=&#34;https://metacpan.org/pod/Role::Tiny&#34;&gt;Role::Tiny&lt;/a&gt;. It&amp;rsquo;s flexible: you can create minimalist trait-like behavior or go further and create mixins (roles which modify state). It has nice features like auto-enabling strict and warnings, method modifiers and good &lt;a href=&#34;https://metacpan.org/pod/Role::Tiny&#34;&gt;documentation&lt;/a&gt;. &lt;a href=&#34;https://metacpan.org/pod/Role::Basic&#34;&gt;Role::Basic&lt;/a&gt; is another lightweight roles module that supports traits only (by &lt;a href=&#34;https://metacpan.org/pod/Role::Basic#DESIGN-GOALS-AND-LIMITATIONS&#34;&gt;design&lt;/a&gt;). I wonder if I&amp;rsquo;ll come to regret using a mixin approach as I get further into development of the game engine.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

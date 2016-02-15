@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Extracting from HTML with Mojo::DOM Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="No HTML or regexes necessary"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Extracting from HTML with Mojo::DOM</h1>
+            <p class="blog-post-meta">Jan 8, 2015 by <a href="/authors/brian-d-foy">brian d foy</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/143/BD58A4DE-973E-11E4-8923-CF4520B41B38.png"/>
+            </div>
+              <p>Everyone wants to parse HTML, and many people reach for a regular expression to do that. Although you can <a href="http://stackoverflow.com/a/4234491/2766176">use a regex to parse HTML</a>, it&rsquo;s not as fun as my latest favorite way: <a href="http://www.metacpan.org/module/Mojo::DOM">Mojo::DOM</a> with CSS3 selectors. I find this much easier than trying to remember XPATH and I get to play with Mojo.</p>
+
+<p>The DOM is the <a href="http://www.w3.org/DOM/">&ldquo;Document Object Model&rdquo;</a>. Something behind the scenes parses and organizes the information and allows me to query it with questions such as &ldquo;find all the <code>a</code> tags inside a <code>div</code> tag&rdquo;, or &ldquo;find all the tags of a particular class&rdquo;. I don&rsquo;t manipulate the text myself.</p>
+
+<p>If I&rsquo;m using <a href="http://mojolicio.us/perldoc/Mojo/UserAgent">Mojo::UserAgent</a>, I can get a DOM object from the response object from an HTTP request:</p>
+
+<pre><code class="language-prettyprint">use Mojo::UserAgent;
+my $ua = Mojo::UserAgent-&gt;new;
+
+my $dom = $ua-&gt;get( 'http://search.cpan.org/~bdfoy/' )
+    -&gt;res
+    -&gt;dom;
+</code></pre>
+
+<p>The Mojo method-chaining style with one method per line shows its strengths as I get into more complicated tasks later.</p>
+
+<p>I don&rsquo;t <em>have</em> to make a request to get a DOM object. I&rsquo;m often presented with HTML files to parse with no server to give them to me. Depending on the tractability of the task, I might hand edit it to remove the parts I don&rsquo;t want to think about then use a regex to handle the rest. That way, I don&rsquo;t have to do a lot of work to save state and know where I am in the document. With a DOM, that&rsquo;s not a problem.</p>
+
+<p>In the first example, I fetched <code>http://search.cpan.org/~bdfoy/'</code>, my author page at <a href="http://search.cpan.org/">CPAN Search</a>. I&rsquo;ll start with that HTML, assuming I already have it in a string.</p>
+
+<pre><code class="language-prettyprint">use Mojo::DOM;
+
+my $string = ...;
+
+my $dom = Mojo::DOM-&gt;new( $string );
+
+my $module_list = $dom
+    -&gt;find('a')
+    -&gt;join(&quot;\n&quot;);
+
+print $module_list;
+</code></pre>
+
+<p>Once I have the <code>$dom</code> object, I can use <code>find</code> to select elements. I give <code>find</code> a <a href="http://mojolicio.us/perldoc/Mojo/DOM/CSS#SELECTORS">CSS3 selector</a>, in this case just <code>a</code> to find all the anchor links. <code>find</code> returns a <a href="=" title="http://mojolicio.us/perldoc/Mojo/Collection">Mojo::Collection</a> object, a fancy way to store a list and do things do it. The Mojolicious style makes heavy use of method chaining so it needs a way to call methods on the result. In this example, I merely <code>join</code> the elements with a newline. These are the results:</p>
+
+<pre><code class="language-prettyprint">&lt;a href=&quot;/&quot;&gt;&lt;img alt=&quot;CPAN&quot; src=&quot;http://st.pimg.net/tucs/img/cpan_banner.png&quot;&gt;&lt;/a&gt;
+&lt;a href=&quot;/&quot;&gt;Home&lt;/a&gt;
+&lt;a href=&quot;/author/&quot;&gt;Authors&lt;/a&gt;
+&lt;a href=&quot;/recent&quot;&gt;Recent&lt;/a&gt;
+&lt;a href=&quot;http://log.perl.org/cpansearch/&quot;&gt;News&lt;/a&gt;
+&lt;a href=&quot;/mirror&quot;&gt;Mirrors&lt;/a&gt;
+&lt;a href=&quot;/faq.html&quot;&gt;FAQ&lt;/a&gt;
+&lt;a href=&quot;/feedback&quot;&gt;Feedback&lt;/a&gt;
+&lt;a href=&quot;Acme-BDFOY-0.01/&quot;&gt;Acme-BDFOY-0.01&lt;/a&gt;
+&lt;a href=&quot;/CPAN/authors/id/B/BD/BDFOY/Acme-BDFOY-0.01.tar.gz&quot;&gt;Download&lt;/a&gt;
+&lt;a href=&quot;/src/BDFOY/Acme-BDFOY-0.01/&quot;&gt;Browse&lt;/a&gt;
+</code></pre>
+
+<p>That&rsquo;s a good start, but I extracted all of the links. I want to limit it to the links to my distributions. Looking at the HTML, I see that the link I want is in the first <code>td</code> tag in a <code>tr</code>:</p>
+
+<pre><code class="language-prettyprint">&lt;tr class=s&gt;
+    &lt;td&gt;&lt;a href=&quot;Data-Constraint-1.17/&quot;&gt;Data-Constraint-1.17&lt;/a&gt;&lt;/td&gt;
+    &lt;td&gt;prototypical value checking&lt;/td&gt;
+    &lt;td&gt;&lt;small&gt;[&lt;a href=&quot;/CPAN/authors/id/B/BD/BDFOY/Data-Constraint-1.17.tar.gz&quot;&gt;Download&lt;/a&gt;] [&lt;a
+      href=&quot;/src/BDFOY/Data-Constraint-1.17/&quot;&gt;Browse&lt;/a&gt;]&lt;/small&gt;&lt;/td&gt;
+    &lt;td nowrap&gt;26 Aug 2014&lt;/td&gt;
+   &lt;/tr&gt;
+</code></pre>
+
+<p>I change my selector to look for the first anchor in the first table cell in a table row:</p>
+
+<pre><code class="language-prettyprint">my $module_list = $dom
+    -&gt;find('tr td:first-child a:first-child')
+    -&gt;join(&quot;\n&quot;);
+</code></pre>
+
+<p>Now I have a list of the links I want, but with the anchor HTML and text:</p>
+
+<pre><code class="language-prettyprint">&lt;a href=&quot;Acme-BDFOY-0.01/&quot;&gt;Acme-BDFOY-0.01&lt;/a&gt;
+&lt;a href=&quot;Apache-Htaccess-1.4/&quot;&gt;Apache-Htaccess-1.4&lt;/a&gt;
+&lt;a href=&quot;Apache-iTunes-0.11/&quot;&gt;Apache-iTunes-0.11&lt;/a&gt;
+&lt;a href=&quot;App-Module-Lister-0.15/&quot;&gt;App-Module-Lister-0.15&lt;/a&gt;
+&lt;a href=&quot;App-PPI-Dumper-1.02/&quot;&gt;App-PPI-Dumper-1.02&lt;/a&gt;
+</code></pre>
+
+<p>I still have a bit of work to do. I want to extract the value of the <code>href</code> attribute. I can do that with the <code>map</code> method from <a href="http://mojolicio.us/perldoc/Mojo/Collection">Mojo::Collection</a>:</p>
+
+<pre><code class="language-prettyprint">my $module_list = $dom
+    -&gt;find('tr td:first-child a:first-child')
+    -&gt;map( attr =&gt; 'href' )
+    -&gt;join(&quot;\n&quot;);
+</code></pre>
+
+<p>Each element in the collection is actually a <a href="http://mojolicio.us/perldoc/Mojo/DOM">Mojo::DOM</a> object. The first argument to <code>map</code> is the method to call on each element and the remaining arguments pass through to that method. In this case, I&rsquo;m calling <code>attr('href')</code> on each object. Now I mostly have the values I want:</p>
+
+<pre><code class="language-prettyprint">Acme-BDFOY-0.01/
+Apache-Htaccess-1.4/
+Apache-iTunes-0.11/
+App-Module-Lister-0.15/
+App-PPI-Dumper-1.02/
+</code></pre>
+
+<p>I don&rsquo;t want that trailing slash. I can use another <code>map</code>, but with an anonymous subroutine. The result of the subroutine replaces the element in the collection. I use the <a href="http://www.effectiveperlprogramming.com/2010/09/use-the-r-substitution-flag-to-work-on-a-copy/"><code>/r</code> of the substitution operator to return the modified string</a> instead of the number of substitutions (best Perl enhancement ever):</p>
+
+<pre><code class="language-prettyprint">use v5.14;
+
+my $module_list = $dom
+    -&gt;find('tr td:first-child a:first-child')
+    -&gt;map( attr =&gt; 'href' )
+    -&gt;map( sub { s|/\z||r } )
+    -&gt;join(&quot;\n&quot;);
+</code></pre>
+
+<p>Now I have my list of distributions:</p>
+
+<pre><code class="language-prettyprint">Acme-BDFOY-0.01
+Apache-Htaccess-1.4
+Apache-iTunes-0.11
+App-Module-Lister-0.15
+App-PPI-Dumper-1.02
+</code></pre>
+
+<p>That&rsquo;s still as one string since I ended the method chain with <code>join(&quot;\n&quot;)</code>. To get a list, I use <code>each</code> to get the list, which I join myself later:</p>
+
+<pre><code class="language-prettyprint">my @module_list = $dom
+    -&gt;find('tr td:first-child a:first-child')
+    -&gt;map( attr =&gt; 'href' )
+    -&gt;map( sub { s|/\z||r } )
+    -&gt;each;
+
+print join &quot;\n&quot;, @module_list;
+</code></pre>
+
+<p>I can get even fancier. Instead of the distribution name with the version, I can break it up with <a href="http://www.metacpan.org/module/CPAN::DistnameInfo">CPAN::DistnameInfo</a>. I&rsquo;ll turn every found link into a tuple of name and version. Since that module wants to deal with a distribution filename, I tack on <em>.tar.gz</em> to make it work out:</p>
+
+<pre><code class="language-prettyprint">use Data::Printer;
+use CPAN::DistnameInfo;
+
+my $dom = Mojo::DOM-&gt;new( $string );
+
+my @module_list = $dom
+    -&gt;find('tr td:first-child a:first-child')
+    -&gt;map( attr =&gt; 'href' )
+    -&gt;map( sub { s|/\z||r } )
+    -&gt;map( sub { 
+        my $d = CPAN::DistnameInfo-&gt;new( &quot;$_.tar.gz&quot; );
+        [ map { $d-&gt;$_() } qw(dist version) ];
+         } )
+    -&gt;each;
+
+p @module_list;
+</code></pre>
+
+<p>The <code>each</code> extracts each element from the collection and returns it. I use <a href="https://metacpan.org/pod/Data::Printer">Data::Printer</a> to display the array:</p>
+
+<pre><code class="language-prettyprint">[
+    [0]   [
+        [0] &quot;Acme-BDFOY&quot;,
+        [1] 0.01
+    ],
+    [1]   [
+        [0] &quot;Apache-Htaccess&quot;,
+        [1] 1.4
+    ],
+    [2]   [
+        [0] &quot;Apache-iTunes&quot;,
+        [1] 0.11
+    ],
+    [3]   [
+        [0] &quot;App-Module-Lister&quot;,
+        [1] 0.15
+    ],
+</code></pre>
+
+<p>If I want only the distributions that are development versions, I can use <a href="http://mojolicio.us/perldoc/Mojo/Collection">Mojo::Collection</a>&rsquo;s <code>grep</code>:</p>
+
+<pre><code class="language-prettyprint">my @module_list = $dom
+    -&gt;find('tr td:first-child a:first-child')
+    -&gt;map( attr =&gt; 'href' )
+    -&gt;map( sub { s|/\z||r } )
+    -&gt;map( sub { 
+        my $d = CPAN::DistnameInfo-&gt;new( &quot;$_.tar.gz&quot; );
+        [ map { $d-&gt;$_() } qw(dist version) ];
+         } )
+    -&gt;grep( sub { $_-&gt;[-1] =~ /_/ } )
+    -&gt;each;
+</code></pre>
+
+<p>The <code>grep</code> selects each element of the collection for which the subroutine returns a true value:</p>
+
+<pre><code class="language-prettyprint">[
+    [0]  [
+        [0] &quot;Brick&quot;,
+        [1] &quot;0.227_01&quot;
+    ],
+    [1]  [
+        [0] &quot;Distribution-Guess-BuildSystem&quot;,
+        [1] &quot;0.12_02&quot;
+    ],
+    [2]  [
+        [0] &quot;File-Fingerprint&quot;,
+        [1] &quot;0.10_02&quot;
+    ],
+    [3]  [
+        [0] &quot;Geo-GeoNames&quot;,
+        [1] &quot;1.01_01&quot;
+    ],
+</code></pre>
+
+<p>That&rsquo;s the process. No HTML shows up in my code. The rest is figuring out how to select the particular element that I want.</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/html">html</a></div>
+              
+                <div class="tag"><a href="/tags/mojolicious">mojolicious</a></div>
+              
+                <div class="tag"><a href="/tags/parse">parse</a></div>
+              
+                <div class="tag"><a href="/tags/dom">dom</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

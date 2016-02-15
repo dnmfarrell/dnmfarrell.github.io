@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Get to grips with Prove, Perl&#39;s test workhorse Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="The ubiquitous test runner is a powerful tool for your arsenal"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Get to grips with Prove, Perl&#39;s test workhorse</h1>
+            <p class="blog-post-meta">Jun 9, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>Prove is a test running tool that ships with Perl. It has a ton of options, which can make it confusing for a beginner to use. If you have never used prove, or are not confident using it, do not despair! This article will get you up to speed with prove and it&rsquo;s most common options.</p>
+
+<h3 id="basics:21cbf2b2f91d9b431c49ffbcae20ce43">Basics</h3>
+
+<p>If you have Perl installed, you should already have Prove installed as well. To demo the features of Prove, I&rsquo;m going to clone the Mojolicious repo using Git. I like demoing Prove with Mojolicious as it has a large test suite. At the command line:</p>
+
+<pre><code class="language-prettyprint">$ git clone https://github.com/kraih/mojo
+$ cd mojo
+</code></pre>
+
+<p>So I&rsquo;ve cloned the Mojolicious repo and changed into the project directory. Now I&rsquo;m ready to run some tests with Prove!</p>
+
+<pre><code class="language-prettyprint">$ prove -l t/mojo/asset.t
+</code></pre>
+
+<p>I executed Prove using the <code>prove</code> command. I included the <code>-l</code> option so that Prove would load the Mojolicious code beneath the <code>lib</code> directory. If I didn&rsquo;t do this, Perl would not find the Mojolicious code referenced in <code>t/mojo/asset.t</code> and raise an error, or perhaps worse, it might run the tests against an older version of Mojolicious I already had installed on my system.</p>
+
+<p>Sometimes the code to include is not directly in the <code>lib</code> directory. For these cases Prove has the <code>-I</code> option for &ldquo;include&rdquo;:</p>
+
+<pre><code class="language-prettyprint">prove -I/path/to/lib /path/to/test_file
+</code></pre>
+
+<p>Prove can run a single test file, or if given a directory containing multiple test files, with will execute them all:</p>
+
+<pre><code class="language-prettyprint">$ prove -l t/mojo
+</code></pre>
+
+<p>This runs all the test files in <code>t/mojo</code> directory.</p>
+
+<h3 id="recursively-execute-test-files-with-r:21cbf2b2f91d9b431c49ffbcae20ce43">Recursively execute test files with &ldquo;r&rdquo;</h3>
+
+<p>The Mojolicious project has test files in several different directories beneath the <code>t</code> directory. It would be tiresome to locate all of these directory paths and give them to Prove. Instead, Prove provides the <code>-r</code> option to recursively search for test files.</p>
+
+<pre><code class="language-prettyprint">$ prove -lr
+</code></pre>
+
+<p>This option executed every test file under the <code>t</code> directory, about 10,000 tests across 85 different files. Pretty convenient huh? Note that I didn&rsquo;t provide the <code>t</code> directory as an argument, because Prove searches the <code>t</code> directory by default. Now that&rsquo;s convenience!</p>
+
+<h3 id="run-tests-in-parallel-using-j:21cbf2b2f91d9b431c49ffbcae20ce43">Run tests in parallel using &ldquo;j&rdquo;</h3>
+
+<p>The ability to run lots of test files is useful, but it can take a long time to run all of the tests. On my machine, executing the Mojolicious test suite takes 32 seconds. To speed things up, Prove can run test files in parallel, to share the work across multiple processes. To do this I just add the <code>-j</code> option plus the number of processes I want to use. I have a quad core machine, so I&rsquo;m going to use 4 different processes:</p>
+
+<pre><code class="language-prettyprint">$ prove -lr -j 4
+</code></pre>
+
+<p>This time, prove executed all the tests in 12 seconds. That&rsquo;s a 266% speed-up, not bad!</p>
+
+<h3 id="get-more-detail-with-v-for-verbose:21cbf2b2f91d9b431c49ffbcae20ce43">Get more detail with &ldquo;v&rdquo; for verbose</h3>
+
+<p>To minimize line noise, by default Prove provides summary-level statistics and low-level detail for test failures. Sometimes it&rsquo;s useful to see the output for each test. I can see this detail by adding the <code>-v</code> option for &ldquo;verbose&rdquo;:</p>
+
+<pre><code class="language-prettyprint">$ prove -lrv
+</code></pre>
+
+<h3 id="running-perl-6-tests:21cbf2b2f91d9b431c49ffbcae20ce43">Running Perl 6 tests</h3>
+
+<p>Prove can run tests for other languages, as long as the tests follow the Test Anything Protocol. Perl 6 unit tests follow TAP, so we can use Prove to run Perl 6 tests too! I can demo this on my Perl 6 module, <a href="https://github.com/dnmfarrell/URI-Encode">URI::Encode</a>. To follow along, just clone the repo with Git:</p>
+
+<pre><code class="language-prettyprint">$ git clone https://github.com/dnmfarrell/URI-Encode
+$ cd URI-Encode
+</code></pre>
+
+<p>To run non Perl tests with Prove, we need to pass the <code>--exec</code> option, with a program name. That tells Prove which program to execute the tests with. Like this:</p>
+
+<pre><code class="language-prettyprint">$ prove --exec perl6
+</code></pre>
+
+<p>Note that I didn&rsquo;t have to pass the filepath of which tests to run. It&rsquo;s just lucky that by convention Perl6 modules have their tests in the <code>t</code> directory, usually with a <code>.t</code> extension. For other languages, you&rsquo;ll need to specify the test filepath:</p>
+
+<pre><code class="language-prettyprint">$ prove --exec some_program /path/to/testfile
+</code></pre>
+
+<h3 id="documentation:21cbf2b2f91d9b431c49ffbcae20ce43">Documentation</h3>
+
+<p>You can get a summary of the options Prove accepts by using the <code>-h</code> option for help:</p>
+
+<pre><code class="language-prettyprint">$ prove -h
+</code></pre>
+
+<p>For more detailed documentation, use <code>perldoc</code>:</p>
+
+<pre><code class="language-prettyprint">$ perldoc prove
+</code></pre>
+
+<p>Perldoc is another useful Perl tool, if you&rsquo;d like to know more about it, have a look at our introductory <a href="http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster">article</a>. Prove also has a man page entry (if you&rsquo;re on Unix/BSD based systems).</p>
+
+<h3 id="prove-cheat-sheet:21cbf2b2f91d9b431c49ffbcae20ce43">Prove Cheat sheet</h3>
+
+<pre><code>prove [options] [filepath]
+
+Options
+-------
+l       Include the &quot;lib&quot; dir
+I       Include a dir: -I/path/to/lib
+r       Recursively search and run test files
+j       Parallel, specify # procs: -j 4
+v       Verbose test output
+h       Help, summary of options
+exec    Exec tests in another program: --exec perl6
+</code></pre>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/perl6">perl6</a></div>
+              
+                <div class="tag"><a href="/tags/test">test</a></div>
+              
+                <div class="tag"><a href="/tags/prove">prove</a></div>
+              
+                <div class="tag"><a href="/tags/cheet_sheet">cheet_sheet</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Parsing Perl 5 pod with Perl 6 Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Grammars, action classes, code!"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Parsing Perl 5 pod with Perl 6</h1>
+            <p class="blog-post-meta">Apr 30, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/170/AA60EE46-EF3A-11E4-98F4-3C044E9B8265.png"/>
+            </div>
+              
+
+<p>I&rsquo;ve just finished developing a Perl 5 pod <a href="https://github.com/dnmfarrell/Pod-Perl5">parser</a> written in Perl 6. Developing the grammar was surprisingly easy, which is a testament to Perl 6 as I&rsquo;m no genius coder. With help from the folks at #perl6, I did learn some interesting things along the way, and wanted to share them. Plus, code!</p>
+
+<p>By the way, if you haven&rsquo;t read my <a href="http://perltricks.com/article/144/2015/1/13/How-to-create-a-grammar-in-Perl-6">introduction</a> to Perl 6 grammars, check it out first, and the rest of this article should make more sense.</p>
+
+<h3 id="developing-the-grammar:78d208860f81988c9597decb37b0b553">Developing the grammar</h3>
+
+<p>In Perl 6 a grammar is a special type of class for parsing text. The idea is to declare a series of regexes using the <code>token</code> method, which are then used to parse input. For <a href="https://github.com/dnmfarrell/Pod-Perl5/blob/master/lib/Pod/Perl5/Grammar.pm">Pod::Perl5::Grammar</a> I literally worked my way through <a href="http://perldoc.perl.org/perlpod.html">perlpod</a>, the Perl 5 pod specification, writing tokens as I went.</p>
+
+<p>There were a few challenges. First, consider how would you define a regex for lists? In pod, lists can contain lists, so can a definition include itself? The answer is yes, a recursive definition is fine, as long as it doesn&rsquo;t match a zero length string, which leads to an infinite loop. Here&rsquo;s the definition:</p>
+
+<pre><code class="language-prettyprint">token over_back { &lt;over&gt;
+                    [
+                      &lt;_item&gt; | &lt;paragraph&gt; | &lt;verbatim_paragraph&gt; | &lt;blank_line&gt; |
+                      &lt;_for&gt; | &lt;begin_end&gt; | &lt;pod&gt; | &lt;encoding&gt; | &lt;over_back&gt;
+                    ]*
+                    &lt;back&gt;
+                  }
+
+token over      { ^^\=over [\h+ &lt;[0..9]&gt;+ ]? \n }
+token _item     { ^^\=item \h+ &lt;name&gt;
+                    [
+                        [ \h+ &lt;paragraph&gt;  ]
+                      | [ \h* \n &lt;blank_line&gt; &lt;paragraph&gt;? ]
+                    ]
+                  }
+token back      { ^^\=back \h* \n }
+</code></pre>
+
+<p>The token <code>over_back</code> describes an entire list from start to finish. It basically says that a list must begin with an <code>=over</code> and end with <code>=back</code>, and can have a whole bunch of things in between, including another <code>over_back</code>!</p>
+
+<p>For simplicity&rsquo;s sake, I tried to name the tokens the same as how they&rsquo;re written in pod. In some cases this wasn&rsquo;t possible, for instance <code>item</code> causes a namespace clash with another method that the Grammar class inherits. So watch out for those cases, you&rsquo;ll get weird errors (this is a <a href="https://rt.perl.org/rt3//Public/Bug/Display.html?id=77350">bug</a>).</p>
+
+<p>This is one pattern I really love and used over and over in the grammar:</p>
+
+<pre><code class="language-prettyprint">[ &lt;pod_section&gt; | &lt;?!before &lt;pod_section&gt; &gt; .]*
+</code></pre>
+
+<p>The pattern is useful when you have a pattern to capture, but if there&rsquo;s no matching pattern ignore everything else. In this case, <code>pod_section</code> is a token that defines a section of pod, but pod is often written inline with Perl code, which the grammar should ignore. So the second half of the definition uses a negative lookahead <code>?!before</code> to check the next character is not a <code>pod_section</code>, and uses a period <code>.</code> to match everything else (including newlines). Both conditions are grouped in square brackets with an asterisk placed <strong>outside</strong> the group in order to check one character at a time.</p>
+
+<p>The grammar can be used to parse standalone and inline pod. It will extract every pod section it finds into match object (basically a Perl data structure), ready for processing. It&rsquo;s easy to use:</p>
+
+<pre><code class="language-prettyprint">use Pod::Perl5::Grammar;
+
+my $match = Pod::Perl5::Grammar.parse($pod);
+
+# or
+
+my $match = Pod::Perl5::Grammar.parsefile(&quot;/path/to/some.pod&quot;);
+</code></pre>
+
+<h3 id="action-classes:78d208860f81988c9597decb37b0b553">Action classes</h3>
+
+<p>So far so cool, but we can do more. Action classes are regular Perl 6 classes that can be given to the grammar at parse time. They provide behavior (actions) for token matching events. Just name the methods in the action class the same as the token they should be executed on. I wrote a pod-to-HTML action <a href="https://github.com/dnmfarrell/Pod-Perl5/blob/master/lib/Pod/Perl5/ToHTML.pm">class</a>. Here is the method for converting <code>=head1</code> to HTML:</p>
+
+<pre><code class="language-prettyprint">method head1 ($/)
+{
+  self.add_to_html('body', &quot;&lt;h1&gt;{$/&lt;singleline_text&gt;.Str}&lt;/h1&gt;\n&quot;);
+}
+</code></pre>
+
+<p>Every time the grammar matches a head1 token, this method executes. It&rsquo;s passed the regex capture variable <code>$/</code>, which contains the head1 regex capture, from which it extracts the text string.</p>
+
+<p>Here&rsquo;s a cool fact: action classes are even easier to write than grammars. It would be trivial to write a pod to markdown converter using Pod::Perl5::Grammar, unless someone beats me to it (hint, hint). That said, I did encounter a few challenges along the way.</p>
+
+<p>Essentially for HTML conversion, each action class method can just extract the text from it&rsquo;s matching token, reformat it as required, and print it out. This approach worked great until I encountered nested tokens like formatting codes, which sit within a paragraph of text. You don&rsquo;t want to go from this:</p>
+
+<pre><code>There are different ways to emphasize text, I&lt;this is in italics&gt; and  B&lt;this is in bold&gt;
+</code></pre>
+
+<p>To this:</p>
+
+<pre><code>&lt;i&gt;this is in italics&lt;/i&gt;
+&lt;b&gt;this is in bold&lt;/b&gt;
+&lt;p&gt;There are different ways to emphasize text, I&lt;this is in italics&gt; and  B&lt;this is in bold&gt;&lt;/p&gt;
+</code></pre>
+
+<p>This can happen because the italics and bold token regexes match first. So to get around this issue, I used a buffer to store the HTML from the transformed sub-tokens, and then when a paragraph token is matched, it substitutes its own text with the contents of the buffer. The action class code for this looks like this:</p>
+
+<pre><code class="language-prettyprint">method paragraph ($/ is copy)
+{
+  my $original_text = $/&lt;text&gt;.Str.chomp;
+  my $para_text = $/&lt;text&gt;.Str.chomp;
+
+  for self.get_buffer('paragraph').reverse -&gt; $pair # reverse as we're working outside in
+  {
+    $para_text = $para_text.subst($pair.key, {$pair.value});
+  }
+  self.add_to_html('body', &quot;&lt;p&gt;{$para_text}&lt;/p&gt;\n&quot;);
+  self.clear_buffer('paragraph');
+  }
+
+method italic ($/)
+{
+  self.add_to_buffer('paragraph', $/.Str =&gt; &quot;&lt;i&gt;{$/&lt;multiline_text&gt;.Str}&lt;/i&gt;&quot;);
+}
+
+method bold ($/)
+{
+  self.add_to_buffer('paragraph', $/.Str =&gt; &quot;&lt;b&gt;{$/&lt;multiline_text&gt;.Str}&lt;/b&gt;&quot;);
+}
+</code></pre>
+
+<p>One thing to watch out for with action classes is regex handling. <strong>Every</strong> action class example I&rsquo;ve seen uses <code>$/</code> in the method signature. This is a mistake, as guess what this does:</p>
+
+<pre><code class="language-prettyprint">method head1 ($/)
+{
+  if $/.Str ~~ m/foobar/ # silly example
+  {
+    self.add_to_html('body', &quot;&lt;h1&gt;{$/&lt;singleline_text&gt;.Str}\n&quot;);
+  }
+}
+</code></pre>
+
+<pre><code>Cannot assign to a readonly variable or a value
+</code></pre>
+
+<p>Mushroom cloud-style boom. When <code>$/</code> is passed to <code>head1</code> it is read only. Executing <strong>any</strong> regex in the same lexical scope will attempt to overwrite <code>$/</code>. This bit me a few times and with help from #perl6, I ended up using this pattern:</p>
+
+<pre><code class="language-prettyprint">method head1 ($/ is copy)
+{
+  my $match = $/;
+  if $match.Str ~~ m/foobar/
+  {
+    self.add_to_html('body', &quot;&lt;h1&gt;{$match&lt;singleline_text&gt;.Str}&lt;/h1&gt;\n&quot;);
+  }
+}
+</code></pre>
+
+<p>Adding <code>is copy</code> to the signature creates a copy instead of a reference for <code>$/</code>. I then copy the match variable into <code>$match</code>, so that the following regex can clobber <code>$/</code>. I *think* a better solution is this:</p>
+
+<pre><code class="language-prettyprint">method head1 ($match)
+{
+  if $match.Str ~~ m/foobar/
+  {
+    self.add_to_html('body', &quot;&lt;h1&gt;{$match&lt;singleline_text&gt;.Str}&lt;/h1&gt;\n&quot;);
+  }
+}
+</code></pre>
+
+<p>I think it&rsquo;s that simple, just don&rsquo;t name the signature parameter <code>$/</code> and all the headaches disappear. I haven&rsquo;t tested this extensively&hellip;</p>
+
+<p>To use an action class, just pass it to the grammar:</p>
+
+<pre><code class="language-prettyprint">use Pod::Perl5::Grammar;
+use Pod::Perl5::ToHTML;
+
+my $actions = Pod::Perl5::ToHTML.new;
+my $match = Pod::Perl5::Grammar.parse($pod, :$actions);
+
+# or
+my $match = Pod::Perl5::Grammar.parse($pod, :actions($actions));
+</code></pre>
+
+<p>In the first example I used a named positional argument <code>:$actions</code>. This <strong>must</strong> be called actions to work. In the second example I named the argument like this: <code>:actions($actions)</code>, in which case the action class object can be called whatever you want.</p>
+
+<h3 id="improving-pod:78d208860f81988c9597decb37b0b553">Improving pod</h3>
+
+<p>PerlTricks.com articles are written in HTML. Special snowflake style HTML with class names and <code>span</code> tags. This is a pain for writers to use and a pain to edit. I&rsquo;d love to use pod as the source - it would be easier for writers to use and faster for me to edit. That said, I&rsquo;d like to extend pod with some useful features for blogging. For instance, you may be familiar with formatting codes like <code>B&lt;...&gt;</code> for bold and the like. Well, what about <code>@&lt; ... &gt;</code> for a Twitter references, or <code>M&lt; ... &gt;</code> for <a href="https://metacpan.org/">MetaCPAN</a> links?</p>
+
+<p>As Perl 6 grammars are classes, they can be inherited and overridden. So I can add my Twitter and Metacpan formatting codes to the grammar like this:</p>
+
+<pre><code class="language-prettyprint">grammar Pod::Perl5::Grammar::PerlTricks is Pod::Perl5::Grammar
+{
+  token twitter  { @\&lt; &lt;name&gt; \&gt; }
+  token metacpan { M\&lt; &lt;name&gt; \&gt; }
+}
+</code></pre>
+
+<p>I&rsquo;ll also need to override the <code>format_codes</code> token to include the new tokens:</p>
+
+<pre><code class="language-prettyprint">token format_codes  {
+  [
+    &lt;italic&gt;|&lt;bold&gt;|&lt;code&gt;|&lt;link&gt;
+    |&lt;escape&gt;|&lt;filename&gt;|&lt;singleline&gt;
+    |&lt;index&gt;|&lt;zeroeffect&gt;|&lt;twitter|&lt;metacpan&gt;
+  ]
+}
+</code></pre>
+
+<p>It&rsquo;s that easy. The new grammar will parse all pod, plus my two new formatting codes. Of course the action class Pod::Perl5::Pod can be extended and overridden too, and would look something like this:</p>
+
+<pre><code class="language-prettyprint">Pod::Perl5::ToHTML::PerlTricks is Pod::Perl5::ToHTML
+{
+  method twitter ($match)
+  {
+    self.add_to_buffer('paragraph',
+      $match.Str =&gt;
+&quot;&lt;a href=&quot;http://twitter.com/{$match&lt;name&gt;.Str}&quot;&gt;{$match&lt;name&gt;.Str}&lt;/a&gt;&quot;);
+  }
+  method metacpan ($match)
+  {
+    self.add_to_buffer('paragraph', 
+      $match.Str =&gt; 
+&quot;&lt;a href=&quot;https://metacpan.org/pod//{$match&lt;name&gt;.Str}&quot;&gt;{$match&lt;name&gt;.Str}&lt;/a&gt;&quot;);
+  }
+}
+</code></pre>
+
+<h3 id="wait-there-s-more:78d208860f81988c9597decb37b0b553">Wait, there&rsquo;s more</h3>
+
+<p>There&rsquo;s a cleaner way to manage groups of tokens, it&rsquo;s called <a href="http://design.perl6.org/S06.html#Routine_modifiers">multi-dispatch</a>. Instead of defining <code>format_codes</code> as a list of alternative tokens it can match against, we declare a prototype method, and declare each formatting method as a <code>multi</code> of the prototype. Check this out:</p>
+
+<pre><code class="language-prettyprint">proto token format_codes  { * }
+multi token format_codes:italic { I\&lt; &lt;multiline_text&gt;  \&gt;  }
+multi token format_codes:bold   { B\&lt; &lt;multiline_text&gt;  \&gt;  }
+multi token format_codes:code   { C\&lt; &lt;multiline_text&gt;  \&gt;  }
+...
+</code></pre>
+
+<p>Now when this grammar is inherited, there is no need to override <code>format_codes</code>. Instead I can declare the new tokens as multis:</p>
+
+<pre><code class="language-prettyprint">grammar Pod::Perl5::Grammar::PerlTricks is Pod::Perl5::Grammar
+{
+  token format_codes:twitter  { @\&lt; &lt;name&gt; \&gt; }
+  token format_codes:metacpan { M\&lt; &lt;name&gt; \&gt; }
+}
+</code></pre>
+
+<p>Using multi-dispatch also has the modest benefit of simplifying the data extraction path when working with a match object. For instance, these code extracts the link section from the 3rd paragraph of a pod block:</p>
+
+<pre><code class="language-prettyprint">is $match&lt;pod_section&gt;[0]&lt;paragraph&gt;[2]&lt;text&gt;&lt;format_codes&gt;[0]&lt;link&gt;&lt;section&gt;.Str # regular version
+is $match&lt;pod_section&gt;[0]&lt;paragraph&gt;[2]&lt;text&gt;&lt;format_codes&gt;[0]&lt;section&gt;.Str # multi dispatch equivalent
+</code></pre>
+
+<p>In the first example, the format token name <code>link</code> is required. But with multi-dispatch, we can remove that, as shown in the second example.</p>
+
+<h3 id="conclusion:78d208860f81988c9597decb37b0b553">Conclusion</h3>
+
+<p>So that&rsquo;s what I learned; overall writing a pod parser in Perl 6 was straightforward. If you&rsquo;re programming in Perl 6 and have questions, I&rsquo;d highly recommend the <a href="http://perl6.org/community/irc">#perl6</a> irc channel on freenode, the people there were friendly and responsive.</p>
+
+<p><strong>Update:</strong> <em>Multi-dispatch example added. Thanks to Jonathan Scott Duff for providing the multi-dispatch explanation and code. 2015-05-01</em></p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/pod">pod</a></div>
+              
+                <div class="tag"><a href="/tags/perl6">perl6</a></div>
+              
+                <div class="tag"><a href="/tags/grammar">grammar</a></div>
+              
+                <div class="tag"><a href="/tags/pegex">pegex</a></div>
+              
+                <div class="tag"><a href="/tags/parser">parser</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

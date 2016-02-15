@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Parsing data couldn&#39;t be easier with XML::Dataset Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="So simple a llama could do it"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Parsing data couldn&#39;t be easier with XML::Dataset</h1>
+            <p class="blog-post-meta">May 9, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/87/ECE462D6-FF2E-11E3-A828-5C05A68B9E16.jpeg"/>
+            </div>
+              
+
+<p><em>It&rsquo;s hard to believe that when it comes to XML parsing CPAN hasn&rsquo;t already got you covered, but <a href="https://metacpan.org/pod/XML::Dataset">XML::Dataset</a> is a new module that fills a useful void. XML::Dataset let&rsquo;s you declare a plaintext data collection schema, and then goes and extracts the data for you, super fast. Read on to see how it works.</em></p>
+
+<h3 id="requirements:2f6e0c408059a4f921b8d668bba7c6d3">Requirements</h3>
+
+<p>The CPAN Testers results <a href="http://matrix.cpantesters.org/?dist=XML-Dataset+0.006">show</a> that XML::Dataset v0.06 will run on any platform with Perl (down to 5.8.9). To install the module with CPAN, open up the terminal and type:</p>
+
+<pre><code class="language-prettyprint">$ cpan XML::Dataset
+</code></pre>
+
+<h3 id="your-data-extracted:2f6e0c408059a4f921b8d668bba7c6d3">Your data, extracted</h3>
+
+<p>To use XML::Dataset you&rsquo;ll need some stringified XML source data and a data profile. A profile is just a plaintext schema which specifies the data you&rsquo;d like to extract. Let&rsquo;s look at an example:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use XML::Dataset;
+use Data::Printer;
+
+my $sample_data = q(&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;colleagues&gt;
+    &lt;colleague&gt;
+        &lt;title&gt;The Boss&lt;/title&gt;
+        &lt;phone&gt;+1 202-663-9108&lt;/phone&gt;
+    &lt;/colleague&gt;
+    &lt;colleague&gt;
+        &lt;title&gt;Admin Assistant&lt;/title&gt;
+        &lt;phone&gt;+1 347-999-5454&lt;/phone&gt;
+        &lt;email&gt;inbox@the_company.com&lt;/email&gt;
+    &lt;/colleague&gt;
+    &lt;colleague&gt;
+        &lt;title&gt;Minion&lt;/title&gt;
+        &lt;phone&gt;+1 792-123-4109&lt;/phone&gt;
+    &lt;/colleague&gt;
+&lt;/colleagues&gt;);
+
+my $sample_data_profile
+    = q(colleagues
+            colleague
+                title   = dataset:colleagues
+                email   = dataset:colleagues
+                phone   = dataset:colleagues);
+
+p parse_using_profile($sample_data, $sample_data_profile);
+</code></pre>
+
+<p>The code above declares a simple XML dataset ($sample_data) and a data profile to extract the required data ($sample_data_profile). XML::Dataset requires every indented newline in the data profile to map to another nested level of the data set. Once we reach the data attributes we want to extract, we simply assign a dataset to them (dataset:colleagues).</p>
+
+<p>XML::Dataset exports the &ldquo;parse_using_profile&rdquo; function which extracts the data using our data profile and returns a Perl data structure. We use <a href="https://metacpan.org/pod/Data::Printer">Data::Printer</a> to print out the results. Running this code we get this output:</p>
+
+<pre><code class="language-prettyprint">\ {
+    colleagues   [
+        [0] {
+            phone   &quot;+1 202-663-9108&quot;,
+            title   &quot;The Boss&quot;
+        },
+        [1] {
+            email   &quot;inbox@the_company.com&quot;,
+            phone   &quot;+1 347-999-5454&quot;,
+            title   &quot;Admin Assistant&quot;
+        },
+        [2] {
+            phone   &quot;+1 792-123-4109&quot;,
+            title   &quot;Minion&quot;
+        },
+    ]
+}
+</code></pre>
+
+<p>Note that XML::Dataset had no problem extracting the one email address that was present in the data, even though the other colleagues did not have that attribute. What if we wanted to collect emails and phone numbers, but in separate datasets? All we need to do is update $sample_data_profile with two datasets:</p>
+
+<pre><code class="language-prettyprint">my $sample_data_profile
+    = q(colleagues
+            colleague
+                title   = dataset:emails dataset:phones
+                email   = dataset:emails
+                phone   = dataset:phones);
+</code></pre>
+
+<p>Re-running the code, XML::Dataset now produces two datasets for us:</p>
+
+<pre><code class="language-prettyprint">\ {
+    emails   [
+        [0] {
+            title   &quot;The Boss&quot;
+        },
+        [1] {
+            email   &quot;inbox@the_company.com&quot;,
+            title   &quot;Admin Assistant&quot;
+        },
+        [2] {
+            title   &quot;Minion&quot;
+        }
+    ],
+    phones   [
+        [0] {
+            phone   &quot;+1 202-663-9108&quot;,
+            title   &quot;The Boss&quot;
+        },
+        [1] {
+            phone   &quot;+1 347-999-5454&quot;,
+            title   &quot;Admin Assistant&quot;
+        },
+        [2] {
+            phone   &quot;+1 792-123-4109&quot;,
+            title   &quot;Minion&quot;
+        }
+    ]
+}
+</code></pre>
+
+<h3 id="a-real-example:2f6e0c408059a4f921b8d668bba7c6d3">A real example</h3>
+
+<p>Let&rsquo;s write a program to parse a a more realistic data set. Many websites provide a sitemap that lists all of the content on the website, and when it was last updated. This information is used by search engines to optimize their crawling routines. The sitemap has a defined xml format, so it&rsquo;s a cinch to parse it with XML::Dataset:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use XML::Dataset;
+use Data::Printer;
+use HTTP::Tiny;
+
+my $url = 'http://perltricks.com/static/sitemap.xml';
+
+my $sitemap_data 
+    = HTTP::Tiny-&gt;new-&gt;get($url)-&gt;{content};
+
+my $sitemap_data_profile
+    = q(urlset
+            url
+                loc     = dataset:sitemap_locations_modified
+                lastmod = dataset:sitemap_locations_modified);
+
+p parse_using_profile($sitemap_data, $sitemap_data_profile);
+</code></pre>
+
+<p>The code above downloads the PerlTricks.com sitemap using <a href="https://metacpan.org/pod/HTTP::Tiny">HTTP::Tiny</a> and extracts every URL and last modified timestamp from the sitemap. Running the code, we get this output:</p>
+
+<pre><code class="language-prettyprint">\ {
+    sitemap_locations_modified   [
+        [0]  {
+            lastmod   &quot;2014-05-09&quot;,
+            loc       &quot;http://perltricks.com/&quot;
+        },
+        [1]  {
+            lastmod   &quot;2013-03-24&quot;,
+            loc       &quot;http://perltricks.com/article/1/2013/3/24/3-quick-ways-to-find-out-the-version-number-of-an-installed-Perl-module-from-the-terminal&quot;
+        },
+        [2]  {
+            lastmod   &quot;2013-03-27&quot;,
+            loc       &quot;http://perltricks.com/article/3/2013/3/27/How-to-cleanly-uninstall-a-Perl-module&quot;
+        },
+        ...
+    ]
+}
+</code></pre>
+
+<p>No problem! We could re-use that same program to download and parse any sitemap on the Internet.</p>
+
+<h3 id="conclusion:2f6e0c408059a4f921b8d668bba7c6d3">Conclusion</h3>
+
+<p>XML::Dataset is fantastic for extracting fixed data schemas from XML. The plaintext data profiles are so easy to use, a non-programmer could write them. XML::Dataset is also fast: under the hood it uses XML::LibXML (and a few optimizations) and could be adapted for well-formatted HTML. It has great <a href="https://metacpan.org/pod/XML::Dataset">documentation</a> and offers some advanced features like partial dataset parse dispatching. Module author James Spurin deserves credit for producing a quality module and a welcome addition to CPAN&rsquo;s XML namespace.</p>
+
+<p><em>Do you have a much-loved CPAN module that you&rsquo;d like us to cover? Drop us an <a href="mailto:perltricks.com@gmail.com">email</a></em></p>
+
+<p><em>Cover image <a href="https://creativecommons.org/licenses/by/2.0/">©</a> <a href="https://www.flickr.com/photos/dullhunk/3948166814/in/photolist-71TorC-5RcLVC-5RcLk1-5R8vpe-5RcMC9-5R8w7D-5R8v7e-5RcM9Q-5RcLeL-5R8upk-5RcMso-5RcL7J-72QCEU-7KoKym-72QCsE-6FtTJ-6m6pyB-5AJCpY-6FvjN-6FuLy-6FtQL-6Fv4J-5BHeXd-6FuUe-6FtXH-6Fu9t-6FuAs-5AJCs3-5AJCsd-5AJCro-tS2dS-6kzkkD-6kDvjQ-6kDAtY-6kDvzS-6kD45L-6kzqYM-6kDvsE-6kDuys-6kDvcE-6m6prT-6kDupU-6kDuWw-6kDv6j-6kzkd2-6kDALo-5AJCsA-CJhVy-5AJCrN-5MzAkw">Duncun Hull</a></em></p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/cpan">cpan</a></div>
+              
+                <div class="tag"><a href="/tags/xml">xml</a></div>
+              
+                <div class="tag"><a href="/tags/data">data</a></div>
+              
+                <div class="tag"><a href="/tags/parse">parse</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>A Stratopan quick start user guide Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Learn how to manage your Perl modules in the cloud with Stratopan"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">A Stratopan quick start user guide</h1>
+            <p class="blog-post-meta">Nov 15, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/48/EBD9AC70-FF2E-11E3-AD4C-5C05A68B9E16.png"/>
+            </div>
+              
+
+<p><em><a href="https://stratopan.com/">Stratopan</a> is a cloud-based Perl module repository service. Users can create repositories of modules in the cloud and use them to manage their local installations of Perl modules. This makes it easy to configure a network of machines to have exactly the same modules (and versions), deploy Perl applications quickly and cleanly and host private (i.e. non CPAN) Perl software in a secure, central location. The <a href="https://stratopan.com/">Stratopan</a> beta has officially started and so there has never been a better time to check out this amazing service. Read on for an unofficial quick start guide to Stratopan!</em></p>
+
+<h3 id="getting-started-create-a-repository:713592ed043727253fc234d9fe0e3d2b">Getting started - create a repository</h3>
+
+<p>Head over to Stratopan, sign up to create a new account and login. You should be presented with this message:</p>
+
+<p><img src="/static/images/Stratopan/stratopan_1_600.png" alt="stratopan screenshot" /></p>
+
+<p>Click the create repository link and complete the information on the following screen. Be sure to select the private option if you want your repository not to be publicly visible.</p>
+
+<p><img src="/static/images/Stratopan/stratopan_2_600.png" alt="stratopan screenshot" /></p>
+
+<p>You should now have a new repository.</p>
+
+<p><img src="/static/images/Stratopan/stratopan_19_600.png" alt="stratopan screenshot" /></p>
+
+<h3 id="add-or-pull-modules:713592ed043727253fc234d9fe0e3d2b">Add or pull modules</h3>
+
+<p>Modules reside in &ldquo;stacks&rdquo; which belong to a repository and helpfully Stratopan creates a default &ldquo;master&rdquo; stack for you. To insert modules into a stack you can &ldquo;pull&rdquo; them from CPAN or &ldquo;add&rdquo; them from a local machine. Let&rsquo;s start by pulling a module onto our master stack. Click the &ldquo;pulling&rdquo; link to launch the pull module screen and start typing the name of the module you want to pull. Note that this must be the distribution name and not the module name. For example to pull the module &ldquo;Method::Signatures&rdquo;, you should type &ldquo;Method-Signatures&rdquo;. Helpfully Stratopan provides a case-insensitive predictive text search and lists the module version numbers available too, in case you need a specific variant. Let&rsquo;s pull my wildly unpopular <a href="https://metacpan.org/pod/WWW::CheckHTML">WWW::CheckHTML</a> module:</p>
+
+<p><img src="/static/images/Stratopan/stratopan_3_600.png" alt="stratopan screenshot" /></p>
+
+<p>Decide if you want Stratopan to recursively pull all module dependencies; this is usually a good option. What&rsquo;s nice about this is the &ldquo;recursive&rdquo; pull will grab all the modules dependent on your chosen module&rsquo;s dependencies.</p>
+
+<p><img src="/static/images/Stratopan/stratopan_4_600.png" alt="stratopan screenshot" /></p>
+
+<p>It can be surprising how many dependencies there are - for example <a href="https://metacpan.org/pod/WWW::CheckHTML">WWW::CheckHTML</a> has 5 direct dependencies and 69 indirect ones. Obviously when there are more dependent modules, Stratopan will take longer to pull them into the stack (usually a minute or two). When it&rsquo;s finished, Stratopan will present the the latest view of the stack.</p>
+
+<p><img src="/static/images/Stratopan/stratopan_5_600.png" alt="stratopan screenshot" /></p>
+
+<p>Stratopan provides some useful stack features. A link to <a href="https://metacpan.org">metapcan</a> is provided for every module (except for private modules that have been added from a local machine) and it&rsquo;s possible to browse the *.pm files in a module by clicking on it:</p>
+
+<p><img src="/static/images/Stratopan/stratopan_20_600.png" alt="stratopan screenshot" /></p>
+
+<p>Each stack has it&rsquo;s own commit history, accessed via the aptly-named &ldquo;history&rdquo; link:</p>
+
+<p><img src="/static/images/Stratopan/stratopan_22_600.png" alt="stratopan screenshot" /></p>
+
+<p>The &ldquo;graphs&rdquo; link is much more interesting. It opens this cool, rotatable dependencies chart:</p>
+
+<p><img src="/static/images/Stratopan/stratopan_21_600.png" alt="stratopan screenshot" /></p>
+
+<p>Finally the &ldquo;settings&rdquo; link let&rsquo;s you update the stack name, description and target Perl version. You can also delete the stack from here.</p>
+
+<p><img src="/static/images/Stratopan/stratopan_23_600.png" alt="stratopan screenshot" /></p>
+
+<h3 id="installing-modules-from-your-stratopan-stack:713592ed043727253fc234d9fe0e3d2b">Installing modules from your Stratopan stack</h3>
+
+<p>To install modules from Stratopan you&rsquo;ll need <a href="https://metacpan.org/pod/release/MIYAGAWA/App-cpanminus-1.7001/bin/cpanm">cpanm</a>. You can install this via cpan from the terminal:</p>
+
+<pre><code class="language-prettyprint">cpan App::cpanminus
+</code></pre>
+
+<p>Once cpanm has installed, open one of your stacks on Stratopan and copy the stack URL (shown in red below).</p>
+
+<p><img src="/static/images/Stratopan/stratopan_24_600.png" alt="stratopan screenshot" /></p>
+
+<p>At the terminal type &ldquo;cpanm &ndash;mirror-only &ndash;mirror &rdquo; and paste your copied stack URL and enter one or more module names that you wish to install. For example to install <a href="https://metacpan.org/pod/WWW::CheckHTML">WWW::CheckHTML</a> from my master stack:</p>
+
+<pre><code class="language-prettyprint">cpanm --mirror-only --mirror 
+https://stratopan.com/sillymoose/WebStuff/master WWW::CheckHTML
+</code></pre>
+
+<p>If all goes well you should see the following installation dialogue:</p>
+
+<pre><code class="language-prettyprint">--&gt; Working on WWW::CheckHTML
+Fetching https://stratopan.com/sillymoose/WebStuff/master/authors/id/S/SI/SILLYMOOS/WWW-CheckHTML-0.04.tar.gz ... OK
+Configuring WWW-CheckHTML-0.04 ... OK
+Building and testing WWW-CheckHTML-0.04 ... OK
+Successfully installed WWW-CheckHTML-0.04
+1 distribution installed
+</code></pre>
+
+<h3 id="conclusion:713592ed043727253fc234d9fe0e3d2b">Conclusion</h3>
+
+<p><a href="https://stratopan.com">Stratopan</a> is an awesome new service which can hugely simplify the configuration of your Perl platforms. Hopefully this guide has given you a better idea of how to get started with it!</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/sysadmin">sysadmin</a></div>
+              
+                <div class="tag"><a href="/tags/config">config</a></div>
+              
+                <div class="tag"><a href="/tags/stratopan">stratopan</a></div>
+              
+                <div class="tag"><a href="/tags/cloud">cloud</a></div>
+              
+                <div class="tag"><a href="/tags/saas">saas</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

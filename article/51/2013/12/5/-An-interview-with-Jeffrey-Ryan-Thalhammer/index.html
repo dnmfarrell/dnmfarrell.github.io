@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title> An interview with Jeffrey Ryan Thalhammer Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Learn about the tools Jeffrey uses to code in Perl, upcoming Stratopan features and more!"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title"> An interview with Jeffrey Ryan Thalhammer</h1>
+            <p class="blog-post-meta">Dec 5, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p><em>Jeffrey Ryan Thalhammer is the creator of <a href="https://metacpan.org/pod/Perl::Critic">Perl::Critic</a>, <a href="https://metacpan.org/pod/release/THALJEF/Pinto-0.092/bin/pinto">Pinto</a> and now <a href="https://stratopan.com/">Stratopan</a> - a cloud based service that securely hosts custom repositories of Perl modules. We caught up with Jeffrey to get the latest Stratopan news and learn the tools, tricks and techniques he uses to code in Perl.</em></p>
+
+<p><strong>First of all how&rsquo;s the Stratopan beta going?</strong>
+ Very, very well it has been up 3 weeks now and we just crossed 500 users, so I&rsquo;m very happy about that. About half of those people have created repositories and are using the tool in a meaningful way, which is about what I would expect. Right now we&rsquo;ve had a lot of good feedback, people have found bugs and requested enhancements so I&rsquo;m sitting back and letting that stuff come in. Once I have a pool of information about what&rsquo;s important to people then we&rsquo;ll start prioritizing and chipping away at it. I want to move the product towards being commercially viable, that&rsquo;s the next big milestone, making <a href="https://stratopan.com/">Stratopan</a> something we can charge an enterprise a few bucks a month to use.</p>
+
+<p><strong>So apart from the feedback you&rsquo;ve received from the beta, do you consider Stratopan feature complete?</strong>
+ Oh definitely not! Right now it&rsquo;s a minimal viable product. It does just enough to be useful - you can create a repository in the cloud, and that&rsquo;s about it (although that is about seventy-five percent of the value). The other twenty-five percent are the features that you need to make it a viable business. This means collaboration features, so you can control who can read and write to the repository rather than it just being controlled by a single owner. We need to have more of the <a href="https://metacpan.org/pod/release/THALJEF/Pinto-0.092/bin/pinto">Pinto</a> features exposed: pinning distributions, merging stacks and stuff like that. An API would be a killer feature because people could build their own ideas on top of Stratopan, automating it and interacting with it in clever ways. So there is a long way to go to be feature complete!</p>
+
+<p><strong>Do you have a preferred development methodology?</strong>
+ I aspire to Test Driven Development, but I don&rsquo;t always start out that way. It takes a while for me to build up enough of a framework to where I feel like I know what to test and how to test and the tests are cheap enough to make. Once I get that framework in place, I&rsquo;m fairly good about being test driven and using some kind of test first approach. But until I get to that point I&rsquo;m more exploratory and don&rsquo;t bother with the testing until I have some concrete code to work with. Stratopan is making that transition right now. It&rsquo;s going from an ad hoc test suite to something using <a href="https://metacpan.org/pod/WWW::Mechanize">WWW::Mechanize</a> so the tests are very cheap to perform now and I can be more test driven at a lower cost than I would have been 6 months ago.</p>
+
+<p><strong>What about text editor or IDE, what&rsquo;s your tool of choice to code in Perl?</strong>
+ I have become a <a href="http://www.sublimetext.com/">Sublime Text</a> user in the past couple of years. I really like it. I had been using EMACS for a long time, but I never mastered it. You can spend a lifetime mastering EMACS and Vi. I even went and bought the official GNU manual for EMACS and even that didn&rsquo;t help me much. EMACS is kind of cryptic and I didn&rsquo;t want to bother learning Lisp - I have enough things in my head, I didn&rsquo;t want to bother with that. So I got frustrated with EMACS and switched to <a href="http://www.sublimetext.com/">Sublime Text</a> and I love it. It does everything I want it to do and for me, extending it with Python is much easier than writing LISP for EMACS ever was.</p>
+
+<blockquote>
+<p>I didn&rsquo;t want to bother learning Lisp - I have enough things in my head</p>
+</blockquote>
+
+<p><strong>Doesn&rsquo;t Sublime Text run as an application? Do you have easy access to the command line from Sublime Text?</strong>
+ You probably do, although my mode of operating is I&rsquo;ll have a terminal window and a text editor on the desktop at all times. So I flip between the two and many of the things I would use the command line for, I do directly in <a href="http://www.sublimetext.com/">Sublime Text</a>. For example there&rsquo;s a hook (in Sublime Text) to do commits with Git, which I could do on the command line but is just a couple of keystrokes in <a href="http://www.sublimetext.com/">Sublime Text</a>. All the other tools (EMACS, Vi etc) will do that too, so I don&rsquo;t mean to suggest that those features aren&rsquo;t there, just that they&rsquo;re more accessible to me in <a href="http://www.sublimetext.com/">Sublime Text</a>.</p>
+
+<p><strong>What OS do you primarily code in?</strong>
+ I&rsquo;m on a very old Mac laptop running OSX Lion, it&rsquo;s about six years old now, time for me to upgrade. It&rsquo;s quite a bit slower than my wife&rsquo;s machine which is newer. I think &ldquo;Daddy needs a new toy&rdquo; for Christmas!</p>
+
+<p><strong>Do you find any compatibility issues with using Perl on OSX?</strong>
+ Occasionally I&rsquo;ll find a difference between OSX and a Linux distribution I have to deploy on. Building modules with C dependencies has gotten a lot easier with <a href="http://brew.sh/">homebrew</a> which is a community package manager for OSX. With <a href="http://brew.sh/">homebrew</a> it&rsquo;s easy to go out and get those C libraries. I&rsquo;ve noticed that some CPAN authors are shipping their modules on CPAN with the C libraries wired into them (somehow). The most recent one I noticed was <a href="https://metacpan.org/pod/Git::Raw">Git::Raw</a> which is the Perl bindings on top of the libgit2. So when you install <a href="https://metacpan.org/pod/Git::Raw">https://metacpan.org/pod/Git::Raw</a>, it builds the libgit2 C libraries for you and you don&rsquo;t have to go out and fetch anything extra. It&rsquo;s sort of how I figured things should always have been done, I don&rsquo;t know how people survived in the old days when you had to go track libraries down and build them by hand. That feels very awkward to me but I guess I&rsquo;m lazy now. I want to push a button and install a module with the same simplicity with which I would install an app on my phone. I hope <a href="https://stratopan.com/">Stratopan</a> (in some way) moves us towards that goal; by fixing idiosyncrasies on <a href="https://stratopan.com/">Stratopan</a>, a user can just point their installer at their repository and not think about configuration at all.</p>
+
+<blockquote>
+<p>I want to push a button and install a module with the same simplicity with which I would install an app on my phone</p>
+</blockquote>
+
+<p><strong>What tools do you use to create modules?</strong>
+ I used to do it all by hand but about two or three years ago I started using <a href="https://metacpan.org/pod/Dist::Zilla">Dist::Zilla</a>. Before that I had made my own &ldquo;module-starter&rdquo; style kits a couple of times. I absolutely love <a href="https://metacpan.org/pod/Dist::Zilla">Dist::Zilla</a>; you can open up an editor make a few changes and fire it off to CPAN. <a href="https://metacpan.org/pod/Dist::Zilla">Dist::Zilla</a> handles that process beautifully and I don&rsquo;t travel without it!</p>
+
+<p><strong>What about Perl::Critic, do you integrate that with Dist::Zilla, do you use it much?</strong>
+ I do use <a href="https://metacpan.org/pod/Perl::Critic">Perl::Critic</a>; it has been my bread and butter for so long. I don&rsquo;t use it in quite the same way as I used to though. Earlier I was very hardcore and draconian. I wanted everything to be compliant and follow all of the <a href="http://shop.oreilly.com/product/9780596001735.do">best practices</a> that Damian Conway recommended. I&rsquo;m more relaxed now and prefer a loose configuration and don&rsquo;t require that all the code complies with <a href="https://metacpan.org/pod/Perl::Critic">Perl::Critic</a> before I ship it. I do use <a href="https://metacpan.org/pod/Perl::Critic">Perl::Critic</a> periodically to make sure that I haven&rsquo;t completely gone off the rails!</p>
+
+<p><strong>Do you use Perl::Critic when working in teams, or maybe as a requirement for accepting pull requests?</strong>
+ When there&rsquo;s a pull request I&rsquo;ll <a href="https://metacpan.org/pod/Perl::Critic">Perl::Critic</a> on it just to see if anything pops out. It&rsquo;s much less of a problem now because I only look for the really egregious problems and don&rsquo;t get caught up on lower-level style issues. I find that over time I tend to transmogrify other people&rsquo;s pull requests into my own interpretation of their code. My brain is already wired to write code the way <a href="https://metacpan.org/pod/Perl::Critic">Perl::Critic</a> expects it. I&rsquo;ve been using it for so long that for me, it&rsquo;s automatic.</p>
+
+<p><strong>What about any other supporting tools, do you tie them into your Dist::Zilla process?</strong>
+ Podchecker is definitely tied in with <a href="https://metacpan.org/pod/Dist::Zilla">Dist::Zilla</a>, there&rsquo;s a test that verifies all the POD is syntactically correct. For tidying there&rsquo;s a tool that Jonathan Schwartz wrote called <a href="https://metacpan.org/pod/Code::TidyAll">Code::TidyAll</a>. It&rsquo;s kind of a wrapper on Perl::Tidy, <a href="https://metacpan.org/pod/HTML::Tidy">HTML::Tidy</a> and <a href="https://metacpan.org/pod/Perl::Critic">Perl::Critic</a> and you can plug in other kinds of linters to it. So for me it&rsquo;s one command to rule them all - it runs all of the pre-commit analysis and tidier tools in one shot. It&rsquo;s also smart - <a href="https://metacpan.org/pod/Code::TidyAll">Code::TidyAll</a> tracks changes and won&rsquo;t re-run a process on a file that hasn&rsquo;t changed since the previous iteration, so that makes it a lot faster. I like it a lot!</p>
+
+<blockquote>
+<p>Code::TidyAll&hellip;for me it&rsquo;s one command to rule them all</p>
+</blockquote>
+
+<p><strong>In a <a href="http://www.theperlreview.com/Interviews/jeff-thalhammer-201310.html">previous interview</a> you mentioned working with Objective-C. Are there any development tools from other languages such as Objective-C that you&rsquo;d like to see incorporated into the Perl toolchain?</strong>
+ What I like about Objective-C is that Apple provides a comprehensive and consistent framework. For example there is a complete and consistent feature set for managing files - a pretty ordinary task. But if you want to do that with Perl, there are 3 or 4 different libraries you have to load in order to create paths, move files recursively, things like that. And the Perl libraries are all written by different authors, with different interfaces and styles. It&rsquo;s bothersome to me that there is this inconsistency. But on the the other hand I have learned to accept it because that is the nature of Perl. It&rsquo;s a conglomeration of different ideas. It&rsquo;s never going to be like Cocoa (an Apple framework), which is mastermind by a single entity with the resources to enforce a consistent API and architecture across all of their libraries. To answer the question, I wish there was more consistency in the standard Perl library.</p>
+
+<p><strong>A few months back you highlighted a business opportunity (<a href="http://blogs.perl.org/users/jeff_thalhammer1/2013/07/development-tools-as-services-are-a-cash-crop.html">&ldquo;Development Tools-As-Services Are A Cash Crop&rdquo;</a>) - has your view changed since then?</strong>
+ There is a big boom in San Francisco right now in software-as-a-service analytics for web applications. Companies like New Relic and AppDynamics provide these services for monitoring a web application from the browser all the way down to the database. They track how long things take and identify bottlenecks, potential bugs and correlate different types of events so you can track down hard-to-find bugs. None of these types of services exist for Perl right now. You have to hand-roll a solution yourself. These are actually lucrative businesses right and I wish Perl had those things. It&rsquo;s possible if someone had the courage to port those existing frameworks (New Relic and AppDynamics) to Perl but the economics aren&rsquo;t there for the companies running those applications in order for them to do it themselves. I still feel strongly about this. <a href="https://metacpan.org/pod/Perl::Critic">Perl::Critic</a> could be a implemented as software-as-a-service. Similar tools have emerged for Ruby and I think we&rsquo;ll see them in other languages. There are tools for analyzing code: static analyis, complexity analysis, security analysis etc. All of these things are valuable services and legitimate businesses. When I put up PerlCritic.com I didn&rsquo;t have the vision to do that. I would love to do it now or see someone else in the community do it because Perl certainly has the tools and capabilities. It&rsquo;s just a matter of taking the risk to try and construct a business around it.</p>
+
+<p><strong>Let&rsquo;s change gears - where do you go for support when you have a thorny Perl problem?</strong>
+ I&rsquo;ve become better at using IRC because like all programmers I&rsquo;m kind of impatient and so when I ask a question I want to get it in front of as many eyeballs as possible. I used to use Perl Monks but although I like writing, I write very slowly. So whenever I want to post something on Perl Monks or in general it takes me a really long time to come up with something that I feel is adequate. Whereas on IRC I can just spout something out - it rolls off the tongue easier and there&rsquo;s no pressure to be grammatically correct so that works for me. Posting things requires more effort and mindfulness on my part (so I don&rsquo;t do it as often). On IRC I am always dialled into the #Moose, #PerlQA and #MetaCPAN channels and I&rsquo;m usually on #Pinto and #PerlHelp channels as well.</p>
+
+<blockquote>
+<p>on IRC I can just spout something out - it rolls off the tongue easier and there&rsquo;s no pressure to be grammatically correct so that works for me</p>
+</blockquote>
+
+<p><strong>Do you have a favourite trick or code syntax feature in Perl (perhaps that isn&rsquo;t possible in other languages)?</strong>
+ Can&rsquo;t say for sure if this is not available in other languages, but I love the modulino pattern. I think the term was coined by brian d foy. Take what you would normally write as a script for example a utility program. Instead of writing the program procedurally with one statement after the other in a script format you wrap it into a module that you can execute. You can load the module and perform tests on it and at the same time you can execute it as a script and use it for work. I really like that. One-liners in general I think, are lot of fun in Perl. No other language I think has quite as much expressiveness at the command line. There is a twitter feed of perl one liners (<a href="https://twitter.com/perloneliner">@perloneliner</a>) and I subscribe to that. I like to get one or two tweets a week from @perloneliner that give me new ideas and show me things that I didn&rsquo;t even know Perl could do.</p>
+
+<blockquote>
+<p>No other language I think has quite as much expressiveness at the command line</p>
+</blockquote>
+
+<p><strong>Were you at that recent Perl event at Craiglist&rsquo;s offices in San Francisco where Larry made an appearance?</strong>
+ I was there and Larry and I had a couple of beers afterwards. He told me all about what&rsquo;s been going on with Perl 6 and I asked him about the grammars as I&rsquo;m interested in Perl 6 from a static analysis perspective. I wanted to know if I was going to write <a href="https://metacpan.org/pod/Perl::Critic">Perl::Critic</a> for Perl 6, what would it look like? One of the challenges with Perl 5 is that only Perl 5 could parse Perl 5 and that&rsquo;s still true today. PPI took a long time to develop and it&rsquo;s still only an approximation, a best guess of how to parse Perl 5. So I was hopeful that Perl 6 would have a formal grammar and some kind of abstract syntax tree that can be accessed or manipulated. It sounds like it&rsquo;s mostly going to have that with some things that can only be figured out at runtime.</p>
+
+<p><strong>Perl 6 is a next-generation language, it feels like they&rsquo;re aiming to be able to do everything in Perl 6 &hellip;</strong>
+ It&rsquo;s way beyond me. Perl 6 is starting to feel real, much more than it has in past years. I think the Perl 6 team have done a lot of work in the past few years and Rakudo has come a long way. It&rsquo;s possible, I don&rsquo;t want to make any predictions, but it&rsquo;s possible that we&rsquo;re on the cusp of something really wonderful there.</p>
+
+<p><strong>Larry mentioned he was working on a new book, the equivalent of the Camel book but for Perl 6?</strong>
+ Right; I think that will be a big milestone for the language (having a comprehensive manual). It could be a real turning point. Larry and I were talking about whether or not O&rsquo;Reilly would publish it - I think it would be really cool to see O&rsquo;Reilly publish the book.</p>
+
+<h3 id="additional-information-and-links:a677b03eee826710252322c2755adc39">Additional information and links</h3>
+
+<ul>
+<li>Jeffrey uses <a href="http://www.sublimetext.com/">Sublime Text</a> to code in Perl.</li>
+<li>He uses <a href="https://metacpan.org/pod/Dist::Zilla">Dist::Zilla</a> for crafting modules <a href="https://metacpan.org/pod/Dist::Zilla">Dist::Zilla</a> has a <a href="http://dzil.org/">website</a>.</li>
+<li>Jeffrey relies on <a href="https://metacpan.org/pod/Code::TidyAll">Code::TidyAll</a> to run all his linting processes (&ldquo;one command to rule them all&rdquo;).</li>
+<li><a href="http://brew.sh/">homebrew</a> helps him manage C libraries on OSX.</li>
+<li>He is the author of <a href="https://metacpan.org/pod/Perl::Critic">Perl::Critic</a> a static code analysis for Perl. The online version is <a href="http://perlcritic.com/">here</a>.</li>
+<li>Jeffrey is currently working on <a href="https://stratopan.com/">Stratopan</a>; sign up before December 15th to get a free account for life. Stratopan is based on Jeffrey&rsquo;s Perl application, <a href="https://metacpan.org/pod/release/THALJEF/Pinto-0.092/bin/pinto">Pinto</a>.</li>
+<li>He follows <a href="https://twitter.com/perloneliner">@perloneliner</a> on Twitter - you should too!</li>
+<li>brian d foy&rsquo;s modulino concept is covered in his book <a href="http://chimera.labs.oreilly.com/books/1234000001527/ch18.html">Mastering Perl</a> (O&rsquo;Reilly preview of the upcoming second edition).</li>
+<li>Larry shows up at the end of Mike Friedman&rsquo;s excellent MongoDB talk at Craiglist (<a href="https://archive.org/details/mikefriedmanbuildingyourfirstappwithmongodbandperl">video</a>).</li>
+<li>You can find out more about Perl 6 at their <a href="http://perl6.org/">official website</a>.</li>
+</ul>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/community">community</a></div>
+              
+                <div class="tag"><a href="/tags/culture">culture</a></div>
+              
+                <div class="tag"><a href="/tags/stratopan">stratopan</a></div>
+              
+                <div class="tag"><a href="/tags/cloud">cloud</a></div>
+              
+                <div class="tag"><a href="/tags/saas">saas</a></div>
+              
+                <div class="tag"><a href="/tags/interview">interview</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

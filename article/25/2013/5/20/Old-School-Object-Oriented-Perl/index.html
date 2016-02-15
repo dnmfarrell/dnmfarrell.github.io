@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Old School Object Oriented Perl Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="If you need to write object oriented Perl code with no dependencies, then you need to use the old school Perl syntax. This article describes the main features of old school object oriented Perl including class declaration, constructors, destructors, methods, attributes, accessors and inheritance."/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Old School Object Oriented Perl</h1>
+            <p class="blog-post-meta">May 20, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
+            </div>
+              
+
+<p>If you need to write object oriented Perl code with no dependencies, then you need to use the old school Perl syntax. This article describes the main features of old school object oriented Perl including class declaration, constructors, destructors, methods, attributes, accessors and inheritance.</p>
+
+<p>If you want to write object oriented Perl code using modern Perl tools, consider using <a href="https://metacpan.org/module/ETHER/Moose-2.0802/lib/Moose.pm">Moose</a> for a feature rich implementation including type checking, roles and accessor methods. An alternative is <a href="https://metacpan.org/module/Moo">Moo</a> which provides a speedy, minimalist implementation of the Moose syntax, without the sugar (or the overhead) of Moose.</p>
+
+<h3 id="classes:af479d87902de169a500160c53799bda">Classes</h3>
+
+<p>A Perl class is defined in a Perl module file (*.pm) with a package declaration. At a minimum the class must contain a constructor method and optionally can contain additional class methods and attributes. As with all Perl packages, it must return a true value (normally 1, this is placed at the end of the file). A minimal example Perl class would look like this:</p>
+
+<pre><code class="language-prettyprint"># This is the package declaration
+package Shape;
+
+# This is the constructor method
+sub new {
+    return bless {}, shift;
+}
+
+1;
+</code></pre>
+
+<p>The example Shape class must be saved in a file called &lsquo;Shape.pm&rsquo;.</p>
+
+<h3 id="the-constructor-method:af479d87902de169a500160c53799bda">The constructor method</h3>
+
+<p>The constructor method is a Perl subroutine that returns an object which is an instance of the class. It is convention to name the constructor method &lsquo;new&rsquo;, but it can be any valid subroutine name. The constructor method works by using the <a href="http://perldoc.perl.org/functions/bless.html">bless</a> function on a hash reference and the class name (the package name). When new is called, the package name &lsquo;Shape&rsquo; is in the default array @_ and <a href="http://perldoc.perl.org/functions/shift.html">shift</a> is used to take the package name from @_ and pass it to the bless function. Let&rsquo;s modify the constructor method to convey this behaviour more clearly:</p>
+
+<pre><code class="language-prettyprint">package Shape;
+
+sub new {
+    my $class = shift;
+    my $self = {};
+    return bless $self, $class;
+}
+
+1;
+</code></pre>
+
+<p>This style of coding the constructor is a common pattern seen frequently in Perl code. Not only does it convey the behaviour of the code more clearly, it also allows for easy extension to $self, such as adding default attributes and / or accepting initialization arguments.</p>
+
+<h3 id="attributes:af479d87902de169a500160c53799bda">Attributes</h3>
+
+<p>Essentially a Perl object is a blessed reference to a hash reference. This hash reference stores the key value pairs of data which are the object&rsquo;s attributes. Let&rsquo;s add some useful attributes to our Shape class:</p>
+
+<pre><code class="language-prettyprint">package Shape;
+
+sub new {
+    my $class = shift;
+    my $self = {
+        color  =&gt; 'black',
+        length =&gt; 1,
+        width  =&gt; 1,
+    };
+    return bless $self, $class;
+}
+
+1;
+</code></pre>
+
+<p>The Shape class has been given color, length and width attributes. We can access these attributes by using our Shape class in a Perl program, let&rsquo;s call it &lsquo;Draw.pl&rsquo; (it should be saved in the same directory as Shape.pm):</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use feature qw/say/;
+use Shape;
+
+# create a new Shape object
+my $shape = Shape-&gt;new;
+
+# print the shape object attributes
+say $shape-&gt;{color};
+say $shape-&gt;{length};
+say $shape-&gt;{width};
+</code></pre>
+
+<p>Let&rsquo;s review the key lines: &lsquo;use feature qw/say/;&rsquo; enables the say function which prints and appends a newline. &lsquo;use Shape;&rsquo; imports the Shape class and my $shape = Shape-&gt;new; creates a new Shape object. Using $shape we can then access the attributes with a dereferencing arrow -&gt; using the attribute name encased in curly brackets and print the attributes using the say function.</p>
+
+<h3 id="setting-attribute-values-using-constructor-arguments:af479d87902de169a500160c53799bda">Setting attribute values using constructor arguments</h3>
+
+<p>At the moment Shape.pm is quite rigid; every Shape object we use will have the same color, length and width values. We can increase the flexibility of the Shape class by accepting arguments that set the values of color, length and width attributes. Let&rsquo;s modify the Shape.pm constructor accordingly:</p>
+
+<pre><code class="language-prettyprint">package Shape; 
+ 
+sub new { 
+    my ($class, $args) = @_; 
+    my $self = { 
+        color  =&gt; $args-&gt;{color}, 
+        length =&gt; $args-&gt;{length}, 
+        width  =&gt; $args-&gt;{width}, 
+    }; 
+    return bless $self, $class; 
+}           
+        
+1;
+</code></pre>
+
+<p>When calling any subroutine in Perl the arguments are contained in the default array variable @_. The Shape.pm constructor now expects a hash reference containing the attribute values in its arguments, and assigns this to $args. We can update Draw.pl to pass those arguments:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use feature qw/say/;
+use Shape;
+
+# pass color, length and width arguments to the constructor
+my $shape = Shape-&gt;new({
+                color =&gt; 'red',
+                length=&gt; 2,
+                width =&gt; 2,
+            });
+
+# print the shape object attributes
+say $shape-&gt;{color};
+say $shape-&gt;{length};
+say $shape-&gt;{width};
+</code></pre>
+
+<h3 id="creating-default-attribute-values:af479d87902de169a500160c53799bda">Creating default attribute values</h3>
+
+<p>Now we can create Shape objects of different colors, lengths and widths. But what if we don&rsquo;t pass all the arguments in our Perl program? In this case the object will initialize with those attributes as null. To avoid that, we can set default values that are overridden if the argument is present when the object is constructed. We can use the logical or operator || to achieve this effect in Shape.pm:</p>
+
+<pre><code class="language-prettyprint">package Shape;
+
+sub new {
+    my ($class, $args) = @_;
+    my $self = {
+        color  =&gt; $args-&gt;{color} || 'black',
+        length =&gt; $args-&gt;{length} || 1,
+        width  =&gt; $args-&gt;{width} || 1,
+    };
+    return bless $self, $class;
+}
+
+1;
+</code></pre>
+
+<p>Now we have the best of both worlds: when using Shape.pm you can optionally pass the attribute values or the Shape will be constructed with the default values. We can prove this by updating and running Draw.pl:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use feature qw/say/;
+use Shape;
+
+# pass color, length and width arguments to the constructor
+my $red_shape = Shape-&gt;new({
+                    color =&gt; 'red',
+                });
+# use the default attribute values
+my $black_shape = Shape-&gt;new;
+
+say $red_shape-&gt;{color};
+say $black_shape-&gt;{color};
+</code></pre>
+
+<p>In Draw.pl we initialized $red_shape with an argument pair (color =&gt; red), but for $black_shape we provided no arguments, so the color attribute defaults to black.</p>
+
+<h3 id="dynamically-adding-attributes:af479d87902de169a500160c53799bda">Dynamically adding attributes</h3>
+
+<p>It is possible to insert new attributes into an object&rsquo;s hash reference, for example we could calculated the area of a shape using it&rsquo;s length and width attributes:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use feature qw/say/;
+use Shape;
+
+# pass color, length and width arguments to the constructor
+my $red_shape = Shape-&gt;new({
+                    color =&gt; 'red',
+                    length=&gt; 2,
+                    width =&gt; 2,
+                });
+# calculate the area of $red_shape
+my $area = $red_shape-&gt;{length} * $red_shape-&gt;{width};
+
+# insert the area attribute and value into $red_shape
+$red_shape-&gt;{area} = $area;
+
+say $red_shape-&gt;{area};
+</code></pre>
+
+<p>Now $red_shape has the attributes: color, length, width and area.</p>
+
+<h3 id="methods:af479d87902de169a500160c53799bda">Methods</h3>
+
+<p>Methods are simply Perl subroutines that belong to a class. The Shape class already has one method, the constructor called new. Let&rsquo;s add a new method to Shape.pm to calculate and return the area:</p>
+
+<pre><code class="language-prettyprint">package Shape;
+
+sub new {
+    my ($class, $args) = @_;
+    my $self = {
+        color  =&gt; $args-&gt;{color} || 'black',
+        length =&gt; $args-&gt;{length} || 1,
+        width  =&gt; $args-&gt;{width} || 1,
+    };
+    return bless $self, $class;
+}
+
+sub get_area {
+    my $self = shift;
+    my $area = $self-&gt;{length} * $self-&gt;{width};
+    return $area;
+}
+
+1;
+</code></pre>
+
+<p>We&rsquo;ve added the get_area method (it&rsquo;s good practice to be descriptive when naming your methods by using the verb-noun style). When an object method is called the first element of the default array @_ will contain the package name and a reference to the object. In the get_area method we store this argument in $self. We then dereference the length and width attributes to calculate and return $area. We can update Draw.pl to use the new area method:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use feature qw/say/;
+use Shape;
+    
+# pass color, length and width arguments to the constructor
+my $red_shape = Shape-&gt;new({
+                color =&gt; 'red',
+                length=&gt; 2,
+                width =&gt; 2,
+            });
+# call the area method and print the value
+say $red_shape-&gt;get_area;
+</code></pre>
+
+<h3 id="accessor-methods:af479d87902de169a500160c53799bda">Accessor methods</h3>
+
+<p>Accessor methods are subroutines which access object attributes.This is better than directly dereferencing the attributes in the object&rsquo;s hash reference, as it leads to more readable and maintainable code (particularly if you follow the verb-noun style of naming methods). We can update Shape.pm with get and set methods for its color attribute:</p>
+
+<pre><code class="language-prettyprint">package Shape;
+
+sub new {
+    my ($class, $args) = @_;
+    my $self = {
+        color  =&gt; $args-&gt;{color} || 'black',
+        length =&gt; $args-&gt;{length} || 1,
+        width  =&gt; $args-&gt;{width} || 1,
+    };
+    return bless $self, $class;
+}
+
+sub get_area {
+    my $self = shift;
+    return $self-&gt;{length} * $self-&gt;{width};
+}
+
+sub get_color {
+    my $self = shift;
+    return $self-&gt;{color};
+}
+
+sub set_color {
+    my ($self, $color) = @_;
+    $self-&gt;{color} = $color;
+}
+
+1;
+</code></pre>
+
+<p>Let&rsquo;s update Draw.pl to use the new methods:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use feature qw/say/;
+use Shape;
+    
+# pass color argument to the constructor
+my $shape = Shape-&gt;new({
+                color =&gt; 'red',
+            });
+    
+# print the shape color using get_color method
+say $shape-&gt;get_color;
+
+# set the shape color to blue
+$shape-&gt;set_color('blue'); 
+
+# print the shape color using get_color method
+say $shape-&gt;get_color;
+</code></pre>
+
+<p>Using the example methods of get_color and set_color, it should be obvious how to write additional get and set methods for the length and width attributes.</p>
+
+<h3 id="builder-methods:af479d87902de169a500160c53799bda">Builder methods</h3>
+
+<p>A builder method is an internal subroutine that is used to set the value of an object attribute at construction. A convention used by Perl programmers is to denote internal methods by prepending an underscore to their name. Let&rsquo;s add a builder method to Shape.pm that sets the creation datetime, using the <a href="http://perldoc.perl.org/Time/Piece.html">Time::Piece</a> core module:</p>
+
+<pre><code class="language-prettyprint">package Shape;
+use Time::Piece;
+
+sub new {
+    my ($class, $args) = @_;
+    my $self = {
+        color    =&gt; $args-&gt;{color} || 'black',
+        length   =&gt; $args-&gt;{length} || 1,
+        width    =&gt; $args-&gt;{width} || 1,
+    };
+    my $object = bless $self, $class;
+    $object-&gt;_set_datetime;
+    return $object;
+}
+
+sub get_area {
+    my $self = shift;
+    return $self-&gt;{length} * $self-&gt;{width};
+}
+
+sub get_color {
+    my $self = shift;
+    return $self-&gt;{color}; 
+}
+
+sub set_color {
+    my ($self, $color) = @_;
+    $self-&gt;{color} = $color; 
+}
+
+sub _set_datetime {
+    my $self = shift;
+    my $t = localtime;
+    $self-&gt;{datetime} = $t-&gt;datetime; 
+}
+
+sub get_datetime {
+    my $self = shift;
+    return $self-&gt;{datetime}; 
+}
+
+1;
+</code></pre>
+
+<p>The _set_datetime builder method is called at construction within the new method. A corresponding accessor to get the datetime has also been added. We can test this by updating Draw.pl to use it:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use feature qw/say/;
+use Shape;
+
+my $shape = Shape-&gt;new;
+
+# get datetime
+say $shape-&gt;get_datetime;
+</code></pre>
+
+<h3 id="the-destructor-method:af479d87902de169a500160c53799bda">The destructor method</h3>
+
+<p>A destructor method is automatically called by Perl when all references to an object go out of scope - it is never called directly. Destructor methods are useful if the class creates temporary files or threads that must be cleaned up if the object is destroyed. They can also be useful for event logging. Perl provides a special destructor method name, &lsquo;DESTROY&rsquo; that must be used when declaring a destructor.</p>
+
+<pre><code class="language-prettyprint">package Shape;
+use Time::Piece;
+
+sub new {
+    my ($class, $args) = @_;
+    my $self = {
+        color    =&gt; $args-&gt;{color} || 'black',
+        length   =&gt; $args-&gt;{length} || 1,
+        width    =&gt; $args-&gt;{width} || 1,
+    };
+    my $object = bless $self, $class;
+    $object-&gt;_set_datetime;
+    return $object;
+}
+
+# The new destructor method, called automatically by Perl
+sub DESTROY {
+    my $self = shift;
+    print &quot;I have been garbage-collected!\n&quot;;
+}
+
+sub get_area {
+    my $self = shift;
+    return $self-&gt;{length} * $self-&gt;{width};
+}
+
+sub get_color {
+    my $self = shift;
+    return $self-&gt;{color}; 
+}
+
+sub set_color {
+    my ($self, $color) = @_;
+    $self-&gt;{color} = $color; 
+}
+
+sub _set_datetime {
+    my $self = shift;
+    my $t = localtime;
+    $self-&gt;{datetime} = $t-&gt;datetime; 
+}
+
+sub get_datetime {
+    my $self = shift;
+    return $self-&gt;{datetime}; 
+}
+
+1;
+</code></pre>
+
+<h3 id="inheritance:af479d87902de169a500160c53799bda">Inheritance</h3>
+
+<p>A key concept of object oriented programming is the ability to create sub-classes of existing classes. These sub-classes will inherit the methods and attributes of their parent class, which allows programmers to stay <a href="http://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a> by separating re-usable generic code from specialist code.</p>
+
+<p>Let&rsquo;s say we wanted to implement circle shape. Currently Shape.pm has length and width attributes - these work for rectangular shapes but not for circles as they require radius, diameter and circumference attributes instead. We can subclass Shape.pm to create a new Circle class that inherits the methods of Shape and implements new circle-specific functionality:</p>
+
+<pre><code class="language-prettyprint">package Shape::Circle;
+use parent Shape;
+
+sub new {
+    my ($class, $args) = @_;
+    my $self = {
+        color    =&gt; $args-&gt;{color} || 'black',
+        diameter =&gt; $args-&gt;{diameter} || 1,
+    };
+    my $object = bless $self, $class;
+    $object-&gt;_set_datetime;
+    return $object;
+}
+
+sub get_radius {
+    my $self = shift;
+    return $self-&gt;{diameter} * 0.5;
+}
+
+sub get_circumference {
+    my $self = shift;
+    return $self-&gt;{diameter} * 3.14;
+}
+
+sub get_area {
+    my $self = shift;
+    my $area = $self-&gt;get_radius ** 2 * 3.14;
+}
+1;
+</code></pre>
+
+<p>The Circle.pm file should be saved in Shape/Circle.pm. The line &lsquo;use parent Shape;&rsquo; informs Perl that Circle.pm inherits from the Shape class. The Circle class has now inherited the datetime and color methods from Shape, but also provides new circle-specific methods. Note that Circle.pm also inherited the &lsquo;new&rsquo; and &lsquo;get_area&rsquo; methods from Shape.pm, however it has overridden them by re-defining them in Circle.pm. Let&rsquo;s test Circle.pm out using Draw.pl:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use feature qw/say/;
+use Shape::Circle;
+
+my $circle = Shape::Circle-&gt;new;
+
+# get datetime - inherited method
+say $circle-&gt;get_datetime;
+
+# try new Circle methods
+say $circle-&gt;get_radius;
+say $circle-&gt;get_circumference;
+say $circle-&gt;get_area;
+</code></pre>
+
+<h3 id="wrap-up:af479d87902de169a500160c53799bda">Wrap up</h3>
+
+<p>This article has explored some of the core object oriented Perl functionality. For more information the official Perl documentation has a <a href="http://perldoc.perl.org/perlootut.html">tutorial</a> and a <a href="perldoc.perl.org/perlobj.html">more detailed reference</a>. The definitive text on old school object oriented Perl is Damian Conway&rsquo;s <a href="http://www.manning.com/conway/">Object Oriented Perl</a> (Manning, 1999).</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/object_oriented">object_oriented</a></div>
+              
+                <div class="tag"><a href="/tags/old_school_perl">old_school_perl</a></div>
+              
+                <div class="tag"><a href="/tags/class">class</a></div>
+              
+                <div class="tag"><a href="/tags/object">object</a></div>
+              
+                <div class="tag"><a href="/tags/attribute">attribute</a></div>
+              
+                <div class="tag"><a href="/tags/inheritance">inheritance</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

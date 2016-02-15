@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Optimization on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/optimization/</link>
+    <description>Recent content in Optimization on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 12 May 2014 13:19:16 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/optimization/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Benchmarking subroutine signatures</title>
+      <link>http://perltricks.com/article/88/2014/5/12/Benchmarking-subroutine-signatures/</link>
+      <pubDate>Mon, 12 May 2014 13:19:16 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/88/2014/5/12/Benchmarking-subroutine-signatures/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Subroutine signatures will be released to the Perl core in just a few days. But how do they performance compared with traditional methods like direct variable assignment and the &lt;a href=&#34;https://metacpan.org/pod/Method::Signatures&#34;&gt;Method::Signatures&lt;/a&gt; module? I benchmarked all three with interesting results.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;background:93413df609358a1a5a975a341330277a&#34;&gt;Background&lt;/h3&gt;
+
+&lt;p&gt;I &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;covered&lt;/a&gt; the new subroutine signatures features when they first appeared in the Perl development release 5.19.9. For these benchmarks I used the latest Perl development release (5.19.11).&lt;/p&gt;
+
+&lt;h3 id=&#34;method:93413df609358a1a5a975a341330277a&#34;&gt;Method&lt;/h3&gt;
+
+&lt;p&gt;All of the benchmarks came from variations of this code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Benchmark::Forking &#39;cmpthese&#39;;
+use feature &#39;signatures&#39;;
+no warnings &#39;experimental::signatures&#39;;
+use Method::Signatures;
+
+sub native_assignment { 
+    die &amp;quot;Too few arguments for subroutine $!&amp;quot; unless @_ == 1; 
+    my ($var) = @_;
+}
+
+sub native_signature ($var) {}
+
+func method_signature ($var) {}
+
+cmpthese(-5, {
+    native_assignment=&amp;gt; sub { native_assignment(1)},
+    native_signature =&amp;gt; sub { native_signature(1) },
+    method_signature =&amp;gt; sub { method_signature(1) },
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code begins by importing the necessary libraries. The line &amp;ldquo;no warnings &amp;lsquo;experimental::signatures&amp;rsquo; stops Perl from warning about the use of subroutine signatures. The code then declares the three subroutines we want to test: one is the normal variable assignment, one native subroutine signature and one for Method::Signatures (&amp;ldquo;func&amp;rdquo;).&lt;/p&gt;
+
+&lt;p&gt;Because the benchmark module executes tests in alphabetical order, every benchmark was run three times with the tests renamed each time to change the test order (every test was run first, second and third across the three benchmarks).&lt;/p&gt;
+
+&lt;h3 id=&#34;results:93413df609358a1a5a975a341330277a&#34;&gt;Results&lt;/h3&gt;
+
+&lt;p&gt;Running this benchmark returned the following results:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;colgroup&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;native_signature&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;method_signature&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;native_assignment&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;native_signature&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;--&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-10%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-27%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;method_signature&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;12%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;--&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-19%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;native_assignment&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;38%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;23%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;--&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;The results showed native subroutine signatures to be about 12% slower than the Method::Signatures function and 38% slower than the native assignment subroutine. So is this the price of the cleaner syntax? Actually it&amp;rsquo;s not the whole story.&lt;/p&gt;
+
+&lt;h3 id=&#34;changing-the-number-of-variables:93413df609358a1a5a975a341330277a&#34;&gt;Changing the number of variables&lt;/h3&gt;
+
+&lt;p&gt;Would changing the number of variables assigned in the subroutine affect the relative performance of the three subroutine types? I re-ran the benchmarks, only this time incrementing the number of variables being assigned and plotted the results:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/88/signatures%20comparison.png&#34; title=&#34;Comparison of signatures speed with varying number of variables&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/88/signatures%20comparison_small.png&#34; alt=&#34;Comparison of signatures speed with increasing number of variables&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;The results showed that increasing the number of variables improved the relative speed of native subroutine signatures against Method::Signatures. With two variable assignments their speed is about par. With three or more variables, native subroutine signatures outperforms, up to 18% faster. When I discussed these results with Ricardo Signes, he confirmed that the native subroutine signatures code had been optimized for multiple variable assignments, which correlates with the results shown above.&lt;/p&gt;
+
+&lt;h3 id=&#34;faster-subroutine-signatures:93413df609358a1a5a975a341330277a&#34;&gt;Faster subroutine signatures&lt;/h3&gt;
+
+&lt;p&gt;It could be argued that the native subroutine signatures are plenty fast as they are and offer several benefits over both variable assignments and Method::Signatures. However, Ricardo did share a trick with me to make subroutine signatures run even faster, which I can&amp;rsquo;t resist sharing.&lt;/p&gt;
+
+&lt;p&gt;Adding a nameless slurpy parameter (&amp;ldquo;@&amp;rdquo;) to the subroutine signature removes the upper limit on how many arguments can be passed to the subroutine. Let&amp;rsquo;s add the slurpy parameter to the subroutine signature in our benchmark code. I&amp;rsquo;ve also updated the code to take two parameters - the level where previously Method::Signatures and subroutine signatures exhibited similar performance:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Benchmark::Forking &#39;cmpthese&#39;;
+use feature &#39;signatures&#39;;
+no warnings &#39;experimental::signatures&#39;;
+use Method::Signatures;
+
+sub native_assignment { 
+    die &amp;quot;Too few arguments for subroutine $!&amp;quot; unless @_ == 2; 
+    my ($var1, $var2) = @_;
+}
+
+sub native_signature ($var1, $var2, @) {}
+
+func method_signature ($var1, $var2) {}
+
+cmpthese(-5, {
+    native_assignment=&amp;gt; sub { native_assignment(1, 2)},
+    native_signature =&amp;gt; sub { native_signature(1, 2) },
+    method_signature =&amp;gt; sub { method_signature(1, 2) },
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And here are the results:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;colgroup&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;method_signature&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;native_signature&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;native_assignment&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;method_signature&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;--&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-23%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-37%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;native_signature&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;30%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;--&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-18%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;native_assignment&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;60%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;23%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;--&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;By adding the slurpy parameter, native subroutine signatures performance improved by 30%! This is because the subroutine no longer has to run a variable count check against the upper limit of variables accepted by the signature. It&amp;rsquo;s up to you if you want to remove this check for the performance gain or not - I can&amp;rsquo;t think of a use case where this would be worth it, but you never know.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:93413df609358a1a5a975a341330277a&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Subroutine variable assignment is a relatively inexpensive operation and unlikely to be a bottleneck in your code running time. However the speed benchmarks show that by switching to subroutine signatures is unlikely to regress and in some cases will improve run time speed. So use them with confidence!&lt;/p&gt;
+
+&lt;h3 id=&#34;thanks:93413df609358a1a5a975a341330277a&#34;&gt;Thanks&lt;/h3&gt;
+
+&lt;p&gt;Thanks to Perl pumpking Ricardo Signes for providing detail on the subroutine signatures implementation and slury parameter optimization.&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F88%2F2014%2F5%2F12%2FBenchmarking-subroutine-signatures&amp;amp;text=Benchmarking+subroutine+signatures&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F88%2F2014%2F5%2F12%2FBenchmarking-subroutine-signatures&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
+
+&lt;p&gt;*&lt;strong&gt;Edit:&lt;/strong&gt; article code and benchmarks corrected for single variable assignment on 2014/05/12*&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Make your code run faster with Perl&#39;s secret turbo module</title>
+      <link>http://perltricks.com/article/61/2014/1/21/Make-your-code-run-faster-with-Perl-s-secret-turbo-module/</link>
+      <pubDate>Tue, 21 Jan 2014 03:22:40 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/61/2014/1/21/Make-your-code-run-faster-with-Perl-s-secret-turbo-module/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Most modern processors are multi-core, yet Perl programs will typically run single-threaded on only one core at a time. Enter the &lt;a href=&#34;https://metacpan.org/pod/MCE&#34;&gt;Many Core Engine&lt;/a&gt; module - it makes it easy to run your existing Perl code in parallel across every core on your platform, and get a huge speed boost along the way.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:5fdd7ad384119041115bf2986c599871&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need to install the MCE module. The current &lt;a href=&#34;http://matrix.cpantesters.org/?dist=MCE+1.509&#34;&gt;CPAN Testers&amp;rsquo; results&lt;/a&gt; show it runs on a wide array of platforms and Perl versions. You can install MCE via CPAN at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan MCE
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You do not need to have compiled Perl with threads enabled in order to get the parallel processing benefits as MCE can implement parallel processing using child processes via fork, &lt;a href=&#34;https://metacpan.org/pod/forks::shared&#34;&gt;forks::shared&lt;/a&gt;, or &lt;a href=&#34;https://metacpan.org/pod/threads::shared&#34;&gt;threads::shared&lt;/a&gt;. By default MCE will check for the presence of a threads module, otherwise, child processes are created via fork.&lt;/p&gt;
+
+&lt;h3 id=&#34;understanding-mce:5fdd7ad384119041115bf2986c599871&#34;&gt;Understanding MCE&lt;/h3&gt;
+
+&lt;p&gt;MCE&amp;rsquo;s &lt;a href=&#34;http://code.google.com/p/many-core-engine-perl/&#34;&gt;documentation&lt;/a&gt; describes its implementation as a &amp;ldquo;bank queueing model&amp;rdquo;. Essentially, MCE uses up to one worker per core on the host platform, and distributes work between them in &amp;ldquo;chunks&amp;rdquo;. A chunk is just collection of elements, such as an array slice or a several lines of a file. The workers will process each chunk in parallel. The actual &amp;ldquo;work&amp;rdquo; done by a worker is usually the execution of a Perl subroutine. This will become clearer in the example below.&lt;/p&gt;
+
+&lt;p&gt;Managing the distribution and assignment of chunks creates a small overhead: therefore MCE is most effective when you have a large number of of elements to be processed and the &amp;ldquo;work&amp;rdquo; being done on every element is more than a basic pattern match. In the testing for this article, I was data munging web server logs and found a 50% runtime reduction was common.&lt;/p&gt;
+
+&lt;h3 id=&#34;getting-started:5fdd7ad384119041115bf2986c599871&#34;&gt;Getting started&lt;/h3&gt;
+
+&lt;p&gt;The easiest way to get started with MCE is by using one of the 3 basic automation models that come with MCE. The basic models are drop-in replacements for Perl&amp;rsquo;s foreach, map and grep controls. The models automatically tune themselves - by default they use the maximum number of cores available on the host platform and select an optimal chunk size based on the number of input records and source type.&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s look at the grep model. The code below is standard Perl code; it opens an nginx access.log and prints the number of records in the log that were from a robot useragent:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use feature &#39;say&#39;;
+use Nginx::Log::Entry;
+
+sub detect_robot {
+    return Nginx::Log::Entry-&amp;gt;new($_[0])-&amp;gt;was_robot;
+}
+
+open(my $LOG, &#39;&amp;lt;&#39;, &#39;/var/logs/access.log&#39;);
+my $count = grep { detect_robot($_) } &amp;lt;$LOG&amp;gt;;
+say scalar $count;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s modify the code above to use the MCE::Grep model. The new code is below:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use feature &#39;say&#39;;
+use Nginx::Log::Entry;
+use MCE::Grep;
+
+sub detect_robot {
+    return Nginx::Log::Entry-&amp;gt;new($_[0])-&amp;gt;was_robot;
+}
+
+open(my $LOG, &#39;&amp;lt;&#39;, &#39;/var/logs/access.log&#39;);
+my $count = mce_grep { detect_robot($_) } $LOG;
+say scalar $count;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The main changes here are:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The &amp;ldquo;use MCE::Grep&amp;rdquo; line which imports the module&lt;/li&gt;
+&lt;li&gt;Changing grep to &amp;ldquo;mce_grep&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;Removing the diamond operator from the filehandle ($LOG)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The other difference is that this code will run a lot faster than the first example. How much faster depends on the platform and the number of input records. In my testing on a quad core processor, I found that the MCE::Grep was consistently 100-150% faster, but with more cores I would expect this to increase further.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/61/mce_grep_comparison_630.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The other basic automation models &lt;a href=&#34;https://metacpan.org/pod/MCE::Loop&#34;&gt;MCE::Loop&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/MCE::Map&#34;&gt;MCE::Map&lt;/a&gt; work in much the same was as MCE::Grep.&lt;/p&gt;
+
+&lt;h3 id=&#34;working-with-filepaths:5fdd7ad384119041115bf2986c599871&#34;&gt;Working with filepaths&lt;/h3&gt;
+
+&lt;p&gt;MCE also provides a special &amp;ldquo;mce_grep_f&amp;rdquo; function for working directly with files (the function is provided for all MCE models, e.g. mce_loop_f, and mce_map_f). The &amp;ldquo;mce_grep_f&amp;rdquo; function requires a filepath argument:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use feature &#39;say&#39;;
+use Nginx::Log::Entry;
+use MCE::Grep;
+
+sub detect_robot {
+    return Nginx::Log::Entry-&amp;gt;new($_[0])-&amp;gt;was_robot;
+}
+
+my $count = mce_grep_f { detect_robot($_) } &#39;/var/logs/access.log&#39;;
+say scalar $count;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This feature is broken in version 1.504 of MCE, however it&amp;rsquo;s easy to fix - just insert one line. The module&amp;rsquo;s author Mario Roy contacted me and kindly provided a &lt;a href=&#34;http://code.google.com/p/many-core-engine-perl/source/diff?spec=svn456&amp;amp;r=456&amp;amp;format=side&amp;amp;path=/trunk/lib/MCE/Grep.pm&#34;&gt;diff&lt;/a&gt;. I&amp;rsquo;m told that this feature will be fixed in the next version of MCE. (&lt;em&gt;EDIT: it is now fixed as of 1.509&lt;/em&gt;).&lt;/p&gt;
+
+&lt;p&gt;In testing the mce_grep_f function using the code above on a 55mb log file, I didn&amp;rsquo;t see a marked difference in performance compared to mce_grep, however there are reports of up to 4x speed improvement, so definitely explore this further.&lt;/p&gt;
+
+&lt;h3 id=&#34;changing-the-number-of-workers:5fdd7ad384119041115bf2986c599871&#34;&gt;Changing the number of workers&lt;/h3&gt;
+
+&lt;p&gt;By default MCE initializes one worker per core. It detects the number of cores using the following methods:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Linux: reads /proc/stat&lt;/li&gt;
+&lt;li&gt;OSX/BSD: executes &amp;ldquo;sysctl -n hw.ncpu 2&amp;gt;/dev/null&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;Windows: uses the environmental variable: ENV{NUMBER_OF_PROCESSORS}&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;MCE also has platform-specific methods defined for Solaris, HP-UX and other systems. Assuming that MCE will correctly guess the number of processors, the only reason to change the default behavior would be to use less than 100% of the available cores. You can do this using the &amp;ldquo;init()&amp;rdquo; method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use MCE::Grep;
+MCE::Grep::init({max_workers =&amp;gt; 3});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above uses MCE::Grep, but the same init() command is provided for all MCE models.&lt;/p&gt;
+
+&lt;h3 id=&#34;changing-the-chunk-size:5fdd7ad384119041115bf2986c599871&#34;&gt;Changing the chunk size&lt;/h3&gt;
+
+&lt;p&gt;When the source type is an array, MCE auto-calculates the chunk size based on the number of input records and workers available. You can override this, however in my testing I found that the auto-calculated chunk-size was nearly always optimal. Here is a typical result set, for processing a 55mb log file:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/61/mce_grep_chunk_size_630.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If the source type is a filehandle, the chunk size defaults to 2 (The module&amp;rsquo;s author Mario Roy has told me this will change in the next version, 1.506). Therefore you may want to override the chunk size to try to get better performance. You can do this using the &amp;ldquo;init()&amp;rdquo; method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use MCE::Grep;
+MCE::Grep::init({chunk_size =&amp;gt; 500});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Because the management of assigning work chunks between workers carries a small overhead, the optimal chunk size would be the one that minimizes the number of chunk assignments, whilst keeping the workers equally busy. One factor that MCE does not take into account is the difficulty of the &amp;ldquo;work&amp;rdquo; that is being processed: that is, the length of time it takes one worker to complete one unit of work.It might be cool to develop some kind of dynamic chunk-sizing logic based on runtime performance.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:5fdd7ad384119041115bf2986c599871&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;MCE&amp;rsquo;s author, Mario Roy has done wonderful job of providing a simple API and fantastic &lt;a href=&#34;https://metacpan.org/pod/MCE::Examples&#34;&gt;documentation&lt;/a&gt;. It&amp;rsquo;s really easy to get started with a basic automation model like MCE::Grep, and obtain instant speed improvements. There is however, a lot more to MCE such as initialization and shutdown routines, callbacks and sequencing. Be sure to check it out.&lt;/p&gt;
+
+&lt;h3 id=&#34;thanks:5fdd7ad384119041115bf2986c599871&#34;&gt;Thanks&lt;/h3&gt;
+
+&lt;p&gt;Thanks to Jeff Thalhammer (&lt;a href=&#34;https://stratopan.com/&#34;&gt;Stratopan&lt;/a&gt;) for championing this module.&lt;/p&gt;
+
+&lt;p&gt;Do you know a module that you&amp;rsquo;d like us to cover? If so, we&amp;rsquo;d love to hear from you! Email us at: perltricks.com@gmail.com.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

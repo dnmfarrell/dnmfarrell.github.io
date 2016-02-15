@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Accelerating Perl Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Things move quickly with Perl. Use accelerometers to find out just how quickly."/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Accelerating Perl</h1>
+            <p class="blog-post-meta">Mar 16, 2015 by <a href="/authors/timm-murray">Timm Murray</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/159/66B64C42-C698-11E4-ACD6-AD6E0EA848F6.jpeg"/>
+            </div>
+              <p>Accelerometers have exploded in popularity since the introduction of the Nintendo Wii&rsquo;s motion controls. They&rsquo;re also common in cars and smartphones. Until recently, Perl has not been in places where interfacing directly with accelerometers made sense. With the Raspberry Pi and other SoC (System on a Chip) devices, it&rsquo;s now time to fix this oversight.</p>
+
+<p>There are many accelerometers on the market, which are broadly divided into four interface types: analog, SPI, I2C, and serial. Analog is very simple to read with any device that has an Analog-to-digital converter, but is also subject to electrical noise. SPI and I2C are the most common types.</p>
+
+<p>An accelerometer can be combined with a gyroscope to produce more accurate readings than either one alone. This is what the Wii Motion Plus did for Nintendo. There are algorithms to combine their data, which can be tricky to write by hand. Fortunately, there are devices called an &ldquo;Inertial Measurement Unit&rdquo; (IMU) which combine the data for you and present an interface similar to a straight accelerometer. Unfortunately, these tend to be quite a bit more expensive.</p>
+
+<p>As you may recall from High School Physics, the Earth is pulling us all down at an acceleration of about 9.81 m/s<sup>2</sup>. An accelerometer sitting on a flat table will measure this acceleration straight down towards the Earth&rsquo;s center (more accurately, its center of gravity). Keep this in mind when taking readings.</p>
+
+<p>It&rsquo;s common for accelerometers to have several configurable ranges of measurement. If you set the device to read +/- 2g (that is, 2 * 9.81 m/s<sup>2</sup>), and it gives data back in a 16-bit integer, then it will give readings over that entire 16-bit range. If you set it for +/- 10g, then it will still give readings over the entire 16-bit range. This means that higher settings will lose precision.</p>
+
+<p>Be sure, then, to set the measurement range to just a little more than what you expect. A sportscar on a track would have a hard time doing 2g&rsquo;s in any direction. Most rollercoasters max at around 4g&rsquo;s, maybe 6. Fighter jets can exceed 10g&rsquo;s, which is about the limit of human ability for any sustainable period. Also note that instantaneous acceleration can be extremely high for any of these cases; a sportscar hitting a brick wall will easily exceed 10g&rsquo;s.</p>
+
+<p>Every chip defines its own interface protocol. This means a new interface driver needs to be written for each chip, and unfortunately, there aren&rsquo;t a lot of CPAN modules out there for individual devices. One that does exist is <a href="https://metacpan.org/pod/Device::LSM303DLHC">Device::LSM303DLHC</a>.</p>
+
+<p>The LSM303DLHC chip in question also contains a magnetometer, and is available on a breakout board from Adafruit Industries.</p>
+
+<p>Device::LSM303DLHC uses the Linux scheme of accessing I2C devices under <code>/dev/i2c-*</code>. On the Raspberry Pi, the I2C pins on the GPIO header are available at <code>/dev/i2c-1</code>. Device::LSM303DLHC divides the two functions of this chip into two objects. You start by initializing the main object with the I2C path, fetching the accelerometer object, and enabling it:</p>
+
+<pre><code class="language-prettyprint">my $dev = Device::LSM303DLHC-&gt;new({
+    I2CBusDevicePath =&gt; '/dev/i2c-1',
+});
+my $accel = $dev-&gt;Accelerometer;
+$accel-&gt;enable;
+</code></pre>
+
+<p>The <code>$accel</code> object gives us convenience methods for returning the acceleration vector in different units. With <code>getAccelerationVectorInG()</code>, we get the g rating, while <code>getAccelerationVecotrInMSS()</code> gives us m/s<sup>2</sup>, among a few others. I like to use the g rating:</p>
+
+<pre><code class="language-prettyprint">while(1) {
+    my $acc_angle = $accel-&gt;getAccelerationVectorInG;
+    say &quot;Accel: $$acc_angle{x}, $$acc_angle{y}, $$acc_angle{z}&quot;;
+}
+</code></pre>
+
+<p>This will repeatedly dump the acceleration vector to STDOUT:</p>
+
+<pre><code>Accel: -0.0234375, -0.0078125, -0.9453125
+Accel: -0.0234375, -0.0078125, -0.9453125
+Accel: -0.015625, -0.01171875, -0.9453125
+Accel: -0.015625, -0.01171875, -0.9453125
+Accel: -0.015625, -0.00390625, -0.9453125
+Accel: -0.015625, -0.00390625, -0.9453125
+</code></pre>
+
+<p>With the flat side of an LSM303 chip on the table, you should see the Z output be approximately 1g, or maybe -1g if you turn it upside down. The other outputs should be about zero. Pick it up and turn it around, and you should see the Z output head towards zero, with the X and Y outputs adding up the 1g vector towards the center of the Earth (plus or minus some shakiness from your hand).</p>
+
+<p>Accelerometers are one of those things that once you start using them, you find a million fun things to do with them. So go forth and have fun!</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/raspberry">raspberry</a></div>
+              
+                <div class="tag"><a href="/tags/pi">pi</a></div>
+              
+                <div class="tag"><a href="/tags/hardware">hardware</a></div>
+              
+                <div class="tag"><a href="/tags/accelerometer">accelerometer</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

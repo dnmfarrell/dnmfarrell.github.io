@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Benchmarking on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/benchmarking/</link>
+    <description>Recent content in Benchmarking on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 29 Sep 2013 19:12:54 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/benchmarking/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How to benchmark Perl code for speed</title>
+      <link>http://perltricks.com/article/40/2013/9/29/How-to-benchmark-Perl-code-for-speed/</link>
+      <pubDate>Sun, 29 Sep 2013 19:12:54 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/40/2013/9/29/How-to-benchmark-Perl-code-for-speed/</guid>
+      <description>
+
+&lt;p&gt;Benchmarking Perl code speed is easy with the &lt;a href=&#34;https://metacpan.org/module/Benchmark&#34;&gt;Benchmark&lt;/a&gt; module. This article discusses benchmarking in general and how to use the &lt;a href=&#34;https://metacpan.org/module/Benchmark&#34;&gt;Benchmark&lt;/a&gt; module.&lt;/p&gt;
+
+&lt;h3 id=&#34;what-is-a-benchmark:9f13c3fb84d6c1f3b2fdc2b107f646bd&#34;&gt;What is a benchmark?&lt;/h3&gt;
+
+&lt;p&gt;In programming a benchmark is a point-in-time measurement of the performance of a some code. Any aspect of the code performance can be benchmarked: speed, memory use and IO frequency are some common metrics.&lt;/p&gt;
+
+&lt;h3 id=&#34;benchmark-limitations:9f13c3fb84d6c1f3b2fdc2b107f646bd&#34;&gt;Benchmark limitations&lt;/h3&gt;
+
+&lt;p&gt;One thing to keep in mind with benchmarks is that they are affected by the environment: the operating system, hardware, software and current machine state can all affect the benchmark. For Perl code the current Perl version and the compile options that Perl was installed with can have significant affects on code performance. For example if Perl was compiled with iThreads enabled, this increases the overhead of all Perl programs. Therefore benchmark comparisons are only meaningful when the benchmark environments are the same.&lt;/p&gt;
+
+&lt;h3 id=&#34;perl-s-benchmark-module:9f13c3fb84d6c1f3b2fdc2b107f646bd&#34;&gt;Perl&amp;rsquo;s Benchmark Module&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/module/Benchmark&#34;&gt;Benchmark&lt;/a&gt; comes installed in Perl core so if you have Perl installed you should already have Benchmark installed as well. If you are on a UNIX-like system then consider installing &lt;a href=&#34;https://metacpan.org/module/Benchmark::Forking&#34;&gt;Benchmark::Forking&lt;/a&gt; as it can improve the accuracy of benchmarks. &lt;a href=&#34;https://metacpan.org/module/Benchmark::Forking&#34;&gt;Benchmark::Forking&lt;/a&gt; is a drop-in replacement for &lt;a href=&#34;https://metacpan.org/module/Benchmark&#34;&gt;Benchmark&lt;/a&gt; and all of the following code examples will work with either module.&lt;/p&gt;
+
+&lt;h3 id=&#34;timing-perl-code:9f13c3fb84d6c1f3b2fdc2b107f646bd&#34;&gt;Timing Perl Code&lt;/h3&gt;
+
+&lt;p&gt;Benchmarks are most interesting when comparing performance of code - so we&amp;rsquo;re going to focus on methods that do that. Benchmark provides a &amp;ldquo;timethese&amp;rdquo; subroutine which continuously executes sets of Perl code for a number of CPU seconds and then prints out the results. Let&amp;rsquo;s compare the speed difference of two common Perl operations: array assignment using the shift built in function and direct array assignment using equals:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Benchmark qw/cmpthese timethese/;
+
+timethese(-10, {
+        shiftAssign =&amp;gt; sub {    my @alphabet = (&#39;A&#39;..&#39;Z&#39;);
+                                for (my $i = 0; $i &amp;lt; 26; $i++){
+                                    my $letter = shift @alphabet;
+                                }
+                           },
+        equalsAssign =&amp;gt; sub {   my @alphabet = (&#39;A&#39;..&#39;Z&#39;);
+                                for (my $i = 0; $i &amp;lt; 26; $i++){
+                                    my $letter = $alphabet[$i];
+                                }
+                            },
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Running the code above yielded the following results:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Benchmark: running equalsAssign, shiftAssign for at least 10 CPU seconds...
+equalsAssign: 10 wallclock secs (10.32 usr +  0.00 sys = 10.32 CPU) @ 150112.98/s (n=1549166)
+shiftAssign: 11 wallclock secs (10.43 usr +  0.00 sys = 10.43 CPU) @ 148529.82/s (n=1549166)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The key metric to focus on is the rate per CPU second. This shows that the shiftAssign code block was executed 148,529.82/s and the equalsAssign block was slightly faster, executing 150,112.98/s. Note that the testing of each block ran for different amounts of time - so the other numbers in the output are not directly comparable.&lt;/p&gt;
+
+&lt;h3 id=&#34;comparing-perl-code:9f13c3fb84d6c1f3b2fdc2b107f646bd&#34;&gt;Comparing Perl Code&lt;/h3&gt;
+
+&lt;p&gt;The &amp;ldquo;cmpthese&amp;rdquo; subroutine provided the Benchmark module accepts the same arguments and &amp;ldquo;timethese&amp;rdquo; shown above, but prints out a useful comparison grid of the results to show which code block was faster by %. Helpfully it also includes the rate per CPU second.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Benchmark qw/cmpthese timethese/;
+
+cmpthese(-10, {
+        shiftAssign =&amp;gt; sub {    my @alphabet = (&#39;A&#39;..&#39;Z&#39;);
+                                for (my $i = 0; $i &amp;lt; 26; $i++){
+                                    my $letter = shift @alphabet;
+                                }
+                           },
+        equalsAssign =&amp;gt; sub {   my @alphabet = (&#39;A&#39;..&#39;Z&#39;);
+                                for (my $i = 0; $i &amp;lt; 26; $i++){
+                                    my $letter = $alphabet[$i];
+                                }
+                            },
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Executing this code returned the following results:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;                 Rate  shiftAssign equalsAssign
+shiftAssign  142529/s           --          -4%
+equalsAssign 148159/s           4%           --
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The results above are ordered from slowest to fastest (as seen by the rate/s measurement). This benchmark shows that the equalsAssign code block was on average 4% faster than the shiftAssign code block.&lt;/p&gt;
+
+&lt;h3 id=&#34;additional-tips:9f13c3fb84d6c1f3b2fdc2b107f646bd&#34;&gt;Additional Tips&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Try to use the minimum set of code required for the behavior required - this will increase the accuracy of the benchmark pertaining to operations being benchmarked.&lt;/li&gt;
+&lt;li&gt;Use a negative number as the CPU seconds count for &amp;ldquo;timethese&amp;rdquo; or &amp;ldquo;cmpthese&amp;rdquo;. This specifies the minimum number of CPU seconds to run. &lt;a href=&#34;http://www.perlmonks.org/?node_id=8745&#34;&gt;Some sources&lt;/a&gt; recommend at least -5 seconds to avoid inaccurate benchmarks.&lt;/li&gt;
+&lt;li&gt;Sanity check your results: if you&amp;rsquo;re not sure try comparing two code blocks with one obviously slower than the other to check that Benchmark is returning sensible results.&lt;/li&gt;
+&lt;li&gt;Compare code examples rather than time individual ones: the actual execution time of a block of code is usually not that important; knowing which set of code is faster than the other however is useful as this will generally be a repeatable occurrence.&lt;/li&gt;
+&lt;li&gt;If you require more in depth benchmarking consider using &lt;a href=&#34;https://metacpan.org/module/Devel::NYTProf&#34;&gt;Devel::NYTProf&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;sources:9f13c3fb84d6c1f3b2fdc2b107f646bd&#34;&gt;Sources&lt;/h3&gt;
+
+&lt;p&gt;This article drew on information from a few sources in particular: brian d foy&amp;rsquo;s &lt;a href=&#34;http://www252.pair.com/comdog/Talks/benchmarking_perl.pdf&#34;&gt;Benchmarking Perl&lt;/a&gt; talk notes and David Golden&amp;rsquo;s &lt;a href=&#34;http://www.dagolden.com/index.php/1849/adventures-in-benchmarking-part-1/&#34;&gt;Adventures in Benchmarking&lt;/a&gt; post.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

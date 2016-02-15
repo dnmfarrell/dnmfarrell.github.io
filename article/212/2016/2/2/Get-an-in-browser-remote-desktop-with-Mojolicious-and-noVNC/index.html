@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Get an in-browser remote desktop with Mojolicious and noVNC Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Using Mojolicious as a TCP/WebSocket Bridge"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <article>
+            <h1 class="blog-post-title">Get an in-browser remote desktop with Mojolicious and noVNC</h1>
+            <p class="blog-post-meta">Feb 2, 2016 by <a href="/authors/joel-berger">Joel Berger</a></p>
+            <div class="centering">
+              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg"/>
+            </div>
+              
+
+<p>While SSH is a staple of remote system administration, sometimes only a GUI will do. Perhaps the remote system doesn&rsquo;t have a terminal environment to connect to; perhaps the target application doesn&rsquo;t present an adequate command line interface; perhaps there is an existing GUI session you need to interact with. There can be all kinds of reasons.</p>
+
+<p>For this purpose, a generic type of remote desktop service called VNC is commonly used. The servers are easy to install, start on seemingly all platforms and lots of hardware has a VNC server embedded for remote administration. Clients are similarly easy to use, but when building a management console in the web, wouldn&rsquo;t it be nice to have the console view right in your browser?</p>
+
+<p>Luckily there is a pure JavaScript VNC client called <a href="https://github.com/kanaka/noVNC">noVNC</a> noVNC listens for VNC traffic over WebSockets, which is convenient for browsers but isn&rsquo;t supported by most VNC servers. To overcome this problem they provide a command-line application called <a href="https://github.com/kanaka/websockify">Websockify</a>.</p>
+
+<p>Websockify is a relay that connects to a TCP connection (the VNC server) and exposes the traffic as a WebSocket stream such that a browser client can listen on. While this does fix the problem it isn&rsquo;t an elegant solution. Each VNC Server needs its own instance of Websockify requiring a separate port. Further you either need to leave these connected at all times in case of a web client or else spawn them on demand and clean them up later.</p>
+
+<h2 id="mojolicious-to-the-rescue:df6114835a8ce31097aba2ba4c9f0a9f">Mojolicious to the Rescue</h2>
+
+<p>Mojolicious has a built-in event-based <a href="http://mojoliciou.us/perldoc/Mojo/IOLoop/Client">TCP Client</a> and native <a href="http://mojolicious.org/perldoc/Mojolicious/Guides/Tutorial#WebSockets">WebSocket</a> handling. If you are already serving your site with Mojolicious, why not let it do the TCP/WebSocket relay work too? Even if you aren&rsquo;t, the on-demand nature of the solution I&rsquo;m going to show would be useful as a stand-alone app for this single purpose versus the websockify application.</p>
+
+<p>Here is a <a href="http://mojolicio.us/perldoc/Mojolicious/Guides/Tutorial">Mojolicious::Lite</a> application which serves the noVNC client when you request a url like <code>/192.168.0.1</code>. When the page loads, the client requests the WebSocket route at <code>/proxy?target=192.168.0.1</code> which establishes the bridge. This example is bundled with my forthcoming wrapper module with a working name of <a href="https://github.com/jberger/Mojo-Websockify/blob/master/ex/client.pl">Mojo::Websockify</a>. The code is remarkably simple:</p>
+
+<pre><code class="language-prettyprint">use Mojolicious::Lite;
+
+use Mojo::IOLoop;
+
+websocket '/proxy' =&gt; sub {
+  my $c = shift;
+  $c-&gt;render_later-&gt;on(finish =&gt; sub { warn 'websocket closing' });
+
+  my $tx = $c-&gt;tx;
+  $tx-&gt;with_protocols('binary');
+
+  my $host = $c-&gt;param('target') || '127.0.0.1';
+  my $port = $host =~ s{:(\d+)$}{} ? $1 : 5901;
+
+  Mojo::IOLoop-&gt;client(address =&gt; $host, port =&gt; $port, sub {
+    my ($loop, $err, $tcp) = @_;
+
+    $tx-&gt;finish(4500, &quot;TCP connection error: $err&quot;) if $err;
+    $tcp-&gt;on(error =&gt; sub { $tx-&gt;finish(4500, &quot;TCP error: $_[1]&quot;) });
+
+    $tcp-&gt;on(read =&gt; sub {
+      my ($tcp, $bytes) = @_;
+      $tx-&gt;send({binary =&gt; $bytes});
+    });
+
+    $tx-&gt;on(binary =&gt; sub {
+      my ($tx, $bytes) = @_;
+      $tcp-&gt;write($bytes);
+    });
+
+    $tx-&gt;on(finish =&gt; sub {
+      $tcp-&gt;close;
+      undef $tcp;
+      undef $tx;
+    });
+  });
+};
+
+get '/*target' =&gt; sub {
+  my $c = shift;
+  my $target = $c-&gt;stash('target');
+  my $url = $c-&gt;url_for('proxy')-&gt;query(target =&gt; $target);
+  $url-&gt;path-&gt;leading_slash(0); # novnc assumes no leading slash :(
+  $c-&gt;render(
+    vnc  =&gt;
+    base =&gt; $c-&gt;tx-&gt;req-&gt;url-&gt;to_abs,
+    path =&gt; $url,
+  );
+};
+
+app-&gt;start;
+</code></pre>
+
+<p>The <code>get</code> route shown at the bottom and isn&rsquo;t very exciting. It&rsquo;s the frontend route that renders the noVNC client and tells it the WebSocket url.</p>
+
+<p>The <code>websocket</code> route is the more interesting one, which I will explain in detail. After shifting off the controller, we tell the server not to attempt to render a template (<code>render_later</code>), then subscribe to the finish handler. This is actually a hint to the server that we intend to initiate a WebSocket connection later. Typically this is done by either subscribing to one of the message events or else by sending data upon connection, but in this case we won&rsquo;t do either until the TCP connection is established. Then after extracting the target host and port from the query argument we are ready to make the TCP connection.</p>
+
+<p><a href="http://mojolicious.org/perldoc/Mojo/IOLoop#client"><code>Mojo::IOLoop-&gt;client</code></a> simply takes connection arguments and a callback for what to do once connected. We use this callback to establish our relay. The WebSocket protocol reserves all closing statuses below 4000 for internal use, so I&rsquo;ve taken to using the standard HTTP statuses and prepending a 4 to them. Thus when setting up the TCP error handling, either on initially connecting or for subsequent errors, the status passed to the WebSocket <code>finish</code> method is 4500.</p>
+
+<p>The relay itself is the next two method calls. First, when the TCP socket emits a <code>read</code> event, we take its raw bytes and send them (as binary messages) to the WebSocket client. Then when the WebSocket emits a binary frame (i.e. when it receives a binary message) we write that back to the TCP connection. Finally when the Websocket is closed, we also close the TCP connection and cleanup our handlers.</p>
+
+<p>Simple, isn&rsquo;t it?!</p>
+
+<h2 id="additional-notes:df6114835a8ce31097aba2ba4c9f0a9f">Additional Notes</h2>
+
+<p>There are a few things missing. First is that I haven&rsquo;t addressed security in this example. If any part of the stream is publicly available you will want to encrypt the traffic and put the servers behind authentication. Another risk is the issue of &ldquo;back pressure&rdquo; where a stream starts sending floods of data.</p>
+
+<p>You may have noticed I skipped one line, which until a recent version of Chrome wasn&rsquo;t necessary. When the WebSocket connection is first established it calls <code>with_protocols('binary')</code>. Early versions of noVNC also supported sending the TCP traffic as base64 encoded text, since early implementations of WebSockets didn&rsquo;t distinguish between text and binary frame types as the modern ones do. The WebSocket protocol allows the client to request an application-defined &ldquo;sub-protocol&rdquo; which noVNC used to request binary or base64, the latter of which has long since been deprecated and removed. The client still asks for the binary sub-protocol and recent versions of Chrome have started to refuse to connect if the server doesn&rsquo;t indicate that it can handle this request.</p>
+
+<h2 id="shouldn-t-this-be-on-cpan:df6114835a8ce31097aba2ba4c9f0a9f">Shouldn&rsquo;t This Be On CPAN?</h2>
+
+<p>I&rsquo;m hoping to wrap this TCP/WebSocket bridge logic up as a module called <code>Mojo::Websockify</code> and include the noVNC client as an example. It turns out however, that the logic which is simple to show here is remarkably hard to package in a generic, extensible way. For example, you may want to check if the TCP service is already in use via some database-locking table, or to allow remote-takeover of sessions using a message broker between clients. I&rsquo;ll probably just simplify things for the common case and build in some protection for the &ldquo;back pressure&rdquo; problem. In the meantime I hope you have enjoyed seeing how beautifully simple Mojolicious&rsquo; WebSocket and TCP services are.</p>
+
+<p>Happy Perling!</p>
+
+            </article>
+            <p><strong>Tags</strong></p>
+            <div class="tags">
+              
+                <div class="tag"><a href="/tags/mojolicious">mojolicious</a></div>
+              
+                <div class="tag"><a href="/tags/websockets">websockets</a></div>
+              
+                <div class="tag"><a href="/tags/novnc">novnc</a></div>
+              
+                <div class="tag"><a href="/tags/old_site">old_site</a></div>
+              
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2015</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/210/B6ABE53E-C045-11E5-B2C3-641B7A54B0AF.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Twitter as a datastore</h6>
+        <p style="line-height:1"><small>Using social media platforms for computing applications</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - December 2015</h6>
+        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save time with compile tests</h6>
+        <p style="line-height:1"><small>Checking everything compiles should be the first test</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+<div class="row">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+        <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+            <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+
