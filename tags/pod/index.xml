@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Pod on Perl programming news, code and culture</title>
-    <link>http://perltricks.com/tags/pod/</link>
+    <link>https://dnmfarrell.github.io/tags/pod/</link>
     <description>Recent content in Pod on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 30 Apr 2015 13:14:23 +0000</lastBuildDate>
-    <atom:link href="http://perltricks.com/tags/pod/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dnmfarrell.github.io/tags/pod/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Parsing Perl 5 pod with Perl 6</title>
-      <link>http://perltricks.com/article/170/2015/4/30/Parsing-Perl-5-pod-with-Perl-6/</link>
+      <link>https://dnmfarrell.github.io/article/170/2015/4/30/Parsing-Perl-5-pod-with-Perl-6/</link>
       <pubDate>Thu, 30 Apr 2015 13:14:23 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/170/2015/4/30/Parsing-Perl-5-pod-with-Perl-6/</guid>
+      <guid>https://dnmfarrell.github.io/article/170/2015/4/30/Parsing-Perl-5-pod-with-Perl-6/</guid>
       <description>
 
 &lt;p&gt;I&amp;rsquo;ve just finished developing a Perl 5 pod &lt;a href=&#34;https://github.com/dnmfarrell/Pod-Perl5&#34;&gt;parser&lt;/a&gt; written in Perl 6. Developing the grammar was surprisingly easy, which is a testament to Perl 6 as I&amp;rsquo;m no genius coder. With help from the folks at #perl6, I did learn some interesting things along the way, and wanted to share them. Plus, code!&lt;/p&gt;
@@ -253,10 +253,10 @@ is $match&amp;lt;pod_section&amp;gt;[0]&amp;lt;paragraph&amp;gt;[2]&amp;lt;text&
     
     <item>
       <title>Hello perldoc, productivity booster</title>
-      <link>http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/</link>
+      <link>https://dnmfarrell.github.io/article/155/2015/2/26/Hello-perldoc--productivity-booster/</link>
       <pubDate>Thu, 26 Feb 2015 13:42:57 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/</guid>
+      <guid>https://dnmfarrell.github.io/article/155/2015/2/26/Hello-perldoc--productivity-booster/</guid>
       <description>
 
 &lt;p&gt;Imagine this scenario: you&amp;rsquo;re using the DateTime module but you can&amp;rsquo;t remember the exact name of a function it provides. What do you do? You could open your browser, go to &lt;a href=&#34;https://metacpan.org/&#34;&gt;MetaCPAN&lt;/a&gt;, search for DateTime and look up the answer in the module&amp;rsquo;s documentation. A faster way would be to switch to the command line, and type &lt;code&gt;perldoc DateTime&lt;/code&gt; to display the module&amp;rsquo;s documentation right there in the terminal.&lt;/p&gt;
@@ -407,10 +407,10 @@ man perldoc     List of all perldoc options
     
     <item>
       <title>Check your module POD using perldoc</title>
-      <link>http://perltricks.com/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</link>
+      <link>https://dnmfarrell.github.io/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</link>
       <pubDate>Mon, 01 Apr 2013 22:45:35 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</guid>
+      <guid>https://dnmfarrell.github.io/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</guid>
       <description>&lt;p&gt;Perl ships with a command-line program called perldoc that makes it easier to search and read Perl&amp;rsquo;s vast documentation in the POD markup language. If perldoc is called with the -F flag, it will display the POD markup of an input file - this can be useful when your are developing a new Perl distribution and want to check the appearance of the POD in your module before it appears on CPAN for all to see.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# Pass a local file to perldoc

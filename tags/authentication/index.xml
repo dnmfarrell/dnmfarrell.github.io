@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Authentication on Perl programming news, code and culture</title>
-    <link>http://perltricks.com/tags/authentication/</link>
+    <link>https://dnmfarrell.github.io/tags/authentication/</link>
     <description>Recent content in Authentication on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 28 Apr 2014 03:14:13 +0000</lastBuildDate>
-    <atom:link href="http://perltricks.com/tags/authentication/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dnmfarrell.github.io/tags/authentication/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Is your login page secure?</title>
-      <link>http://perltricks.com/article/84/2014/4/28/Is-your-login-page-secure-/</link>
+      <link>https://dnmfarrell.github.io/article/84/2014/4/28/Is-your-login-page-secure-/</link>
       <pubDate>Mon, 28 Apr 2014 03:14:13 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/84/2014/4/28/Is-your-login-page-secure-/</guid>
+      <guid>https://dnmfarrell.github.io/article/84/2014/4/28/Is-your-login-page-secure-/</guid>
       <description>
 
 &lt;p&gt;How many criteria do you think there are for a web application to securely login its users? &lt;a href=&#34;http://www.amazon.com/gp/product/1118026470/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;amp;camp=1789&amp;amp;creative=9325&amp;amp;creativeASIN=1118026470&amp;amp;linkCode=as2&amp;amp;tag=perltrickscom-20&#34;&gt;The Web Application Hacker&amp;rsquo;s Handbook&lt;/a&gt; (affiliate link) lists 5:&lt;/p&gt;
@@ -60,19 +60,19 @@ HTTP::Server::PSGI: Accepting connections at http://0:3000/
 
 &lt;p&gt;Open your browsers and navigate to &lt;a href=&#34;http://localhost:3000&#34;&gt;http://localhost:3000&lt;/a&gt;. You see this simple welcome message:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/84/secapp_welcome.png&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/84/secapp_welcome_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/84/secapp_welcome.png&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/84/secapp_welcome_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;If you visit &lt;a href=&#34;http://localhost/login&#34;&gt;http://localhost/login&lt;/a&gt;, it should load the login page:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/84/secapp_login.png&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/84/secapp_login_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/84/secapp_login.png&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/84/secapp_login_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Using the username &amp;ldquo;test_user_01&amp;rdquo; and &amp;ldquo;Hfa *-£(&amp;amp;&amp;amp;%HBbWqpV%&amp;rdquo;_=asd&amp;rdquo; you should be able to login.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/84/secapp_login_credentials.png&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/84/secapp_login_credentials_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/84/secapp_login_credentials.png&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/84/secapp_login_credentials_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;A successful login will display a simple message and logout link:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/84/secapp_landing.png&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/84/secapp_landing_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/84/secapp_landing.png&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/84/secapp_landing_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;h3 id=&#34;1-prevent-information-leaks:ba4c9275de3995b673588b08da4e28c2&#34;&gt;1. Prevent information leaks&lt;/h3&gt;
 
@@ -237,7 +237,7 @@ sub login_form :Chained(&#39;login&#39;) PathPart(&#39;&#39;) Args(0) GET {
 
 &lt;p&gt;Brute force attacks are attempts to crack the username and password of an account by repeatedly trying different combinations until one succeeds. SecApp uses &lt;a href=&#34;https://metacpan.org/pod/Captcha::reCAPTCHA&#34;&gt;Captcha::reCAPTCHA&lt;/a&gt; to prevent automated brute force attacks. You&amp;rsquo;ll need a Google account and web domain to sign up for it (it&amp;rsquo;s free). The difficulty of the captcha puzzles presented are very difficult to reliably pass with automation. If you do have a Google &lt;a href=&#34;https://www.google.com/recaptcha/intro/index.html&#34;&gt;reCAPtCHA account&lt;/a&gt;, you can try it out with SecApp by updating &lt;a href=&#34;https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp.pm#L54&#34;&gt;SecApp.pm&lt;/a&gt; with your account credentials.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/84/secapp_login_catpcha.png&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/84/secapp_login_catpcha_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/84/secapp_login_catpcha.png&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/84/secapp_login_catpcha_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Seeing as brute-force attacks can only succeed if they can try millions of attempts, why not just add a time-delay like &amp;ldquo;sleep(2)&amp;rdquo; to the login function? The problem with that defence is that it opens the web application up to another attack-vector: denial of service. If an attacker can issue several requests every 2 seconds to the login function, it may tie up all of the application&amp;rsquo;s processes and stop it from responding to regular web requests. Not good!&lt;/p&gt;
 

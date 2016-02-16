@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Debugging on Perl programming news, code and culture</title>
-    <link>http://perltricks.com/tags/debugging/</link>
+    <link>https://dnmfarrell.github.io/tags/debugging/</link>
     <description>Recent content in Debugging on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 15 May 2014 12:19:51 +0000</lastBuildDate>
-    <atom:link href="http://perltricks.com/tags/debugging/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dnmfarrell.github.io/tags/debugging/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Debunk Perl&#39;s magic with B::Deparse</title>
-      <link>http://perltricks.com/article/89/2014/5/15/Debunk-Perl-s-magic-with-B--Deparse/</link>
+      <link>https://dnmfarrell.github.io/article/89/2014/5/15/Debunk-Perl-s-magic-with-B--Deparse/</link>
       <pubDate>Thu, 15 May 2014 12:19:51 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/89/2014/5/15/Debunk-Perl-s-magic-with-B--Deparse/</guid>
+      <guid>https://dnmfarrell.github.io/article/89/2014/5/15/Debunk-Perl-s-magic-with-B--Deparse/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;The &lt;a href=&#34;https://metacpan.org/pod/B::Deparse&#34;&gt;B::Deparse&lt;/a&gt; module compiles a Perl program and then deparses it, producing the internally generated source code. What&amp;rsquo;s the point of that you say? Well it let&amp;rsquo;s you look behind the curtain and inspect how Perl is structuring the program code which can help you debug it, among other things.&lt;/em&gt;&lt;/p&gt;
@@ -73,10 +73,10 @@ signatures.pl syntax OK
     
     <item>
       <title>Installing Perl modules with C library dependencies</title>
-      <link>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</link>
+      <link>https://dnmfarrell.github.io/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</link>
       <pubDate>Mon, 15 Apr 2013 18:37:26 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</guid>
+      <guid>https://dnmfarrell.github.io/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</guid>
       <description>
 
 &lt;p&gt;Some Perl modules have specific C library dependencies that need to be met or else they won&amp;rsquo;t install. These issues can be tricky to solve as CPAN is not able to automatically install or report on non-Perl dependencies and Google isn&amp;rsquo;t good at returning useful results for these types of issues (&lt;a href=&#34;https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod&#34;&gt;Net::SSLeay&lt;/a&gt; is a common example of a tricky module to install). Usually you will only find out about missing dependencies when trying to install the module, as the install will fail. What you need to do at this point is &lt;strong&gt;identify&lt;/strong&gt; and &lt;strong&gt;install&lt;/strong&gt; the missing C libraries.&lt;/p&gt;
@@ -110,10 +110,10 @@ sudo yum install openssl-perl.x86_64 perl-Net-SSLeay.x86_64 perl-Crypt-SSLeay.x8
     
     <item>
       <title>Check your module POD using perldoc</title>
-      <link>http://perltricks.com/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</link>
+      <link>https://dnmfarrell.github.io/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</link>
       <pubDate>Mon, 01 Apr 2013 22:45:35 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</guid>
+      <guid>https://dnmfarrell.github.io/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</guid>
       <description>&lt;p&gt;Perl ships with a command-line program called perldoc that makes it easier to search and read Perl&amp;rsquo;s vast documentation in the POD markup language. If perldoc is called with the -F flag, it will display the POD markup of an input file - this can be useful when your are developing a new Perl distribution and want to check the appearance of the POD in your module before it appears on CPAN for all to see.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# Pass a local file to perldoc

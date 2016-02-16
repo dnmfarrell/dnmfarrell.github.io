@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Bug on Perl programming news, code and culture</title>
-    <link>http://perltricks.com/tags/bug/</link>
+    <link>https://dnmfarrell.github.io/tags/bug/</link>
     <description>Recent content in Bug on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 26 Sep 2014 13:28:54 +0000</lastBuildDate>
-    <atom:link href="http://perltricks.com/tags/bug/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dnmfarrell.github.io/tags/bug/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Shellshock and Perl</title>
-      <link>http://perltricks.com/article/115/2014/9/26/Shellshock-and-Perl/</link>
+      <link>https://dnmfarrell.github.io/article/115/2014/9/26/Shellshock-and-Perl/</link>
       <pubDate>Fri, 26 Sep 2014 13:28:54 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/115/2014/9/26/Shellshock-and-Perl/</guid>
+      <guid>https://dnmfarrell.github.io/article/115/2014/9/26/Shellshock-and-Perl/</guid>
       <description>
 
 &lt;p&gt;Recently the tech media have been foaming at the mouth over a serious Bash &lt;a href=&#34;https://securityblog.redhat.com/2014/09/24/bash-specially-crafted-environment-variables-code-injection-attack/&#34;&gt;bug&lt;/a&gt; called Shellshock. The media &lt;a href=&#34;http://www.wired.com/2014/09/internet-braces-crazy-shellshock-worm/&#34;&gt;hype machine&lt;/a&gt; was in full-swing, replete with the absurd doomsday-like predictions that are rolled out every time a significant security vulnerability is found (remember heartbleed the &amp;ldquo;&lt;a href=&#34;http://mashable.com/2014/04/09/heartbleed-nightmare/&#34;&gt;ultimate web nightmare&lt;/a&gt;&amp;rdquo;?). Whilst it&amp;rsquo;s wise to ignore the hype, don&amp;rsquo;t ignore the issue; Shellshock is a serious risk that allows remote code injection and execution using Bash environment variables. This is also important for Perl as Perl has several touchpoints with the system shell, from the built-in functions &lt;a href=&#34;http://perldoc.perl.org/functions/exec.html&#34;&gt;exec&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/functions/system.html&#34;&gt;system&lt;/a&gt; to the &lt;code&gt;%ENV&lt;/code&gt; global variable.&lt;/p&gt;

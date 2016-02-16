@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Perl on Perl programming news, code and culture</title>
-    <link>http://perltricks.com/tags/perl/</link>
+    <link>https://dnmfarrell.github.io/tags/perl/</link>
     <description>Recent content in Perl on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 17 Dec 2015 14:13:13 +0000</lastBuildDate>
-    <atom:link href="http://perltricks.com/tags/perl/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dnmfarrell.github.io/tags/perl/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Kitchen coding nightmares: JavaScript scope</title>
-      <link>http://perltricks.com/article/204/2015/12/17/Kitchen-coding-nightmares--JavaScript-scope/</link>
+      <link>https://dnmfarrell.github.io/article/204/2015/12/17/Kitchen-coding-nightmares--JavaScript-scope/</link>
       <pubDate>Thu, 17 Dec 2015 14:13:13 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/204/2015/12/17/Kitchen-coding-nightmares--JavaScript-scope/</guid>
+      <guid>https://dnmfarrell.github.io/article/204/2015/12/17/Kitchen-coding-nightmares--JavaScript-scope/</guid>
       <description>
 
 &lt;p&gt;Lately at the &lt;a href=&#34;https://www.recurse.com/&#34;&gt;Recurse Center&lt;/a&gt; I&amp;rsquo;ve been developing a JavaScript client for my &lt;a href=&#34;https://github.com/dnmfarrell/Settlers-Game&#34;&gt;Settlers game&lt;/a&gt;. As a Perl developer working with JavaScript, it has been a fun experience. JavaScript feels very perly - both share a flexible syntax, first class functions and objects as hashes. And both languages have a lax interpreter which should have been put in strict mode in the first place (ha-ha!). One way in which JavaScript is very different from Perl is its scoping rules. I was burned by these more than once, and so if you&amp;rsquo;re new to JavaScript, you might find the following summary and recommendations useful.&lt;/p&gt;
@@ -175,10 +175,10 @@ console.log(p.coordinates());
     
     <item>
       <title>Gzipping data directly from Perl</title>
-      <link>http://perltricks.com/article/162/2015/3/27/Gzipping-data-directly-from-Perl/</link>
+      <link>https://dnmfarrell.github.io/article/162/2015/3/27/Gzipping-data-directly-from-Perl/</link>
       <pubDate>Fri, 27 Mar 2015 12:48:28 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/162/2015/3/27/Gzipping-data-directly-from-Perl/</guid>
+      <guid>https://dnmfarrell.github.io/article/162/2015/3/27/Gzipping-data-directly-from-Perl/</guid>
       <description>
 
 &lt;p&gt;Perl can read and write gzipped streams through its IO layers. &lt;a href=&#34;https://metacpan.org/author/NWCLARK&#34;&gt;Nicholas Clark&lt;/a&gt; recently updated &lt;a href=&#34;https://metacpan.org/pod/PerlIO::gzip&#34;&gt;PerlIO::gzip&lt;/a&gt; (with patches from &lt;a href=&#34;https://metacpan.org/author/ZEFRAM&#34;&gt;Zefram&lt;/a&gt;), after nine years since the last release. Now it works with Perl v5.20 and the upcoming v5.22, although it still has problems on Windows. But as we are used to, there is more then one way to do it.&lt;/p&gt;
@@ -306,10 +306,10 @@ while( &amp;lt;$z&amp;gt; ) {
     
     <item>
       <title>Build a Twitter bot with Perl</title>
-      <link>http://perltricks.com/article/154/2015/2/23/Build-a-Twitter-bot-with-Perl/</link>
+      <link>https://dnmfarrell.github.io/article/154/2015/2/23/Build-a-Twitter-bot-with-Perl/</link>
       <pubDate>Mon, 23 Feb 2015 14:12:06 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/154/2015/2/23/Build-a-Twitter-bot-with-Perl/</guid>
+      <guid>https://dnmfarrell.github.io/article/154/2015/2/23/Build-a-Twitter-bot-with-Perl/</guid>
       <description>
 
 &lt;p&gt;Following on from last week&amp;rsquo;s Reddit bot &lt;a href=&#34;http://perltricks.com/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl&#34;&gt;article&lt;/a&gt;, let&amp;rsquo;s look at how to build a Twitter bot using Perl. As you&amp;rsquo;d expect, Perl makes it easy to do, but before we get to the code, let&amp;rsquo;s talk about advantages.&lt;/p&gt;
@@ -495,10 +495,10 @@ sub tweet
     
     <item>
       <title>Build a Reddit bot with Perl</title>
-      <link>http://perltricks.com/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl/</link>
+      <link>https://dnmfarrell.github.io/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl/</link>
       <pubDate>Mon, 09 Feb 2015 13:41:04 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl/</guid>
+      <guid>https://dnmfarrell.github.io/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl/</guid>
       <description>
 
 &lt;p&gt;One of my goals for this year was to post more links to the Perl &lt;a href=&#34;http://www.reddit.com/r/perl&#34;&gt;subreddit&lt;/a&gt;. I&amp;rsquo;m usually good at linking to PerlTricks articles, but not so good at linking to other content. And that&amp;rsquo;s a shame because there are a lot of active Perl blogs out there (I know of at least 25-30).&lt;/p&gt;
@@ -746,10 +746,10 @@ sub check_feed
     
     <item>
       <title>Automated Internet Explorer screenshots using Win32::OLE</title>
-      <link>http://perltricks.com/article/139/2014/12/11/Automated-Internet-Explorer-screenshots-using-Win32--OLE/</link>
+      <link>https://dnmfarrell.github.io/article/139/2014/12/11/Automated-Internet-Explorer-screenshots-using-Win32--OLE/</link>
       <pubDate>Thu, 11 Dec 2014 14:44:25 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/139/2014/12/11/Automated-Internet-Explorer-screenshots-using-Win32--OLE/</guid>
+      <guid>https://dnmfarrell.github.io/article/139/2014/12/11/Automated-Internet-Explorer-screenshots-using-Win32--OLE/</guid>
       <description>
 
 &lt;h3 id=&#34;background:97eeb34526f592925997048598be600f&#34;&gt;Background&lt;/h3&gt;
@@ -904,10 +904,10 @@ sub check_feed
     
     <item>
       <title>Get started with Perl 6 one liners</title>
-      <link>http://perltricks.com/article/136/2014/11/20/Get-started-with-Perl-6-one-liners/</link>
+      <link>https://dnmfarrell.github.io/article/136/2014/11/20/Get-started-with-Perl-6-one-liners/</link>
       <pubDate>Thu, 20 Nov 2014 14:04:56 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/136/2014/11/20/Get-started-with-Perl-6-one-liners/</guid>
+      <guid>https://dnmfarrell.github.io/article/136/2014/11/20/Get-started-with-Perl-6-one-liners/</guid>
       <description>
 
 &lt;p&gt;One thing that sets Perl apart from other languages is the ability to write small programs in a single line of code, known as a &amp;ldquo;one liner&amp;rdquo;. It&amp;rsquo;s often faster to type a program directly into the terminal than to write a throwaway script. And one liners are powerful too; they&amp;rsquo;re complete Perl programs that can load external libraries but also integrate into the terminal. You can pipe data in or out of a one liner.&lt;/p&gt;
@@ -1036,10 +1036,10 @@ Hello, World!
     
     <item>
       <title>Boost your Perl productivity with auto-compile checking</title>
-      <link>http://perltricks.com/article/133/2014/11/10/Boost-your-Perl-productivity-with-auto-compile-checking/</link>
+      <link>https://dnmfarrell.github.io/article/133/2014/11/10/Boost-your-Perl-productivity-with-auto-compile-checking/</link>
       <pubDate>Mon, 10 Nov 2014 14:01:51 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/133/2014/11/10/Boost-your-Perl-productivity-with-auto-compile-checking/</guid>
+      <guid>https://dnmfarrell.github.io/article/133/2014/11/10/Boost-your-Perl-productivity-with-auto-compile-checking/</guid>
       <description>
 
 &lt;p&gt;The Perl command line option &lt;code&gt;-c&lt;/code&gt; causes Perl to check the syntax of the program, but not execute it (apart from code in BEGIN, CHECK and UNITCHECK blocks - watch out for those). For example:&lt;/p&gt;
@@ -1111,10 +1111,10 @@ lib/Devel/DidYouMean.pm had compilation errors.
     
     <item>
       <title>Neutralize Shellshock by patching Bash with Perl</title>
-      <link>http://perltricks.com/article/118/2014/10/5/Neutralize-Shellshock-by-patching-Bash-with-Perl/</link>
+      <link>https://dnmfarrell.github.io/article/118/2014/10/5/Neutralize-Shellshock-by-patching-Bash-with-Perl/</link>
       <pubDate>Sun, 05 Oct 2014 18:13:45 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/118/2014/10/5/Neutralize-Shellshock-by-patching-Bash-with-Perl/</guid>
+      <guid>https://dnmfarrell.github.io/article/118/2014/10/5/Neutralize-Shellshock-by-patching-Bash-with-Perl/</guid>
       <description>
 
 &lt;p&gt;The safest way to protect a system from Shellshock is to upgrade to a patched version of Bash. However if you&amp;rsquo;re like me, you may find that a hectic Linux distro release &lt;a href=&#34;https://fedoraproject.org/wiki/Fedora_Release_Life_Cycle&#34;&gt;schedule&lt;/a&gt; has left your current distribution unsupported. Rather than run the risk of attack, you can patch Bash yourself. Unfortunately some versions of Bash have as many as 52 different &lt;a href=&#34;http://ftp.gnu.org/gnu/bash/bash-4.2-patches/&#34;&gt;patches&lt;/a&gt; that must be downloaded and applied. So I wrote a Perl called &lt;a href=&#34;https://github.com/sillymoose/bashfix&#34;&gt;bashfix&lt;/a&gt; to automate it.&lt;/p&gt;
@@ -1164,10 +1164,10 @@ Bash version 4.2.52 is now installed
     
     <item>
       <title>Shellshock and Perl</title>
-      <link>http://perltricks.com/article/115/2014/9/26/Shellshock-and-Perl/</link>
+      <link>https://dnmfarrell.github.io/article/115/2014/9/26/Shellshock-and-Perl/</link>
       <pubDate>Fri, 26 Sep 2014 13:28:54 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/115/2014/9/26/Shellshock-and-Perl/</guid>
+      <guid>https://dnmfarrell.github.io/article/115/2014/9/26/Shellshock-and-Perl/</guid>
       <description>
 
 &lt;p&gt;Recently the tech media have been foaming at the mouth over a serious Bash &lt;a href=&#34;https://securityblog.redhat.com/2014/09/24/bash-specially-crafted-environment-variables-code-injection-attack/&#34;&gt;bug&lt;/a&gt; called Shellshock. The media &lt;a href=&#34;http://www.wired.com/2014/09/internet-braces-crazy-shellshock-worm/&#34;&gt;hype machine&lt;/a&gt; was in full-swing, replete with the absurd doomsday-like predictions that are rolled out every time a significant security vulnerability is found (remember heartbleed the &amp;ldquo;&lt;a href=&#34;http://mashable.com/2014/04/09/heartbleed-nightmare/&#34;&gt;ultimate web nightmare&lt;/a&gt;&amp;rdquo;?). Whilst it&amp;rsquo;s wise to ignore the hype, don&amp;rsquo;t ignore the issue; Shellshock is a serious risk that allows remote code injection and execution using Bash environment variables. This is also important for Perl as Perl has several touchpoints with the system shell, from the built-in functions &lt;a href=&#34;http://perldoc.perl.org/functions/exec.html&#34;&gt;exec&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/functions/system.html&#34;&gt;system&lt;/a&gt; to the &lt;code&gt;%ENV&lt;/code&gt; global variable.&lt;/p&gt;
@@ -1256,10 +1256,10 @@ SHELLSHOCK
     
     <item>
       <title>Create static web apps with Wget</title>
-      <link>http://perltricks.com/article/103/2014/7/22/Create-static-web-apps-with-Wget/</link>
+      <link>https://dnmfarrell.github.io/article/103/2014/7/22/Create-static-web-apps-with-Wget/</link>
       <pubDate>Tue, 22 Jul 2014 12:44:13 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/103/2014/7/22/Create-static-web-apps-with-Wget/</guid>
+      <guid>https://dnmfarrell.github.io/article/103/2014/7/22/Create-static-web-apps-with-Wget/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;Last week we covered &lt;a href=&#34;https://metacpan.org/pod/distribution/App-Wallflower/bin/wallflower&#34;&gt;Wallflower&lt;/a&gt; an awesome utility for generating static websites from Perl web applications. This week we&amp;rsquo;re covering an alternative method, that uses &lt;a href=&#34;https://en.wikipedia.org/wiki/Wget&#34;&gt;Wget&lt;/a&gt;. One benefit of this method is it can be used on any dynamic web application, not just Perl ones.&lt;/em&gt;&lt;/p&gt;

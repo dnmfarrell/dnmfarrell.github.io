@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Method on Perl programming news, code and culture</title>
-    <link>http://perltricks.com/tags/method/</link>
+    <link>https://dnmfarrell.github.io/tags/method/</link>
     <description>Recent content in Method on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 12 May 2014 13:19:16 +0000</lastBuildDate>
-    <atom:link href="http://perltricks.com/tags/method/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dnmfarrell.github.io/tags/method/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Benchmarking subroutine signatures</title>
-      <link>http://perltricks.com/article/88/2014/5/12/Benchmarking-subroutine-signatures/</link>
+      <link>https://dnmfarrell.github.io/article/88/2014/5/12/Benchmarking-subroutine-signatures/</link>
       <pubDate>Mon, 12 May 2014 13:19:16 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/88/2014/5/12/Benchmarking-subroutine-signatures/</guid>
+      <guid>https://dnmfarrell.github.io/article/88/2014/5/12/Benchmarking-subroutine-signatures/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;Subroutine signatures will be released to the Perl core in just a few days. But how do they performance compared with traditional methods like direct variable assignment and the &lt;a href=&#34;https://metacpan.org/pod/Method::Signatures&#34;&gt;Method::Signatures&lt;/a&gt; module? I benchmarked all three with interesting results.&lt;/em&gt;&lt;/p&gt;
@@ -101,7 +101,7 @@ cmpthese(-5, {
 
 &lt;p&gt;Would changing the number of variables assigned in the subroutine affect the relative performance of the three subroutine types? I re-ran the benchmarks, only this time incrementing the number of variables being assigned and plotted the results:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/88/signatures%20comparison.png&#34; title=&#34;Comparison of signatures speed with varying number of variables&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/88/signatures%20comparison_small.png&#34; alt=&#34;Comparison of signatures speed with increasing number of variables&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/88/signatures%20comparison.png&#34; title=&#34;Comparison of signatures speed with varying number of variables&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/88/signatures%20comparison_small.png&#34; alt=&#34;Comparison of signatures speed with increasing number of variables&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;The results showed that increasing the number of variables improved the relative speed of native subroutine signatures against Method::Signatures. With two variable assignments their speed is about par. With three or more variables, native subroutine signatures outperforms, up to 18% faster. When I discussed these results with Ricardo Signes, he confirmed that the native subroutine signatures code had been optimized for multiple variable assignments, which correlates with the results shown above.&lt;/p&gt;
 
@@ -191,10 +191,10 @@ cmpthese(-5, {
     
     <item>
       <title>Perl levels up with native subroutine signatures</title>
-      <link>http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures/</link>
+      <link>https://dnmfarrell.github.io/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures/</link>
       <pubDate>Mon, 24 Feb 2014 03:55:52 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures/</guid>
+      <guid>https://dnmfarrell.github.io/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;It&amp;rsquo;s been a long time coming, but subroutine signatures have just been added to Perl. Although Perl version 5.20 is not due until the Spring, you can use subroutine signatures with the latest Perl development release now.&lt;/em&gt;&lt;/p&gt;
@@ -360,10 +360,10 @@ echo(undef); #undef is an argument
     
     <item>
       <title>Add Moose-style attribute accessors to your Perl classes</title>
-      <link>http://perltricks.com/article/49/2013/11/25/Add-Moose-style-attribute-accessors-to-your-Perl-classes/</link>
+      <link>https://dnmfarrell.github.io/article/49/2013/11/25/Add-Moose-style-attribute-accessors-to-your-Perl-classes/</link>
       <pubDate>Mon, 25 Nov 2013 03:28:00 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/49/2013/11/25/Add-Moose-style-attribute-accessors-to-your-Perl-classes/</guid>
+      <guid>https://dnmfarrell.github.io/article/49/2013/11/25/Add-Moose-style-attribute-accessors-to-your-Perl-classes/</guid>
       <description>
 
 &lt;p&gt;*Let&amp;rsquo;s face it, writing attribute accessors for out-of-the-box Perl classes is repetitive and not much fun. Of course you could use &lt;a href=&#34;https://metacpan.org/pod/Moose&#34;&gt;Moose&lt;/a&gt; or even &lt;a href=&#34;https://metacpan.org/pod/Class::Accessor&#34;&gt;Class::Accessor&lt;/a&gt; to ease the burden but sometimes you want to roll your own solution, &lt;em&gt;sans&lt;/em&gt; dependencies.*&lt;/p&gt;
@@ -448,10 +448,10 @@ $point-&amp;gt;x(5); #set x to 5
     
     <item>
       <title>Banish unsightly variable assignments with Method::Signatures</title>
-      <link>http://perltricks.com/article/39/2013/9/8/Banish-unsightly-variable-assignments-with-Method--Signatures/</link>
+      <link>https://dnmfarrell.github.io/article/39/2013/9/8/Banish-unsightly-variable-assignments-with-Method--Signatures/</link>
       <pubDate>Sun, 08 Sep 2013 22:59:38 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/39/2013/9/8/Banish-unsightly-variable-assignments-with-Method--Signatures/</guid>
+      <guid>https://dnmfarrell.github.io/article/39/2013/9/8/Banish-unsightly-variable-assignments-with-Method--Signatures/</guid>
       <description>
 
 &lt;p&gt;One drawback of Perl is that its subroutines and methods do not have signatures (ignoring &lt;a href=&#34;http://perldoc.perl.org/perlsub.html#Prototypes&#34;&gt;prototypes&lt;/a&gt;). This means that Perl developers have to write their own code for variable assignment and type checking which leads to repetitive and verbose code. This article shows how by using the &lt;a href=&#34;https://metacpan.org/module/Method::Signatures&#34;&gt;Method::Signatures&lt;/a&gt; module developers can banish this boilerplate forever.&lt;/p&gt;
@@ -612,10 +612,10 @@ Entry       1.63        1%        --
     
     <item>
       <title>Call object methods without an object reference</title>
-      <link>http://perltricks.com/article/35/2013/8/3/Call-object-methods-without-an-object-reference/</link>
+      <link>https://dnmfarrell.github.io/article/35/2013/8/3/Call-object-methods-without-an-object-reference/</link>
       <pubDate>Sat, 03 Aug 2013 17:56:03 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/35/2013/8/3/Call-object-methods-without-an-object-reference/</guid>
+      <guid>https://dnmfarrell.github.io/article/35/2013/8/3/Call-object-methods-without-an-object-reference/</guid>
       <description>
 
 &lt;p&gt;Perl&amp;rsquo;s flexible syntax accepts all kinds of shenanigans and hackery. This article describes one such trick to call object methods without including the referent object (sort of).&lt;/p&gt;

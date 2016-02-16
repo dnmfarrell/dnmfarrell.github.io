@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Object on Perl programming news, code and culture</title>
-    <link>http://perltricks.com/tags/object/</link>
+    <link>https://dnmfarrell.github.io/tags/object/</link>
     <description>Recent content in Object on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 16 Oct 2014 13:16:03 +0000</lastBuildDate>
-    <atom:link href="http://perltricks.com/tags/object/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dnmfarrell.github.io/tags/object/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>How to test Perl roles without creating test classes</title>
-      <link>http://perltricks.com/article/120/2014/10/16/How-to-test-Perl-roles-without-creating-test-classes/</link>
+      <link>https://dnmfarrell.github.io/article/120/2014/10/16/How-to-test-Perl-roles-without-creating-test-classes/</link>
       <pubDate>Thu, 16 Oct 2014 13:16:03 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/120/2014/10/16/How-to-test-Perl-roles-without-creating-test-classes/</guid>
+      <guid>https://dnmfarrell.github.io/article/120/2014/10/16/How-to-test-Perl-roles-without-creating-test-classes/</guid>
       <description>
 
 &lt;p&gt;Recently I&amp;rsquo;ve been working on a &lt;a href=&#34;https://github.com/sillymoose/March&#34;&gt;game engine&lt;/a&gt; which uses a composition pattern for its actors. I&amp;rsquo;m using &lt;a href=&#34;https://metacpan.org/pod/Role::Tiny&#34;&gt;Role::Tiny&lt;/a&gt; to create the roles. Role::Tiny is really convenient as it lets you use roles with native OO Perl, without committing to a whole object system like Moose. A typical role looks like this:&lt;/p&gt;
@@ -175,10 +175,10 @@ done_testing();
     
     <item>
       <title>Implementing the singleton pattern in Perl</title>
-      <link>http://perltricks.com/article/52/2013/12/11/Implementing-the-singleton-pattern-in-Perl/</link>
+      <link>https://dnmfarrell.github.io/article/52/2013/12/11/Implementing-the-singleton-pattern-in-Perl/</link>
       <pubDate>Wed, 11 Dec 2013 04:33:35 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/52/2013/12/11/Implementing-the-singleton-pattern-in-Perl/</guid>
+      <guid>https://dnmfarrell.github.io/article/52/2013/12/11/Implementing-the-singleton-pattern-in-Perl/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;The Singleton is a well-known object oriented design pattern that allows only one object of a class to be created. It&amp;rsquo;s often cited as the most popular design pattern from the original &amp;ldquo;gang of four&amp;rdquo; book. But when should you use it in Perl and how?&lt;/em&gt;&lt;/p&gt;
@@ -240,10 +240,10 @@ print $singleton_2-&amp;gt;{favourite_animal} . &amp;quot;\n&amp;quot;;
     
     <item>
       <title>Add Moose-style attribute accessors to your Perl classes</title>
-      <link>http://perltricks.com/article/49/2013/11/25/Add-Moose-style-attribute-accessors-to-your-Perl-classes/</link>
+      <link>https://dnmfarrell.github.io/article/49/2013/11/25/Add-Moose-style-attribute-accessors-to-your-Perl-classes/</link>
       <pubDate>Mon, 25 Nov 2013 03:28:00 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/49/2013/11/25/Add-Moose-style-attribute-accessors-to-your-Perl-classes/</guid>
+      <guid>https://dnmfarrell.github.io/article/49/2013/11/25/Add-Moose-style-attribute-accessors-to-your-Perl-classes/</guid>
       <description>
 
 &lt;p&gt;*Let&amp;rsquo;s face it, writing attribute accessors for out-of-the-box Perl classes is repetitive and not much fun. Of course you could use &lt;a href=&#34;https://metacpan.org/pod/Moose&#34;&gt;Moose&lt;/a&gt; or even &lt;a href=&#34;https://metacpan.org/pod/Class::Accessor&#34;&gt;Class::Accessor&lt;/a&gt; to ease the burden but sometimes you want to roll your own solution, &lt;em&gt;sans&lt;/em&gt; dependencies.*&lt;/p&gt;
@@ -328,10 +328,10 @@ $point-&amp;gt;x(5); #set x to 5
     
     <item>
       <title>Use roles in object oriented Perl with Role::Tiny</title>
-      <link>http://perltricks.com/article/47/2013/11/11/Use-roles-in-object-oriented-Perl-with-Role--Tiny/</link>
+      <link>https://dnmfarrell.github.io/article/47/2013/11/11/Use-roles-in-object-oriented-Perl-with-Role--Tiny/</link>
       <pubDate>Mon, 11 Nov 2013 04:48:50 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/47/2013/11/11/Use-roles-in-object-oriented-Perl-with-Role--Tiny/</guid>
+      <guid>https://dnmfarrell.github.io/article/47/2013/11/11/Use-roles-in-object-oriented-Perl-with-Role--Tiny/</guid>
       <description>
 
 &lt;p&gt;Roles are a label for a set of methods that a class provides. Similar to traits in Smalltalk or an interface in Java, adding a Perl role to a class is like adding a guarantee that the class will implement that role&amp;rsquo;s API. Roles are an alternative to inheritance; instead of extending a class hierarchy through subclassing, a programmer composes a class using roles for what the class does. This article describes how by using the &lt;a href=&#34;https://metacpan.org/pod/Role::Tiny&#34;&gt;Role::Tiny&lt;/a&gt; module you can imbue native Perl object oriented code with roles.&lt;/p&gt;
@@ -453,10 +453,10 @@ sub setColor {
     
     <item>
       <title>Perl destructor not being called? Here&#39;s why</title>
-      <link>http://perltricks.com/article/38/2013/8/27/Perl-destructor-not-being-called--Here-s-why/</link>
+      <link>https://dnmfarrell.github.io/article/38/2013/8/27/Perl-destructor-not-being-called--Here-s-why/</link>
       <pubDate>Tue, 27 Aug 2013 02:57:30 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/38/2013/8/27/Perl-destructor-not-being-called--Here-s-why/</guid>
+      <guid>https://dnmfarrell.github.io/article/38/2013/8/27/Perl-destructor-not-being-called--Here-s-why/</guid>
       <description>&lt;p&gt;If you&amp;rsquo;re using a Perl destructor method (&amp;lsquo;DESTROY&amp;rsquo;, &amp;lsquo;DEMOLISH&amp;rsquo;) it may not be called if the Perl process is terminated abruptly by a signal. To fix this, just add the sigtrap pragma to your program:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use sigtrap qw/die normal-signals/;
@@ -470,10 +470,10 @@ sub setColor {
     
     <item>
       <title>Call object methods without an object reference</title>
-      <link>http://perltricks.com/article/35/2013/8/3/Call-object-methods-without-an-object-reference/</link>
+      <link>https://dnmfarrell.github.io/article/35/2013/8/3/Call-object-methods-without-an-object-reference/</link>
       <pubDate>Sat, 03 Aug 2013 17:56:03 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/35/2013/8/3/Call-object-methods-without-an-object-reference/</guid>
+      <guid>https://dnmfarrell.github.io/article/35/2013/8/3/Call-object-methods-without-an-object-reference/</guid>
       <description>
 
 &lt;p&gt;Perl&amp;rsquo;s flexible syntax accepts all kinds of shenanigans and hackery. This article describes one such trick to call object methods without including the referent object (sort of).&lt;/p&gt;
@@ -568,10 +568,10 @@ Boomerang-&amp;gt;new-&amp;gt;throw-&amp;gt;throw-&amp;gt;throw;
     
     <item>
       <title>Old School Object Oriented Perl</title>
-      <link>http://perltricks.com/article/25/2013/5/20/Old-School-Object-Oriented-Perl/</link>
+      <link>https://dnmfarrell.github.io/article/25/2013/5/20/Old-School-Object-Oriented-Perl/</link>
       <pubDate>Mon, 20 May 2013 00:11:41 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/25/2013/5/20/Old-School-Object-Oriented-Perl/</guid>
+      <guid>https://dnmfarrell.github.io/article/25/2013/5/20/Old-School-Object-Oriented-Perl/</guid>
       <description>
 
 &lt;p&gt;If you need to write object oriented Perl code with no dependencies, then you need to use the old school Perl syntax. This article describes the main features of old school object oriented Perl including class declaration, constructors, destructors, methods, attributes, accessors and inheritance.&lt;/p&gt;

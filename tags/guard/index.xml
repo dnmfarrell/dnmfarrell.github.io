@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Guard on Perl programming news, code and culture</title>
-    <link>http://perltricks.com/tags/guard/</link>
+    <link>https://dnmfarrell.github.io/tags/guard/</link>
     <description>Recent content in Guard on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 19 May 2015 12:55:00 +0000</lastBuildDate>
-    <atom:link href="http://perltricks.com/tags/guard/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dnmfarrell.github.io/tags/guard/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Defend your code with Guard</title>
-      <link>http://perltricks.com/article/173/2015/5/19/Defend-your-code-with-Guard/</link>
+      <link>https://dnmfarrell.github.io/article/173/2015/5/19/Defend-your-code-with-Guard/</link>
       <pubDate>Tue, 19 May 2015 12:55:00 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/173/2015/5/19/Defend-your-code-with-Guard/</guid>
+      <guid>https://dnmfarrell.github.io/article/173/2015/5/19/Defend-your-code-with-Guard/</guid>
       <description>&lt;p&gt;I can&amp;rsquo;t always trust my subroutines to leave the world in the same way that they found it. Perl has some features to help with this, but the &lt;a href=&#34;https://metacpan.org/pod/Guard&#34;&gt;Guard&lt;/a&gt; module goes much further.&lt;/p&gt;
 
 &lt;p&gt;Consider the case where I want to change the current working directory temporarily in my subroutine. If I&amp;rsquo;m not careful, the rest of the ends up in an unexpected directory since &lt;code&gt;chdir&lt;/code&gt; has process-level effect:&lt;/p&gt;

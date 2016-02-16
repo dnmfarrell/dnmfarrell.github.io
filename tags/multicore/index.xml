@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Multicore on Perl programming news, code and culture</title>
-    <link>http://perltricks.com/tags/multicore/</link>
+    <link>https://dnmfarrell.github.io/tags/multicore/</link>
     <description>Recent content in Multicore on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 21 Jan 2014 03:22:40 +0000</lastBuildDate>
-    <atom:link href="http://perltricks.com/tags/multicore/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dnmfarrell.github.io/tags/multicore/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Make your code run faster with Perl&#39;s secret turbo module</title>
-      <link>http://perltricks.com/article/61/2014/1/21/Make-your-code-run-faster-with-Perl-s-secret-turbo-module/</link>
+      <link>https://dnmfarrell.github.io/article/61/2014/1/21/Make-your-code-run-faster-with-Perl-s-secret-turbo-module/</link>
       <pubDate>Tue, 21 Jan 2014 03:22:40 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/61/2014/1/21/Make-your-code-run-faster-with-Perl-s-secret-turbo-module/</guid>
+      <guid>https://dnmfarrell.github.io/article/61/2014/1/21/Make-your-code-run-faster-with-Perl-s-secret-turbo-module/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;Most modern processors are multi-core, yet Perl programs will typically run single-threaded on only one core at a time. Enter the &lt;a href=&#34;https://metacpan.org/pod/MCE&#34;&gt;Many Core Engine&lt;/a&gt; module - it makes it easy to run your existing Perl code in parallel across every core on your platform, and get a huge speed boost along the way.&lt;/em&gt;&lt;/p&gt;
@@ -81,7 +81,7 @@ say scalar $count;
 
 &lt;p&gt;The other difference is that this code will run a lot faster than the first example. How much faster depends on the platform and the number of input records. In my testing on a quad core processor, I found that the MCE::Grep was consistently 100-150% faster, but with more cores I would expect this to increase further.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/61/mce_grep_comparison_630.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/61/mce_grep_comparison_630.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The other basic automation models &lt;a href=&#34;https://metacpan.org/pod/MCE::Loop&#34;&gt;MCE::Loop&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/MCE::Map&#34;&gt;MCE::Map&lt;/a&gt; work in much the same was as MCE::Grep.&lt;/p&gt;
 
@@ -129,7 +129,7 @@ MCE::Grep::init({max_workers =&amp;gt; 3});
 
 &lt;p&gt;When the source type is an array, MCE auto-calculates the chunk size based on the number of input records and workers available. You can override this, however in my testing I found that the auto-calculated chunk-size was nearly always optimal. Here is a typical result set, for processing a 55mb log file:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/61/mce_grep_chunk_size_630.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/61/mce_grep_chunk_size_630.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;If the source type is a filehandle, the chunk size defaults to 2 (The module&amp;rsquo;s author Mario Roy has told me this will change in the next version, 1.506). Therefore you may want to override the chunk size to try to get better performance. You can do this using the &amp;ldquo;init()&amp;rdquo; method:&lt;/p&gt;
 

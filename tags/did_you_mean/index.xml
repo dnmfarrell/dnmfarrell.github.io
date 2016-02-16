@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Did_you_mean on Perl programming news, code and culture</title>
-    <link>http://perltricks.com/tags/did_you_mean/</link>
+    <link>https://dnmfarrell.github.io/tags/did_you_mean/</link>
     <description>Recent content in Did_you_mean on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 31 Oct 2014 15:31:18 +0000</lastBuildDate>
-    <atom:link href="http://perltricks.com/tags/did_you_mean/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dnmfarrell.github.io/tags/did_you_mean/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Implementing Did You Mean in Perl</title>
-      <link>http://perltricks.com/article/122/2014/10/31/Implementing-Did-You-Mean-in-Perl/</link>
+      <link>https://dnmfarrell.github.io/article/122/2014/10/31/Implementing-Did-You-Mean-in-Perl/</link>
       <pubDate>Fri, 31 Oct 2014 15:31:18 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/122/2014/10/31/Implementing-Did-You-Mean-in-Perl/</guid>
+      <guid>https://dnmfarrell.github.io/article/122/2014/10/31/Implementing-Did-You-Mean-in-Perl/</guid>
       <description>
 
 &lt;p&gt;A couple of weeks ago Yuki Nishijima released a clever Ruby &lt;a href=&#34;http://www.yukinishijima.net/2014/10/21/did-you-mean-experience-in-ruby.html&#34;&gt;gem&lt;/a&gt; called &amp;ldquo;Did You Mean&amp;rdquo;, that intercepts failed method calls and suggests the closest matching (correct) method in the exception message. I wanted to create an equivalent module in Perl, and so armed with a limited appreciation of &lt;code&gt;AUTOLOAD&lt;/code&gt; I set about creating &lt;a href=&#34;https://metacpan.org/pod/Devel::DidYouMean&#34;&gt;Devel::DidYouMean&lt;/a&gt;.&lt;/p&gt;

@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Kitkat on Perl programming news, code and culture</title>
-    <link>http://perltricks.com/tags/kitkat/</link>
+    <link>https://dnmfarrell.github.io/tags/kitkat/</link>
     <description>Recent content in Kitkat on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 16 Jun 2014 12:57:21 +0000</lastBuildDate>
-    <atom:link href="http://perltricks.com/tags/kitkat/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dnmfarrell.github.io/tags/kitkat/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>How to build Perl on Android 4.4</title>
-      <link>http://perltricks.com/article/97/2014/6/16/How-to-build-Perl-on-Android-4-4/</link>
+      <link>https://dnmfarrell.github.io/article/97/2014/6/16/How-to-build-Perl-on-Android-4-4/</link>
       <pubDate>Mon, 16 Jun 2014 12:57:21 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/97/2014/6/16/How-to-build-Perl-on-Android-4-4/</guid>
+      <guid>https://dnmfarrell.github.io/article/97/2014/6/16/How-to-build-Perl-on-Android-4-4/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;The recent release of Perl 5.20 came with the exciting news that Perl was now installable on Android, Google&amp;rsquo;s mobile operating system. But before you get grand visions of flying phone-controlled drones via &lt;a href=&#34;https://metacpan.org/pod/UAV::Pilot&#34;&gt;UAV::Pilot&lt;/a&gt;, know that right now, how to get a working Perl binary is just about all that&amp;rsquo;s documented. This article shows you how to get that far - solving the rest is left for the pioneers!&lt;/em&gt;&lt;/p&gt;
@@ -43,7 +43,7 @@ $ tar xvf android-sdk_r22.6.2-linux.tgz
 
 &lt;p&gt;This will open a GUI menu from where you can download and install the required Android tools and libraries. Using the menu, install Android SDK Tools, Android SDK Platform-tools, Android SDK Build-tools and Android 4.2.2.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_sdk_manager.png&#34; title=&#34;The Android SDK Manager&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_sdk_manager_small.png&#34; alt=&#34;The Android SDK Manager&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/97/android_sdk_manager.png&#34; title=&#34;The Android SDK Manager&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/97/android_sdk_manager_small.png&#34; alt=&#34;The Android SDK Manager&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;You&amp;rsquo;ll also need a copy of the Perl 5.20.0 &lt;a href=&#34;http://www.cpan.org/src/5.0/perl-5.20.0.tar.gz&#34;&gt;tarball&lt;/a&gt;. Untar this at the command line too:&lt;/p&gt;
 
@@ -59,15 +59,15 @@ $ tar xvf android-sdk_r22.6.2-linux.tgz
 
 &lt;p&gt;This will launch the Android Virtual Device Manager:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_avd_1.png&#34; title=&#34;The Android Virtual Device Manager&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_avd_1_small.png&#34; alt=&#34;The Android Virtual Device Manager&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/97/android_avd_1.png&#34; title=&#34;The Android Virtual Device Manager&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/97/android_avd_1_small.png&#34; alt=&#34;The Android Virtual Device Manager&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Click &amp;ldquo;new&amp;rdquo; to create a new AVD. I created one with the following settings:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_avd_2.png&#34; title=&#34;Create a new AVD&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_avd_2.png&#34; alt=&#34;Create a new AVD&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/97/android_avd_2.png&#34; title=&#34;Create a new AVD&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/97/android_avd_2.png&#34; alt=&#34;Create a new AVD&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Make sure you select &amp;ldquo;ARM (androideabi-v7a)&amp;rdquo; as the CPU/ABI option. Keep in mind your platform&amp;rsquo;s hardware when choosing these settings. I found higher resolution devices ran very slowly on my old MacBook. The &amp;ldquo;use snapshot&amp;rdquo; option is a timesaver that saves the virtual device&amp;rsquo;s state post-boot, so saves you from waiting for the virtual device to boot up again after the first time. Once you&amp;rsquo;ve created the AVD, you should see it listed in the AVD Manager window:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_avd_4.png&#34; title=&#34;The AVD has been created&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_avd_4_small.png&#34; alt=&#34;The AVD has been created&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/97/android_avd_4.png&#34; title=&#34;The AVD has been created&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/97/android_avd_4_small.png&#34; alt=&#34;The AVD has been created&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Having created a new AVD, you can close the AVD Manager window.&lt;/p&gt;
 
@@ -95,11 +95,11 @@ $ export PATH=$PATH:$ANDROID_NDK/toolchains/$TARGET_ARCH-4.8/prebuilt/linux-x86_
 
 &lt;p&gt;You should see your emulated device start booting in a new window:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_boot.png&#34; title=&#34;The loaded AVD&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_boot.png&#34; alt=&#34;The loaded AVD&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/97/android_boot.png&#34; title=&#34;The loaded AVD&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/97/android_boot.png&#34; alt=&#34;The loaded AVD&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Once it&amp;rsquo;s booted, it will look like this:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_loaded.png&#34; title=&#34;The AVD is booting&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_loaded.png&#34; alt=&#34;The AVD is booting&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/97/android_loaded.png&#34; title=&#34;The AVD is booting&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/97/android_loaded.png&#34; alt=&#34;The AVD is booting&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;With the fully booted AVD still running, return to the command line and type:&lt;/p&gt;
 

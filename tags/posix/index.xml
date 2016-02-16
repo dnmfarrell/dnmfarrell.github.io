@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posix on Perl programming news, code and culture</title>
-    <link>http://perltricks.com/tags/posix/</link>
+    <link>https://dnmfarrell.github.io/tags/posix/</link>
     <description>Recent content in Posix on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 18 Aug 2013 18:48:51 +0000</lastBuildDate>
-    <atom:link href="http://perltricks.com/tags/posix/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://dnmfarrell.github.io/tags/posix/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Catch and Handle Signals in Perl</title>
-      <link>http://perltricks.com/article/37/2013/8/18/Catch-and-Handle-Signals-in-Perl/</link>
+      <link>https://dnmfarrell.github.io/article/37/2013/8/18/Catch-and-Handle-Signals-in-Perl/</link>
       <pubDate>Sun, 18 Aug 2013 18:48:51 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/37/2013/8/18/Catch-and-Handle-Signals-in-Perl/</guid>
+      <guid>https://dnmfarrell.github.io/article/37/2013/8/18/Catch-and-Handle-Signals-in-Perl/</guid>
       <description>
 
 &lt;p&gt;Signals are types of messages sent by an operating system to a process such as a Perl program. Signals provide a method for communicating with a process, for example when running a command line program pressing control-c will send the interrupt signal (&amp;lsquo;SIGINT&amp;rsquo;) to the program by default terminating it. Signals are often unexpected and if not handled can leave your Perl program or data in an unfinished state. This article describes some useful Perl programming tools for gracefully handling signals.&lt;/p&gt;
