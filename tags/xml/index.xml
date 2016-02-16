@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Xml on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/xml/</link>
+    <link>http://perltricks.com/tags/xml/</link>
     <description>Recent content in Xml on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 09 Feb 2015 13:41:04 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/xml/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/xml/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Build a Reddit bot with Perl</title>
-      <link>https://dnmfarrell.github.io/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl/</link>
+      <link>http://perltricks.com/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl/</link>
       <pubDate>Mon, 09 Feb 2015 13:41:04 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl/</guid>
+      <guid>http://perltricks.com/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl/</guid>
       <description>
 
 &lt;p&gt;One of my goals for this year was to post more links to the Perl &lt;a href=&#34;http://www.reddit.com/r/perl&#34;&gt;subreddit&lt;/a&gt;. I&amp;rsquo;m usually good at linking to PerlTricks articles, but not so good at linking to other content. And that&amp;rsquo;s a shame because there are a lot of active Perl blogs out there (I know of at least 25-30).&lt;/p&gt;
@@ -262,10 +262,10 @@ sub check_feed
     
     <item>
       <title>HTML pro-parsing tips</title>
-      <link>https://dnmfarrell.github.io/article/101/2014/7/10/HTML-pro-parsing-tips/</link>
+      <link>http://perltricks.com/article/101/2014/7/10/HTML-pro-parsing-tips/</link>
       <pubDate>Thu, 10 Jul 2014 12:33:45 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/101/2014/7/10/HTML-pro-parsing-tips/</guid>
+      <guid>http://perltricks.com/article/101/2014/7/10/HTML-pro-parsing-tips/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;Perl has some fantastic modules for parsing HTML and one of the best is XML::LibXML. It&amp;rsquo;s an interface to the libxml2 C library; super fast but also super-picky. I&amp;rsquo;ve often found XML::LibXML croaking on relatively simple - but incorrectly formed HTML. If you find this, do not give up! This article shares 3 simple techniques for overcoming malformed HTML when parsing with XML::LibXML.&lt;/em&gt;&lt;/p&gt;
@@ -324,10 +324,10 @@ my $dom = XML::LibXML-&amp;gt;load_html( string =&amp;gt; $scrubbed_html );
     
     <item>
       <title>Parsing data couldn&#39;t be easier with XML::Dataset</title>
-      <link>https://dnmfarrell.github.io/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</link>
+      <link>http://perltricks.com/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</link>
       <pubDate>Fri, 09 May 2014 03:14:01 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</guid>
+      <guid>http://perltricks.com/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;It&amp;rsquo;s hard to believe that when it comes to XML parsing CPAN hasn&amp;rsquo;t already got you covered, but &lt;a href=&#34;https://metacpan.org/pod/XML::Dataset&#34;&gt;XML::Dataset&lt;/a&gt; is a new module that fills a useful void. XML::Dataset let&amp;rsquo;s you declare a plaintext data collection schema, and then goes and extracts the data for you, super fast. Read on to see how it works.&lt;/em&gt;&lt;/p&gt;

@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Camera on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/camera/</link>
+    <link>http://perltricks.com/tags/camera/</link>
     <description>Recent content in Camera on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 15 Dec 2014 13:58:21 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/camera/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/camera/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>A Hackerspace Webcam</title>
-      <link>https://dnmfarrell.github.io/article/140/2014/12/15/A-Hackerspace-Webcam/</link>
+      <link>http://perltricks.com/article/140/2014/12/15/A-Hackerspace-Webcam/</link>
       <pubDate>Mon, 15 Dec 2014 13:58:21 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/140/2014/12/15/A-Hackerspace-Webcam/</guid>
+      <guid>http://perltricks.com/article/140/2014/12/15/A-Hackerspace-Webcam/</guid>
       <description>&lt;p&gt;Nearly every hackerspace has some kind of live camera on their website, and every one of them solves it in their own way. If you want to visit the shop, it&amp;rsquo;s nice to know if someone else is hanging around. At &lt;a href=&#34;http://thebodgery.org&#34;&gt;The Bodgery&lt;/a&gt;, it was decided to base one on a Raspberry Pi that would upload a picture every 30 seconds whenever an open switch is set. When a member opens the space, the switch activates one of the Pi&amp;rsquo;s &amp;ldquo;General Purpose Input/Output&amp;rdquo; (GPIO) pins, which causes the Pi to start taking pictures. When shut off, a default picture is thrown up, declaring us closed.&lt;/p&gt;
 
 &lt;p&gt;The first task was to make a box. The Bodgery has a 50W laser cutter, so I started with a design created with &lt;a href=&#34;http://www.makercase.com/&#34;&gt;MakerCase&lt;/a&gt;. After measuring the Pi and putting in the dimensions, MakerCase created a box with &amp;ldquo;finger joints&amp;rdquo; (tabs that fit the edges together). Using &lt;a href=&#34;https://inkscape.org/en/&#34;&gt;Inkscape&lt;/a&gt; and some more measuring, a hole was made in the front panel for the Pi&amp;rsquo;s camera. Unfortunately, I didn&amp;rsquo;t take into account the length of the Pi&amp;rsquo;s SD card on one side and the WiFi adaptor on the other, so my original design was a little short. No matter-the backend of the case could be left open for this project.&lt;/p&gt;

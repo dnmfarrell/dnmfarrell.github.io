@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Perl6 on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/perl6/</link>
+    <link>http://perltricks.com/tags/perl6/</link>
     <description>Recent content in Perl6 on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 22 Sep 2015 22:16:48 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/perl6/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/perl6/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Activating Perl 6 syntax highlighting in Vim</title>
-      <link>https://dnmfarrell.github.io/article/194/2015/9/22/Activating-Perl-6-syntax-highlighting-in-Vim/</link>
+      <link>http://perltricks.com/article/194/2015/9/22/Activating-Perl-6-syntax-highlighting-in-Vim/</link>
       <pubDate>Tue, 22 Sep 2015 22:16:48 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/194/2015/9/22/Activating-Perl-6-syntax-highlighting-in-Vim/</guid>
+      <guid>http://perltricks.com/article/194/2015/9/22/Activating-Perl-6-syntax-highlighting-in-Vim/</guid>
       <description>
 
 &lt;p&gt;Modern versions of the Vim text editor ship with Perl 6 syntax highlighting, but automatically activating it is tricky because Perl 6 files can have ambiguous file extensions. It can get tiresome to correct the file type every time you open a Perl 6 file, so I&amp;rsquo;m going to show you a few tricks that I use to make Vim detect Perl 6 files automatically.&lt;/p&gt;
@@ -133,10 +133,10 @@ au bufRead *.pm,*.t,*.pl call LooksLikePerl6()
     
     <item>
       <title>Get to grips with Prove, Perl&#39;s test workhorse</title>
-      <link>https://dnmfarrell.github.io/article/177/2015/6/9/Get-to-grips-with-Prove--Perl-s-test-workhorse/</link>
+      <link>http://perltricks.com/article/177/2015/6/9/Get-to-grips-with-Prove--Perl-s-test-workhorse/</link>
       <pubDate>Tue, 09 Jun 2015 12:59:02 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/177/2015/6/9/Get-to-grips-with-Prove--Perl-s-test-workhorse/</guid>
+      <guid>http://perltricks.com/article/177/2015/6/9/Get-to-grips-with-Prove--Perl-s-test-workhorse/</guid>
       <description>
 
 &lt;p&gt;Prove is a test running tool that ships with Perl. It has a ton of options, which can make it confusing for a beginner to use. If you have never used prove, or are not confident using it, do not despair! This article will get you up to speed with prove and it&amp;rsquo;s most common options.&lt;/p&gt;
@@ -244,10 +244,10 @@ exec    Exec tests in another program: --exec perl6
     
     <item>
       <title>Parsing Perl 5 pod with Perl 6</title>
-      <link>https://dnmfarrell.github.io/article/170/2015/4/30/Parsing-Perl-5-pod-with-Perl-6/</link>
+      <link>http://perltricks.com/article/170/2015/4/30/Parsing-Perl-5-pod-with-Perl-6/</link>
       <pubDate>Thu, 30 Apr 2015 13:14:23 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/170/2015/4/30/Parsing-Perl-5-pod-with-Perl-6/</guid>
+      <guid>http://perltricks.com/article/170/2015/4/30/Parsing-Perl-5-pod-with-Perl-6/</guid>
       <description>
 
 &lt;p&gt;I&amp;rsquo;ve just finished developing a Perl 5 pod &lt;a href=&#34;https://github.com/dnmfarrell/Pod-Perl5&#34;&gt;parser&lt;/a&gt; written in Perl 6. Developing the grammar was surprisingly easy, which is a testament to Perl 6 as I&amp;rsquo;m no genius coder. With help from the folks at #perl6, I did learn some interesting things along the way, and wanted to share them. Plus, code!&lt;/p&gt;
@@ -486,10 +486,10 @@ is $match&amp;lt;pod_section&amp;gt;[0]&amp;lt;paragraph&amp;gt;[2]&amp;lt;text&
     
     <item>
       <title>Get started with Perl 6 one liners</title>
-      <link>https://dnmfarrell.github.io/article/136/2014/11/20/Get-started-with-Perl-6-one-liners/</link>
+      <link>http://perltricks.com/article/136/2014/11/20/Get-started-with-Perl-6-one-liners/</link>
       <pubDate>Thu, 20 Nov 2014 14:04:56 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/136/2014/11/20/Get-started-with-Perl-6-one-liners/</guid>
+      <guid>http://perltricks.com/article/136/2014/11/20/Get-started-with-Perl-6-one-liners/</guid>
       <description>
 
 &lt;p&gt;One thing that sets Perl apart from other languages is the ability to write small programs in a single line of code, known as a &amp;ldquo;one liner&amp;rdquo;. It&amp;rsquo;s often faster to type a program directly into the terminal than to write a throwaway script. And one liners are powerful too; they&amp;rsquo;re complete Perl programs that can load external libraries but also integrate into the terminal. You can pipe data in or out of a one liner.&lt;/p&gt;
@@ -618,10 +618,10 @@ Hello, World!
     
     <item>
       <title>Building Perl 6 with Visual Studio 2013</title>
-      <link>https://dnmfarrell.github.io/article/135/2014/11/18/Building-Perl-6-with-Visual-Studio-2013/</link>
+      <link>http://perltricks.com/article/135/2014/11/18/Building-Perl-6-with-Visual-Studio-2013/</link>
       <pubDate>Tue, 18 Nov 2014 13:34:36 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/135/2014/11/18/Building-Perl-6-with-Visual-Studio-2013/</guid>
+      <guid>http://perltricks.com/article/135/2014/11/18/Building-Perl-6-with-Visual-Studio-2013/</guid>
       <description>
 
 &lt;p&gt;I think the last time I tried playing around with anything related to Perl 6 was at least two years ago. Recently, &lt;a href=&#34;https://fosdem.org/2015/schedule/event/get_ready_to_party/&#34;&gt;an understated entry&lt;/a&gt; in Fosdem &amp;lsquo;15 schedule caught the Perl community&amp;rsquo;s attention:&lt;/p&gt;
@@ -703,10 +703,10 @@ Hello World!
     
     <item>
       <title>How to contribute to the exercism.io Perl 5 repo</title>
-      <link>https://dnmfarrell.github.io/article/91/2014/5/22/How-to-contribute-to-the-exercism-io-Perl-5-repo/</link>
+      <link>http://perltricks.com/article/91/2014/5/22/How-to-contribute-to-the-exercism-io-Perl-5-repo/</link>
       <pubDate>Thu, 22 May 2014 15:09:13 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/91/2014/5/22/How-to-contribute-to-the-exercism-io-Perl-5-repo/</guid>
+      <guid>http://perltricks.com/article/91/2014/5/22/How-to-contribute-to-the-exercism-io-Perl-5-repo/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;Earlier this week I rounded off our exercism.io article with a call to action to help port exercises into the Perl 5 repo. Today I&amp;rsquo;m going to walk through the porting process step-by-step and show you how easy it is to contribute.&lt;/em&gt;&lt;/p&gt;
@@ -719,17 +719,17 @@ Hello World!
 
 &lt;p&gt;To contribute to a project on GitHub, we&amp;rsquo;ll use the &amp;ldquo;fork and pull&amp;rdquo; approach. First we&amp;rsquo;ll login to GitHub:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/91/github_1.png&#34; title=&#34;Login to GitHub&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/91/github_1_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_1.png&#34; title=&#34;Login to GitHub&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_1_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Next, search for the exercism/xperl5 repo:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/91/github_2.png&#34; title=&#34;Search for exercism/xperl5&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/91/github_2_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_2.png&#34; title=&#34;Search for exercism/xperl5&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_2_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/91/github_3.png&#34; title=&#34;Click the fork button&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/91/github_3_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_3.png&#34; title=&#34;Click the fork button&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_3_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Click the &amp;ldquo;Fork&amp;rdquo; button to copy the repo into our own perltricks/xperl5 repo:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/91/github_4.png&#34; title=&#34;Our own forked repo&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/91/github_4_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_4.png&#34; title=&#34;Our own forked repo&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_4_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;h3 id=&#34;get-the-exercises:96c520196f6519b815b433280ae5ea10&#34;&gt;Get the exercises&lt;/h3&gt;
 
@@ -894,11 +894,11 @@ $ git push origin master
 
 &lt;p&gt;Returning to GitHub, all we have to do is initiate a pull request from our forked repo at perltricks/xperl5. Clicking the &amp;ldquo;pull requests&amp;rdquo; link on the right of the screen brings us to the pull requests screen:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/91/github_5.png&#34; title=&#34;The pull requests screen&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/91/github_5_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_5.png&#34; title=&#34;The pull requests screen&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_5_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Clicking the &amp;ldquo;new pull request&amp;rdquo; button will create the pull request form, GitHub automatically knows that the pull request should go back to exercism/xperl5.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/91/github_6.png&#34; title=&#34;The new pull request. Send the pull request!&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/91/github_6_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_6.png&#34; title=&#34;The new pull request. Send the pull request!&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_6_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Clicking the &amp;ldquo;Send pull request&amp;rdquo; button submits the pull request and we&amp;rsquo;re done! The exercism repo committers usually respond within a couple of hours. So now you&amp;rsquo;ve seen how easy it is to port an exercise, be warned it can be addictive &amp;hellip;&lt;/p&gt;
 

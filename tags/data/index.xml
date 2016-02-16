@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Data on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/data/</link>
+    <link>http://perltricks.com/tags/data/</link>
     <description>Recent content in Data on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 17 Jun 2015 13:09:04 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/data/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/data/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Separate data and behavior with table-driven testing</title>
-      <link>https://dnmfarrell.github.io/article/178/2015/6/17/Separate-data-and-behavior-with-table-driven-testing/</link>
+      <link>http://perltricks.com/article/178/2015/6/17/Separate-data-and-behavior-with-table-driven-testing/</link>
       <pubDate>Wed, 17 Jun 2015 13:09:04 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/178/2015/6/17/Separate-data-and-behavior-with-table-driven-testing/</guid>
+      <guid>http://perltricks.com/article/178/2015/6/17/Separate-data-and-behavior-with-table-driven-testing/</guid>
       <description>&lt;p&gt;How can I easily run the same tests on different data without duplicating a lot of code? If I follow my usual pattern, I start off with a couple of tests where I write some code then cut-and-paste that a couple of times. I add a few more tests before I realize I have a mess. If I had the foresight to know that I would make a mess (again), I would have started with a table of data and a little bit of code that went through it.&lt;/p&gt;
 
 &lt;p&gt;Consider a silly and small example of testing &lt;code&gt;sprintf&lt;/code&gt;-like behavior of &lt;a href=&#34;https://metacpan.org/pod/String::Sprintf&#34;&gt;String::Sprintf&lt;/a&gt;. I can use this module to create my own format specifiers, such as one to commify a number. I stole this mostly from its documentation, although I threw in the &lt;a href=&#34;http://www.effectiveperlprogramming.com/2015/04/use-v5-20-subroutine-signatures/&#34;&gt;v5.20 signatures feature&lt;/a&gt; and the &lt;a href=&#34;http://www.effectiveperlprogramming.com/2010/09/use-the-r-substitution-flag-to-work-on-a-copy/&#34;&gt;v5.14 non-destructive substitution operator&lt;/a&gt; because I love those features:&lt;/p&gt;
@@ -182,10 +182,10 @@ while( my $row = $sth-&amp;gt;fetchrow_arrayref ) {
     
     <item>
       <title>Parsing data couldn&#39;t be easier with XML::Dataset</title>
-      <link>https://dnmfarrell.github.io/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</link>
+      <link>http://perltricks.com/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</link>
       <pubDate>Fri, 09 May 2014 03:14:01 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</guid>
+      <guid>http://perltricks.com/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;It&amp;rsquo;s hard to believe that when it comes to XML parsing CPAN hasn&amp;rsquo;t already got you covered, but &lt;a href=&#34;https://metacpan.org/pod/XML::Dataset&#34;&gt;XML::Dataset&lt;/a&gt; is a new module that fills a useful void. XML::Dataset let&amp;rsquo;s you declare a plaintext data collection schema, and then goes and extracts the data for you, super fast. Read on to see how it works.&lt;/em&gt;&lt;/p&gt;

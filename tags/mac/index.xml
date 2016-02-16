@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Mac on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/mac/</link>
+    <link>http://perltricks.com/tags/mac/</link>
     <description>Recent content in Mac on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 11 Oct 2013 01:54:20 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/mac/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/mac/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>How to schedule Perl scripts using cron</title>
-      <link>https://dnmfarrell.github.io/article/43/2013/10/11/How-to-schedule-Perl-scripts-using-cron/</link>
+      <link>http://perltricks.com/article/43/2013/10/11/How-to-schedule-Perl-scripts-using-cron/</link>
       <pubDate>Fri, 11 Oct 2013 01:54:20 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/43/2013/10/11/How-to-schedule-Perl-scripts-using-cron/</guid>
+      <guid>http://perltricks.com/article/43/2013/10/11/How-to-schedule-Perl-scripts-using-cron/</guid>
       <description>
 
 &lt;p&gt;Cron is a job scheduling program available on UNIX-like platforms. Most system commands can be scheduled including the execution of Perl programs. Once a job is setup, cron will run it as scheduled even if the user is not logged in, which can be a great way to automate sysadmin tasks or repetitive jobs. This article describes how to run Perl scripts with cron.&lt;/p&gt;
@@ -96,10 +96,10 @@ An asterisk (*) means all.
     
     <item>
       <title>Catch and Handle Signals in Perl</title>
-      <link>https://dnmfarrell.github.io/article/37/2013/8/18/Catch-and-Handle-Signals-in-Perl/</link>
+      <link>http://perltricks.com/article/37/2013/8/18/Catch-and-Handle-Signals-in-Perl/</link>
       <pubDate>Sun, 18 Aug 2013 18:48:51 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/37/2013/8/18/Catch-and-Handle-Signals-in-Perl/</guid>
+      <guid>http://perltricks.com/article/37/2013/8/18/Catch-and-Handle-Signals-in-Perl/</guid>
       <description>
 
 &lt;p&gt;Signals are types of messages sent by an operating system to a process such as a Perl program. Signals provide a method for communicating with a process, for example when running a command line program pressing control-c will send the interrupt signal (&amp;lsquo;SIGINT&amp;rsquo;) to the program by default terminating it. Signals are often unexpected and if not handled can leave your Perl program or data in an unfinished state. This article describes some useful Perl programming tools for gracefully handling signals.&lt;/p&gt;
@@ -203,10 +203,10 @@ sub signal_handler {
     
     <item>
       <title>Run local Perl as root</title>
-      <link>https://dnmfarrell.github.io/article/36/2013/8/10/Run-local-Perl-as-root/</link>
+      <link>http://perltricks.com/article/36/2013/8/10/Run-local-Perl-as-root/</link>
       <pubDate>Sat, 10 Aug 2013 14:33:18 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/36/2013/8/10/Run-local-Perl-as-root/</guid>
+      <guid>http://perltricks.com/article/36/2013/8/10/Run-local-Perl-as-root/</guid>
       <description>&lt;p&gt;This is a simple trick for conveniently running local Perl as a root user on UNIX-based systems.&lt;/p&gt;
 
 &lt;p&gt;Occasionally it&amp;rsquo;s necessary to run locally-installed Perl as root. However at the command line if you type:&lt;/p&gt;
@@ -235,10 +235,10 @@ sudo echo $(which perl)
     
     <item>
       <title>Test if the user is root</title>
-      <link>https://dnmfarrell.github.io/article/16/2013/4/10/Test-if-the-user-is-root/</link>
+      <link>http://perltricks.com/article/16/2013/4/10/Test-if-the-user-is-root/</link>
       <pubDate>Wed, 10 Apr 2013 21:48:42 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/16/2013/4/10/Test-if-the-user-is-root/</guid>
+      <guid>http://perltricks.com/article/16/2013/4/10/Test-if-the-user-is-root/</guid>
       <description>&lt;p&gt;When Perl is executing a program, it maintains the user id of the process owner in a global variable ($&amp;lt;). When a Perl program is executed by root or a user with root privileges (e.g. using the sudo command), the user id variable is always set to zero. This can be checked at the command line:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -e &#39;print $&amp;lt; . \n;&#39;

@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Documentation on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/documentation/</link>
+    <link>http://perltricks.com/tags/documentation/</link>
     <description>Recent content in Documentation on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 26 Feb 2015 13:42:57 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/documentation/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/documentation/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Hello perldoc, productivity booster</title>
-      <link>https://dnmfarrell.github.io/article/155/2015/2/26/Hello-perldoc--productivity-booster/</link>
+      <link>http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/</link>
       <pubDate>Thu, 26 Feb 2015 13:42:57 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/155/2015/2/26/Hello-perldoc--productivity-booster/</guid>
+      <guid>http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/</guid>
       <description>
 
 &lt;p&gt;Imagine this scenario: you&amp;rsquo;re using the DateTime module but you can&amp;rsquo;t remember the exact name of a function it provides. What do you do? You could open your browser, go to &lt;a href=&#34;https://metacpan.org/&#34;&gt;MetaCPAN&lt;/a&gt;, search for DateTime and look up the answer in the module&amp;rsquo;s documentation. A faster way would be to switch to the command line, and type &lt;code&gt;perldoc DateTime&lt;/code&gt; to display the module&amp;rsquo;s documentation right there in the terminal.&lt;/p&gt;
@@ -165,10 +165,10 @@ man perldoc     List of all perldoc options
     
     <item>
       <title>Perl distributions, modules, packages explained</title>
-      <link>https://dnmfarrell.github.io/article/96/2014/6/13/Perl-distributions--modules--packages-explained/</link>
+      <link>http://perltricks.com/article/96/2014/6/13/Perl-distributions--modules--packages-explained/</link>
       <pubDate>Fri, 13 Jun 2014 12:26:00 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/96/2014/6/13/Perl-distributions--modules--packages-explained/</guid>
+      <guid>http://perltricks.com/article/96/2014/6/13/Perl-distributions--modules--packages-explained/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;It can be confusing for new Perl programmers to understand the terminology used to describe Perl distributions and their accompanying files. This article explains the core concepts.&lt;/em&gt;&lt;/p&gt;
@@ -226,10 +226,10 @@ Data::Connector::connect();
     
     <item>
       <title>Installing Perl modules with C library dependencies</title>
-      <link>https://dnmfarrell.github.io/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</link>
+      <link>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</link>
       <pubDate>Mon, 15 Apr 2013 18:37:26 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</guid>
+      <guid>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</guid>
       <description>
 
 &lt;p&gt;Some Perl modules have specific C library dependencies that need to be met or else they won&amp;rsquo;t install. These issues can be tricky to solve as CPAN is not able to automatically install or report on non-Perl dependencies and Google isn&amp;rsquo;t good at returning useful results for these types of issues (&lt;a href=&#34;https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod&#34;&gt;Net::SSLeay&lt;/a&gt; is a common example of a tricky module to install). Usually you will only find out about missing dependencies when trying to install the module, as the install will fail. What you need to do at this point is &lt;strong&gt;identify&lt;/strong&gt; and &lt;strong&gt;install&lt;/strong&gt; the missing C libraries.&lt;/p&gt;
@@ -263,10 +263,10 @@ sudo yum install openssl-perl.x86_64 perl-Net-SSLeay.x86_64 perl-Crypt-SSLeay.x8
     
     <item>
       <title>Check your module POD using perldoc</title>
-      <link>https://dnmfarrell.github.io/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</link>
+      <link>http://perltricks.com/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</link>
       <pubDate>Mon, 01 Apr 2013 22:45:35 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</guid>
+      <guid>http://perltricks.com/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</guid>
       <description>&lt;p&gt;Perl ships with a command-line program called perldoc that makes it easier to search and read Perl&amp;rsquo;s vast documentation in the POD markup language. If perldoc is called with the -F flag, it will display the POD markup of an input file - this can be useful when your are developing a new Perl distribution and want to check the appearance of the POD in your module before it appears on CPAN for all to see.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# Pass a local file to perldoc

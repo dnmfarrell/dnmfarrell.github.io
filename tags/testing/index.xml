@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Testing on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/testing/</link>
+    <link>http://perltricks.com/tags/testing/</link>
     <description>Recent content in Testing on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 15 Apr 2015 03:05:00 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/testing/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/testing/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Unit test your code on an in-memory database</title>
-      <link>https://dnmfarrell.github.io/article/167/2015/4/15/Unit-test-your-code-on-an-in-memory-database/</link>
+      <link>http://perltricks.com/article/167/2015/4/15/Unit-test-your-code-on-an-in-memory-database/</link>
       <pubDate>Wed, 15 Apr 2015 03:05:00 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/167/2015/4/15/Unit-test-your-code-on-an-in-memory-database/</guid>
+      <guid>http://perltricks.com/article/167/2015/4/15/Unit-test-your-code-on-an-in-memory-database/</guid>
       <description>
 
 &lt;p&gt;Unit test scripts should be independent, stateless and free from side-effects. These ideals are not always achievable but by using tools like mock objects we can often get close. Some functionality is harder to test than others though; for example how do you test database interface code? Databases have state - even if you reset the data after you&amp;rsquo;ve tested it, there&amp;rsquo;s no guarantee the data is the same, or that other code hasn&amp;rsquo;t accessed the database during the test execution.&lt;/p&gt;
@@ -76,10 +76,10 @@ done_testing;
     
     <item>
       <title>Quickly Debug your Perl code at the command line</title>
-      <link>https://dnmfarrell.github.io/article/160/2015/3/13/Quickly-Debug-your-Perl-code-at-the-command-line/</link>
+      <link>http://perltricks.com/article/160/2015/3/13/Quickly-Debug-your-Perl-code-at-the-command-line/</link>
       <pubDate>Fri, 13 Mar 2015 13:34:06 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/160/2015/3/13/Quickly-Debug-your-Perl-code-at-the-command-line/</guid>
+      <guid>http://perltricks.com/article/160/2015/3/13/Quickly-Debug-your-Perl-code-at-the-command-line/</guid>
       <description>
 
 &lt;p&gt;I remember when I first started programming in Perl, whenever something wasn&amp;rsquo;t working as I expected it to, I would write a quick script to isolate the problem and test it. I didn&amp;rsquo;t give the scripts good names; they were throwaway, and soon I had hundreds of useless Perl scripts littered all over my hard drive.&lt;/p&gt;

@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Filehandle on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/filehandle/</link>
+    <link>http://perltricks.com/tags/filehandle/</link>
     <description>Recent content in Filehandle on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 15 Jul 2015 12:19:04 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/filehandle/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/filehandle/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Stupid open() tricks</title>
-      <link>https://dnmfarrell.github.io/article/182/2015/7/15/Stupid-open---tricks/</link>
+      <link>http://perltricks.com/article/182/2015/7/15/Stupid-open---tricks/</link>
       <pubDate>Wed, 15 Jul 2015 12:19:04 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/182/2015/7/15/Stupid-open---tricks/</guid>
+      <guid>http://perltricks.com/article/182/2015/7/15/Stupid-open---tricks/</guid>
       <description>
 
 &lt;p&gt;The &lt;code&gt;open&lt;/code&gt; function can do much more than you probably realize. If you read enough about Perl, you&amp;rsquo;ll start to notice the theme that everyone expects you to use the three-argument &lt;code&gt;open&lt;/code&gt;. There&amp;rsquo;s much more that the &lt;code&gt;open&lt;/code&gt; can do. Some of these &amp;ldquo;stupid open() tricks&amp;rdquo; may be useful, but they may also be dangerous. These tricks were performed on a closed course by a professional driver. Do not attempt at home. Or work. And, to focus on &lt;code&gt;open&lt;/code&gt;, I&amp;rsquo;ve left off all of the error checking.&lt;/p&gt;
@@ -176,10 +176,10 @@ say STDOUT  &#39;Going to STDOUT. fileno &#39; . fileno($fh);
     
     <item>
       <title>How to redirect and restore STDOUT</title>
-      <link>https://dnmfarrell.github.io/article/45/2013/10/27/How-to-redirect-and-restore-STDOUT/</link>
+      <link>http://perltricks.com/article/45/2013/10/27/How-to-redirect-and-restore-STDOUT/</link>
       <pubDate>Sun, 27 Oct 2013 17:48:34 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/45/2013/10/27/How-to-redirect-and-restore-STDOUT/</guid>
+      <guid>http://perltricks.com/article/45/2013/10/27/How-to-redirect-and-restore-STDOUT/</guid>
       <description>
 
 &lt;p&gt;STDOUT is the Perl filehandle for printing standard output. Unless a filehandle is specified, all standard printed output in Perl will go to the terminal. Because STDOUT is just a global variable, it can be redirected and restored. Want to implement logging on a program without changing every print statement in the source code? Want to capture the standard output of a perl CRON job? Read on.&lt;/p&gt;
@@ -266,10 +266,10 @@ say &#39;This should show in the terminal&#39;;
     
     <item>
       <title>Execute Perl code stored in a text file with eval</title>
-      <link>https://dnmfarrell.github.io/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval/</link>
+      <link>http://perltricks.com/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval/</link>
       <pubDate>Tue, 28 May 2013 12:25:15 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval/</guid>
+      <guid>http://perltricks.com/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval/</guid>
       <description>
 
 &lt;p&gt;The Perl &lt;a href=&#34;http://perldoc.perl.org/functions/eval.html&#34;&gt;eval function&lt;/a&gt; will execute any Perl code contained in a string that is passed to it. This article shows how eval can be used to execute Perl code stored in text files.&lt;/p&gt;
@@ -326,10 +326,10 @@ We injected this message
     
     <item>
       <title>Read an entire file into a string</title>
-      <link>https://dnmfarrell.github.io/article/21/2013/4/21/Read-an-entire-file-into-a-string/</link>
+      <link>http://perltricks.com/article/21/2013/4/21/Read-an-entire-file-into-a-string/</link>
       <pubDate>Sun, 21 Apr 2013 20:54:15 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/21/2013/4/21/Read-an-entire-file-into-a-string/</guid>
+      <guid>http://perltricks.com/article/21/2013/4/21/Read-an-entire-file-into-a-string/</guid>
       <description>
 
 &lt;p&gt;There are several ways in Perl to read an entire file into a string, (a procedure also known as &amp;ldquo;slurping&amp;rdquo;).&lt;/p&gt;

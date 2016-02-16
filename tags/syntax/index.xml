@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Syntax on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/syntax/</link>
+    <link>http://perltricks.com/tags/syntax/</link>
     <description>Recent content in Syntax on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 28 Aug 2015 02:10:48 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/syntax/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/syntax/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Check your DuckDuckGo cheatsheets with Perl</title>
-      <link>https://dnmfarrell.github.io/article/190/2015/8/28/Check-your-DuckDuckGo-cheatsheets-with-Perl/</link>
+      <link>http://perltricks.com/article/190/2015/8/28/Check-your-DuckDuckGo-cheatsheets-with-Perl/</link>
       <pubDate>Fri, 28 Aug 2015 02:10:48 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/190/2015/8/28/Check-your-DuckDuckGo-cheatsheets-with-Perl/</guid>
+      <guid>http://perltricks.com/article/190/2015/8/28/Check-your-DuckDuckGo-cheatsheets-with-Perl/</guid>
       <description>
 
 &lt;p&gt;With DuckDuckGo&amp;rsquo;s global &lt;a href=&#34;https://duck.co/blog&#34;&gt;Quack &amp;amp; Hack&lt;/a&gt; just around the corner, I&amp;rsquo;ve pulled together a &lt;a href=&#34;https://github.com/dnmfarrell/DDG-cheatsheet-check&#34;&gt;script&lt;/a&gt; for checking &lt;a href=&#34;http://perltricks.com/article/189/2015/8/22/Writing-DuckDuckGo-plugins-just-got-easier&#34;&gt;cheatsheets&lt;/a&gt;. The script checks the cheatsheet is valid JSON and has the required entries and values.&lt;/p&gt;
@@ -123,10 +123,10 @@ ok 4 - sections
     
     <item>
       <title>Display beautiful Perl code in HTML without JavaScript</title>
-      <link>https://dnmfarrell.github.io/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</link>
+      <link>http://perltricks.com/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</link>
       <pubDate>Mon, 13 Jan 2014 01:34:32 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</guid>
+      <guid>http://perltricks.com/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;Would you like to display beautiful syntax-highlighted Perl code on the web without using JavaScript? Maybe you&amp;rsquo;d like to use an existing &lt;a href=&#34;http://google-code-prettify.googlecode.com/svn/trunk/styles/index.html&#34;&gt;CSS markup theme&lt;/a&gt; without having to write in-line CSS in your Perl code? If yes, take a look at &lt;a href=&#34;https://metacpan.org/pod/PPI::Prettify&#34;&gt;PPI::Prettify&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;
@@ -301,10 +301,10 @@ sub set_color {
     
     <item>
       <title>Banish unsightly variable assignments with Method::Signatures</title>
-      <link>https://dnmfarrell.github.io/article/39/2013/9/8/Banish-unsightly-variable-assignments-with-Method--Signatures/</link>
+      <link>http://perltricks.com/article/39/2013/9/8/Banish-unsightly-variable-assignments-with-Method--Signatures/</link>
       <pubDate>Sun, 08 Sep 2013 22:59:38 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/39/2013/9/8/Banish-unsightly-variable-assignments-with-Method--Signatures/</guid>
+      <guid>http://perltricks.com/article/39/2013/9/8/Banish-unsightly-variable-assignments-with-Method--Signatures/</guid>
       <description>
 
 &lt;p&gt;One drawback of Perl is that its subroutines and methods do not have signatures (ignoring &lt;a href=&#34;http://perldoc.perl.org/perlsub.html#Prototypes&#34;&gt;prototypes&lt;/a&gt;). This means that Perl developers have to write their own code for variable assignment and type checking which leads to repetitive and verbose code. This article shows how by using the &lt;a href=&#34;https://metacpan.org/module/Method::Signatures&#34;&gt;Method::Signatures&lt;/a&gt; module developers can banish this boilerplate forever.&lt;/p&gt;
@@ -465,10 +465,10 @@ Entry       1.63        1%        --
     
     <item>
       <title>Use do to execute Perl code stored in files</title>
-      <link>https://dnmfarrell.github.io/article/28/2013/6/5/Use-do-to-execute-Perl-code-stored-in-files/</link>
+      <link>http://perltricks.com/article/28/2013/6/5/Use-do-to-execute-Perl-code-stored-in-files/</link>
       <pubDate>Wed, 05 Jun 2013 13:22:52 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/28/2013/6/5/Use-do-to-execute-Perl-code-stored-in-files/</guid>
+      <guid>http://perltricks.com/article/28/2013/6/5/Use-do-to-execute-Perl-code-stored-in-files/</guid>
       <description>&lt;p&gt;Following our &lt;a href=&#34;http://perltricks.com/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval&#34;&gt;recent article&lt;/a&gt; on how to execute Perl code stored in a file using eval, Perl programmer mithaldu pointed out that the Perl built-in function do provides similar functionality.&lt;/p&gt;
 
 &lt;p&gt;This is a the text file &amp;lsquo;print.txt&amp;rsquo;:&lt;/p&gt;
@@ -506,10 +506,10 @@ do &#39;print.txt&#39;;
     
     <item>
       <title>Execute Perl code stored in a text file with eval</title>
-      <link>https://dnmfarrell.github.io/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval/</link>
+      <link>http://perltricks.com/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval/</link>
       <pubDate>Tue, 28 May 2013 12:25:15 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval/</guid>
+      <guid>http://perltricks.com/article/26/2013/5/28/Execute-Perl-code-stored-in-a-text-file-with-eval/</guid>
       <description>
 
 &lt;p&gt;The Perl &lt;a href=&#34;http://perldoc.perl.org/functions/eval.html&#34;&gt;eval function&lt;/a&gt; will execute any Perl code contained in a string that is passed to it. This article shows how eval can be used to execute Perl code stored in text files.&lt;/p&gt;
@@ -566,10 +566,10 @@ We injected this message
     
     <item>
       <title>Dynamic variable names with a dereferencing block</title>
-      <link>https://dnmfarrell.github.io/article/23/2013/5/2/Dynamic-variable-names-with-a-dereferencing-block/</link>
+      <link>http://perltricks.com/article/23/2013/5/2/Dynamic-variable-names-with-a-dereferencing-block/</link>
       <pubDate>Thu, 02 May 2013 20:16:55 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/23/2013/5/2/Dynamic-variable-names-with-a-dereferencing-block/</guid>
+      <guid>http://perltricks.com/article/23/2013/5/2/Dynamic-variable-names-with-a-dereferencing-block/</guid>
       <description>&lt;p&gt;Perl is remarkably flexible and allows you to achieve all kinds of wizardry with the language. One example of this is using a dereferencing block to use a scalar value as a variable name. This allows you to use variables with dynamic names.&lt;/p&gt;
 
 &lt;p&gt;An interesting example of this can be seen in &lt;a href=&#34;https://metacpan.org/source/NRG/Nginx-ParseLog-1.01/lib/Nginx/ParseLog.pm&#34;&gt;Nginx::ParseLog&lt;/a&gt;, I&amp;rsquo;ve reproduced the relevant code:&lt;/p&gt;
@@ -609,10 +609,10 @@ We injected this message
     
     <item>
       <title>The conditional (ternary) operator</title>
-      <link>https://dnmfarrell.github.io/article/20/2013/4/16/The-conditional--ternary--operator/</link>
+      <link>http://perltricks.com/article/20/2013/4/16/The-conditional--ternary--operator/</link>
       <pubDate>Tue, 16 Apr 2013 23:12:40 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/20/2013/4/16/The-conditional--ternary--operator/</guid>
+      <guid>http://perltricks.com/article/20/2013/4/16/The-conditional--ternary--operator/</guid>
       <description>&lt;p&gt;One way to reduce the verbosity of Perl code is to replace if-else statements with a conditional operator expression. The conditional operator (aka ternary operator) takes the form: &lt;strong&gt;logical test&lt;/strong&gt; ? &lt;strong&gt;value if true&lt;/strong&gt; : &lt;strong&gt;value if false&lt;/strong&gt;.&lt;/p&gt;
 
 &lt;p&gt;Let&amp;rsquo;s convert a standard Perl if-else into its conditional operator equivalent, using a fictitious subroutine. First here is the if-else:&lt;/p&gt;
@@ -644,10 +644,10 @@ We injected this message
     
     <item>
       <title>List shortcuts: qw the quote whitespace operator</title>
-      <link>https://dnmfarrell.github.io/article/15/2013/4/9/List-shortcuts--qw-the-quote-whitespace-operator/</link>
+      <link>http://perltricks.com/article/15/2013/4/9/List-shortcuts--qw-the-quote-whitespace-operator/</link>
       <pubDate>Tue, 09 Apr 2013 00:02:11 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/15/2013/4/9/List-shortcuts--qw-the-quote-whitespace-operator/</guid>
+      <guid>http://perltricks.com/article/15/2013/4/9/List-shortcuts--qw-the-quote-whitespace-operator/</guid>
       <description>&lt;p&gt;A popular way to build a list of literal quotes in Perl is to use the quote whitespace operator (qw). It&amp;rsquo;s terse, versatile and elegant. To see why, let&amp;rsquo;s look at a typical statement using a list of strings:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# import the Encode module and three subroutines
@@ -690,10 +690,10 @@ foreach (@colours) {
     
     <item>
       <title>Perl arrays 101 - create, loop and manipulate</title>
-      <link>https://dnmfarrell.github.io/article/11/2013/4/4/Perl-arrays-101---create--loop-and-manipulate/</link>
+      <link>http://perltricks.com/article/11/2013/4/4/Perl-arrays-101---create--loop-and-manipulate/</link>
       <pubDate>Thu, 04 Apr 2013 20:22:51 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/11/2013/4/4/Perl-arrays-101---create--loop-and-manipulate/</guid>
+      <guid>http://perltricks.com/article/11/2013/4/4/Perl-arrays-101---create--loop-and-manipulate/</guid>
       <description>
 
 &lt;p&gt;Arrays in Perl contain an ordered list of values that can be accessed using built-in functions. They are one of the most useful data structures and frequently used in Perl programming.&lt;/p&gt;
@@ -810,10 +810,10 @@ if (@empty_array) {
     
     <item>
       <title>Upgrade your list printing using field separator variables</title>
-      <link>https://dnmfarrell.github.io/article/12/2013/4/3/Upgrade-your-list-printing-using-field-separator-variables/</link>
+      <link>http://perltricks.com/article/12/2013/4/3/Upgrade-your-list-printing-using-field-separator-variables/</link>
       <pubDate>Wed, 03 Apr 2013 22:24:28 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/12/2013/4/3/Upgrade-your-list-printing-using-field-separator-variables/</guid>
+      <guid>http://perltricks.com/article/12/2013/4/3/Upgrade-your-list-printing-using-field-separator-variables/</guid>
       <description>&lt;p&gt;A typical way to print every element of an array in Perl is using a foreach loop:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @sportscar_brands = qw/Ferrari Aston_Martin Lambourgini/;
@@ -875,10 +875,10 @@ print $separated_list_string;
     
     <item>
       <title>Perl string functions - concatenate substring and split</title>
-      <link>https://dnmfarrell.github.io/article/8/2013/3/31/Perl-string-functions---concatenate-substring-and-split/</link>
+      <link>http://perltricks.com/article/8/2013/3/31/Perl-string-functions---concatenate-substring-and-split/</link>
       <pubDate>Sun, 31 Mar 2013 23:04:34 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/8/2013/3/31/Perl-string-functions---concatenate-substring-and-split/</guid>
+      <guid>http://perltricks.com/article/8/2013/3/31/Perl-string-functions---concatenate-substring-and-split/</guid>
       <description>
 
 &lt;p&gt;Perl has many string functions, let&amp;rsquo;s take a look at a some of the most common ones: concatenate, substring and split.&lt;/p&gt;
@@ -934,10 +934,10 @@ my @title_and_name = split(&#39; &#39;, $fullname, 2); # Mr,Stephen Doyle
     
     <item>
       <title>Find the index of the last element in an array</title>
-      <link>https://dnmfarrell.github.io/article/6/2013/3/28/Find-the-index-of-the-last-element-in-an-array/</link>
+      <link>http://perltricks.com/article/6/2013/3/28/Find-the-index-of-the-last-element-in-an-array/</link>
       <pubDate>Thu, 28 Mar 2013 23:30:33 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/6/2013/3/28/Find-the-index-of-the-last-element-in-an-array/</guid>
+      <guid>http://perltricks.com/article/6/2013/3/28/Find-the-index-of-the-last-element-in-an-array/</guid>
       <description>
 
 &lt;p&gt;Most Perl programmers know that to find the size of an array, the array must called in a scalar context like this:&lt;/p&gt;
@@ -991,10 +991,10 @@ print $cakes[2];  # carrot
     
     <item>
       <title>You don&#39;t need a shebang line</title>
-      <link>https://dnmfarrell.github.io/article/5/2013/3/25/You-don-t-need-a-shebang-line/</link>
+      <link>http://perltricks.com/article/5/2013/3/25/You-don-t-need-a-shebang-line/</link>
       <pubDate>Mon, 25 Mar 2013 23:39:55 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/5/2013/3/25/You-don-t-need-a-shebang-line/</guid>
+      <guid>http://perltricks.com/article/5/2013/3/25/You-don-t-need-a-shebang-line/</guid>
       <description>&lt;p&gt;The shebang line is the first line of code in a Perl script and usually looks like this:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl

@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Javascript on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/javascript/</link>
+    <link>http://perltricks.com/tags/javascript/</link>
     <description>Recent content in Javascript on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 08 Dec 2014 14:13:27 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/javascript/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/javascript/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Controlling Firefox from Perl</title>
-      <link>https://dnmfarrell.github.io/article/138/2014/12/8/Controlling-Firefox-from-Perl/</link>
+      <link>http://perltricks.com/article/138/2014/12/8/Controlling-Firefox-from-Perl/</link>
       <pubDate>Mon, 08 Dec 2014 14:13:27 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/138/2014/12/8/Controlling-Firefox-from-Perl/</guid>
+      <guid>http://perltricks.com/article/138/2014/12/8/Controlling-Firefox-from-Perl/</guid>
       <description>
 
 &lt;p&gt;I&amp;rsquo;ve been playing with &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize::Firefox&#34;&gt;WWW::Mechanize::Firefox&lt;/a&gt;. It&amp;rsquo;s like the LWP-backended &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize&#34;&gt;WWW::Mechanize&lt;/a&gt;, but with a browser doing all the work. Instead of doing it all in Perl, I can use it as the glue language that it is.&lt;/p&gt;
@@ -114,10 +114,10 @@ $mech-&amp;gt;eval_in_page( &#39;StackExchange.switchMobile(&amp;quot;on&amp;quo
     
     <item>
       <title>Create professional slideshows in seconds with App::revealup</title>
-      <link>https://dnmfarrell.github.io/article/94/2014/6/6/Create-professional-slideshows-in-seconds-with-App--revealup/</link>
+      <link>http://perltricks.com/article/94/2014/6/6/Create-professional-slideshows-in-seconds-with-App--revealup/</link>
       <pubDate>Fri, 06 Jun 2014 12:59:56 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/94/2014/6/6/Create-professional-slideshows-in-seconds-with-App--revealup/</guid>
+      <guid>http://perltricks.com/article/94/2014/6/6/Create-professional-slideshows-in-seconds-with-App--revealup/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;&lt;a href=&#34;https://metacpan.org/pod/App::revealup&#34;&gt;App::revealup&lt;/a&gt; is a command line app that creates slide shows from markdown documents. We listed it in this this month&amp;rsquo;s &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, but the app is so much fun I thought it was worth a separate feature.&lt;/em&gt;&lt;/p&gt;
@@ -148,7 +148,7 @@ June 2014
 
 &lt;p&gt;Now open your browser and navigate to &lt;a href=&#34;http://localhost:5000&#34;&gt;http://localhost:5000&lt;/a&gt;. You should see something like this:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/94/slide1.png&#34; title=&#34;A single slide presentation&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/94/slide1_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide1.png&#34; title=&#34;A single slide presentation&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide1_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Let&amp;rsquo;s add a second slide to showcase how different headers appear. In App::revealup the horizontal slide separator is three hyphens in a row (&amp;ldquo;&amp;mdash;&amp;rdquo;).&lt;/p&gt;
 
@@ -166,7 +166,7 @@ June 2014
 
 &lt;p&gt;App::reveal dynamically reads the source presentation file, so you can leave the process running and just save the changes to the source presentation file. Reloading the browser at &lt;a href=&#34;http://localhost:5000&#34;&gt;http://localhost:5000&lt;/a&gt; should show the updated presentation. Press → to move to the second slide.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/94/slide2.png&#34; title=&#34;Our second slide&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/94/slide2_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide2.png&#34; title=&#34;Our second slide&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide2_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;You can add vertical slides too. These are delimited by three underscores (&amp;rdquo;___&amp;rdquo;):&lt;/p&gt;
 
@@ -195,15 +195,15 @@ ___
 
 &lt;p&gt;Refreshing the browser, we get two additional slides. Press ↓ to move down one slide:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/94/slide3.png&#34; title=&#34;An unordered list. Press down to see the next vertical slide&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/94/slide3_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide3.png&#34; title=&#34;An unordered list. Press down to see the next vertical slide&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide3_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/94/slide4.png&#34; title=&#34;An ordered list&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/94/slide4_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide4.png&#34; title=&#34;An ordered list&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide4_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Instead of trawling through every slide, I&amp;rsquo;ve completed the rest of the presentation and put it on &lt;a href=&#34;https://gist.github.com/dnmfarrell/1b118c5813a7a10ea7e2&#34;&gt;GitHub&lt;/a&gt;. The presentation content is an overview of the markdown syntax. Try running it with App::revealup!&lt;/p&gt;
 
 &lt;p&gt;One nice feature is if you ever want to zoom out, just press the escape key:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/94/slide_zoom.png&#34; title=&#34;Zoomed out view of completed presentation&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/94/slide_zoom_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide_zoom.png&#34; title=&#34;Zoomed out view of completed presentation&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide_zoom_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;h3 id=&#34;how-app-revealup-works:69eb22f12abc28dbc259e04444743098&#34;&gt;How App::revealup works&lt;/h3&gt;
 
@@ -229,10 +229,10 @@ ___
     
     <item>
       <title>Display beautiful Perl code in HTML without JavaScript</title>
-      <link>https://dnmfarrell.github.io/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</link>
+      <link>http://perltricks.com/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</link>
       <pubDate>Mon, 13 Jan 2014 01:34:32 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</guid>
+      <guid>http://perltricks.com/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;Would you like to display beautiful syntax-highlighted Perl code on the web without using JavaScript? Maybe you&amp;rsquo;d like to use an existing &lt;a href=&#34;http://google-code-prettify.googlecode.com/svn/trunk/styles/index.html&#34;&gt;CSS markup theme&lt;/a&gt; without having to write in-line CSS in your Perl code? If yes, take a look at &lt;a href=&#34;https://metacpan.org/pod/PPI::Prettify&#34;&gt;PPI::Prettify&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;

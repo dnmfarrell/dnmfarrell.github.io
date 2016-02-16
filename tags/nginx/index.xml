@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Nginx on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/nginx/</link>
+    <link>http://perltricks.com/tags/nginx/</link>
     <description>Recent content in Nginx on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 15 Jul 2014 12:26:52 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/nginx/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/nginx/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Generate static websites from dynamic Perl web apps</title>
-      <link>https://dnmfarrell.github.io/article/102/2014/7/15/Generate-static-websites-from-dynamic-Perl-web-apps/</link>
+      <link>http://perltricks.com/article/102/2014/7/15/Generate-static-websites-from-dynamic-Perl-web-apps/</link>
       <pubDate>Tue, 15 Jul 2014 12:26:52 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/102/2014/7/15/Generate-static-websites-from-dynamic-Perl-web-apps/</guid>
+      <guid>http://perltricks.com/article/102/2014/7/15/Generate-static-websites-from-dynamic-Perl-web-apps/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;Static websites aren&amp;rsquo;t suitable for every situation, but they have several advantages over dynamic apps; they&amp;rsquo;re more efficient, more secure and simpler to deploy. That said, developing and maintaining a static site is a pain, there&amp;rsquo;s just too much repetitive boilerplate code. Enter &lt;a href=&#34;https://metacpan.org/pod/wallflower&#34;&gt;Wallflower&lt;/a&gt;, it generates static websites from PSGI compatible Perl web applications. You get the best of both worlds: develop the routes, templates and unit tests in your favourite web framework but deploy it as a static website with Wallflower.&lt;/em&gt;&lt;/p&gt;
@@ -81,7 +81,7 @@ $ sudo ln -s ../sites-available/localhost
 
 &lt;p&gt;Now check out the site at &lt;a href=&#34;http://localhost:&#34;&gt;http://localhost:&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/102/dancer2.png&#34; title=&#34;The default Dancer app - statically deployed&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/102/dancer2_small.png&#34; alt=&#34;The default Dancer app - statically deployed&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/102/dancer2.png&#34; title=&#34;The default Dancer app - statically deployed&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/102/dancer2_small.png&#34; alt=&#34;The default Dancer app - statically deployed&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Looks pretty good to me!&lt;/p&gt;
 
@@ -106,10 +106,10 @@ $ sudo ln -s ../sites-available/localhost
     
     <item>
       <title>Simple web framework FastCGI caching with nginx - part 2</title>
-      <link>https://dnmfarrell.github.io/article/77/2014/3/17/Simple-web-framework-FastCGI-caching-with-nginx---part-2/</link>
+      <link>http://perltricks.com/article/77/2014/3/17/Simple-web-framework-FastCGI-caching-with-nginx---part-2/</link>
       <pubDate>Mon, 17 Mar 2014 01:54:09 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/77/2014/3/17/Simple-web-framework-FastCGI-caching-with-nginx---part-2/</guid>
+      <guid>http://perltricks.com/article/77/2014/3/17/Simple-web-framework-FastCGI-caching-with-nginx---part-2/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;In &lt;a href=&#34;http://perltricks.com/article/76/2014/3/11/Simple-web-framework-FastCGI-caching-with-nginx-part-1&#34;&gt;part 1&lt;/a&gt; of this series, we covered how to cache FastCGI responses with nginx and how to purge the cache on demand. We saw how easy it is to setup caching with the main Perl web frameworks (Catalyst, Dancer and Mojolicious). In this article we&amp;rsquo;ll use Nginx::FastCGI::Cache to manage our cached responses and gain some useful benefits along the way.&lt;/em&gt;&lt;/p&gt;
@@ -189,10 +189,10 @@ $nginx_cache-&amp;gt;purge_file(&amp;quot;http://perltricks.com/&amp;quot;);
     
     <item>
       <title>Simple web framework FastCGI caching with nginx - part 1</title>
-      <link>https://dnmfarrell.github.io/article/76/2014/3/11/Simple-web-framework-FastCGI-caching-with-nginx---part-1/</link>
+      <link>http://perltricks.com/article/76/2014/3/11/Simple-web-framework-FastCGI-caching-with-nginx---part-1/</link>
       <pubDate>Tue, 11 Mar 2014 03:18:00 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/76/2014/3/11/Simple-web-framework-FastCGI-caching-with-nginx---part-1/</guid>
+      <guid>http://perltricks.com/article/76/2014/3/11/Simple-web-framework-FastCGI-caching-with-nginx---part-1/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;Fastcgi server caching is a wonderful technique for improving response times and reducing load on a web application. In part 1 of this series we look at how to cache responses with Catalyst, Dancer and Mojolocious and how to clear the cache on-demand when using the nginx web server. Before you know it, your web application will be faster than a racing llama!&lt;/em&gt;&lt;/p&gt;

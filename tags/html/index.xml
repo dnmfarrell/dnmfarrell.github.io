@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Html on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/html/</link>
+    <link>http://perltricks.com/tags/html/</link>
     <description>Recent content in Html on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 08 Jan 2015 14:01:42 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/html/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/html/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Extracting from HTML with Mojo::DOM</title>
-      <link>https://dnmfarrell.github.io/article/143/2015/1/8/Extracting-from-HTML-with-Mojo--DOM/</link>
+      <link>http://perltricks.com/article/143/2015/1/8/Extracting-from-HTML-with-Mojo--DOM/</link>
       <pubDate>Thu, 08 Jan 2015 14:01:42 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/143/2015/1/8/Extracting-from-HTML-with-Mojo--DOM/</guid>
+      <guid>http://perltricks.com/article/143/2015/1/8/Extracting-from-HTML-with-Mojo--DOM/</guid>
       <description>&lt;p&gt;Everyone wants to parse HTML, and many people reach for a regular expression to do that. Although you can &lt;a href=&#34;http://stackoverflow.com/a/4234491/2766176&#34;&gt;use a regex to parse HTML&lt;/a&gt;, it&amp;rsquo;s not as fun as my latest favorite way: &lt;a href=&#34;http://www.metacpan.org/module/Mojo::DOM&#34;&gt;Mojo::DOM&lt;/a&gt; with CSS3 selectors. I find this much easier than trying to remember XPATH and I get to play with Mojo.&lt;/p&gt;
 
 &lt;p&gt;The DOM is the &lt;a href=&#34;http://www.w3.org/DOM/&#34;&gt;&amp;ldquo;Document Object Model&amp;rdquo;&lt;/a&gt;. Something behind the scenes parses and organizes the information and allows me to query it with questions such as &amp;ldquo;find all the &lt;code&gt;a&lt;/code&gt; tags inside a &lt;code&gt;div&lt;/code&gt; tag&amp;rdquo;, or &amp;ldquo;find all the tags of a particular class&amp;rdquo;. I don&amp;rsquo;t manipulate the text myself.&lt;/p&gt;
@@ -220,10 +220,10 @@ p @module_list;
     
     <item>
       <title>HTML pro-parsing tips</title>
-      <link>https://dnmfarrell.github.io/article/101/2014/7/10/HTML-pro-parsing-tips/</link>
+      <link>http://perltricks.com/article/101/2014/7/10/HTML-pro-parsing-tips/</link>
       <pubDate>Thu, 10 Jul 2014 12:33:45 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/101/2014/7/10/HTML-pro-parsing-tips/</guid>
+      <guid>http://perltricks.com/article/101/2014/7/10/HTML-pro-parsing-tips/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;Perl has some fantastic modules for parsing HTML and one of the best is XML::LibXML. It&amp;rsquo;s an interface to the libxml2 C library; super fast but also super-picky. I&amp;rsquo;ve often found XML::LibXML croaking on relatively simple - but incorrectly formed HTML. If you find this, do not give up! This article shares 3 simple techniques for overcoming malformed HTML when parsing with XML::LibXML.&lt;/em&gt;&lt;/p&gt;
@@ -282,10 +282,10 @@ my $dom = XML::LibXML-&amp;gt;load_html( string =&amp;gt; $scrubbed_html );
     
     <item>
       <title>Display beautiful Perl code in HTML without JavaScript</title>
-      <link>https://dnmfarrell.github.io/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</link>
+      <link>http://perltricks.com/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</link>
       <pubDate>Mon, 13 Jan 2014 01:34:32 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</guid>
+      <guid>http://perltricks.com/article/60/2014/1/13/Display-beautiful-Perl-code-in-HTML-without-JavaScript/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;Would you like to display beautiful syntax-highlighted Perl code on the web without using JavaScript? Maybe you&amp;rsquo;d like to use an existing &lt;a href=&#34;http://google-code-prettify.googlecode.com/svn/trunk/styles/index.html&#34;&gt;CSS markup theme&lt;/a&gt; without having to write in-line CSS in your Perl code? If yes, take a look at &lt;a href=&#34;https://metacpan.org/pod/PPI::Prettify&#34;&gt;PPI::Prettify&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;

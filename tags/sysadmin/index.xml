@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Sysadmin on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/sysadmin/</link>
+    <link>http://perltricks.com/tags/sysadmin/</link>
     <description>Recent content in Sysadmin on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 16 Feb 2015 14:15:50 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/sysadmin/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/sysadmin/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Get to grips with GNU Screen</title>
-      <link>https://dnmfarrell.github.io/article/153/2015/2/16/Get-to-grips-with-GNU-Screen/</link>
+      <link>http://perltricks.com/article/153/2015/2/16/Get-to-grips-with-GNU-Screen/</link>
       <pubDate>Mon, 16 Feb 2015 14:15:50 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/153/2015/2/16/Get-to-grips-with-GNU-Screen/</guid>
+      <guid>http://perltricks.com/article/153/2015/2/16/Get-to-grips-with-GNU-Screen/</guid>
       <description>
 
 &lt;p&gt;GNU Screen is a terminal multiplexer, a program that manages terminal windows. It&amp;rsquo;s been around for 28 years, which makes it older than Perl 5. So if you thought Perl had some archaic conventions, you ain&amp;rsquo;t seen nothing yet. But despite it&amp;rsquo;s age Screen is a powerful tool for managing terminals; if you often find yourself using more than one terminal, you owe it to yourself to start using a multiplexer for major productivity gains. Screen is the most widely used multiplexer, another popular option is &lt;a href=&#34;http://tmux.sourceforge.net/&#34;&gt;tmux&lt;/a&gt;, but this article is about Screen.&lt;/p&gt;
@@ -163,10 +163,10 @@ Re-attach session: screen -r [name]
     
     <item>
       <title>Facing the music with Perl</title>
-      <link>https://dnmfarrell.github.io/article/111/2014/8/29/Facing-the-music-with-Perl/</link>
+      <link>http://perltricks.com/article/111/2014/8/29/Facing-the-music-with-Perl/</link>
       <pubDate>Fri, 29 Aug 2014 15:03:09 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/111/2014/8/29/Facing-the-music-with-Perl/</guid>
+      <guid>http://perltricks.com/article/111/2014/8/29/Facing-the-music-with-Perl/</guid>
       <description>&lt;p&gt;My digital music libraries were messed up. Spread across several devices and a couple of flirtations with iTunes Match and iCloud, I didn&amp;rsquo;t have everything in one place—ironically. Not only that, but Apple had replaced some files with what it considered better versions. Although I don&amp;rsquo;t want to perform the experiment to confirm it, I&amp;rsquo;m sure that the new files had different metadata. I needed to sort it out to start on a better system. I thought the task would be arduous, and it was until I settled on a simpler problem that a couple of Perl modules solved quickly.&lt;/p&gt;
 
 &lt;p&gt;For my first step, I needed to find all the music I had. I had backed up my files before I let Apple replace them with better versions. But I seemed to have made several backups, each with a different subset of my music. One backup would have most of the Led Zepplin but none of the Beatles, while another had no Zepplin and some of the Beatles. Another had all of the Beatles but no Cat Stevens.&lt;/p&gt;
@@ -368,10 +368,10 @@ sub make_subs {
     
     <item>
       <title>How to build Perl on Android 4.4</title>
-      <link>https://dnmfarrell.github.io/article/97/2014/6/16/How-to-build-Perl-on-Android-4-4/</link>
+      <link>http://perltricks.com/article/97/2014/6/16/How-to-build-Perl-on-Android-4-4/</link>
       <pubDate>Mon, 16 Jun 2014 12:57:21 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/97/2014/6/16/How-to-build-Perl-on-Android-4-4/</guid>
+      <guid>http://perltricks.com/article/97/2014/6/16/How-to-build-Perl-on-Android-4-4/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;The recent release of Perl 5.20 came with the exciting news that Perl was now installable on Android, Google&amp;rsquo;s mobile operating system. But before you get grand visions of flying phone-controlled drones via &lt;a href=&#34;https://metacpan.org/pod/UAV::Pilot&#34;&gt;UAV::Pilot&lt;/a&gt;, know that right now, how to get a working Perl binary is just about all that&amp;rsquo;s documented. This article shows you how to get that far - solving the rest is left for the pioneers!&lt;/em&gt;&lt;/p&gt;
@@ -400,7 +400,7 @@ $ tar xvf android-sdk_r22.6.2-linux.tgz
 
 &lt;p&gt;This will open a GUI menu from where you can download and install the required Android tools and libraries. Using the menu, install Android SDK Tools, Android SDK Platform-tools, Android SDK Build-tools and Android 4.2.2.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/97/android_sdk_manager.png&#34; title=&#34;The Android SDK Manager&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/97/android_sdk_manager_small.png&#34; alt=&#34;The Android SDK Manager&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_sdk_manager.png&#34; title=&#34;The Android SDK Manager&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_sdk_manager_small.png&#34; alt=&#34;The Android SDK Manager&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;You&amp;rsquo;ll also need a copy of the Perl 5.20.0 &lt;a href=&#34;http://www.cpan.org/src/5.0/perl-5.20.0.tar.gz&#34;&gt;tarball&lt;/a&gt;. Untar this at the command line too:&lt;/p&gt;
 
@@ -416,15 +416,15 @@ $ tar xvf android-sdk_r22.6.2-linux.tgz
 
 &lt;p&gt;This will launch the Android Virtual Device Manager:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/97/android_avd_1.png&#34; title=&#34;The Android Virtual Device Manager&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/97/android_avd_1_small.png&#34; alt=&#34;The Android Virtual Device Manager&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_avd_1.png&#34; title=&#34;The Android Virtual Device Manager&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_avd_1_small.png&#34; alt=&#34;The Android Virtual Device Manager&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Click &amp;ldquo;new&amp;rdquo; to create a new AVD. I created one with the following settings:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/97/android_avd_2.png&#34; title=&#34;Create a new AVD&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/97/android_avd_2.png&#34; alt=&#34;Create a new AVD&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_avd_2.png&#34; title=&#34;Create a new AVD&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_avd_2.png&#34; alt=&#34;Create a new AVD&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Make sure you select &amp;ldquo;ARM (androideabi-v7a)&amp;rdquo; as the CPU/ABI option. Keep in mind your platform&amp;rsquo;s hardware when choosing these settings. I found higher resolution devices ran very slowly on my old MacBook. The &amp;ldquo;use snapshot&amp;rdquo; option is a timesaver that saves the virtual device&amp;rsquo;s state post-boot, so saves you from waiting for the virtual device to boot up again after the first time. Once you&amp;rsquo;ve created the AVD, you should see it listed in the AVD Manager window:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/97/android_avd_4.png&#34; title=&#34;The AVD has been created&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/97/android_avd_4_small.png&#34; alt=&#34;The AVD has been created&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_avd_4.png&#34; title=&#34;The AVD has been created&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_avd_4_small.png&#34; alt=&#34;The AVD has been created&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Having created a new AVD, you can close the AVD Manager window.&lt;/p&gt;
 
@@ -452,11 +452,11 @@ $ export PATH=$PATH:$ANDROID_NDK/toolchains/$TARGET_ARCH-4.8/prebuilt/linux-x86_
 
 &lt;p&gt;You should see your emulated device start booting in a new window:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/97/android_boot.png&#34; title=&#34;The loaded AVD&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/97/android_boot.png&#34; alt=&#34;The loaded AVD&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_boot.png&#34; title=&#34;The loaded AVD&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_boot.png&#34; alt=&#34;The loaded AVD&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Once it&amp;rsquo;s booted, it will look like this:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://dnmfarrell.github.io/static/images/97/android_loaded.png&#34; title=&#34;The AVD is booting&#34;&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/97/android_loaded.png&#34; alt=&#34;The AVD is booting&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_loaded.png&#34; title=&#34;The AVD is booting&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_loaded.png&#34; alt=&#34;The AVD is booting&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;With the fully booted AVD still running, return to the command line and type:&lt;/p&gt;
 
@@ -529,10 +529,10 @@ Internet, point your browser at http://www.perl.org/, the Perl Home Page.
     
     <item>
       <title>Easy application dependency management with Stratopan</title>
-      <link>https://dnmfarrell.github.io/article/71/2014/2/20/Easy-application-dependency-management-with-Stratopan/</link>
+      <link>http://perltricks.com/article/71/2014/2/20/Easy-application-dependency-management-with-Stratopan/</link>
       <pubDate>Thu, 20 Feb 2014 03:55:29 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/71/2014/2/20/Easy-application-dependency-management-with-Stratopan/</guid>
+      <guid>http://perltricks.com/article/71/2014/2/20/Easy-application-dependency-management-with-Stratopan/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;Good Perl authors write modular code and leverage CPAN as much as possible. The downside of this approach is that Perl applications accumulate hundreds of CPAN module dependencies. Fortunately for Perl, Stratopan makes it simple to manage your application dependencies and quickly deploy it to new environments.&lt;/em&gt;&lt;/p&gt;
@@ -568,10 +568,10 @@ Internet, point your browser at http://www.perl.org/, the Perl Home Page.
     
     <item>
       <title>Shazam! Use Image::Magick with Perlbrew in minutes</title>
-      <link>https://dnmfarrell.github.io/article/57/2014/1/1/Shazam--Use-Image--Magick-with-Perlbrew-in-minutes/</link>
+      <link>http://perltricks.com/article/57/2014/1/1/Shazam--Use-Image--Magick-with-Perlbrew-in-minutes/</link>
       <pubDate>Wed, 01 Jan 2014 23:43:09 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/57/2014/1/1/Shazam--Use-Image--Magick-with-Perlbrew-in-minutes/</guid>
+      <guid>http://perltricks.com/article/57/2014/1/1/Shazam--Use-Image--Magick-with-Perlbrew-in-minutes/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;The open source ImageMagick software provides amazing tools for creating and manipulating images in over 100 formats. Unfortunately, installing ImageMagick&amp;rsquo;s Perl module under Perlbrew can be a frustrating and time-consuming task. However it doesn&amp;rsquo;t have to be this way - with the method described below you can have the module installed in minutes, no root access required!&lt;/em&gt;&lt;/p&gt;
@@ -704,10 +704,10 @@ ZLIB              --with-zlib=yes       yes
     
     <item>
       <title>Schedule jobs like a boss with every</title>
-      <link>https://dnmfarrell.github.io/article/55/2013/12/22/Schedule-jobs-like-a-boss-with-every/</link>
+      <link>http://perltricks.com/article/55/2013/12/22/Schedule-jobs-like-a-boss-with-every/</link>
       <pubDate>Sun, 22 Dec 2013 15:08:51 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/55/2013/12/22/Schedule-jobs-like-a-boss-with-every/</guid>
+      <guid>http://perltricks.com/article/55/2013/12/22/Schedule-jobs-like-a-boss-with-every/</guid>
       <description>&lt;nav&gt;
 &lt;ul&gt;
 &lt;li&gt;
@@ -792,10 +792,10 @@ $ every 3 months script.sh
     
     <item>
       <title>A Stratopan quick start user guide</title>
-      <link>https://dnmfarrell.github.io/article/48/2013/11/15/A-Stratopan-quick-start-user-guide/</link>
+      <link>http://perltricks.com/article/48/2013/11/15/A-Stratopan-quick-start-user-guide/</link>
       <pubDate>Fri, 15 Nov 2013 04:23:53 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/48/2013/11/15/A-Stratopan-quick-start-user-guide/</guid>
+      <guid>http://perltricks.com/article/48/2013/11/15/A-Stratopan-quick-start-user-guide/</guid>
       <description>
 
 &lt;p&gt;&lt;em&gt;&lt;a href=&#34;https://stratopan.com/&#34;&gt;Stratopan&lt;/a&gt; is a cloud-based Perl module repository service. Users can create repositories of modules in the cloud and use them to manage their local installations of Perl modules. This makes it easy to configure a network of machines to have exactly the same modules (and versions), deploy Perl applications quickly and cleanly and host private (i.e. non CPAN) Perl software in a secure, central location. The &lt;a href=&#34;https://stratopan.com/&#34;&gt;Stratopan&lt;/a&gt; beta has officially started and so there has never been a better time to check out this amazing service. Read on for an unofficial quick start guide to Stratopan!&lt;/em&gt;&lt;/p&gt;
@@ -804,45 +804,45 @@ $ every 3 months script.sh
 
 &lt;p&gt;Head over to Stratopan, sign up to create a new account and login. You should be presented with this message:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/Stratopan/stratopan_1_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_1_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Click the create repository link and complete the information on the following screen. Be sure to select the private option if you want your repository not to be publicly visible.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/Stratopan/stratopan_2_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_2_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;You should now have a new repository.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/Stratopan/stratopan_19_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_19_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;h3 id=&#34;add-or-pull-modules:713592ed043727253fc234d9fe0e3d2b&#34;&gt;Add or pull modules&lt;/h3&gt;
 
 &lt;p&gt;Modules reside in &amp;ldquo;stacks&amp;rdquo; which belong to a repository and helpfully Stratopan creates a default &amp;ldquo;master&amp;rdquo; stack for you. To insert modules into a stack you can &amp;ldquo;pull&amp;rdquo; them from CPAN or &amp;ldquo;add&amp;rdquo; them from a local machine. Let&amp;rsquo;s start by pulling a module onto our master stack. Click the &amp;ldquo;pulling&amp;rdquo; link to launch the pull module screen and start typing the name of the module you want to pull. Note that this must be the distribution name and not the module name. For example to pull the module &amp;ldquo;Method::Signatures&amp;rdquo;, you should type &amp;ldquo;Method-Signatures&amp;rdquo;. Helpfully Stratopan provides a case-insensitive predictive text search and lists the module version numbers available too, in case you need a specific variant. Let&amp;rsquo;s pull my wildly unpopular &lt;a href=&#34;https://metacpan.org/pod/WWW::CheckHTML&#34;&gt;WWW::CheckHTML&lt;/a&gt; module:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/Stratopan/stratopan_3_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_3_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Decide if you want Stratopan to recursively pull all module dependencies; this is usually a good option. What&amp;rsquo;s nice about this is the &amp;ldquo;recursive&amp;rdquo; pull will grab all the modules dependent on your chosen module&amp;rsquo;s dependencies.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/Stratopan/stratopan_4_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_4_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;It can be surprising how many dependencies there are - for example &lt;a href=&#34;https://metacpan.org/pod/WWW::CheckHTML&#34;&gt;WWW::CheckHTML&lt;/a&gt; has 5 direct dependencies and 69 indirect ones. Obviously when there are more dependent modules, Stratopan will take longer to pull them into the stack (usually a minute or two). When it&amp;rsquo;s finished, Stratopan will present the the latest view of the stack.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/Stratopan/stratopan_5_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_5_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Stratopan provides some useful stack features. A link to &lt;a href=&#34;https://metacpan.org&#34;&gt;metapcan&lt;/a&gt; is provided for every module (except for private modules that have been added from a local machine) and it&amp;rsquo;s possible to browse the *.pm files in a module by clicking on it:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/Stratopan/stratopan_20_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_20_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Each stack has it&amp;rsquo;s own commit history, accessed via the aptly-named &amp;ldquo;history&amp;rdquo; link:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/Stratopan/stratopan_22_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_22_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The &amp;ldquo;graphs&amp;rdquo; link is much more interesting. It opens this cool, rotatable dependencies chart:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/Stratopan/stratopan_21_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_21_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Finally the &amp;ldquo;settings&amp;rdquo; link let&amp;rsquo;s you update the stack name, description and target Perl version. You can also delete the stack from here.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/Stratopan/stratopan_23_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_23_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;h3 id=&#34;installing-modules-from-your-stratopan-stack:713592ed043727253fc234d9fe0e3d2b&#34;&gt;Installing modules from your Stratopan stack&lt;/h3&gt;
 
@@ -853,7 +853,7 @@ $ every 3 months script.sh
 
 &lt;p&gt;Once cpanm has installed, open one of your stacks on Stratopan and copy the stack URL (shown in red below).&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://dnmfarrell.github.io/static/images/Stratopan/stratopan_24_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_24_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;At the terminal type &amp;ldquo;cpanm &amp;ndash;mirror-only &amp;ndash;mirror &amp;rdquo; and paste your copied stack URL and enter one or more module names that you wish to install. For example to install &lt;a href=&#34;https://metacpan.org/pod/WWW::CheckHTML&#34;&gt;WWW::CheckHTML&lt;/a&gt; from my master stack:&lt;/p&gt;
 
@@ -879,10 +879,10 @@ Successfully installed WWW-CheckHTML-0.04
     
     <item>
       <title>Find CPAN mirrors and configure the local CPAN mirror list</title>
-      <link>https://dnmfarrell.github.io/article/44/2013/10/20/Find-CPAN-mirrors-and-configure-the-local-CPAN-mirror-list/</link>
+      <link>http://perltricks.com/article/44/2013/10/20/Find-CPAN-mirrors-and-configure-the-local-CPAN-mirror-list/</link>
       <pubDate>Sun, 20 Oct 2013 19:07:00 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/44/2013/10/20/Find-CPAN-mirrors-and-configure-the-local-CPAN-mirror-list/</guid>
+      <guid>http://perltricks.com/article/44/2013/10/20/Find-CPAN-mirrors-and-configure-the-local-CPAN-mirror-list/</guid>
       <description>
 
 &lt;p&gt;CPAN mirrors are online repositories which host or &amp;ldquo;mirror&amp;rdquo; the Perl module distributions on CPAN. There are hundreds of CPAN mirrors dispersed throughout the World. When the CPAN program is run for the first time on a machine, it will configure the CPAN mirror list to use for checking for new versions of modules and downloading Perl distributions. All CPAN mirrors are not created equally though: the distribution list&amp;rsquo;s age, speed and the geographic location vary from mirror to mirror and so you may want to re-configure your local CPAN mirror list to suit your needs. This article describes how to find CPAN mirrors and edit the local CPAN mirror configuration.&lt;/p&gt;
@@ -960,10 +960,10 @@ commit: wrote &#39;/home/sillymoose/.cpan/CPAN/MyConfig.pm&#39;
     
     <item>
       <title>How to schedule Perl scripts using cron</title>
-      <link>https://dnmfarrell.github.io/article/43/2013/10/11/How-to-schedule-Perl-scripts-using-cron/</link>
+      <link>http://perltricks.com/article/43/2013/10/11/How-to-schedule-Perl-scripts-using-cron/</link>
       <pubDate>Fri, 11 Oct 2013 01:54:20 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/43/2013/10/11/How-to-schedule-Perl-scripts-using-cron/</guid>
+      <guid>http://perltricks.com/article/43/2013/10/11/How-to-schedule-Perl-scripts-using-cron/</guid>
       <description>
 
 &lt;p&gt;Cron is a job scheduling program available on UNIX-like platforms. Most system commands can be scheduled including the execution of Perl programs. Once a job is setup, cron will run it as scheduled even if the user is not logged in, which can be a great way to automate sysadmin tasks or repetitive jobs. This article describes how to run Perl scripts with cron.&lt;/p&gt;
@@ -1045,10 +1045,10 @@ An asterisk (*) means all.
     
     <item>
       <title>How to track new CPAN releases</title>
-      <link>https://dnmfarrell.github.io/article/33/2013/7/29/How-to-track-new-CPAN-releases/</link>
+      <link>http://perltricks.com/article/33/2013/7/29/How-to-track-new-CPAN-releases/</link>
       <pubDate>Mon, 29 Jul 2013 01:11:31 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/33/2013/7/29/How-to-track-new-CPAN-releases/</guid>
+      <guid>http://perltricks.com/article/33/2013/7/29/How-to-track-new-CPAN-releases/</guid>
       <description>
 
 &lt;p&gt;CPAN is a fantastic Perl resource with thousands of modules and new ones being added all the time. But how do you keep track of what&amp;rsquo;s being released? This article describes three techniques for keeping tabs on the latest CPAN releases.&lt;/p&gt;
@@ -1075,10 +1075,10 @@ perl -MCPAN::Recent::Uploads -le &amp;quot;print for CPAN::Recent::Uploads-&amp;
     
     <item>
       <title>Re-use code with Perl&#39;s anonymous functions</title>
-      <link>https://dnmfarrell.github.io/article/34/2013/7/17/Re-use-code-with-Perl-s-anonymous-functions/</link>
+      <link>http://perltricks.com/article/34/2013/7/17/Re-use-code-with-Perl-s-anonymous-functions/</link>
       <pubDate>Wed, 17 Jul 2013 03:10:55 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/34/2013/7/17/Re-use-code-with-Perl-s-anonymous-functions/</guid>
+      <guid>http://perltricks.com/article/34/2013/7/17/Re-use-code-with-Perl-s-anonymous-functions/</guid>
       <description>&lt;p&gt;An anonymous function in Perl is an unnamed subroutine. But what are they good for? This article shows how through using anonymous functions it&amp;rsquo;s possible to write more generic, re-usable Perl code.&lt;/p&gt;
 
 &lt;p&gt;Imagine that you&amp;rsquo;ve developed the following script. The script receives a directory path as a parameter and recursively searches the child directories of the path, printing any file name it finds:&lt;/p&gt;
@@ -1168,10 +1168,10 @@ walkDir($ARGV[0],
     
     <item>
       <title>Upload to CPAN from the command line</title>
-      <link>https://dnmfarrell.github.io/article/31/2013/6/30/Upload-to-CPAN-from-the-command-line/</link>
+      <link>http://perltricks.com/article/31/2013/6/30/Upload-to-CPAN-from-the-command-line/</link>
       <pubDate>Sun, 30 Jun 2013 03:44:12 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/31/2013/6/30/Upload-to-CPAN-from-the-command-line/</guid>
+      <guid>http://perltricks.com/article/31/2013/6/30/Upload-to-CPAN-from-the-command-line/</guid>
       <description>
 
 &lt;p&gt;The Perl module &lt;a href=&#34;https://metacpan.org/module/CPAN::Uploader&#34;&gt;CPAN::Uploader&lt;/a&gt; comes with a neat command line application called &lt;a href=&#34;https://metacpan.org/module/RJBS/CPAN-Uploader-0.103004/bin/cpan-upload&#34;&gt;cpan-upload&lt;/a&gt; which allows Perl module authors to upload to CPAN from the command line. This article describes how to install cpan-upload and use it.&lt;/p&gt;
@@ -1230,10 +1230,10 @@ PAUSE add message sent ok [200]
     
     <item>
       <title>Installing Perl modules with C library dependencies</title>
-      <link>https://dnmfarrell.github.io/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</link>
+      <link>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</link>
       <pubDate>Mon, 15 Apr 2013 18:37:26 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</guid>
+      <guid>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</guid>
       <description>
 
 &lt;p&gt;Some Perl modules have specific C library dependencies that need to be met or else they won&amp;rsquo;t install. These issues can be tricky to solve as CPAN is not able to automatically install or report on non-Perl dependencies and Google isn&amp;rsquo;t good at returning useful results for these types of issues (&lt;a href=&#34;https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod&#34;&gt;Net::SSLeay&lt;/a&gt; is a common example of a tricky module to install). Usually you will only find out about missing dependencies when trying to install the module, as the install will fail. What you need to do at this point is &lt;strong&gt;identify&lt;/strong&gt; and &lt;strong&gt;install&lt;/strong&gt; the missing C libraries.&lt;/p&gt;
@@ -1267,10 +1267,10 @@ sudo yum install openssl-perl.x86_64 perl-Net-SSLeay.x86_64 perl-Crypt-SSLeay.x8
     
     <item>
       <title>List all Perl modules installed via CPAN</title>
-      <link>https://dnmfarrell.github.io/article/14/2013/4/7/List-all-Perl-modules-installed-via-CPAN/</link>
+      <link>http://perltricks.com/article/14/2013/4/7/List-all-Perl-modules-installed-via-CPAN/</link>
       <pubDate>Sun, 07 Apr 2013 18:52:11 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/14/2013/4/7/List-all-Perl-modules-installed-via-CPAN/</guid>
+      <guid>http://perltricks.com/article/14/2013/4/7/List-all-Perl-modules-installed-via-CPAN/</guid>
       <description>&lt;p&gt;A quick way to list all non-core modules installed via CPAN using the command line:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perldoc perllocal
@@ -1287,10 +1287,10 @@ sudo yum install openssl-perl.x86_64 perl-Net-SSLeay.x86_64 perl-Crypt-SSLeay.x8
     
     <item>
       <title>How to cleanly uninstall a Perl module</title>
-      <link>https://dnmfarrell.github.io/article/3/2013/3/27/How-to-cleanly-uninstall-a-Perl-module/</link>
+      <link>http://perltricks.com/article/3/2013/3/27/How-to-cleanly-uninstall-a-Perl-module/</link>
       <pubDate>Wed, 27 Mar 2013 00:00:17 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/3/2013/3/27/How-to-cleanly-uninstall-a-Perl-module/</guid>
+      <guid>http://perltricks.com/article/3/2013/3/27/How-to-cleanly-uninstall-a-Perl-module/</guid>
       <description>
 
 &lt;p&gt;CPAN makes installing Perl modules easy but when it comes to removing Perl modules, you have to roll your own solution*. Fortunately the Perl core includes the ExtUtils modules that can help. The script below accepts the Module::Name as an argument, and will delete all files and empty directories associated with that module.&lt;/p&gt;

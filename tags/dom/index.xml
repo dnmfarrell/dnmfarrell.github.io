@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Dom on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/dom/</link>
+    <link>http://perltricks.com/tags/dom/</link>
     <description>Recent content in Dom on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 08 Jan 2015 14:01:42 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/dom/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/dom/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Extracting from HTML with Mojo::DOM</title>
-      <link>https://dnmfarrell.github.io/article/143/2015/1/8/Extracting-from-HTML-with-Mojo--DOM/</link>
+      <link>http://perltricks.com/article/143/2015/1/8/Extracting-from-HTML-with-Mojo--DOM/</link>
       <pubDate>Thu, 08 Jan 2015 14:01:42 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/143/2015/1/8/Extracting-from-HTML-with-Mojo--DOM/</guid>
+      <guid>http://perltricks.com/article/143/2015/1/8/Extracting-from-HTML-with-Mojo--DOM/</guid>
       <description>&lt;p&gt;Everyone wants to parse HTML, and many people reach for a regular expression to do that. Although you can &lt;a href=&#34;http://stackoverflow.com/a/4234491/2766176&#34;&gt;use a regex to parse HTML&lt;/a&gt;, it&amp;rsquo;s not as fun as my latest favorite way: &lt;a href=&#34;http://www.metacpan.org/module/Mojo::DOM&#34;&gt;Mojo::DOM&lt;/a&gt; with CSS3 selectors. I find this much easier than trying to remember XPATH and I get to play with Mojo.&lt;/p&gt;
 
 &lt;p&gt;The DOM is the &lt;a href=&#34;http://www.w3.org/DOM/&#34;&gt;&amp;ldquo;Document Object Model&amp;rdquo;&lt;/a&gt;. Something behind the scenes parses and organizes the information and allows me to query it with questions such as &amp;ldquo;find all the &lt;code&gt;a&lt;/code&gt; tags inside a &lt;code&gt;div&lt;/code&gt; tag&amp;rdquo;, or &amp;ldquo;find all the tags of a particular class&amp;rdquo;. I don&amp;rsquo;t manipulate the text myself.&lt;/p&gt;

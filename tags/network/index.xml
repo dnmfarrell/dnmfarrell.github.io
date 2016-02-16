@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Network on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/network/</link>
+    <link>http://perltricks.com/tags/network/</link>
     <description>Recent content in Network on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 15 Apr 2013 18:37:26 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/network/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/network/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Installing Perl modules with C library dependencies</title>
-      <link>https://dnmfarrell.github.io/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</link>
+      <link>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</link>
       <pubDate>Mon, 15 Apr 2013 18:37:26 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</guid>
+      <guid>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</guid>
       <description>
 
 &lt;p&gt;Some Perl modules have specific C library dependencies that need to be met or else they won&amp;rsquo;t install. These issues can be tricky to solve as CPAN is not able to automatically install or report on non-Perl dependencies and Google isn&amp;rsquo;t good at returning useful results for these types of issues (&lt;a href=&#34;https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod&#34;&gt;Net::SSLeay&lt;/a&gt; is a common example of a tricky module to install). Usually you will only find out about missing dependencies when trying to install the module, as the install will fail. What you need to do at this point is &lt;strong&gt;identify&lt;/strong&gt; and &lt;strong&gt;install&lt;/strong&gt; the missing C libraries.&lt;/p&gt;

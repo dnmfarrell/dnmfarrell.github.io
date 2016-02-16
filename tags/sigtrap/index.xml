@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Sigtrap on Perl programming news, code and culture</title>
-    <link>https://dnmfarrell.github.io/tags/sigtrap/</link>
+    <link>http://perltricks.com/tags/sigtrap/</link>
     <description>Recent content in Sigtrap on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 27 Aug 2013 02:57:30 +0000</lastBuildDate>
-    <atom:link href="https://dnmfarrell.github.io/tags/sigtrap/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://perltricks.com/tags/sigtrap/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Perl destructor not being called? Here&#39;s why</title>
-      <link>https://dnmfarrell.github.io/article/38/2013/8/27/Perl-destructor-not-being-called--Here-s-why/</link>
+      <link>http://perltricks.com/article/38/2013/8/27/Perl-destructor-not-being-called--Here-s-why/</link>
       <pubDate>Tue, 27 Aug 2013 02:57:30 +0000</pubDate>
       
-      <guid>https://dnmfarrell.github.io/article/38/2013/8/27/Perl-destructor-not-being-called--Here-s-why/</guid>
+      <guid>http://perltricks.com/article/38/2013/8/27/Perl-destructor-not-being-called--Here-s-why/</guid>
       <description>&lt;p&gt;If you&amp;rsquo;re using a Perl destructor method (&amp;lsquo;DESTROY&amp;rsquo;, &amp;lsquo;DEMOLISH&amp;rsquo;) it may not be called if the Perl process is terminated abruptly by a signal. To fix this, just add the sigtrap pragma to your program:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use sigtrap qw/die normal-signals/;
