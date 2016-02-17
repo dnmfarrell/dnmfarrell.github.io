@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Cycle on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/cycle/</link>
+    <description>Recent content in Cycle on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 16 Feb 2016 09:50:00 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/cycle/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magical tied scalars</title>
+      <link>http://perltricks.com/article/magical-tied-scalars/</link>
+      <pubDate>Tue, 16 Feb 2016 09:50:00 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/magical-tied-scalars/</guid>
+      <description>&lt;p&gt;Perl&amp;rsquo;s &lt;code&gt;tie&lt;/code&gt; mechanism allows me to create something that looks like a scalar but does anything I want it to do. I can change how the familiar scalar interface of simple access and assignment actually work. I&amp;rsquo;ve found this so useful at times that I devoted an entire chapter of &lt;a href=&#34;http://www.masteringperl.org/&#34;&gt;Mastering Perl&lt;/a&gt; to it.&lt;/p&gt;
+
+&lt;p&gt;I think I fell in love with this technique when it allowed me to solve a seemly intractable problem creating some HTML by hand (so you know this must have been a long time ago). Someone had created a library to create an HTML table that allowed me to set the color of the table rows by passing in a scalar value for &lt;code&gt;tr&lt;/code&gt;&amp;rsquo;s &lt;code&gt;bgcolor&lt;/code&gt; attribute. Fortunately I&amp;rsquo;ve forgotten who that was or what the code looked like, but it was something like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub print_table_and_stuff {
+    my( $color, @lots_of_other_arguments ) = @_;
+
+    ... lots of code ...
+    print &amp;quot;&amp;lt;table&amp;gt;&amp;quot;;
+
+    foreach my $item ( @items ) {
+            print qq(&amp;lt;tr bgcolor=&amp;quot;$color&amp;quot;&amp;gt;);
+            ... fill in the cells ...
+            print &amp;quot;&amp;lt;/tr&amp;gt;&amp;quot;;
+            }
+
+    ... lots of code ...
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Besides all the goofy things going on with the code, such as printing directly and not using templates, whoever wrote it wasn&amp;rsquo;t thinking that anyone would want to have tables with alternating (or even rotating) row colors. There was a time before that was a thing and the code pre-dated even that. My task was to get alternating row colors with as little disturbance as possible.&lt;/p&gt;
+
+&lt;p&gt;I could have replaced the subroutine using one of the techniques I showed in &lt;a href=&#34;http://www.masteringperl.org/&#34;&gt;Mastering Perl&lt;/a&gt;, but there was something simpler. If I could get &lt;code&gt;$color&lt;/code&gt; to change on its own, I wouldn&amp;rsquo;t have to mess with the code.&lt;/p&gt;
+
+&lt;p&gt;Thus, I invented &lt;a href=&#34;https://metacpan.org/pod/Tie::Cycle&#34;&gt;Tie::Cycle&lt;/a&gt;. The &lt;code&gt;tie&lt;/code&gt; interface allows me to decide what a scalar should do when I access it or store it. I supply code behind both of those operations by defining special subroutines. Here&amp;rsquo;s an extract of the code that shows those special methods:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Tie::Cycle;
+use strict;
+
+sub TIESCALAR {
+        my( $class, $list_ref ) = @_;
+        my $self = bless [], $class;
+
+        unless( $self-&amp;gt;STORE( $list_ref ) ) {
+                carp &amp;quot;Argument must be an array reference&amp;quot;;
+                return;
+                }
+
+        return $self;
+        }
+
+sub FETCH {
+        my( $self ) = @_;
+
+        my $index = $self-&amp;gt;[CURSOR_COL]++;
+        $self-&amp;gt;[CURSOR_COL] %= $self-&amp;gt;_count;
+
+        return $self-&amp;gt;_item( $index );
+        }
+
+sub STORE {
+        my( $self, $list_ref ) = @_;
+        return unless ref $list_ref eq ref [];
+        my @shallow_copy = map { $_ } @$list_ref;
+
+        $self-&amp;gt;[CURSOR_COL] = 0;
+        $self-&amp;gt;[COUNT_COL]  = scalar @shallow_copy;
+        $self-&amp;gt;[ITEM_COL]   = \@shallow_copy;
+        }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;tie&lt;/code&gt; interface includes the &lt;code&gt;TIESCALAR&lt;/code&gt; method that creates the &lt;code&gt;tied&lt;/code&gt; object, the &lt;code&gt;FETCH&lt;/code&gt; method that decides how to return a value, and the &lt;code&gt;STORE&lt;/code&gt; method that decides how to store a value. In this case, I want to store an array of values and cycle through them. Each time I access the scalar, Perl calls &lt;code&gt;FETCH&lt;/code&gt;. Each time it calls &lt;code&gt;FETCH&lt;/code&gt; I increment a counter so I&amp;rsquo;ll get the next value. When I get to the end, I wrap around to the beginning of the array.&lt;/p&gt;
+
+&lt;p&gt;In this short bit of code, I create the tied scalar by calling &lt;code&gt;tie&lt;/code&gt; with the target scalar, the module name that defines the interface, and the arguments to pass to &lt;code&gt;TIESCALAR&lt;/code&gt;. After that, I use &lt;code&gt;$scalar&lt;/code&gt; as a normal scalar:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+use Tie::Cycle;
+
+tie my $scalar, &#39;Tie::Cycle&#39;, [ qw(red green blue) ];
+
+my $count;
+while( $count++ &amp;lt; 10 ) {
+        say $scalar;
+        }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Each time through the &lt;code&gt;while&lt;/code&gt;, I output the value of &lt;code&gt;$scalar&lt;/code&gt;. It doesn&amp;rsquo;t look like I&amp;rsquo;m doing anything fancy, but I&amp;rsquo;m implicitly calling &lt;code&gt;Tie::Cycle::FETCH&lt;/code&gt; each time. Now the colors rotate.&lt;/p&gt;
+
+&lt;p&gt;This is a bit more fun when I cycle through colored boxes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+use open qw(:std :utf8);
+
+use Tie::Cycle;
+use Term::ANSIColor;
+
+tie my $scalar, &#39;Tie::Cycle&#39;, [
+        map { colored( [ $_ ], &amp;quot;\x{25AE}&amp;quot; ) }
+                qw(red green blue)
+        ];
+
+my $count;
+while( $count++ &amp;lt; 10 ) {
+        print $scalar;
+        }
+print &amp;quot;\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With an appropriate terminal, I see a series of Christmas lights.&lt;/p&gt;
+
+&lt;p&gt;Recently, David Farrell had a similar problem. He could pass a value to a method that gave it a delay time to retry if it failed. That&amp;rsquo;s a nice feature, but he could only pass in a scalar. He didn&amp;rsquo;t want to pass in a value for two seconds and have it retry every two seconds. Instead, he wanted to back off. Wait two seconds the first time, then 4 seconds the next time, and eight seconds the next time. If something is falling over because you&amp;rsquo;re hitting it too frequently, you want to back off the pressure.&lt;/p&gt;
+
+&lt;p&gt;However, using the same trick I used for HTML row colors, he was able to create what looks like a simple scalar variable but was really a method call that increased the value each time:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+package Tie::Scalar::Ratio;
+
+use parent &#39;Tie::Scalar&#39;;
+
+sub TIESCALAR {
+  my ($class, $ratio, $value) = @_;
+
+  die &#39;Must provide ratio argument, a number to multiply the scalar value by&#39;
+        unless $ratio &amp;amp;&amp;amp; $ratio =~ /^[\d.]+$/;
+
+  bless {
+        ratio =&amp;gt; $ratio,
+        value =&amp;gt; $value,
+  }, $class;
+}
+
+sub STORE {
+  my ($self, $value) = @_;
+  $self-&amp;gt;{value} = $value;
+}
+
+sub FETCH {
+  my ($self) = @_;
+  my $old_value = $self-&amp;gt;{value};
+  $self-&amp;gt;{value} *= $self-&amp;gt;{ratio} if $self-&amp;gt;{value};
+  return $old_value;
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;My program to demonstrate this is almost the same as my prior one. The part where I use &lt;code&gt;$scalar&lt;/code&gt; is the same.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+use Tie::Scalar::Ratio;
+
+tie my $scalar, &#39;Tie::Scalar::Ratio&#39;, 2, 37;
+
+my $count;
+while( $count++ &amp;lt; 10 ) {
+        say $scalar;
+        }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Each time I access the scalar, I get back the previous value multiplied by the ratio. In this case, I multiply the previous value by &lt;code&gt;2&lt;/code&gt; each time.&lt;/p&gt;
+
+&lt;p&gt;This is a tidy solution because it fits into the code that&amp;rsquo;s already there. The existing code that expected a single value gets a scalar that changes its value each time.&lt;/p&gt;
+
+&lt;p&gt;Instead of giving Tie::Scalar::Ratio, I&amp;rsquo;d like to give it a callback. David also created &lt;a href=&#34;https://metacpan.org/pod/Tie::Scalar::Callback&#34;&gt;Tie::Scalar::Callback&lt;/a&gt;. Each time I access the scalar, this module calls the subroutine I passed to it and give me back the result. The code looks similar to the others:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+package Tie::Scalar::Callback;
+
+use parent &#39;Tie::Scalar&#39;;
+use Carp qw(carp);
+
+sub TIESCALAR {
+  my ($class, $sub ) = @_;
+
+  die &#39;Must provide subroutine reference argument&#39;
+        unless $sub &amp;amp;&amp;amp; ref $sub eq ref sub {};
+
+  bless $sub, $class;
+}
+
+sub STORE {
+  carp &amp;quot;You can&#39;t assign to this tied scalar&amp;quot;;
+}
+
+sub FETCH {
+  my ($self) = @_;
+  return $self-&amp;gt;();
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here&amp;rsquo;s a subroutine that does the same thing as the previous example by stores the state in the subroutine rather than in the tied object:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $coderef = sub {
+        state $value  = 1/2;
+        state $factor = 2;
+        $value *= $factor;
+        }
+
+tie my $scalar, &#39;Tie::Scalar::Callback&#39;, $sub;
+
+my $count;
+while( $count++ &amp;lt; 10 ) {
+        say $scalar;
+        }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s a simple callback, but I can make something a little more exotic. How about a sine-based function?&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+use Tie::Scalar::Callback;
+
+my $coderef = sub {
+        state $pi     = 3.14152926;
+        state $eighth = $pi / 8;
+        state $value  = 0;
+
+        sprintf &#39;%.3f&#39;, abs sin( $value += $eighth );
+        };
+
+tie my $scalar, &#39;Tie::Scalar::Callback&#39;, $coderef;
+
+my $count;
+while( $count++ &amp;lt; 10 ) {
+        say $scalar;
+        }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now the output backs off and speeds up. There&amp;rsquo;s something that might be more useful. Perhaps I want to use the load average to decide the number:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Sys::LoadAvg qw(loadavg);
+use Tie::Scalar::Callback;
+
+my $coderef = sub {
+        state $factor  = 5;
+
+        my @loads = loadavg();
+
+        $factor * $loads[-1];
+        };
+
+tie my $scalar, &#39;Tie::Scalar::Callback&#39;, $coderef;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Finally, just for fun, here&amp;rsquo;s a tied scalar that creates the Fibonacci series using the inline &lt;code&gt;package NAMESPACE BLOCK&lt;/code&gt; syntax introduced in v5.14:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.14;
+
+package Tie::Scalar::Fibonacci {
+        use parent &#39;Tie::Scalar&#39;;
+        use Carp qw(croak);
+        use List::Util qw(sum);
+
+        sub TIESCALAR {
+                my( $class, $count ) = @_;
+                $count = 2 unless defined $count;
+                die &amp;quot;count must be a counting number&amp;quot; if $count =~ /[^0-9]/;
+                die &amp;quot;count must be greater than 1&amp;quot;    if $count &amp;lt;= 1;
+
+                my $array = [ ( 1 ) x ( $count ) ];
+                bless $array, $class
+                }
+        sub STORE     { croak &amp;quot;You can&#39;t assign to this scalar!&amp;quot; }
+
+        sub FETCH {
+                my ($self) = @_;
+                push @$self, sum( @$self );
+                shift @$self;
+                }
+        }
+
+tie my $scalar, &#39;Tie::Scalar::Fibonacci&#39;;
+
+my $count;
+while( $count++ &amp;lt; 10 ) {
+        print $scalar, &#39; &#39;;
+        }
+print &amp;quot;\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Every time I access it I get the next number in the Fibonacci series. Curiously, doing it this way, I&amp;rsquo;m computing a number that I&amp;rsquo;ll use in the future by pushing it onto the end and returning the oldest value by shifting it off the front. There&amp;rsquo;s no recursion here like in almost every example on the interwebs.&lt;/p&gt;
+
+&lt;p&gt;But, it can generate other series too. Instead of looking at the previous two values, I can give &lt;code&gt;TIESCALAR&lt;/code&gt; a different number to specify how many previous numbers to sum:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;tie my $scalar, &#39;Tie::Scalar::Fibonacci&#39;, 5;
+
+my $count;
+while( $count++ &amp;lt; 10 ) {
+        print $scalar, &#39; &#39;;
+        }
+print &amp;quot;\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The idea is the same, but the sums are different. If you&amp;rsquo;ve used a tied variable in an interesting way, let us know about it!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+
