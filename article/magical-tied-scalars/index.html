@@ -68,9 +68,7 @@
             <article>
             <h1 class="blog-post-title">Magical tied scalars</h1>
             <p class="blog-post-meta">Feb 16, 2016 by <a href="/authors/brian-d-foy">brian d foy</a></p>
-            <div class="centering">
-              <img alt="" style="margin-bottom:5%;max-width:100%" src=""/>
-            </div>
+            <img alt="" src=""/>
               <p>Perl&rsquo;s <code>tie</code> mechanism allows me to create something that looks like a scalar but does anything I want it to do. I can change how the familiar scalar interface of simple access and assignment actually work. I&rsquo;ve found this so useful at times that I devoted an entire chapter of <a href="http://www.masteringperl.org/">Mastering Perl</a> to it.</p>
 
 <p>I think I fell in love with this technique when it allowed me to solve a seemly intractable problem creating some HTML by hand (so you know this must have been a long time ago). Someone had created a library to create an HTML table that allowed me to set the color of the table rows by passing in a scalar value for <code>tr</code>&rsquo;s <code>bgcolor</code> attribute. Fortunately I&rsquo;ve forgotten who that was or what the code looked like, but it was something like this:</p>
@@ -388,6 +386,20 @@ print &quot;\n&quot;;
         
         
   <div class="row">
+      <a href="http://perltricks.com/article/an-introduction-to-tmux/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(http://googledrive.com/host/0BwRnByTz2iUXazVBdzNFRU1QV1k)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>An introduction to Tmux</h6>
+        <p style="line-height:1"><small>How to get started with the open source terminal multiplexer </small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
       <a href="http://perltricks.com/article/magical-tied-scalars/">
     <div class="col-sm-3">
       <div class="circle-avatar" style="background-image:url(/images/author/brian.jpg)"></div>
@@ -441,22 +453,9 @@ print &quot;\n&quot;;
       </a>
   </div>
   
-        
-        
-  <div class="row">
-      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
-    <div class="col-sm-3">
-      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
-    </div>
-    <div class="col-sm-9">
-        <h6>What&#39;s new on CPAN - December 2015</h6>
-        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
-    </div>
-      </a>
-  </div>
-  
 </div>
-<div class="row">
+
+            <div class="row" style="margin-top:20px">
   <div class="col-sm-12 centering">
     <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>

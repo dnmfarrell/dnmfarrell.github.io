@@ -68,9 +68,7 @@
             <article>
             <h1 class="blog-post-title">Shellshock and Perl</h1>
             <p class="blog-post-meta">Sep 26, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <div class="centering">
-              <img alt="" style="margin-bottom:5%;max-width:100%" src="/images/115/BCF626CC-4583-11E4-951D-2D78FA3BB728.jpeg"/>
-            </div>
+            <img alt="" src="/images/115/BCF626CC-4583-11E4-951D-2D78FA3BB728.jpeg"/>
               
 
 <p>Recently the tech media have been foaming at the mouth over a serious Bash <a href="https://securityblog.redhat.com/2014/09/24/bash-specially-crafted-environment-variables-code-injection-attack/">bug</a> called Shellshock. The media <a href="http://www.wired.com/2014/09/internet-braces-crazy-shellshock-worm/">hype machine</a> was in full-swing, replete with the absurd doomsday-like predictions that are rolled out every time a significant security vulnerability is found (remember heartbleed the &ldquo;<a href="http://mashable.com/2014/04/09/heartbleed-nightmare/">ultimate web nightmare</a>&rdquo;?). Whilst it&rsquo;s wise to ignore the hype, don&rsquo;t ignore the issue; Shellshock is a serious risk that allows remote code injection and execution using Bash environment variables. This is also important for Perl as Perl has several touchpoints with the system shell, from the built-in functions <a href="http://perldoc.perl.org/functions/exec.html">exec</a> and <a href="http://perldoc.perl.org/functions/system.html">system</a> to the <code>%ENV</code> global variable.</p>
@@ -192,6 +190,20 @@ SHELLSHOCK
         
         
   <div class="row">
+      <a href="http://perltricks.com/article/an-introduction-to-tmux/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(http://googledrive.com/host/0BwRnByTz2iUXazVBdzNFRU1QV1k)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>An introduction to Tmux</h6>
+        <p style="line-height:1"><small>How to get started with the open source terminal multiplexer </small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
       <a href="http://perltricks.com/article/magical-tied-scalars/">
     <div class="col-sm-3">
       <div class="circle-avatar" style="background-image:url(/images/author/brian.jpg)"></div>
@@ -245,22 +257,9 @@ SHELLSHOCK
       </a>
   </div>
   
-        
-        
-  <div class="row">
-      <a href="http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/">
-    <div class="col-sm-3">
-      <div class="circle-avatar" style="background-image:url(/images/209/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png)"></div>
-    </div>
-    <div class="col-sm-9">
-        <h6>What&#39;s new on CPAN - December 2015</h6>
-        <p style="line-height:1"><small>A curated look at December&#39;s new CPAN uploads</small></p>
-    </div>
-      </a>
-  </div>
-  
 </div>
-<div class="row">
+
+            <div class="row" style="margin-top:20px">
   <div class="col-sm-12 centering">
     <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
