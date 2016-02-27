@@ -71,7 +71,7 @@
             <img alt="" src="http://googledrive.com/host/0BwRnByTz2iUXazVBdzNFRU1QV1k"/>
               
 
-<p><a href="https://tmux.github.io/">Tmux</a> is a terminal multiplexer: it like a power-up for terminal programming. You can manage several terminals under a session, split terminal screens, detach and re-attach sessions and much more. If you do most of your programming at the command line, you&rsquo;ll find using a terminal multiplexer invaluable.</p>
+<p><a href="https://tmux.github.io/">Tmux</a> is a terminal multiplexer: it&rsquo;s like a power-up for terminal programming. You can manage several terminals under a session, split terminal screens, detach and re-attach sessions and much more. If you do most of your programming at the command line, you&rsquo;ll find using a terminal multiplexer invaluable.</p>
 
 <h3 id="setup:a7fdafcdcb65652df0286deda8f9a9c6">Setup</h3>
 
@@ -82,7 +82,7 @@
    ServerAliveCountMax 3
 </code></pre>
 
-<p>If the file doesn&rsquo;t exist, create it. This configuration instructs your local machine for all user ssh sessions to send a server alive message every 300 seconds to keep the ssh session alive. If the local machine sends 3 unanswered messages, it will disconnect the session. You should tweak these settings to suit your needs: for instance restricting the <code>host</code> to specific domains let&rsquo;s you have different settings per domain. If you have a slow or unreliable internet connection, consider changing <code>ServerAliveInternal</code> to a lower number to send more frequent messages.</p>
+<p>If the file doesn&rsquo;t exist, create it. This configuration instructs your local machine for all user ssh sessions to send a server alive message every 300 seconds to keep the ssh session alive. If the local machine sends 3 unanswered messages, it will disconnect the session. You should tweak these settings to suit your needs: for instance by restricting the <code>host</code> to specific domains you can have different settings per domain. If you have a slow or unreliable internet connection, consider changing <code>ServerAliveInternal</code> to a lower number to send more frequent messages.</p>
 
 <p>If you have permission on the servers you use, you can update them with a similar configuration, in <code>/etc/ssh/sshd_config</code>:</p>
 
@@ -177,15 +177,15 @@ Ctrl-b !      pop a pane into a new window
 
 <p>The arrows <code>←↑→↓</code> represent the arrow keys, just use one of these. For example to jump to a pane on the right, you&rsquo;d press <code>Ctrl-b →</code>. The change pane size controls are a little different. To make that work you first have to have more than one pane. Next press <code>Ctrl-b</code> and keep the control key held down. Now you can repeatedly press an arrow key to change the pane size.</p>
 
-<p><code>Ctrl-b !</code> is one of my favorite features. It pops the current pane out of the window and moves it to its own window. This is wonderful if you find yourself doing some unrelated activity in one pane and want to re-organize them.</p>
+<p><code>Ctrl-b !</code> is one of my favorite features. It pops the current pane out of the window and moves it to its own window. This is wonderful if you find yourself doing some unrelated activity in one pane and want to re-organize your setup.</p>
 
 <h3 id="scrolling-and-copy-paste:a7fdafcdcb65652df0286deda8f9a9c6">Scrolling and copy/paste</h3>
 
 <p>If you can master scrolling and copy/paste in Tmux, you can master anything. I won&rsquo;t lie, this is the clunkiest feature. But it&rsquo;s really useful. The interface is modal, so start by entering scroll mode:</p>
 
-<p><code>Ctrl-b [</code>. Pressing <code>esc</code> will exit scroll mode. You should know you&rsquo;re in scroll mode because an orange line count appears in the top-right corner of the pane.</p>
+<p>Type <code>Ctrl-b [</code>. Pressing <code>esc</code> will exit scroll mode. You should know you&rsquo;re in scroll mode because an orange line count appears in the top-right corner of the pane.</p>
 
-<p>Once you&rsquo;re in scroll mode, you can move the cursor using the arrow keys and page up and down. By default Tmux doesn&rsquo;t retain much history, but you can change that (see config).</p>
+<p>Once you&rsquo;re in scroll mode, you can move the cursor using the arrow keys and page up and down. By default Tmux doesn&rsquo;t retain much history, but you can change that (see the Config options section).</p>
 
 <p>You can copy and paste in scroll mode. This is useful when you have split screens as a regular highlight and copy using the mouse won&rsquo;t work across vertically split panes.</p>
 
@@ -197,7 +197,7 @@ Ctrl-b !      pop a pane into a new window
 
 <h3 id="session-control:a7fdafcdcb65652df0286deda8f9a9c6">Session control</h3>
 
-<p>Sessions are one of the most useful features of Tmux. They let you group multiple terminal processes into a single Tmux session which can be worked on (attached), put into the background (detached) and discarded as you see fit. Programmers will often have different sessions for different projects or clients. Because Tmux operates under a client-server architecture, even if the original terminal that started Tmux dies or your desktop GUI crashes, the Tmux session will be preserved, along with all of the terminal sessions in it.</p>
+<p>Sessions are one of the most useful features of Tmux. They let you group multiple terminal processes into a single Tmux session which can be worked on (attached), put into the background (detached) and discarded as you see fit. Programmers will often have different sessions for different projects. Because Tmux operates under a client-server architecture, even if the original terminal that started Tmux dies or your desktop GUI crashes, the Tmux session will be preserved, along with all of the terminal sessions in it.</p>
 
 <p>Detach your Tmux session with <code>Ctrl-b d</code>. This will return you to a regular terminal prompt.</p>
 
@@ -208,7 +208,7 @@ Ctrl-b !      pop a pane into a new window
 2: 2 windows (created Thu Jan 28 09:11:59 2016) [190x50]
 </code></pre>
 
-<p>This shows that I have two Tmux sessions running, one of which is attached to a Terminal window already. To attach to a session just use the <code>attach</code> command at the terminal prompt:</p>
+<p>This shows that I have two Tmux sessions running, one of which is attached to a terminal window already. To attach to a session just use the <code>attach</code> command at the terminal prompt:</p>
 
 <pre><code>$ tmux attach
 </code></pre>

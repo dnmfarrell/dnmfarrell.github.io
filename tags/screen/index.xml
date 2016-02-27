@@ -17,7 +17,7 @@
       <guid>http://perltricks.com/article/an-introduction-to-tmux/</guid>
       <description>
 
-&lt;p&gt;&lt;a href=&#34;https://tmux.github.io/&#34;&gt;Tmux&lt;/a&gt; is a terminal multiplexer: it like a power-up for terminal programming. You can manage several terminals under a session, split terminal screens, detach and re-attach sessions and much more. If you do most of your programming at the command line, you&amp;rsquo;ll find using a terminal multiplexer invaluable.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://tmux.github.io/&#34;&gt;Tmux&lt;/a&gt; is a terminal multiplexer: it&amp;rsquo;s like a power-up for terminal programming. You can manage several terminals under a session, split terminal screens, detach and re-attach sessions and much more. If you do most of your programming at the command line, you&amp;rsquo;ll find using a terminal multiplexer invaluable.&lt;/p&gt;
 
 &lt;h3 id=&#34;setup:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Setup&lt;/h3&gt;
 
@@ -28,7 +28,7 @@
    ServerAliveCountMax 3
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;If the file doesn&amp;rsquo;t exist, create it. This configuration instructs your local machine for all user ssh sessions to send a server alive message every 300 seconds to keep the ssh session alive. If the local machine sends 3 unanswered messages, it will disconnect the session. You should tweak these settings to suit your needs: for instance restricting the &lt;code&gt;host&lt;/code&gt; to specific domains let&amp;rsquo;s you have different settings per domain. If you have a slow or unreliable internet connection, consider changing &lt;code&gt;ServerAliveInternal&lt;/code&gt; to a lower number to send more frequent messages.&lt;/p&gt;
+&lt;p&gt;If the file doesn&amp;rsquo;t exist, create it. This configuration instructs your local machine for all user ssh sessions to send a server alive message every 300 seconds to keep the ssh session alive. If the local machine sends 3 unanswered messages, it will disconnect the session. You should tweak these settings to suit your needs: for instance by restricting the &lt;code&gt;host&lt;/code&gt; to specific domains you can have different settings per domain. If you have a slow or unreliable internet connection, consider changing &lt;code&gt;ServerAliveInternal&lt;/code&gt; to a lower number to send more frequent messages.&lt;/p&gt;
 
 &lt;p&gt;If you have permission on the servers you use, you can update them with a similar configuration, in &lt;code&gt;/etc/ssh/sshd_config&lt;/code&gt;:&lt;/p&gt;
 
@@ -123,15 +123,15 @@ Ctrl-b !      pop a pane into a new window
 
 &lt;p&gt;The arrows &lt;code&gt;←↑→↓&lt;/code&gt; represent the arrow keys, just use one of these. For example to jump to a pane on the right, you&amp;rsquo;d press &lt;code&gt;Ctrl-b →&lt;/code&gt;. The change pane size controls are a little different. To make that work you first have to have more than one pane. Next press &lt;code&gt;Ctrl-b&lt;/code&gt; and keep the control key held down. Now you can repeatedly press an arrow key to change the pane size.&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;Ctrl-b !&lt;/code&gt; is one of my favorite features. It pops the current pane out of the window and moves it to its own window. This is wonderful if you find yourself doing some unrelated activity in one pane and want to re-organize them.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Ctrl-b !&lt;/code&gt; is one of my favorite features. It pops the current pane out of the window and moves it to its own window. This is wonderful if you find yourself doing some unrelated activity in one pane and want to re-organize your setup.&lt;/p&gt;
 
 &lt;h3 id=&#34;scrolling-and-copy-paste:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Scrolling and copy/paste&lt;/h3&gt;
 
 &lt;p&gt;If you can master scrolling and copy/paste in Tmux, you can master anything. I won&amp;rsquo;t lie, this is the clunkiest feature. But it&amp;rsquo;s really useful. The interface is modal, so start by entering scroll mode:&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;Ctrl-b [&lt;/code&gt;. Pressing &lt;code&gt;esc&lt;/code&gt; will exit scroll mode. You should know you&amp;rsquo;re in scroll mode because an orange line count appears in the top-right corner of the pane.&lt;/p&gt;
+&lt;p&gt;Type &lt;code&gt;Ctrl-b [&lt;/code&gt;. Pressing &lt;code&gt;esc&lt;/code&gt; will exit scroll mode. You should know you&amp;rsquo;re in scroll mode because an orange line count appears in the top-right corner of the pane.&lt;/p&gt;
 
-&lt;p&gt;Once you&amp;rsquo;re in scroll mode, you can move the cursor using the arrow keys and page up and down. By default Tmux doesn&amp;rsquo;t retain much history, but you can change that (see config).&lt;/p&gt;
+&lt;p&gt;Once you&amp;rsquo;re in scroll mode, you can move the cursor using the arrow keys and page up and down. By default Tmux doesn&amp;rsquo;t retain much history, but you can change that (see the Config options section).&lt;/p&gt;
 
 &lt;p&gt;You can copy and paste in scroll mode. This is useful when you have split screens as a regular highlight and copy using the mouse won&amp;rsquo;t work across vertically split panes.&lt;/p&gt;
 
@@ -143,7 +143,7 @@ Ctrl-b !      pop a pane into a new window
 
 &lt;h3 id=&#34;session-control:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Session control&lt;/h3&gt;
 
-&lt;p&gt;Sessions are one of the most useful features of Tmux. They let you group multiple terminal processes into a single Tmux session which can be worked on (attached), put into the background (detached) and discarded as you see fit. Programmers will often have different sessions for different projects or clients. Because Tmux operates under a client-server architecture, even if the original terminal that started Tmux dies or your desktop GUI crashes, the Tmux session will be preserved, along with all of the terminal sessions in it.&lt;/p&gt;
+&lt;p&gt;Sessions are one of the most useful features of Tmux. They let you group multiple terminal processes into a single Tmux session which can be worked on (attached), put into the background (detached) and discarded as you see fit. Programmers will often have different sessions for different projects. Because Tmux operates under a client-server architecture, even if the original terminal that started Tmux dies or your desktop GUI crashes, the Tmux session will be preserved, along with all of the terminal sessions in it.&lt;/p&gt;
 
 &lt;p&gt;Detach your Tmux session with &lt;code&gt;Ctrl-b d&lt;/code&gt;. This will return you to a regular terminal prompt.&lt;/p&gt;
 
@@ -154,7 +154,7 @@ Ctrl-b !      pop a pane into a new window
 2: 2 windows (created Thu Jan 28 09:11:59 2016) [190x50]
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;This shows that I have two Tmux sessions running, one of which is attached to a Terminal window already. To attach to a session just use the &lt;code&gt;attach&lt;/code&gt; command at the terminal prompt:&lt;/p&gt;
+&lt;p&gt;This shows that I have two Tmux sessions running, one of which is attached to a terminal window already. To attach to a session just use the &lt;code&gt;attach&lt;/code&gt; command at the terminal prompt:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;$ tmux attach
 &lt;/code&gt;&lt;/pre&gt;
