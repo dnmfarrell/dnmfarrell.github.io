@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">Implementing Did You Mean in Perl</h1>
-            <p class="blog-post-meta">Oct 31, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src="/images/122/530C022E-6110-11E4-91D8-E5A395E830D2.png"/>
+            <div class="row">
+              <article>
               
+              
+              <h1 class="blog-post-title">Implementing Did You Mean in Perl</h1>
+              <p class="blog-post-meta">Oct 31, 2014 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src="/images/122/530C022E-6110-11E4-91D8-E5A395E830D2.png"/>
+                
 
 <p>A couple of weeks ago Yuki Nishijima released a clever Ruby <a href="http://www.yukinishijima.net/2014/10/21/did-you-mean-experience-in-ruby.html">gem</a> called &ldquo;Did You Mean&rdquo;, that intercepts failed method calls and suggests the closest matching (correct) method in the exception message. I wanted to create an equivalent module in Perl, and so armed with a limited appreciation of <code>AUTOLOAD</code> I set about creating <a href="https://metacpan.org/pod/Devel::DidYouMean">Devel::DidYouMean</a>.</p>
 
@@ -131,22 +135,34 @@ print substring('have a nice day', 0, 6);
 
 <p><strong>Update:</strong><em>Devel::DidYouMean now uses a signal handling approach and avoids AUTOLOAD altogether 2014-11-09</em></p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/autoload">autoload</a></div>
+                
+                  <div class="tag"><a href="/tags/mastering_perl">mastering_perl</a></div>
+                
+                  <div class="tag"><a href="/tags/symbol_table">symbol_table</a></div>
+                
+                  <div class="tag"><a href="/tags/ruby">ruby</a></div>
+                
+                  <div class="tag"><a href="/tags/did_you_mean">did_you_mean</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/autoload">autoload</a></div>
-              
-                <div class="tag"><a href="/tags/mastering_perl">mastering_perl</a></div>
-              
-                <div class="tag"><a href="/tags/symbol_table">symbol_table</a></div>
-              
-                <div class="tag"><a href="/tags/ruby">ruby</a></div>
-              
-                <div class="tag"><a href="/tags/did_you_mean">did_you_mean</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

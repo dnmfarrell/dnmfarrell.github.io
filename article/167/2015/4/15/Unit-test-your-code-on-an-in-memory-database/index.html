@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">Unit test your code on an in-memory database</h1>
-            <p class="blog-post-meta">Apr 15, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src="/images/167/10195802-E312-11E4-8CF6-FC456037288D.png"/>
+            <div class="row">
+              <article>
               
+              
+              <h1 class="blog-post-title">Unit test your code on an in-memory database</h1>
+              <p class="blog-post-meta">Apr 15, 2015 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src="/images/167/10195802-E312-11E4-8CF6-FC456037288D.png"/>
+                
 
 <p>Unit test scripts should be independent, stateless and free from side-effects. These ideals are not always achievable but by using tools like mock objects we can often get close. Some functionality is harder to test than others though; for example how do you test database interface code? Databases have state - even if you reset the data after you&rsquo;ve tested it, there&rsquo;s no guarantee the data is the same, or that other code hasn&rsquo;t accessed the database during the test execution.</p>
 
@@ -128,22 +132,34 @@ done_testing;
 
 <p>The in-memory feature of SQLite is provided by <a href="https://metacpan.org/pod/DBD::SQLite">DBD::SQLite</a>, the DBI driver. It&rsquo;s a cool feature, and could be used for more than just unit testing. Anytime you have a need for a temporary relational datastore, consider this; it&rsquo;s fast, is portable and automatically cleans itself up when the program ends.</p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/database">database</a></div>
+                
+                  <div class="tag"><a href="/tags/dbix_class">dbix_class</a></div>
+                
+                  <div class="tag"><a href="/tags/orm">orm</a></div>
+                
+                  <div class="tag"><a href="/tags/testing">testing</a></div>
+                
+                  <div class="tag"><a href="/tags/sqlite">sqlite</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/database">database</a></div>
-              
-                <div class="tag"><a href="/tags/dbix_class">dbix_class</a></div>
-              
-                <div class="tag"><a href="/tags/orm">orm</a></div>
-              
-                <div class="tag"><a href="/tags/testing">testing</a></div>
-              
-                <div class="tag"><a href="/tags/sqlite">sqlite</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

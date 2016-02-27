@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">Kitchen coding nightmares: JavaScript scope</h1>
-            <p class="blog-post-meta">Dec 17, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src="/images/204/60B8AF26-A444-11E5-A7E3-5B35815E78B2.png"/>
+            <div class="row">
+              <article>
               
+              
+              <h1 class="blog-post-title">Kitchen coding nightmares: JavaScript scope</h1>
+              <p class="blog-post-meta">Dec 17, 2015 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src="/images/204/60B8AF26-A444-11E5-A7E3-5B35815E78B2.png"/>
+                
 
 <p>Lately at the <a href="https://www.recurse.com/">Recurse Center</a> I&rsquo;ve been developing a JavaScript client for my <a href="https://github.com/dnmfarrell/Settlers-Game">Settlers game</a>. As a Perl developer working with JavaScript, it has been a fun experience. JavaScript feels very perly - both share a flexible syntax, first class functions and objects as hashes. And both languages have a lax interpreter which should have been put in strict mode in the first place (ha-ha!). One way in which JavaScript is very different from Perl is its scoping rules. I was burned by these more than once, and so if you&rsquo;re new to JavaScript, you might find the following summary and recommendations useful.</p>
 
@@ -227,24 +231,36 @@ console.log(p.coordinates());
 
 <p><sup>2</sup> It&rsquo;s probably a bad thing for users too - the overhead in processing syntactically wrong code degrades performance and worse, encourages more incorrect code to be written.</p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/perl">perl</a></div>
+                
+                  <div class="tag"><a href="/tags/var">var</a></div>
+                
+                  <div class="tag"><a href="/tags/es6">es6</a></div>
+                
+                  <div class="tag"><a href="/tags/strict">strict</a></div>
+                
+                  <div class="tag"><a href="/tags/requirejs">requirejs</a></div>
+                
+                  <div class="tag"><a href="/tags/jshint">jshint</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/perl">perl</a></div>
-              
-                <div class="tag"><a href="/tags/var">var</a></div>
-              
-                <div class="tag"><a href="/tags/es6">es6</a></div>
-              
-                <div class="tag"><a href="/tags/strict">strict</a></div>
-              
-                <div class="tag"><a href="/tags/requirejs">requirejs</a></div>
-              
-                <div class="tag"><a href="/tags/jshint">jshint</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

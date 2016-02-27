@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">Catch and Handle Signals in Perl</h1>
-            <p class="blog-post-meta">Aug 18, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src=""/>
+            <div class="row">
+              <article>
               
+              
+              <h1 class="blog-post-title">Catch and Handle Signals in Perl</h1>
+              <p class="blog-post-meta">Aug 18, 2013 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src=""/>
+                
 
 <p>Signals are types of messages sent by an operating system to a process such as a Perl program. Signals provide a method for communicating with a process, for example when running a command line program pressing control-c will send the interrupt signal (&lsquo;SIGINT&rsquo;) to the program by default terminating it. Signals are often unexpected and if not handled can leave your Perl program or data in an unfinished state. This article describes some useful Perl programming tools for gracefully handling signals.</p>
 
@@ -170,28 +174,40 @@ sub signal_handler {
 
 <p>Windows implements a subset of the standard POSIX signals. These signals can still be handled using the techniques described above. Microsoft have provided a list of these signals on <a href="http://msdn.microsoft.com/en-us/library/ms811896#ucmgch09_topic3">here</a></p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/linux">linux</a></div>
+                
+                  <div class="tag"><a href="/tags/windows">windows</a></div>
+                
+                  <div class="tag"><a href="/tags/mac">mac</a></div>
+                
+                  <div class="tag"><a href="/tags/global_variables">global_variables</a></div>
+                
+                  <div class="tag"><a href="/tags/core">core</a></div>
+                
+                  <div class="tag"><a href="/tags/signal">signal</a></div>
+                
+                  <div class="tag"><a href="/tags/posix">posix</a></div>
+                
+                  <div class="tag"><a href="/tags/sigint">sigint</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/linux">linux</a></div>
-              
-                <div class="tag"><a href="/tags/windows">windows</a></div>
-              
-                <div class="tag"><a href="/tags/mac">mac</a></div>
-              
-                <div class="tag"><a href="/tags/global_variables">global_variables</a></div>
-              
-                <div class="tag"><a href="/tags/core">core</a></div>
-              
-                <div class="tag"><a href="/tags/signal">signal</a></div>
-              
-                <div class="tag"><a href="/tags/posix">posix</a></div>
-              
-                <div class="tag"><a href="/tags/sigint">sigint</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

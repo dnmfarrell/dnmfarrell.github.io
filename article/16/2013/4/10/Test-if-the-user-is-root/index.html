@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">Test if the user is root</h1>
-            <p class="blog-post-meta">Apr 10, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src=""/>
-              <p>When Perl is executing a program, it maintains the user id of the process owner in a global variable ($&lt;). When a Perl program is executed by root or a user with root privileges (e.g. using the sudo command), the user id variable is always set to zero. This can be checked at the command line:</p>
+            <div class="row">
+              <article>
+              
+              
+              <h1 class="blog-post-title">Test if the user is root</h1>
+              <p class="blog-post-meta">Apr 10, 2013 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src=""/>
+                <p>When Perl is executing a program, it maintains the user id of the process owner in a global variable ($&lt;). When a Perl program is executed by root or a user with root privileges (e.g. using the sudo command), the user id variable is always set to zero. This can be checked at the command line:</p>
 
 <pre><code class="language-prettyprint">$ perl -e 'print $&lt; . \n;'
 1000
@@ -98,24 +102,36 @@ if (not Win32::IsAdminUser()) {
 }
 </code></pre>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/flow">flow</a></div>
+                
+                  <div class="tag"><a href="/tags/linux">linux</a></div>
+                
+                  <div class="tag"><a href="/tags/unix">unix</a></div>
+                
+                  <div class="tag"><a href="/tags/variable">variable</a></div>
+                
+                  <div class="tag"><a href="/tags/windows">windows</a></div>
+                
+                  <div class="tag"><a href="/tags/mac">mac</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/flow">flow</a></div>
-              
-                <div class="tag"><a href="/tags/linux">linux</a></div>
-              
-                <div class="tag"><a href="/tags/unix">unix</a></div>
-              
-                <div class="tag"><a href="/tags/variable">variable</a></div>
-              
-                <div class="tag"><a href="/tags/windows">windows</a></div>
-              
-                <div class="tag"><a href="/tags/mac">mac</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

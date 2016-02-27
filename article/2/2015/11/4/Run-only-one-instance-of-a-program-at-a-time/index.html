@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">Run only one instance of a program at a time</h1>
-            <p class="blog-post-meta">Nov 4, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src=""/>
+            <div class="row">
+              <article>
               
+              
+              <h1 class="blog-post-title">Run only one instance of a program at a time</h1>
+              <p class="blog-post-meta">Nov 4, 2015 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src=""/>
+                
 
 <p>Recently I wanted to schedule a Perl app to run every minute on a server, but if an instance of the app was already running, it should exit and do nothing. This is a common problem and I was able to solve it with a lockfile. Let&rsquo;s see how to use lockfiles in Perl.</p>
 
@@ -161,18 +165,30 @@ sleep(60);
 
 <p><strong>Update:</strong> <em>added Sys::RunAlone reference - 2015-11-28.</em></p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/lockfile">lockfile</a></div>
+                
+                  <div class="tag"><a href="/tags/process">process</a></div>
+                
+                  <div class="tag"><a href="/tags/race_condition">race_condition</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/lockfile">lockfile</a></div>
-              
-                <div class="tag"><a href="/tags/process">process</a></div>
-              
-                <div class="tag"><a href="/tags/race_condition">race_condition</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

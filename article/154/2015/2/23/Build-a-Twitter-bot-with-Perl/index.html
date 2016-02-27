@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">Build a Twitter bot with Perl</h1>
-            <p class="blog-post-meta">Feb 23, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src="/images/154/91EE4478-B617-11E4-A56B-890CDB487E9F.png"/>
+            <div class="row">
+              <article>
               
+              
+              <h1 class="blog-post-title">Build a Twitter bot with Perl</h1>
+              <p class="blog-post-meta">Feb 23, 2015 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src="/images/154/91EE4478-B617-11E4-A56B-890CDB487E9F.png"/>
+                
 
 <p>Following on from last week&rsquo;s Reddit bot <a href="http://perltricks.com/article/151/2015/2/9/Build-a-Reddit-bot-with-Perl">article</a>, let&rsquo;s look at how to build a Twitter bot using Perl. As you&rsquo;d expect, Perl makes it easy to do, but before we get to the code, let&rsquo;s talk about advantages.</p>
 
@@ -252,24 +256,36 @@ sub tweet
 
 <p>This code works for me, but you may want to do things a little differently. The Twitter credentials could be stored in a <a href="http://perltricks.com/article/29/2013/9/17/How-to-Load-YAML-Config-Files">configuration</a> file, instead of environment variables. The <code>$hashtag</code> argument could be an arrayref of hashtags, that are incrementally added to the tweet text, instead of a single text string which restricts it to an all-or-nothing basis.</p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/perl">perl</a></div>
+                
+                  <div class="tag"><a href="/tags/reddit">reddit</a></div>
+                
+                  <div class="tag"><a href="/tags/bot">bot</a></div>
+                
+                  <div class="tag"><a href="/tags/twitter">twitter</a></div>
+                
+                  <div class="tag"><a href="/tags/automation">automation</a></div>
+                
+                  <div class="tag"><a href="/tags/tweet">tweet</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/perl">perl</a></div>
-              
-                <div class="tag"><a href="/tags/reddit">reddit</a></div>
-              
-                <div class="tag"><a href="/tags/bot">bot</a></div>
-              
-                <div class="tag"><a href="/tags/twitter">twitter</a></div>
-              
-                <div class="tag"><a href="/tags/automation">automation</a></div>
-              
-                <div class="tag"><a href="/tags/tweet">tweet</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

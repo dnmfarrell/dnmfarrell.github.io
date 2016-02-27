@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">A Hackerspace Webcam</h1>
-            <p class="blog-post-meta">Dec 15, 2014 by <a href="/authors/timm-murray">Timm Murray</a></p>
-            <img alt="" src="/images/140/D7DE9644-813E-11E4-A6BF-AA5BB3613736.jpeg"/>
-              <p>Nearly every hackerspace has some kind of live camera on their website, and every one of them solves it in their own way. If you want to visit the shop, it&rsquo;s nice to know if someone else is hanging around. At <a href="http://thebodgery.org">The Bodgery</a>, it was decided to base one on a Raspberry Pi that would upload a picture every 30 seconds whenever an open switch is set. When a member opens the space, the switch activates one of the Pi&rsquo;s &ldquo;General Purpose Input/Output&rdquo; (GPIO) pins, which causes the Pi to start taking pictures. When shut off, a default picture is thrown up, declaring us closed.</p>
+            <div class="row">
+              <article>
+              
+              
+              <h1 class="blog-post-title">A Hackerspace Webcam</h1>
+              <p class="blog-post-meta">Dec 15, 2014 by <a href="#author-bio">Timm Murray</a></p>
+              <img alt="" src="/images/140/D7DE9644-813E-11E4-A6BF-AA5BB3613736.jpeg"/>
+                <p>Nearly every hackerspace has some kind of live camera on their website, and every one of them solves it in their own way. If you want to visit the shop, it&rsquo;s nice to know if someone else is hanging around. At <a href="http://thebodgery.org">The Bodgery</a>, it was decided to base one on a Raspberry Pi that would upload a picture every 30 seconds whenever an open switch is set. When a member opens the space, the switch activates one of the Pi&rsquo;s &ldquo;General Purpose Input/Output&rdquo; (GPIO) pins, which causes the Pi to start taking pictures. When shut off, a default picture is thrown up, declaring us closed.</p>
 
 <p>The first task was to make a box. The Bodgery has a 50W laser cutter, so I started with a design created with <a href="http://www.makercase.com/">MakerCase</a>. After measuring the Pi and putting in the dimensions, MakerCase created a box with &ldquo;finger joints&rdquo; (tabs that fit the edges together). Using <a href="https://inkscape.org/en/">Inkscape</a> and some more measuring, a hole was made in the front panel for the Pi&rsquo;s camera. Unfortunately, I didn&rsquo;t take into account the length of the Pi&rsquo;s SD card on one side and the WiFi adaptor on the other, so my original design was a little short. No matter-the backend of the case could be left open for this project.</p>
 
@@ -144,20 +148,32 @@ unlink $tmp_filename;
 
 <p>The complete code is on <a href="https://github.com/frezik/bodgery_cam">GitHub</a>.</p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/raspberry_pi">raspberry_pi</a></div>
+                
+                  <div class="tag"><a href="/tags/hackerspace">hackerspace</a></div>
+                
+                  <div class="tag"><a href="/tags/hardware">hardware</a></div>
+                
+                  <div class="tag"><a href="/tags/camera">camera</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/raspberry_pi">raspberry_pi</a></div>
-              
-                <div class="tag"><a href="/tags/hackerspace">hackerspace</a></div>
-              
-                <div class="tag"><a href="/tags/hardware">hardware</a></div>
-              
-                <div class="tag"><a href="/tags/camera">camera</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/timm.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>Timm Murray</h3>
+                <p>Timm Murray is a Perl programmer and hardware specialist. He is the creator of <a href="https://metacpan.org/pod/UAV::Pilot">UAV::Pilot</a> the de-facto standard Perl drone library. He regularly <a href="http://http://www.wumpus-cave.net/">blogs</a> about Perl and hardware hacking.</p>
+                <h5><a href="/authors/timm-murray">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

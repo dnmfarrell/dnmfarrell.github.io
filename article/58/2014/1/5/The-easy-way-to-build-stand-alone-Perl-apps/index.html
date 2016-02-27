@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">The easy way to build stand-alone Perl apps</h1>
-            <p class="blog-post-meta">Jan 5, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src="/images/58/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png"/>
+            <div class="row">
+              <article>
               
+              
+              <h1 class="blog-post-title">The easy way to build stand-alone Perl apps</h1>
+              <p class="blog-post-meta">Jan 5, 2014 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src="/images/58/EC0FEBBE-FF2E-11E3-8A2A-5C05A68B9E16.png"/>
+                
 
 <p>The Perl toolchain has such a large install base it&rsquo;s tempting to just upload your app to PAUSE and let users install it via CPAN. <a href="https://metacpan.org/search?q=App%3A%3A">Many authors</a> have taken this approach and it makes sense in most cases to reuse the power of the CPAN in providing a common install, dependency management and update mechanism. Sometimes however you want to distribute a dependency-free Perl app in a single executable file, and for these cases you&rsquo;ll want to look at <a href="https://metacpan.org/pod/App::FatPacker">App::FatPacker</a>.</p>
 
@@ -159,16 +163,28 @@ Each person should pay: 40 each
 
 <p>Of course you can also distribute an application via CPAN, where you have the flexibility of including the dependent modules in your application&rsquo;s inc directory, or include the modules as dependencies in the makefile, and let CPAN install them for you - this is also more disk space efficient. Perl applications on CPAN place the app in the application&rsquo;s bin directory and use &ldquo;EXE_FILES&rdquo; directive in the makefile to install the app to the Perl bin directory. If you&rsquo;re interested in this approach, check out the <a href="https://metacpan.org/source/XSAWYERX/Module-Starter-1.62">Module::Starter source</a> as a good example to copy from.</p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/configuration">configuration</a></div>
+                
+                  <div class="tag"><a href="/tags/app">app</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/configuration">configuration</a></div>
-              
-                <div class="tag"><a href="/tags/app">app</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

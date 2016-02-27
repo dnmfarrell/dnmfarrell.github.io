@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">Parse Excel with ease using Perl</h1>
-            <p class="blog-post-meta">Aug 5, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src="/images/108/52AEDC46-1CA2-11E4-81FD-87E12D77B041.png"/>
+            <div class="row">
+              <article>
               
+              
+              <h1 class="blog-post-title">Parse Excel with ease using Perl</h1>
+              <p class="blog-post-meta">Aug 5, 2014 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src="/images/108/52AEDC46-1CA2-11E4-81FD-87E12D77B041.png"/>
+                
 
 <p>In the business world, it seems like Excel spreadsheets are everywhere. Recently I had to parse several hundred spreadsheets under a tight deadline for a client. To make matters worse, the spreadsheets were in a mix of Excel 2003 (xls) and 2007 (xlsx) formats. Fortunately I know Perl, and using the Spreadsheet::Read module, it was easy. This article will show you how to use Spreadsheet::Read to parse Excel spreadsheets.</p>
 
@@ -177,30 +181,42 @@ $workbook-&gt;[1]{cell}[3][2]; #50000
 
 <p>Spreadsheet::Read isn&rsquo;t just great for command line apps, it has many uses. Unlike the Microsoft .Net interop library, Perl&rsquo;s Excel interfaces are not single threaded and do not require Excel to be installed to work. Instead Spreadsheet::Read directly parses the Excel file. That makes it possible to process large computing tasks in parallel. Another possible use case is for a spreadsheet upload interface on a web application; Spreadsheet::Read also supports the Libre / Open Office formats as well as CSV text files.</p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/cpan">cpan</a></div>
+                
+                  <div class="tag"><a href="/tags/excel">excel</a></div>
+                
+                  <div class="tag"><a href="/tags/xls">xls</a></div>
+                
+                  <div class="tag"><a href="/tags/xlsx">xlsx</a></div>
+                
+                  <div class="tag"><a href="/tags/libre">libre</a></div>
+                
+                  <div class="tag"><a href="/tags/office">office</a></div>
+                
+                  <div class="tag"><a href="/tags/open">open</a></div>
+                
+                  <div class="tag"><a href="/tags/read">read</a></div>
+                
+                  <div class="tag"><a href="/tags/spreadsheet_read">spreadsheet_read</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/cpan">cpan</a></div>
-              
-                <div class="tag"><a href="/tags/excel">excel</a></div>
-              
-                <div class="tag"><a href="/tags/xls">xls</a></div>
-              
-                <div class="tag"><a href="/tags/xlsx">xlsx</a></div>
-              
-                <div class="tag"><a href="/tags/libre">libre</a></div>
-              
-                <div class="tag"><a href="/tags/office">office</a></div>
-              
-                <div class="tag"><a href="/tags/open">open</a></div>
-              
-                <div class="tag"><a href="/tags/read">read</a></div>
-              
-                <div class="tag"><a href="/tags/spreadsheet_read">spreadsheet_read</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">Is your login page secure?</h1>
-            <p class="blog-post-meta">Apr 28, 2014 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src="/images/84/ECC1012E-FF2E-11E3-B566-5C05A68B9E16.jpeg"/>
+            <div class="row">
+              <article>
               
+              
+              <h1 class="blog-post-title">Is your login page secure?</h1>
+              <p class="blog-post-meta">Apr 28, 2014 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src="/images/84/ECC1012E-FF2E-11E3-B566-5C05A68B9E16.jpeg"/>
+                
 
 <p>How many criteria do you think there are for a web application to securely login its users? <a href="http://www.amazon.com/gp/product/1118026470/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=1118026470&amp;linkCode=as2&amp;tag=perltrickscom-20">The Web Application Hacker&rsquo;s Handbook</a> (affiliate link) lists 5:</p>
 
@@ -313,20 +317,32 @@ sub login_form :Chained('login') PathPart('') Args(0) GET {
 
 <p><em>Cover image <a href="https://creativecommons.org/licenses/by/2.0/">©</a> <a href="https://www.flickr.com/photos/motograf/1269439152/in/photolist-2Wbd2W-9VxeqP-8v6WhC-8v3ToK-8v6W4h-fcDhWQ-6boP72-LNv8s-4pkUnM-aj6wD3-4rL1UA-9Ziy7V-jP5Sc-51f4ck-4ppX9S-dWGQed-dWGuMs-dQRyD-b9SUT-9cBRYL-5UB8BE-8BFgnW-6boNpR-6bsWUQ-6bsX9C-FXJTL-8AuQei-8AuRVc-8AuSzH-6gA6Lx-8v5M9x-91rH7R-dWsFmy-ZQRR-jP6a9-4HKkvg-4HPzk1-5eWG8T-8v8Q6d-8v8Q7N-4HKmZ6-kJrvqx-fcp9cZ-4rsdJ3-aFebHa-4HPALy-7HrEuY-6Pk9RC-hX3MVF-7xoEF6">motograf</a></em></p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/catalyst">catalyst</a></div>
+                
+                  <div class="tag"><a href="/tags/mvc">mvc</a></div>
+                
+                  <div class="tag"><a href="/tags/security">security</a></div>
+                
+                  <div class="tag"><a href="/tags/authentication">authentication</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/catalyst">catalyst</a></div>
-              
-                <div class="tag"><a href="/tags/mvc">mvc</a></div>
-              
-                <div class="tag"><a href="/tags/security">security</a></div>
-              
-                <div class="tag"><a href="/tags/authentication">authentication</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

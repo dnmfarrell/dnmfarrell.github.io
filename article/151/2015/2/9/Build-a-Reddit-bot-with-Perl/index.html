@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">Build a Reddit bot with Perl</h1>
-            <p class="blog-post-meta">Feb 9, 2015 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src="/images/151/2E921FA4-B008-11E4-BF49-19CBDA487E9F.jpeg"/>
+            <div class="row">
+              <article>
               
+              
+              <h1 class="blog-post-title">Build a Reddit bot with Perl</h1>
+              <p class="blog-post-meta">Feb 9, 2015 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src="/images/151/2E921FA4-B008-11E4-BF49-19CBDA487E9F.jpeg"/>
+                
 
 <p>One of my goals for this year was to post more links to the Perl <a href="http://www.reddit.com/r/perl">subreddit</a>. I&rsquo;m usually good at linking to PerlTricks articles, but not so good at linking to other content. And that&rsquo;s a shame because there are a lot of active Perl blogs out there (I know of at least 25-30).</p>
 
@@ -314,26 +318,38 @@ sub check_feed
 
 <p>There&rsquo;s a lot more that could be done with this script: for instance it only supports atom feeds, but many blog feeds use RSS. The URLs to check must be hard coded into the script - it would be better to take them from a configurable list. Finally, there is no URL caching, so running this script twice in 24 hours will lead to it attempting to post the same links to Reddit twice. For an extended example that addresses these issues and more, check out my Perly-Bot GitHub <a href="https://github.com/dnmfarrell/Perly-Bot">repo</a>.</p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/xml">xml</a></div>
+                
+                  <div class="tag"><a href="/tags/perl">perl</a></div>
+                
+                  <div class="tag"><a href="/tags/reddit">reddit</a></div>
+                
+                  <div class="tag"><a href="/tags/rss">rss</a></div>
+                
+                  <div class="tag"><a href="/tags/feed">feed</a></div>
+                
+                  <div class="tag"><a href="/tags/atom">atom</a></div>
+                
+                  <div class="tag"><a href="/tags/bot">bot</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/xml">xml</a></div>
-              
-                <div class="tag"><a href="/tags/perl">perl</a></div>
-              
-                <div class="tag"><a href="/tags/reddit">reddit</a></div>
-              
-                <div class="tag"><a href="/tags/rss">rss</a></div>
-              
-                <div class="tag"><a href="/tags/feed">feed</a></div>
-              
-                <div class="tag"><a href="/tags/atom">atom</a></div>
-              
-                <div class="tag"><a href="/tags/bot">bot</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

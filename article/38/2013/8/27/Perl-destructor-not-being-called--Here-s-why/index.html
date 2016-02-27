@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">Perl destructor not being called? Here&#39;s why</h1>
-            <p class="blog-post-meta">Aug 27, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src=""/>
-              <p>If you&rsquo;re using a Perl destructor method (&lsquo;DESTROY&rsquo;, &lsquo;DEMOLISH&rsquo;) it may not be called if the Perl process is terminated abruptly by a signal. To fix this, just add the sigtrap pragma to your program:</p>
+            <div class="row">
+              <article>
+              
+              
+              <h1 class="blog-post-title">Perl destructor not being called? Here&#39;s why</h1>
+              <p class="blog-post-meta">Aug 27, 2013 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src=""/>
+                <p>If you&rsquo;re using a Perl destructor method (&lsquo;DESTROY&rsquo;, &lsquo;DEMOLISH&rsquo;) it may not be called if the Perl process is terminated abruptly by a signal. To fix this, just add the sigtrap pragma to your program:</p>
 
 <pre><code class="language-prettyprint">use sigtrap qw/die normal-signals/;
 </code></pre>
@@ -80,24 +84,36 @@
 
 <p>To read more on signal handlers see our article: <a href="http://perltricks.com/article/37/2013/8/18/Catch-and-Handle-Signals-in-Perl">Catch and Handle Signals in Perl</a></p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/object_oriented">object_oriented</a></div>
+                
+                  <div class="tag"><a href="/tags/object">object</a></div>
+                
+                  <div class="tag"><a href="/tags/signal">signal</a></div>
+                
+                  <div class="tag"><a href="/tags/sigint">sigint</a></div>
+                
+                  <div class="tag"><a href="/tags/destructor">destructor</a></div>
+                
+                  <div class="tag"><a href="/tags/sigtrap">sigtrap</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/object_oriented">object_oriented</a></div>
-              
-                <div class="tag"><a href="/tags/object">object</a></div>
-              
-                <div class="tag"><a href="/tags/signal">signal</a></div>
-              
-                <div class="tag"><a href="/tags/sigint">sigint</a></div>
-              
-                <div class="tag"><a href="/tags/destructor">destructor</a></div>
-              
-                <div class="tag"><a href="/tags/sigtrap">sigtrap</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">Dynamic variable names with a dereferencing block</h1>
-            <p class="blog-post-meta">May 2, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src=""/>
-              <p>Perl is remarkably flexible and allows you to achieve all kinds of wizardry with the language. One example of this is using a dereferencing block to use a scalar value as a variable name. This allows you to use variables with dynamic names.</p>
+            <div class="row">
+              <article>
+              
+              
+              <h1 class="blog-post-title">Dynamic variable names with a dereferencing block</h1>
+              <p class="blog-post-meta">May 2, 2013 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src=""/>
+                <p>Perl is remarkably flexible and allows you to achieve all kinds of wizardry with the language. One example of this is using a dereferencing block to use a scalar value as a variable name. This allows you to use variables with dynamic names.</p>
 
 <p>An interesting example of this can be seen in <a href="https://metacpan.org/source/NRG/Nginx-ParseLog-1.01/lib/Nginx/ParseLog.pm">Nginx::ParseLog</a>, I&rsquo;ve reproduced the relevant code:</p>
 
@@ -106,20 +110,32 @@
 
 <p>Using dynamic variable names can provide useful shortcuts when used in the right context. Dynamic variables can also increase the risk of error (note that strict &lsquo;refs&rsquo; had to be disabled for this code to work). What&rsquo;s nice about this example is using the regex match in the if statement provides the assurance that every capture was successful, hence in this context it should be ok to turn strict refs off briefly.</p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/regex">regex</a></div>
+                
+                  <div class="tag"><a href="/tags/variable">variable</a></div>
+                
+                  <div class="tag"><a href="/tags/dereference">dereference</a></div>
+                
+                  <div class="tag"><a href="/tags/syntax">syntax</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/regex">regex</a></div>
-              
-                <div class="tag"><a href="/tags/variable">variable</a></div>
-              
-                <div class="tag"><a href="/tags/dereference">dereference</a></div>
-              
-                <div class="tag"><a href="/tags/syntax">syntax</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

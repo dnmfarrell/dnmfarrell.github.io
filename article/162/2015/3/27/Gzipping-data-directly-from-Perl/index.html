@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">Gzipping data directly from Perl</h1>
-            <p class="blog-post-meta">Mar 27, 2015 by <a href="/authors/brian-d-foy">brian d foy</a></p>
-            <img alt="" src=""/>
+            <div class="row">
+              <article>
               
+              
+              <h1 class="blog-post-title">Gzipping data directly from Perl</h1>
+              <p class="blog-post-meta">Mar 27, 2015 by <a href="#author-bio">brian d foy</a></p>
+              <img alt="" src=""/>
+                
 
 <p>Perl can read and write gzipped streams through its IO layers. <a href="https://metacpan.org/author/NWCLARK">Nicholas Clark</a> recently updated <a href="https://metacpan.org/pod/PerlIO::gzip">PerlIO::gzip</a> (with patches from <a href="https://metacpan.org/author/ZEFRAM">Zefram</a>), after nine years since the last release. Now it works with Perl v5.20 and the upcoming v5.22, although it still has problems on Windows. But as we are used to, there is more then one way to do it.</p>
 
@@ -194,18 +198,30 @@ while( &lt;$z&gt; ) {
 
 <p>You can see a bit more abstract <a href="http://www.data-compression.com/lempelziv.html%0A">animation</a> at www.data-compression.com. You can see how this single-pass method works and how it can work from a possibly infinite stream like I provide in this article.</p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/perl">perl</a></div>
+                
+                  <div class="tag"><a href="/tags/gzip">gzip</a></div>
+                
+                  <div class="tag"><a href="/tags/compression">compression</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/perl">perl</a></div>
-              
-                <div class="tag"><a href="/tags/gzip">gzip</a></div>
-              
-                <div class="tag"><a href="/tags/compression">compression</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/brian.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>brian d foy</h3>
+                <p><a href="http://www.pair.com/~comdog/">brian d foy</a> is a Perl trainer and writer. He&rsquo;s the author of Mastering Perl and co-author of Programming Perl, Learning Perl, Intermediate Perl and Effective Perl Programming.</p>
+                <h5><a href="/authors/brian-d-foy">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

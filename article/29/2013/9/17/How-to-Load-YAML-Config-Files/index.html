@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">How to Load YAML Config Files</h1>
-            <p class="blog-post-meta">Sep 17, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src=""/>
+            <div class="row">
+              <article>
               
+              
+              <h1 class="blog-post-title">How to Load YAML Config Files</h1>
+              <p class="blog-post-meta">Sep 17, 2013 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src=""/>
+                
 
 <p>Config files are used by programmers to store local variables as it&rsquo;s usually better to update a config file than to edit source code. <a href="http://www.yaml.org/spec/1.2/spec.html#Introduction">YAML</a> is a popular data serialization language that&rsquo;s easy to read and can serialize the common Perl variables (scalars, arrays and hashes). This article describes how to read a YAML config file in Perl and access the config file&rsquo;s variables.</p>
 
@@ -155,20 +159,32 @@ for (keys %{$config-&gt;{credentials}}) {
 
 <p><a href="https://metacpan.org/module/YAML::XS">YAML::XS</a> uses the libyaml C library and provides strong performance and adherence to the YAML specification. However if you have difficulty installing YAML::XS, there are pure Perl alternatives available: <a href="https://metacpan.org/module/YAML">YAML</a> is not actively maintained and has several bugs but excellent documentation and generally works, <a href="https://metacpan.org/module/YAML::Tiny">YAML::Tiny</a> is a newer module that implements a useful subset of the YAML specification.</p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/configuration">configuration</a></div>
+                
+                  <div class="tag"><a href="/tags/config">config</a></div>
+                
+                  <div class="tag"><a href="/tags/yaml">yaml</a></div>
+                
+                  <div class="tag"><a href="/tags/libyaml">libyaml</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/configuration">configuration</a></div>
-              
-                <div class="tag"><a href="/tags/config">config</a></div>
-              
-                <div class="tag"><a href="/tags/yaml">yaml</a></div>
-              
-                <div class="tag"><a href="/tags/libyaml">libyaml</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>

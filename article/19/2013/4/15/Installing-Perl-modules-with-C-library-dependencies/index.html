@@ -62,16 +62,20 @@
 </div>
 <div class="push"></div>
 
+
   <section id="content" role="main">
     <section class="entry-content">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <article>
-            <h1 class="blog-post-title">Installing Perl modules with C library dependencies</h1>
-            <p class="blog-post-meta">Apr 15, 2013 by <a href="/authors/david-farrell">David Farrell</a></p>
-            <img alt="" src=""/>
+            <div class="row">
+              <article>
               
+              
+              <h1 class="blog-post-title">Installing Perl modules with C library dependencies</h1>
+              <p class="blog-post-meta">Apr 15, 2013 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src=""/>
+                
 
 <p>Some Perl modules have specific C library dependencies that need to be met or else they won&rsquo;t install. These issues can be tricky to solve as CPAN is not able to automatically install or report on non-Perl dependencies and Google isn&rsquo;t good at returning useful results for these types of issues (<a href="https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod">Net::SSLeay</a> is a common example of a tricky module to install). Usually you will only find out about missing dependencies when trying to install the module, as the install will fail. What you need to do at this point is <strong>identify</strong> and <strong>install</strong> the missing C libraries.</p>
 
@@ -100,26 +104,38 @@ sudo yum install openssl-perl.x86_64 perl-Net-SSLeay.x86_64 perl-Crypt-SSLeay.x8
 
 <p>Once you have installed the requisite libraries, try installing the Perl module again with CPAN.</p>
 
-            </article>
-            <p><strong>Tags</strong></p>
-            <div class="tags">
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/configuration">configuration</a></div>
+                
+                  <div class="tag"><a href="/tags/cpan">cpan</a></div>
+                
+                  <div class="tag"><a href="/tags/debugging">debugging</a></div>
+                
+                  <div class="tag"><a href="/tags/documentation">documentation</a></div>
+                
+                  <div class="tag"><a href="/tags/linux">linux</a></div>
+                
+                  <div class="tag"><a href="/tags/network">network</a></div>
+                
+                  <div class="tag"><a href="/tags/sysadmin">sysadmin</a></div>
+                
+                  <div class="tag"><a href="/tags/old_site">old_site</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
               
-                <div class="tag"><a href="/tags/configuration">configuration</a></div>
-              
-                <div class="tag"><a href="/tags/cpan">cpan</a></div>
-              
-                <div class="tag"><a href="/tags/debugging">debugging</a></div>
-              
-                <div class="tag"><a href="/tags/documentation">documentation</a></div>
-              
-                <div class="tag"><a href="/tags/linux">linux</a></div>
-              
-                <div class="tag"><a href="/tags/network">network</a></div>
-              
-                <div class="tag"><a href="/tags/sysadmin">sysadmin</a></div>
-              
-                <div class="tag"><a href="/tags/old_site">old_site</a></div>
-              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
             </div>
             <div class="push"></div>
           </div>
