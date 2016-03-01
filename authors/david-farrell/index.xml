@@ -6,8 +6,148 @@
     <description>Recent content in David Farrell on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 24 Feb 2016 09:29:18 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 01 Mar 2016 08:57:00 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/authors/david-farrell/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Netanel Rubin&#39;s Perl Jam circus</title>
+      <link>http://perltricks.com/article/netanel-rubins-perljam-circus/</link>
+      <pubDate>Tue, 01 Mar 2016 08:57:00 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/netanel-rubins-perljam-circus/</guid>
+      <description>
+
+&lt;p&gt;I&amp;rsquo;ve just watched Netanel Rubin&amp;rsquo;s Perl Jam 2 &lt;a href=&#34;https://www.youtube.com/watch?v=eH_u3C2WwQ0&#34;&gt;talk&lt;/a&gt; from this year&amp;rsquo;s Chaos Communication Congress. As he&amp;rsquo;s due to give the same talk at &lt;a href=&#34;https://www.blackhat.com/asia-16/&#34;&gt;Black Hat Asia&lt;/a&gt;, I thought it would be good to set the record straight concerning his claims about Perl (&lt;a href=&#34;https://gist.github.com/preaction/978ce941f05769b064f4&#34;&gt;others&lt;/a&gt; have already done so). He makes 3 major claims:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;The Perl language is insecure&lt;/li&gt;
+&lt;li&gt;Bugzilla &amp;amp; CGI.pm are representative of idiomatic Perl&lt;/li&gt;
+&lt;li&gt;Perl doesn&amp;rsquo;t improve&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;I&amp;rsquo;m going to address each claim in turn and show why it is false. In my view, Perl remains a powerful, general-purpose language well-suited to tasks like building dynamic web applications, processing big data, and managing systems.&lt;/p&gt;
+
+&lt;h3 id=&#34;claim-1-the-perl-language-is-insecure:d158258b1d06be868d3b174d51dace7b&#34;&gt;Claim 1: The Perl language is insecure&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Function declarations cannot specify argument data types&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash; &lt;cite&gt;Netanel Rubin, The Perl Jam 2&lt;/cite&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This isn&amp;rsquo;t true. Since 2008 Perl has supported subroutine signatures, with type checks using the &lt;a href=&#34;https://metacpan.org/pod/Method::Signatures&#34;&gt;Method::Signatures&lt;/a&gt; module. Since 2006 the &lt;a href=&#34;https://metacpan.org/pod/Moose&#34;&gt;Moose&lt;/a&gt; object system provided a fully-fledged &lt;a href=&#34;https://metacpan.org/pod/Moose::Util::TypeConstraints&#34;&gt;type system&lt;/a&gt; and meta object programming interface (there&amp;rsquo;s also &lt;a href=&#34;https://metacpan.org/pod/MooseX::Method::Signatures&#34;&gt;MooseX::Method::Signatures&lt;/a&gt;).&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Developers treat hashes and arrays as &amp;ldquo;secure&amp;rdquo; data types &amp;hellip; this is the Perl standard. You&amp;rsquo;re not expected to use it, you have to, as you don&amp;rsquo;t have any other choice. This security mess is a fundamental part of the language.&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash; &lt;cite&gt;Netanel Rubin, The Perl Jam 2&lt;/cite&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Netanel starts by describing taint mode and claims that hashes are so secure, hash keys bypass Perl&amp;rsquo;s taint check. It&amp;rsquo;s true that hash keys are never considered tainted. This is documented in &lt;a href=&#34;http://perldoc.perl.org/perlsec.html#Taint-mode&#34;&gt;perldoc&lt;/a&gt; and discussed in depth in Chapter 2 of &lt;a href=&#34;http://masteringperl.org&#34;&gt;Mastering Perl&lt;/a&gt;. But it&amp;rsquo;s not because hashes are assumed to be secure, it&amp;rsquo;s because tainting hash keys involves a huge performance penalty. He never explains his claim as to why arrays are considered secure.&lt;/p&gt;
+
+&lt;p&gt;Perl&amp;rsquo;s &lt;code&gt;ref&lt;/code&gt; function is a reliable and secure way to determine the data type of a reference. Arguments passed to functions are always passed as an array of scalars via &lt;code&gt;@_&lt;/code&gt;. There is no doubt, no ambiguity. It&amp;rsquo;s not required security-wise, but if you want to use them you can use function signatures, types and meta-object programming in Perl. They&amp;rsquo;ve been available for years.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;But I felt all of these points will go unnoticed without an extreme example of Perl&amp;rsquo;s absurdity. So I found an extreme example. One that will clearly show the ridiculousness nature of the language.&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash; &lt;cite&gt;Netanel Rubin, The Perl Jam 2&lt;/cite&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This is the vulnerable code, from an example CGI application:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use CGI;
+
+my $cgi = CGI-&amp;gt;new;
+
+if ($cgi-&amp;gt;upload( &#39;file&#39; )) {
+  my $file = $cgi-&amp;gt;param( &#39;file&#39; );
+  while (&amp;lt;$file&amp;gt;) {
+    print &amp;quot;$_&amp;quot;;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The issue with this code is that if &lt;code&gt;$file&lt;/code&gt; has the value of &lt;code&gt;ARGV&lt;/code&gt;, the diamond operator &lt;code&gt;&amp;lt;$file&amp;gt;&lt;/code&gt; will call &lt;code&gt;open&lt;/code&gt; on every value in &lt;code&gt;@ARGV&lt;/code&gt;. CGI populates &lt;code&gt;@ARGV&lt;/code&gt; with the HTTP query parameters which creates the vulnerability. So if the HTTP query parameter is &lt;code&gt;ls|&lt;/code&gt;, Perl will execute &lt;code&gt;ls&lt;/code&gt;. If the CGI program was running in taint mode, this attack vector would fail. Regardless, it&amp;rsquo;s a well-understood risk, the PLEAC project&amp;rsquo;s Perl &lt;a href=&#34;http://ramenlabs.com/pleac-pdf/pleac_perl.pdf&#34;&gt;recommendations&lt;/a&gt; from 1999 shows how to properly parse file descriptors in CGI parameters (ex 19.4). O&amp;rsquo;Reilly&amp;rsquo;s &lt;a href=&#34;http://www.oreilly.com/openbook/cgi/ch07_04.html&#34;&gt;CGI Programming on the Web&lt;/a&gt; by Shishir Gundavaram recommended parsing metacharacters like &lt;code&gt;|&lt;/code&gt; from user input, which also prevents this attack. That book was published in 1996.&lt;/p&gt;
+
+&lt;p&gt;The piping open behavior is well documented in &lt;a href=&#34;http://perldoc.perl.org/functions/open.html&#34;&gt;open&lt;/a&gt;, &lt;a href=&#34;http://perldoc.perl.org/perlipc.html#Using-open%28%29-for-IPC&#34;&gt;perlipc&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/perlsec.html&#34;&gt;perlsec&lt;/a&gt;. Chapter 2 of &lt;a href=&#34;http://masteringperl.org&#34;&gt;Mastering Perl&lt;/a&gt; also covers it. It&amp;rsquo;s a useful feature when you want to efficiently process a lot of data from an external command: just like a shell pipe, it creates a socket between the Perl program and the external binary, avoiding the need to read the entire output into memory at once.&lt;/p&gt;
+
+&lt;p&gt;Netanel also identified a SQL injection vulnerability in Bugzilla. The weakness was caused by a poorly coded function which failed to properly validate input used in a dynamic SQL query. The developers should have used the safer pass-by-parameter &lt;a href=&#34;https://metacpan.org/pod/DBI&#34;&gt;DBI&lt;/a&gt; &lt;code&gt;prepare&lt;/code&gt; and &lt;code&gt;execute&lt;/code&gt; functions.&lt;/p&gt;
+
+&lt;p&gt;In both cases Perl provided methods for securely parsing untrusted input, but the developers didn&amp;rsquo;t use them.&lt;/p&gt;
+
+&lt;h3 id=&#34;claim-2-bugzilla-cgi-pm-are-representative-of-idiomatic-perl:d158258b1d06be868d3b174d51dace7b&#34;&gt;Claim 2: Bugzilla &amp;amp; CGI.pm are representative of idiomatic Perl&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Like every other Perl project, Bugzilla is heavily using functions that treat scalar and non-scalar argument types very differently.&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash; &lt;cite&gt;Netanel Rubin, The Perl Jam 2&lt;/cite&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Netanel is referring to this code from his talk, which uses the argument type to decide what to do:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub test {
+  $arg1 = @_; # Get an argument
+
+  if (ref $arg1 eq &#39;HASH&#39;)
+    print $arg1{&#39;key&#39;};
+  else
+    print $arg1;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Aside from the fact that Netanel&amp;rsquo;s code contains a big error which means it would never work, the claim that every other Perl project is coded in this way is preposterous. &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla&#34;&gt;Dist::Zilla&lt;/a&gt; is a popular Perl project with over 20,000 lines of code. Can you guess how frequently Dist::Zilla uses the construct Netanel describes? A quick grep of the code shows zero instances. Bugzilla was developed in 1998, it is not an example of &lt;a href=&#34;http://modernperlbooks.com/books/modern_perl_2014/index.html&#34;&gt;Modern Perl&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Regarding CGI.pm, I can&amp;rsquo;t say it better than the official &lt;a href=&#34;https://metacpan.org/pod/CGI#CGI.pm-HAS-BEEN-REMOVED-FROM-THE-PERL-CORE&#34;&gt;documentation&lt;/a&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;CGI.pm HAS BEEN REMOVED FROM THE PERL CORE&lt;/p&gt;
+
+&lt;p&gt;The rationale for this decision is that CGI.pm is no longer considered good practice for developing web applications, including quick prototyping and small web scripts. There are far better, cleaner, quicker, easier, safer, more scalable, more extensible, more modern alternatives available at this point in time.&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash; &lt;cite&gt;CGI.pm documentation&lt;/cite&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&#34;claim-3-perl-doesn-t-improve:d158258b1d06be868d3b174d51dace7b&#34;&gt;Claim 3: Perl doesn&amp;rsquo;t improve&lt;/h3&gt;
+
+&lt;p&gt;Things get interesting during the Q&amp;amp;A section of the talk when an audience member says:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;We use Perl for almost every module that we have at work, and it works really fine. I don&amp;rsquo;t know why you are picking Perl as a language to attack. It&amp;rsquo;s a really old language, and every language you can pick has problems, it doesn&amp;rsquo;t mean that &amp;hellip; you have to stop using it.&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash; &lt;cite&gt;Audience Member, The Perl Jam 2&lt;/cite&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Netanel responds:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;C got criticized and it improved. PHP got criticized and it improved. Why can&amp;rsquo;t Perl be criticized too? &amp;hellip; why don&amp;rsquo;t they improve the language?&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash; &lt;cite&gt;Netanel Rubin, The Perl Jam 2&lt;/cite&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The funny thing is Perl is improving all the time. Every year there is a major release of Perl which brings new features and enhancements to the language (&lt;a href=&#34;http://perldoc.perl.org/index-history.html&#34;&gt;history&lt;/a&gt;). Last year&amp;rsquo;s &lt;a href=&#34;http://perldoc.perl.org/perldelta.html&#34;&gt;release&lt;/a&gt; included a new operator, the &lt;a href=&#34;http://www.effectiveperlprogramming.com/2015/05/use-perl-5-22s-operator-for-safe-command-line-handling/&#34;&gt;double diamond&lt;/a&gt; &lt;code&gt;&amp;lt;&amp;lt; &amp;gt;&amp;gt;&lt;/code&gt; which disables the piping open behavior shown earlier. CGI.pm was removed from Perl&amp;rsquo;s core modules list in May 2014. Both of those occurrences predate Netanel&amp;rsquo;s talk.&lt;/p&gt;
+
+&lt;p&gt;Instead of waiting for a major release milestone, the Perl development team can fix critical security issues in a minor release if needed (for example see &lt;a href=&#34;http://perldoc.perl.org/perl5163delta.html&#34;&gt;5.16.3&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;Perl also has a strong toolchain for evaluating Perl code. &lt;a href=&#34;https://metacpan.org/pod/distribution/Perl-Critic/bin/perlcritic&#34;&gt;Perl::Critic&lt;/a&gt; is a linter that reviews Perl code against recommended coding practices. There is even a &lt;a href=&#34;https://metacpan.org/pod/Perl::Critic::Policy::ValuesAndExpressions::PreventSQLInjection&#34;&gt;policy&lt;/a&gt; to check for potential SQL injection vulnerabilities.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:d158258b1d06be868d3b174d51dace7b&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;You can&amp;rsquo;t always live in the fear of not knowing what data type you are trying to handle &amp;hellip; not trusting your hashes, not trusting your arrays, what&amp;rsquo;s next, not trusting your own code?&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash; &lt;cite&gt;Netanel Rubin, The Perl Jam 2&lt;/cite&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;As someone who has years of experience writing professional Perl code, and working with Perl programmers, I do not recognize this experience at all. All Netanel has shown is an attack on some example code from a neglected module and a SQL injection bug in a legacy application.&lt;/p&gt;
+
+&lt;p&gt;Is the Ruby language to blame for a vulnerability in &lt;a href=&#34;http://arstechnica.com/business/2012/03/hacker-commandeers-github-to-prove-vuln-in-ruby/&#34;&gt;Ruby-on-Rails&lt;/a&gt;? Is PHP insecure because over 950 &lt;a href=&#34;https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=wordpress&#34;&gt;exploits&lt;/a&gt; were found for WordPress? This isn&amp;rsquo;t a dynamic language issue either; in &lt;a href=&#34;http://danluu.com/empirical-pl&#34;&gt;Static vs. dynamic languages: a literature review&lt;/a&gt; author Dan Luu found little evidence that statically typed languages were safer than dynamic ones.&lt;/p&gt;
+
+&lt;p&gt;Anytime you fail to adequately parse untrusted input you&amp;rsquo;re going to have a bad day. Blaming Perl for developers&amp;rsquo; bad code is like blaming the Alphabet for being turned into 50 Shades of Grey.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>An introduction to Tmux</title>
@@ -1282,235 +1422,6 @@ sleep(60);
 &lt;li&gt;Gracefully shutdown your Dancer2 application using &lt;a href=&#34;https://metacpan.org/pod/Dancer2::Plugin::Shutdown&#34;&gt;Dancer2::Plugin::Shutdown&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Use SQLite as a backend for a Minion job queue with &lt;a href=&#34;https://metacpan.org/pod/Minion::Backend::SQLite&#34;&gt;Minion::Backend::SQLite&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Professional scripts are a snap with Getopt::Long</title>
-      <link>http://perltricks.com/article/195/2015/10/21/Professional-scripts-are-a-snap-with-Getopt--Long/</link>
-      <pubDate>Wed, 21 Oct 2015 12:40:21 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/195/2015/10/21/Professional-scripts-are-a-snap-with-Getopt--Long/</guid>
-      <description>
-
-&lt;p&gt;Scripts are practically Perl&amp;rsquo;s raison d&amp;rsquo;être, and so naturally it has some great scripting tools. &lt;a href=&#34;http://perldoc.perl.org/Getopt/Long.html&#34;&gt;Getopt::Long&lt;/a&gt; is a module for parsing command line arguments (similar to Python&amp;rsquo;s &lt;a href=&#34;https://docs.python.org/dev/library/argparse.html&#34;&gt;argparse&lt;/a&gt;). Using Getopt::Long, you can quickly define a standard Unix-like interface for your program. With just a few lines of code you can parse, type-check and assign the parameters passed to your program. Sounds good? Read on to find out how.&lt;/p&gt;
-
-&lt;h3 id=&#34;building-a-basic-app:48d833634041780d6c9b1111f24de56c&#34;&gt;Building a basic app&lt;/h3&gt;
-
-&lt;p&gt;Let&amp;rsquo;s imagine I wanted to create a program for creating software licenses, like &lt;a href=&#34;https://metacpan.org/pod/App::Software::License&#34;&gt;App::Software::License&lt;/a&gt;. The user will run the program and it will print the software license text, with the license text customized for the user. To do this, the program will need to process a few arguments from the user - a perfect use case for Getopt::Long! Let&amp;rsquo;s start with the license holder&amp;rsquo;s name:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use Getopt::Long;
-
-GetOptions(
-  &#39;holder=s&#39; =&amp;gt; \my $holder_name,
-) or die &amp;quot;Invalid options passed to $0\n&amp;quot;;
-
-print &amp;quot;$holder_name\n&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;I start by importing &lt;a href=&#34;https://metacpan.org/pod/Getopt::Long&#34;&gt;Getopt::Long&lt;/a&gt;, it&amp;rsquo;s part of the core Perl distribution, so if you have Perl installed, you should already have it. The &lt;code&gt;GetOptions&lt;/code&gt; function from Getopt::Long is where the magic happens. It takes a hash of parameter names and variable references which define the program&amp;rsquo;s API. The string &lt;code&gt;holder=s&lt;/code&gt; tells Getopt::Long to accept an argument like &lt;code&gt;--holder&lt;/code&gt; and assign it to &lt;code&gt;$holder_name&lt;/code&gt;. If we receive any arguments that are not defined in &lt;code&gt;GetOptions&lt;/code&gt;, the code dies and prints out an exception message (terminating the exception message with a newline stops Perl from printing the line reference of the exception). The final line just prints out the value. I&amp;rsquo;ll save the script as &lt;code&gt;license&lt;/code&gt; and test it out:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ chmod a+x license
-$ ./license --holder &amp;quot;David Farrell&amp;quot;
-David Farrell
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;On Windows, you&amp;rsquo;ll need to type:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl license --holder &amp;quot;David Farrell&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;By default Getopt::Long also recognizes the short form of arguments, so this works too:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./license -h &amp;quot;David Farrell&amp;quot;
-David Farrell
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;type-checking:48d833634041780d6c9b1111f24de56c&#34;&gt;Type checking&lt;/h3&gt;
-
-&lt;p&gt;Getopt::Long provides basic type checking for strings, integers and floating point numbers. I&amp;rsquo;ve already added a string argument for the license holder&amp;rsquo;s name, so I&amp;rsquo;ll add an integer option for the license year:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use Getopt::Long;
-
-GetOptions(
-  &#39;holder=s&#39; =&amp;gt; \my $holder_name,
-  &#39;year=i&#39;   =&amp;gt; \my $year,
-) or die &amp;quot;Invalid options passed to $0\n&amp;quot;;
-
-print &amp;quot;$holder_name $year\n&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Running the program again, it will now accept a &lt;code&gt;--year&lt;/code&gt; argument:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;./license -h &amp;quot;David Farrell&amp;quot; --y 2014
-David Farrell 2014
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Note how I was able to pass &lt;code&gt;-y 2014&lt;/code&gt; and Getopt::Long knew to assign it to &lt;code&gt;$year&lt;/code&gt;. Getopt::Long will also do basic type checking, so if a non-integer value is passed, it will print and warning and the script will die.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;./license -h &amp;quot;David Farrell&amp;quot; --year abcd
-Value &amp;quot;abcd&amp;quot; invalid for option year (number expected)
-Invalid options passed to ./getopt
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;I&amp;rsquo;m going to add an option for the license type, so the user can specify which license text they want such as the GPL, MIT or BSD licenses (there are many more).&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use Getopt::Long;
-
-GetOptions(
-  &#39;holder=s&#39; =&amp;gt; \my $holder_name,
-  &#39;year=i&#39;   =&amp;gt; \my $year,
-  &#39;type=s&#39;   =&amp;gt; \my $type,
-) or die &amp;quot;Invalid options passed to $0\n&amp;quot;;
-
-print &amp;quot;$holder_name $year $type\n&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;boolean-options:48d833634041780d6c9b1111f24de56c&#34;&gt;Boolean options&lt;/h3&gt;
-
-&lt;p&gt;Finally I want to add a boolean option for whether to print out the full license text or not. To use boolean options with Getopt::Long, it&amp;rsquo;s the same as with other options except that you don&amp;rsquo;t specify the type after the option name:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use Getopt::Long;
-
-GetOptions(
-  &#39;holder=s&#39; =&amp;gt; \my $holder_name,
-  &#39;year=i&#39;   =&amp;gt; \my $year,
-  &#39;type=s&#39;   =&amp;gt; \my $type,
-  &#39;fulltext&#39; =&amp;gt; \my $fulltext,
-) or die &amp;quot;Invalid options passed to $0\n&amp;quot;;
-
-print &amp;quot;$holder_name $year $type $fulltext\n&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The fulltext option does not take a value and will be initialized as 1 if present, or &lt;code&gt;undef&lt;/code&gt; if not:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./license -h &amp;quot;David Farrell&amp;quot; -y 2012 -t FreeBSD -fulltext
-David Farrell 2012 FreeBSD 1
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;default-values:48d833634041780d6c9b1111f24de56c&#34;&gt;Default values&lt;/h3&gt;
-
-&lt;p&gt;Some options I can give default values to. For example if the user doesn&amp;rsquo;t pass the year they want the license for, I&amp;rsquo;ll assume they want the current year.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use Getopt::Long;
-use Time::Piece;
-
-GetOptions(
-  &#39;holder=s&#39; =&amp;gt; \ my $holder_name,
-  &#39;year=i&#39;   =&amp;gt; \(my $year = year_now()),
-  &#39;type=s&#39;   =&amp;gt; \(my $type = &#39;artistic 2.0&#39;),
-  &#39;fulltext&#39; =&amp;gt; \ my $fulltext,
-) or die &amp;quot;Invalid options passed to $0\n&amp;quot;;
-
-sub year_now
-{
-  my $localtime = localtime;
-  return $localtime-&amp;gt;year;
-}
-
-print &amp;quot;$holder_name $year $type $fulltext\n&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;I&amp;rsquo;ve added the &lt;a href=&#34;https://metacpan.org/pod/Time::Piece&#34;&gt;Time::Piece&lt;/a&gt; module, which is a &lt;a href=&#34;http://perltricks.com/article/59/2014/1/10/Solve-almost-any-datetime-need-with-Time--Piece&#34;&gt;useful&lt;/a&gt; module for datetime handling, and a subroutine &lt;code&gt;year_now&lt;/code&gt; which returns the current year. Meanwhile I&amp;rsquo;ve updated &lt;code&gt;GetOptions&lt;/code&gt; to assign the current year to the &lt;code&gt;$year&lt;/code&gt; variable. This will be overridden if the user passes the year argument. I&amp;rsquo;ve also given the license type the default value of &amp;ldquo;artistic 2.0&amp;rdquo; as that is the same license as Perl 5 (and the license used by many modules).&lt;/p&gt;
-
-&lt;h3 id=&#34;mandatory-parameters:48d833634041780d6c9b1111f24de56c&#34;&gt;Mandatory parameters&lt;/h3&gt;
-
-&lt;p&gt;So far so good, but what about mandatory parameters? This script will not work unless the user passes the license holder information. For mandatory parameters I have to check for their presence myself, Getopt::Long can&amp;rsquo;t help me here. Luckily it&amp;rsquo;s a simple check:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use Getopt::Long;
-use Time::Piece;
-
-GetOptions(
-  &#39;holder=s&#39; =&amp;gt; \ my $holder_name,
-  &#39;year=i&#39;   =&amp;gt; \(my $year = year_now()),
-  &#39;type=s&#39;   =&amp;gt; \(my $type = &#39;artistic 2.0&#39;),
-  &#39;fulltext&#39; =&amp;gt; \ my $fulltext,
-) or die &amp;quot;Invalid options passed to $0\n&amp;quot;;
-
-# check we got a license holder
-die &amp;quot;$0 requires the license holder argument (--holder)\n&amp;quot; unless $holder_name;
-
-sub year_now
-{
-  my $localtime = localtime;
-  return $localtime-&amp;gt;year;
-}
-
-print &amp;quot;$holder_name $year $type $fulltext\n&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;In case you&amp;rsquo;re wondering, the variable &lt;code&gt;$0&lt;/code&gt; is a special variable that is the program&amp;rsquo;s name. It&amp;rsquo;s a handy shortcut for exception messages and cheating at writing &lt;a href=&#34;https://en.wikipedia.org/wiki/Quine_%28computing%29&#34;&gt;quines&lt;/a&gt; (like this: &lt;code&gt;open+0;print&amp;lt;0&amp;gt;&lt;/code&gt;).&lt;/p&gt;
-
-&lt;h3 id=&#34;help-text:48d833634041780d6c9b1111f24de56c&#34;&gt;Help text&lt;/h3&gt;
-
-&lt;p&gt;We&amp;rsquo;re almost done, but Getopt::Long has more tricks up its sleeve. I&amp;rsquo;ll add some basic documentation to this script, in &lt;a href=&#34;http://perldoc.perl.org/perlpod.html&#34;&gt;Pod&lt;/a&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use warnings;
-use strict;
-use Getopt::Long &#39;HelpMessage&#39;;
-use Time::Piece;
-
-GetOptions(
-  &#39;holder=s&#39; =&amp;gt; \ my $holder_name,
-  &#39;year=i&#39;   =&amp;gt; \(my $year = year_now()),
-  &#39;type=s&#39;   =&amp;gt; \(my $type = &#39;artistic 2.0&#39;),
-  &#39;fulltext&#39; =&amp;gt; \ my $fulltext,
-  &#39;help&#39;     =&amp;gt;   sub { HelpMessage(0) },
-) or HelpMessage(1);
-
-# die unless we got the mandatory argument
-HelpMessage(1) unless $holder_name;
-
-print_license ($holder_name, $year, $type, $fulltext);
-
-sub year_now
-{
-  my $localtime = localtime;
-  return $localtime-&amp;gt;year;
-}
-
-# tbc
-sub print_license { ... }
-
-=head1 NAME
-
-license - get license texts at the command line!
-
-=head1 SYNOPSIS
-
-  --holder,-h     Holder name (required)
-  --year,-y       License year (defaults to current year)
-  --type,-t       License type (defaults to Artistic 2.0)
-  --fulltext,-f   Print the full license text
-  --help,-h       Print this help
-
-=head1 VERSION
-
-0.01
-
-=cut
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The documentation is pretty minimal, just the program name, synopsis of its arguments and a version number. I&amp;rsquo;ve replaced the print statement with a stub function &lt;code&gt;print_license&lt;/code&gt;, which is where the main program would be implemented. I&amp;rsquo;ve replaced the &lt;code&gt;die&lt;/code&gt; calls with the Getopt::Long function &lt;code&gt;HelpMessage&lt;/code&gt;. This will print a usage help text and exit the program when called. Let&amp;rsquo;s try it out:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./license -k
-Unknown option: k
-Usage:
-      --holder, -h    Holder name (required)
-      --year, -y      License year (defaults to current year)
-      --type, -t      License type (defaults to Artistic 2.0)
-      --fulltext, -f  Print the full license text
-      --help, -h      Print this help
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Not bad! &lt;code&gt;HelpMessage&lt;/code&gt; takes an exit value to return to the OS. If the user passes the argument &lt;code&gt;--help&lt;/code&gt; the program should print the usage and exit without error (value zero). However if they don&amp;rsquo;t pass any arguments at all or if they pass any invalid arguments, the same usage text will be printed but the program will exit with 1, indicating that something went wrong.&lt;/p&gt;
 </description>
     </item>
     

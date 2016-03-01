@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Netanel Rubin&#39;s Perl Jam circus Perl programming news, code and culture</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Responding to a misguided attack on Perl"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+          <li><a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <div class="row">
+              <article>
+              
+              
+              <h1 class="blog-post-title">Netanel Rubin&#39;s Perl Jam circus</h1>
+              <p class="blog-post-meta">Mar 1, 2016 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src="http://googledrive.com/host/0BwRnByTz2iUXMUdoRDVvRGpsU1U"/>
+                
+
+<p>I&rsquo;ve just watched Netanel Rubin&rsquo;s Perl Jam 2 <a href="https://www.youtube.com/watch?v=eH_u3C2WwQ0">talk</a> from this year&rsquo;s Chaos Communication Congress. As he&rsquo;s due to give the same talk at <a href="https://www.blackhat.com/asia-16/">Black Hat Asia</a>, I thought it would be good to set the record straight concerning his claims about Perl (<a href="https://gist.github.com/preaction/978ce941f05769b064f4">others</a> have already done so). He makes 3 major claims:</p>
+
+<ol>
+<li>The Perl language is insecure</li>
+<li>Bugzilla &amp; CGI.pm are representative of idiomatic Perl</li>
+<li>Perl doesn&rsquo;t improve</li>
+</ol>
+
+<p>I&rsquo;m going to address each claim in turn and show why it is false. In my view, Perl remains a powerful, general-purpose language well-suited to tasks like building dynamic web applications, processing big data, and managing systems.</p>
+
+<h3 id="claim-1-the-perl-language-is-insecure:d158258b1d06be868d3b174d51dace7b">Claim 1: The Perl language is insecure</h3>
+
+<blockquote>
+<p>Function declarations cannot specify argument data types</p>
+
+<p>&ndash; <cite>Netanel Rubin, The Perl Jam 2</cite></p>
+</blockquote>
+
+<p>This isn&rsquo;t true. Since 2008 Perl has supported subroutine signatures, with type checks using the <a href="https://metacpan.org/pod/Method::Signatures">Method::Signatures</a> module. Since 2006 the <a href="https://metacpan.org/pod/Moose">Moose</a> object system provided a fully-fledged <a href="https://metacpan.org/pod/Moose::Util::TypeConstraints">type system</a> and meta object programming interface (there&rsquo;s also <a href="https://metacpan.org/pod/MooseX::Method::Signatures">MooseX::Method::Signatures</a>).</p>
+
+<blockquote>
+<p>Developers treat hashes and arrays as &ldquo;secure&rdquo; data types &hellip; this is the Perl standard. You&rsquo;re not expected to use it, you have to, as you don&rsquo;t have any other choice. This security mess is a fundamental part of the language.</p>
+
+<p>&ndash; <cite>Netanel Rubin, The Perl Jam 2</cite></p>
+</blockquote>
+
+<p>Netanel starts by describing taint mode and claims that hashes are so secure, hash keys bypass Perl&rsquo;s taint check. It&rsquo;s true that hash keys are never considered tainted. This is documented in <a href="http://perldoc.perl.org/perlsec.html#Taint-mode">perldoc</a> and discussed in depth in Chapter 2 of <a href="http://masteringperl.org">Mastering Perl</a>. But it&rsquo;s not because hashes are assumed to be secure, it&rsquo;s because tainting hash keys involves a huge performance penalty. He never explains his claim as to why arrays are considered secure.</p>
+
+<p>Perl&rsquo;s <code>ref</code> function is a reliable and secure way to determine the data type of a reference. Arguments passed to functions are always passed as an array of scalars via <code>@_</code>. There is no doubt, no ambiguity. It&rsquo;s not required security-wise, but if you want to use them you can use function signatures, types and meta-object programming in Perl. They&rsquo;ve been available for years.</p>
+
+<blockquote>
+<p>But I felt all of these points will go unnoticed without an extreme example of Perl&rsquo;s absurdity. So I found an extreme example. One that will clearly show the ridiculousness nature of the language.</p>
+
+<p>&ndash; <cite>Netanel Rubin, The Perl Jam 2</cite></p>
+</blockquote>
+
+<p>This is the vulnerable code, from an example CGI application:</p>
+
+<pre><code class="language-prettyprint">use strict;
+use warnings;
+use CGI;
+
+my $cgi = CGI-&gt;new;
+
+if ($cgi-&gt;upload( 'file' )) {
+  my $file = $cgi-&gt;param( 'file' );
+  while (&lt;$file&gt;) {
+    print &quot;$_&quot;;
+  }
+}
+</code></pre>
+
+<p>The issue with this code is that if <code>$file</code> has the value of <code>ARGV</code>, the diamond operator <code>&lt;$file&gt;</code> will call <code>open</code> on every value in <code>@ARGV</code>. CGI populates <code>@ARGV</code> with the HTTP query parameters which creates the vulnerability. So if the HTTP query parameter is <code>ls|</code>, Perl will execute <code>ls</code>. If the CGI program was running in taint mode, this attack vector would fail. Regardless, it&rsquo;s a well-understood risk, the PLEAC project&rsquo;s Perl <a href="http://ramenlabs.com/pleac-pdf/pleac_perl.pdf">recommendations</a> from 1999 shows how to properly parse file descriptors in CGI parameters (ex 19.4). O&rsquo;Reilly&rsquo;s <a href="http://www.oreilly.com/openbook/cgi/ch07_04.html">CGI Programming on the Web</a> by Shishir Gundavaram recommended parsing metacharacters like <code>|</code> from user input, which also prevents this attack. That book was published in 1996.</p>
+
+<p>The piping open behavior is well documented in <a href="http://perldoc.perl.org/functions/open.html">open</a>, <a href="http://perldoc.perl.org/perlipc.html#Using-open%28%29-for-IPC">perlipc</a> and <a href="http://perldoc.perl.org/perlsec.html">perlsec</a>. Chapter 2 of <a href="http://masteringperl.org">Mastering Perl</a> also covers it. It&rsquo;s a useful feature when you want to efficiently process a lot of data from an external command: just like a shell pipe, it creates a socket between the Perl program and the external binary, avoiding the need to read the entire output into memory at once.</p>
+
+<p>Netanel also identified a SQL injection vulnerability in Bugzilla. The weakness was caused by a poorly coded function which failed to properly validate input used in a dynamic SQL query. The developers should have used the safer pass-by-parameter <a href="https://metacpan.org/pod/DBI">DBI</a> <code>prepare</code> and <code>execute</code> functions.</p>
+
+<p>In both cases Perl provided methods for securely parsing untrusted input, but the developers didn&rsquo;t use them.</p>
+
+<h3 id="claim-2-bugzilla-cgi-pm-are-representative-of-idiomatic-perl:d158258b1d06be868d3b174d51dace7b">Claim 2: Bugzilla &amp; CGI.pm are representative of idiomatic Perl</h3>
+
+<blockquote>
+<p>Like every other Perl project, Bugzilla is heavily using functions that treat scalar and non-scalar argument types very differently.</p>
+
+<p>&ndash; <cite>Netanel Rubin, The Perl Jam 2</cite></p>
+</blockquote>
+
+<p>Netanel is referring to this code from his talk, which uses the argument type to decide what to do:</p>
+
+<pre><code class="language-prettyprint">sub test {
+  $arg1 = @_; # Get an argument
+
+  if (ref $arg1 eq 'HASH')
+    print $arg1{'key'};
+  else
+    print $arg1;
+}
+</code></pre>
+
+<p>Aside from the fact that Netanel&rsquo;s code contains a big error which means it would never work, the claim that every other Perl project is coded in this way is preposterous. <a href="https://metacpan.org/pod/Dist::Zilla">Dist::Zilla</a> is a popular Perl project with over 20,000 lines of code. Can you guess how frequently Dist::Zilla uses the construct Netanel describes? A quick grep of the code shows zero instances. Bugzilla was developed in 1998, it is not an example of <a href="http://modernperlbooks.com/books/modern_perl_2014/index.html">Modern Perl</a>.</p>
+
+<p>Regarding CGI.pm, I can&rsquo;t say it better than the official <a href="https://metacpan.org/pod/CGI#CGI.pm-HAS-BEEN-REMOVED-FROM-THE-PERL-CORE">documentation</a>:</p>
+
+<blockquote>
+<p>CGI.pm HAS BEEN REMOVED FROM THE PERL CORE</p>
+
+<p>The rationale for this decision is that CGI.pm is no longer considered good practice for developing web applications, including quick prototyping and small web scripts. There are far better, cleaner, quicker, easier, safer, more scalable, more extensible, more modern alternatives available at this point in time.</p>
+
+<p>&ndash; <cite>CGI.pm documentation</cite></p>
+</blockquote>
+
+<h3 id="claim-3-perl-doesn-t-improve:d158258b1d06be868d3b174d51dace7b">Claim 3: Perl doesn&rsquo;t improve</h3>
+
+<p>Things get interesting during the Q&amp;A section of the talk when an audience member says:</p>
+
+<blockquote>
+<p>We use Perl for almost every module that we have at work, and it works really fine. I don&rsquo;t know why you are picking Perl as a language to attack. It&rsquo;s a really old language, and every language you can pick has problems, it doesn&rsquo;t mean that &hellip; you have to stop using it.</p>
+
+<p>&ndash; <cite>Audience Member, The Perl Jam 2</cite></p>
+</blockquote>
+
+<p>Netanel responds:</p>
+
+<blockquote>
+<p>C got criticized and it improved. PHP got criticized and it improved. Why can&rsquo;t Perl be criticized too? &hellip; why don&rsquo;t they improve the language?</p>
+
+<p>&ndash; <cite>Netanel Rubin, The Perl Jam 2</cite></p>
+</blockquote>
+
+<p>The funny thing is Perl is improving all the time. Every year there is a major release of Perl which brings new features and enhancements to the language (<a href="http://perldoc.perl.org/index-history.html">history</a>). Last year&rsquo;s <a href="http://perldoc.perl.org/perldelta.html">release</a> included a new operator, the <a href="http://www.effectiveperlprogramming.com/2015/05/use-perl-5-22s-operator-for-safe-command-line-handling/">double diamond</a> <code>&lt;&lt; &gt;&gt;</code> which disables the piping open behavior shown earlier. CGI.pm was removed from Perl&rsquo;s core modules list in May 2014. Both of those occurrences predate Netanel&rsquo;s talk.</p>
+
+<p>Instead of waiting for a major release milestone, the Perl development team can fix critical security issues in a minor release if needed (for example see <a href="http://perldoc.perl.org/perl5163delta.html">5.16.3</a>).</p>
+
+<p>Perl also has a strong toolchain for evaluating Perl code. <a href="https://metacpan.org/pod/distribution/Perl-Critic/bin/perlcritic">Perl::Critic</a> is a linter that reviews Perl code against recommended coding practices. There is even a <a href="https://metacpan.org/pod/Perl::Critic::Policy::ValuesAndExpressions::PreventSQLInjection">policy</a> to check for potential SQL injection vulnerabilities.</p>
+
+<h3 id="conclusion:d158258b1d06be868d3b174d51dace7b">Conclusion</h3>
+
+<blockquote>
+<p>You can&rsquo;t always live in the fear of not knowing what data type you are trying to handle &hellip; not trusting your hashes, not trusting your arrays, what&rsquo;s next, not trusting your own code?</p>
+
+<p>&ndash; <cite>Netanel Rubin, The Perl Jam 2</cite></p>
+</blockquote>
+
+<p>As someone who has years of experience writing professional Perl code, and working with Perl programmers, I do not recognize this experience at all. All Netanel has shown is an attack on some example code from a neglected module and a SQL injection bug in a legacy application.</p>
+
+<p>Is the Ruby language to blame for a vulnerability in <a href="http://arstechnica.com/business/2012/03/hacker-commandeers-github-to-prove-vuln-in-ruby/">Ruby-on-Rails</a>? Is PHP insecure because over 950 <a href="https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=wordpress">exploits</a> were found for WordPress? This isn&rsquo;t a dynamic language issue either; in <a href="http://danluu.com/empirical-pl">Static vs. dynamic languages: a literature review</a> author Dan Luu found little evidence that statically typed languages were safer than dynamic ones.</p>
+
+<p>Anytime you fail to adequately parse untrusted input you&rsquo;re going to have a bad day. Blaming Perl for developers&rsquo; bad code is like blaming the Alphabet for being turned into 50 Shades of Grey.</p>
+
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/chaos_communication_congress">chaos_communication_congress</a></div>
+                
+                  <div class="tag"><a href="/tags/ccc">ccc</a></div>
+                
+                  <div class="tag"><a href="/tags/black%20hat">black hat</a></div>
+                
+                  <div class="tag"><a href="/tags/netanel%20rubin">netanel rubin</a></div>
+                
+                  <div class="tag"><a href="/tags/infosec">infosec</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
+              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/netanel-rubins-perljam-circus/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(http://googledrive.com/host/0BwRnByTz2iUXMUdoRDVvRGpsU1U)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Netanel Rubin&#39;s Perl Jam circus</h6>
+        <p style="line-height:1"><small>Responding to a misguided attack on Perl</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/an-introduction-to-tmux/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(http://googledrive.com/host/0BwRnByTz2iUXazVBdzNFRU1QV1k)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>An introduction to Tmux</h6>
+        <p style="line-height:1"><small>How to get started with the open source terminal multiplexer </small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/magical-tied-scalars/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/brian.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Magical tied scalars</h6>
+        <p style="line-height:1"><small>Subvert and simplify code with tied scalars</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/213/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - January 2016</h6>
+        <p style="line-height:1"><small>A curated look at January&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/212/0156BEFE-C9B2-11E5-A2BB-E80C3AD1818C.jpeg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Get an in-browser remote desktop with Mojolicious and noVNC</h6>
+        <p style="line-height:1"><small>Using Mojolicious as a TCP/WebSocket Bridge</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+          <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a>
+          <a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+
