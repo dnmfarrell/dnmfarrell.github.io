@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <title>Netanel Rubin&#39;s Perl Jam circus Perl programming news, code and culture</title>
+  <title> Netanel Rubin&#39;s Perl Jam circus </title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -103,7 +103,7 @@
 <p>&ndash; <cite>Netanel Rubin, The Perl Jam 2</cite></p>
 </blockquote>
 
-<p>Netanel starts by describing taint mode and claims that hashes are so secure, hash keys bypass Perl&rsquo;s taint check. It&rsquo;s true that hash keys are never considered tainted. This is documented in <a href="http://perldoc.perl.org/perlsec.html#Taint-mode">perldoc</a> and discussed in depth in Chapter 2 of <a href="http://masteringperl.org">Mastering Perl</a>. But it&rsquo;s not because hashes are assumed to be secure, it&rsquo;s because tainting hash keys involves a huge performance penalty. He never explains his claim as to why arrays are considered secure.</p>
+<p>Netanel starts by describing taint mode and claims that hashes are so secure, hash keys bypass Perl&rsquo;s taint check. It&rsquo;s true that hash keys are never considered tainted. This is documented in <a href="http://perldoc.perl.org/perlsec.html#Taint-mode">perlsec</a> and discussed in depth in Chapter 2 of <a href="http://masteringperl.org">Mastering Perl</a>. But it&rsquo;s not because hashes are assumed to be secure, it&rsquo;s because tainting hash keys involves a huge performance penalty. He never explains his claim as to why arrays are considered secure.</p>
 
 <p>Perl&rsquo;s <code>ref</code> function is a reliable and secure way to determine the data type of a reference. Arguments passed to functions are always passed as an array of scalars via <code>@_</code>. There is no doubt, no ambiguity. It&rsquo;s not required security-wise, but if you want to use them you can use function signatures, types and meta-object programming in Perl. They&rsquo;ve been available for years.</p>
 
