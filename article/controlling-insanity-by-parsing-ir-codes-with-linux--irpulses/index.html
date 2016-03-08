@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+  <title> Controlling insanity by parsing IR codes with Linux::IRPulses </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Parsing IR remote codes"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul id="follow-buttons" class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+          <li><a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <div class="row">
+              <article>
+              
+              
+              <h1 class="blog-post-title">Controlling insanity by parsing IR codes with Linux::IRPulses</h1>
+              <p class="blog-post-meta">Mar 8, 2016 by <a href="#author-bio">Timm Murray</a></p>
+              <img alt="" src="http://googledrive.com/host/0BwRnByTz2iUXTUhuU1BhTjNkNVk"/>
+                
+
+<p><em>Sending information with pulsing invisible light can be surprisingly complex.
+Disentangle the problem with LIRC and Linux::IRPulses.</em></p>
+
+<p>Infrared remotes are one of those things where every manufacturer thinks they have the
+One True Way&trade; of doing it. You would think that there&rsquo;s only one or two straightforward
+ways to pulse a little IR light. Clearly, we&rsquo;re all wrong, because the home entertainment
+industry invents new ones all the time. That&rsquo;s not even counting the other sectors and
+hobbyist projects that come up with entirely different methods.</p>
+
+<p>The <a href="http://www.lirc.org">Linux Infrared Remote Control</a> (LIRC) project has
+produced mappings for a lot of remotes out there. That doesn&rsquo;t help
+with some of the more fringe devices. Also, some of the components at the top of the stack
+are geared towards executing a program after detecting a valid series of pulses.</p>
+
+<p>If we would rather take the pulses and handle them within our own program, then
+we need to ignore the top layers of LIRC and parse the pulse data directly. That is
+what <a href="https://metacpan.org/pod/Linux::IRPulses">Linux::IRPulses</a> does.</p>
+
+<p>We first need the hardware to detect the pulses. On a regular computer, there are many
+modules available which can be plugged in to a USB port. On a single board
+computer like the Raspberry Pi, we have General Purpose Input/Output (GPIO) pins,
+which can read the timing of the pulses.</p>
+
+<h3 id="setting-up-the-raspberry-pi:db41cc74731e5142d1f6a80629cf4a97">Setting up the Raspberry Pi</h3>
+
+<p>Skip this section if you&rsquo;re using a regular IR device. If you want to set up a
+module on the Raspberry Pi&rsquo;s GPIO pins, then read on.</p>
+
+<p>First, you need a module of the right frequency for the IR data you&rsquo;re trying to
+receive. If you&rsquo;re using a remote from an old TV, then searching around for
+&ldquo;<manufacturer> IR protocol&rdquo; should get you the right answer. 38 KHz is a common
+frequency, but this is just the first thing that manufacturers all did differently.</p>
+
+<p>The TSOP38138 is an IR remote receiver that runs at 38KHz. It&rsquo;s part of a family of
+devices that run at different frequencies, any of which are likely adequate.</p>
+
+<p>IR receivers for picking up remote data have three pins: power, ground, and data.
+Connect power to a +3.3V pin on the Raspberry Pi, ground to ground, and data to
+GPIO 23. See <a href="https://www.raspberrypi.org/documentation/usage/gpio-plus-and-raspi2/">the Raspberry Pi GPIO documentation</a> for the location of the pins.</p>
+
+<p>Now we need to configure LIRC. Start with a simple installation of the package with
+<code>apt-get install lirc</code>. Next, we need to load the kernel module,
+tell LIRC where to find the pin, and also configure some Raspberry Pi boot options.</p>
+
+<p>In <code>/etc/modules-load.d/modules.conf</code>, put:</p>
+
+<pre><code class="language-prettyprint">lirc_dev
+lirc_rpi gpio_in_pin=23 gpio_out_pin=22
+</code></pre>
+
+<p>That will make GPIO 23 as your input pin. LIRC can also be setup to send IR data, so
+we set GPIO 22 for that as long as we&rsquo;re here. Next, modify <code>/etc/lirc/hardware.conf</code>:</p>
+
+<pre><code class="language-prettyprint"># /etc/lirc/hardware.conf
+#
+# Arguments which will be used when launching lircd
+LIRCD_ARGS=&quot;--uinput&quot;
+
+#Don't start lircmd even if there seems to be a good config file
+#START_LIRCMD=false
+
+#Don't start irexec, even if a good config file seems to exist.
+#START_IREXEC=false
+
+#Try to load appropriate kernel modules
+LOAD_MODULES=true
+
+# Run &quot;lircd --driver=help&quot; for a list of supported drivers.
+DRIVER=&quot;default&quot;
+# usually /dev/lirc0 is the correct setting for systems using udev
+DEVICE=&quot;/dev/lirc0&quot;
+MODULES=&quot;lirc_rpi&quot;
+
+# Default configuration files for your hardware if any
+LIRCD_CONF=&quot;&quot;
+LIRCMD_CONF=&quot;&quot;
+</code></pre>
+
+<p>The particularly important things to note here are <code>DEVICE</code> for the
+device path, and <code>MODULES</code> for the Raspberry Pi GPIO driver.</p>
+
+<p>Finally, edit <code>/boot/config.txt</code> and add this somewhere in the file:</p>
+
+<pre><code class="language-prettyprint">dtoverlay=lirc-rpi,gpio_in_pin=23,gpio_out_pin=22
+</code></pre>
+
+<p>And then reboot. Once you&rsquo;re back up, you can test it by plugging in your IR module
+to the right pins and pointing a remote at it. Using <code>mode2 -d /dev/lirc0</code>,
+you should see the <code>pulse</code> and <code>space</code> data being sent.</p>
+
+<h3 id="decoding-the-undecodable:db41cc74731e5142d1f6a80629cf4a97">Decoding the undecodable</h3>
+
+<p>Sony runs their remotes at 40KHz. It starts by sending a header of a 2400μs pulse and
+600μs space. After the header, a 1 bit is sent by a 1200μs pulse, and a zero with a
+600μs. Between those ones and zeros are 600μs spaces. Codes could be 12, 15, or 20
+bits long depending on the remote. This is about as straightforward as things get.</p>
+
+<p>NEC uses a 38KHz carrier frequency. There&rsquo;s a 9000μs header followed by a 4500μs space.
+A 1 bit is sent by a 562.5μs pulse. A 0 bit is sent by a 562.5μs pulse. Wait, what? No,
+that&rsquo;s not a typo. NEC differentiates ones and zeros by the length of the space that
+comes after the pulse: 1687.5μs for 1, and 562.5μs for 0.</p>
+
+<p><a href="http://www.easyracelaptimer.com">EasyRaceLapTimer</a> (an Open Source
+quadcopter race timer system) is on a 38KHz frequency. It sends a 300μs pulse followed
+by a 300μs space. It then alternates sending pulses and spaces, with a 1 bit being
+600μs, and a 0 bit being 300μs.</p>
+
+<p>All the timing numbers above are big fat lies. The noisy, analog nature of the world
+means the actual values coming from the IR receiver will be different from the
+specified values, perhaps by as much as 15%. It&rsquo;s safe to assume that reverse
+engineered specifications are only guessing at the actual values that the manufacturer
+intended.</p>
+
+<p>All that is to say that we have a complicated job on our hands, and the above only
+covers a few of the examples out there.</p>
+
+<h3 id="linux-irpulses:db41cc74731e5142d1f6a80629cf4a97">Linux::IRPulses</h3>
+
+<p>The goal of this module is to simplify the process reading these pulses and spaces
+while tolerating the numbers being off.</p>
+
+<p>At present, the module works by parsing the output of LIRC&rsquo;s <code>mode2</code>
+program. This may change to reading directly from <code>/dev/lirc0</code> in the future.
+For now, we&rsquo;ll start by opening a pipe to <code>mode2</code>:</p>
+
+<pre><code class="language-prettyprint">open( my $in, '-|', 'mode2 -d /dev/lirc0' ) or die &quot;Can't exec mode2: $!\n&quot;;
+</code></pre>
+
+<p>We now need to define the protocol to Linux::IRPluses&rsquo;s constructor. To help with this,
+adding a <code>use Linux::IRPulses</code> will export the subroutines <code>pulse()</code>,
+<code>space()</code>, and <code>pulse_or_space()</code>.  These are used to specify what you
+expect to come in for pulses or spaces.</p>
+
+<p>For instance, we know that NEC sends a 9000μs pulse and 4500μs space for its header.
+We tell the constructor this with:</p>
+
+<pre><code class="language-prettyprint">my $ir = Linux::IRPulses-&gt;new({
+    header =&gt; [ pulse 9000, space 4500 ],
+    ...
+});
+</code></pre>
+
+<p>The parser goes through each entry in the array, checking off that the given pulse or
+space data is what we expect. Once it reaches the end of the header array, it marks the
+header as good and then looks for valid data for ones and zeros. We specify those in
+much the same way. We&rsquo;ll add in the other constructor parameters here, as well:</p>
+
+<pre><code class="language-prettyprint">my $ir = Linux::IRPulses-&gt;new({
+    header =&gt; [ pulse 9000, space 4500 ],
+    zero =&gt; [ pulse 563, space 563 ],
+    one =&gt; [ pulse 563, space 1688 ],
+    bit_count =&gt; 32,
+    callback =&gt; sub {
+        my ($args) = @_;
+        my $code = $args-&gt;{code};
+        say &quot;Received code $code&quot;;
+    },
+});
+</code></pre>
+
+<p>The parser will continue looking for ones and zeros until it&rsquo;s collected enough for the
+given <code>bit_count</code>. Once the right number has been met, it calls the subref
+specified in <code>callback</code> with a hashref. The hashref contains keys for
+<code>code</code> (the IR code that was detected) and <code>pulse_obj</code> (the
+Linux::IRPulses object). All the length numbers are checked with a tolerance of 20%.</p>
+
+<p>We don&rsquo;t promise you will keep your sanity after working with IR data, but hopefully
+<code>Linux::IRPulses</code> can help you go mad with dignity.</p>
+
+<p><em>(Original photo CC-BY 2.0 by Stefanus Ming at <a href="https://flic.kr/p/7djHYP">https://flic.kr/p/7djHYP</a>)</em></p>
+
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/perl">perl</a></div>
+                
+                  <div class="tag"><a href="/tags/ir">ir</a></div>
+                
+                  <div class="tag"><a href="/tags/linux_irpulses">linux_irpulses</a></div>
+                
+                  <div class="tag"><a href="/tags/lirc">lirc</a></div>
+                
+                  <div class="tag"><a href="/tags/remote">remote</a></div>
+                
+                  <div class="tag"><a href="/tags/raspberry_pi">raspberry_pi</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
+              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/timm.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>Timm Murray</h3>
+                <p>Timm Murray is a Perl programmer and hardware specialist. He is the creator of <a href="https://metacpan.org/pod/UAV::Pilot">UAV::Pilot</a> the de-facto standard Perl drone library. He regularly <a href="http://http://www.wumpus-cave.net/">blogs</a> about Perl and hardware hacking.</p>
+                <h5><a href="/authors/timm-murray">Browse their articles</a></h5>
+              </div>
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(http://googledrive.com/host/0BwRnByTz2iUXTUhuU1BhTjNkNVk)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Controlling insanity by parsing IR codes with Linux::IRPulses</h6>
+        <p style="line-height:1"><small>Parsing IR remote codes</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/what-s-new-on-cpan---february-2016/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/156/18F30D70-C0E3-11E4-AB33-E3A60EA848F6.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - February 2016</h6>
+        <p style="line-height:1"><small>A curated look at February&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/netanel-rubins-perljam-circus/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(http://googledrive.com/host/0BwRnByTz2iUXMUdoRDVvRGpsU1U)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Netanel Rubin&#39;s Perl Jam circus</h6>
+        <p style="line-height:1"><small>Responding to a misguided attack on Perl</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/an-introduction-to-tmux/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(http://googledrive.com/host/0BwRnByTz2iUXazVBdzNFRU1QV1k)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>An introduction to Tmux</h6>
+        <p style="line-height:1"><small>How to get started with the open source terminal multiplexer </small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/magical-tied-scalars/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/brian.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Magical tied scalars</h6>
+        <p style="line-height:1"><small>Subvert and simplify code with tied scalars</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+          <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a>
+          <a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

@@ -6,13 +6,194 @@
     <description>Recent content in Articles on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 04 Apr 2016 09:21:32 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 08 Mar 2016 08:37:00 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/article/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Controlling insanity by parsing IR codes with Linux::IRPulses</title>
+      <link>http://perltricks.com/article/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/</link>
+      <pubDate>Tue, 08 Mar 2016 08:37:00 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Sending information with pulsing invisible light can be surprisingly complex.
+Disentangle the problem with LIRC and Linux::IRPulses.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Infrared remotes are one of those things where every manufacturer thinks they have the
+One True Way&amp;trade; of doing it. You would think that there&amp;rsquo;s only one or two straightforward
+ways to pulse a little IR light. Clearly, we&amp;rsquo;re all wrong, because the home entertainment
+industry invents new ones all the time. That&amp;rsquo;s not even counting the other sectors and
+hobbyist projects that come up with entirely different methods.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://www.lirc.org&#34;&gt;Linux Infrared Remote Control&lt;/a&gt; (LIRC) project has
+produced mappings for a lot of remotes out there. That doesn&amp;rsquo;t help
+with some of the more fringe devices. Also, some of the components at the top of the stack
+are geared towards executing a program after detecting a valid series of pulses.&lt;/p&gt;
+
+&lt;p&gt;If we would rather take the pulses and handle them within our own program, then
+we need to ignore the top layers of LIRC and parse the pulse data directly. That is
+what &lt;a href=&#34;https://metacpan.org/pod/Linux::IRPulses&#34;&gt;Linux::IRPulses&lt;/a&gt; does.&lt;/p&gt;
+
+&lt;p&gt;We first need the hardware to detect the pulses. On a regular computer, there are many
+modules available which can be plugged in to a USB port. On a single board
+computer like the Raspberry Pi, we have General Purpose Input/Output (GPIO) pins,
+which can read the timing of the pulses.&lt;/p&gt;
+
+&lt;h3 id=&#34;setting-up-the-raspberry-pi:db41cc74731e5142d1f6a80629cf4a97&#34;&gt;Setting up the Raspberry Pi&lt;/h3&gt;
+
+&lt;p&gt;Skip this section if you&amp;rsquo;re using a regular IR device. If you want to set up a
+module on the Raspberry Pi&amp;rsquo;s GPIO pins, then read on.&lt;/p&gt;
+
+&lt;p&gt;First, you need a module of the right frequency for the IR data you&amp;rsquo;re trying to
+receive. If you&amp;rsquo;re using a remote from an old TV, then searching around for
+&amp;ldquo;&lt;manufacturer&gt; IR protocol&amp;rdquo; should get you the right answer. 38 KHz is a common
+frequency, but this is just the first thing that manufacturers all did differently.&lt;/p&gt;
+
+&lt;p&gt;The TSOP38138 is an IR remote receiver that runs at 38KHz. It&amp;rsquo;s part of a family of
+devices that run at different frequencies, any of which are likely adequate.&lt;/p&gt;
+
+&lt;p&gt;IR receivers for picking up remote data have three pins: power, ground, and data.
+Connect power to a +3.3V pin on the Raspberry Pi, ground to ground, and data to
+GPIO 23. See &lt;a href=&#34;https://www.raspberrypi.org/documentation/usage/gpio-plus-and-raspi2/&#34;&gt;the Raspberry Pi GPIO documentation&lt;/a&gt; for the location of the pins.&lt;/p&gt;
+
+&lt;p&gt;Now we need to configure LIRC. Start with a simple installation of the package with
+&lt;code&gt;apt-get install lirc&lt;/code&gt;. Next, we need to load the kernel module,
+tell LIRC where to find the pin, and also configure some Raspberry Pi boot options.&lt;/p&gt;
+
+&lt;p&gt;In &lt;code&gt;/etc/modules-load.d/modules.conf&lt;/code&gt;, put:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;lirc_dev
+lirc_rpi gpio_in_pin=23 gpio_out_pin=22
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That will make GPIO 23 as your input pin. LIRC can also be setup to send IR data, so
+we set GPIO 22 for that as long as we&amp;rsquo;re here. Next, modify &lt;code&gt;/etc/lirc/hardware.conf&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# /etc/lirc/hardware.conf
+#
+# Arguments which will be used when launching lircd
+LIRCD_ARGS=&amp;quot;--uinput&amp;quot;
+
+#Don&#39;t start lircmd even if there seems to be a good config file
+#START_LIRCMD=false
+
+#Don&#39;t start irexec, even if a good config file seems to exist.
+#START_IREXEC=false
+
+#Try to load appropriate kernel modules
+LOAD_MODULES=true
+
+# Run &amp;quot;lircd --driver=help&amp;quot; for a list of supported drivers.
+DRIVER=&amp;quot;default&amp;quot;
+# usually /dev/lirc0 is the correct setting for systems using udev
+DEVICE=&amp;quot;/dev/lirc0&amp;quot;
+MODULES=&amp;quot;lirc_rpi&amp;quot;
+
+# Default configuration files for your hardware if any
+LIRCD_CONF=&amp;quot;&amp;quot;
+LIRCMD_CONF=&amp;quot;&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The particularly important things to note here are &lt;code&gt;DEVICE&lt;/code&gt; for the
+device path, and &lt;code&gt;MODULES&lt;/code&gt; for the Raspberry Pi GPIO driver.&lt;/p&gt;
+
+&lt;p&gt;Finally, edit &lt;code&gt;/boot/config.txt&lt;/code&gt; and add this somewhere in the file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;dtoverlay=lirc-rpi,gpio_in_pin=23,gpio_out_pin=22
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And then reboot. Once you&amp;rsquo;re back up, you can test it by plugging in your IR module
+to the right pins and pointing a remote at it. Using &lt;code&gt;mode2 -d /dev/lirc0&lt;/code&gt;,
+you should see the &lt;code&gt;pulse&lt;/code&gt; and &lt;code&gt;space&lt;/code&gt; data being sent.&lt;/p&gt;
+
+&lt;h3 id=&#34;decoding-the-undecodable:db41cc74731e5142d1f6a80629cf4a97&#34;&gt;Decoding the undecodable&lt;/h3&gt;
+
+&lt;p&gt;Sony runs their remotes at 40KHz. It starts by sending a header of a 2400μs pulse and
+600μs space. After the header, a 1 bit is sent by a 1200μs pulse, and a zero with a
+600μs. Between those ones and zeros are 600μs spaces. Codes could be 12, 15, or 20
+bits long depending on the remote. This is about as straightforward as things get.&lt;/p&gt;
+
+&lt;p&gt;NEC uses a 38KHz carrier frequency. There&amp;rsquo;s a 9000μs header followed by a 4500μs space.
+A 1 bit is sent by a 562.5μs pulse. A 0 bit is sent by a 562.5μs pulse. Wait, what? No,
+that&amp;rsquo;s not a typo. NEC differentiates ones and zeros by the length of the space that
+comes after the pulse: 1687.5μs for 1, and 562.5μs for 0.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.easyracelaptimer.com&#34;&gt;EasyRaceLapTimer&lt;/a&gt; (an Open Source
+quadcopter race timer system) is on a 38KHz frequency. It sends a 300μs pulse followed
+by a 300μs space. It then alternates sending pulses and spaces, with a 1 bit being
+600μs, and a 0 bit being 300μs.&lt;/p&gt;
+
+&lt;p&gt;All the timing numbers above are big fat lies. The noisy, analog nature of the world
+means the actual values coming from the IR receiver will be different from the
+specified values, perhaps by as much as 15%. It&amp;rsquo;s safe to assume that reverse
+engineered specifications are only guessing at the actual values that the manufacturer
+intended.&lt;/p&gt;
+
+&lt;p&gt;All that is to say that we have a complicated job on our hands, and the above only
+covers a few of the examples out there.&lt;/p&gt;
+
+&lt;h3 id=&#34;linux-irpulses:db41cc74731e5142d1f6a80629cf4a97&#34;&gt;Linux::IRPulses&lt;/h3&gt;
+
+&lt;p&gt;The goal of this module is to simplify the process reading these pulses and spaces
+while tolerating the numbers being off.&lt;/p&gt;
+
+&lt;p&gt;At present, the module works by parsing the output of LIRC&amp;rsquo;s &lt;code&gt;mode2&lt;/code&gt;
+program. This may change to reading directly from &lt;code&gt;/dev/lirc0&lt;/code&gt; in the future.
+For now, we&amp;rsquo;ll start by opening a pipe to &lt;code&gt;mode2&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open( my $in, &#39;-|&#39;, &#39;mode2 -d /dev/lirc0&#39; ) or die &amp;quot;Can&#39;t exec mode2: $!\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We now need to define the protocol to Linux::IRPluses&amp;rsquo;s constructor. To help with this,
+adding a &lt;code&gt;use Linux::IRPulses&lt;/code&gt; will export the subroutines &lt;code&gt;pulse()&lt;/code&gt;,
+&lt;code&gt;space()&lt;/code&gt;, and &lt;code&gt;pulse_or_space()&lt;/code&gt;.  These are used to specify what you
+expect to come in for pulses or spaces.&lt;/p&gt;
+
+&lt;p&gt;For instance, we know that NEC sends a 9000μs pulse and 4500μs space for its header.
+We tell the constructor this with:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $ir = Linux::IRPulses-&amp;gt;new({
+    header =&amp;gt; [ pulse 9000, space 4500 ],
+    ...
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The parser goes through each entry in the array, checking off that the given pulse or
+space data is what we expect. Once it reaches the end of the header array, it marks the
+header as good and then looks for valid data for ones and zeros. We specify those in
+much the same way. We&amp;rsquo;ll add in the other constructor parameters here, as well:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $ir = Linux::IRPulses-&amp;gt;new({
+    header =&amp;gt; [ pulse 9000, space 4500 ],
+    zero =&amp;gt; [ pulse 563, space 563 ],
+    one =&amp;gt; [ pulse 563, space 1688 ],
+    bit_count =&amp;gt; 32,
+    callback =&amp;gt; sub {
+        my ($args) = @_;
+        my $code = $args-&amp;gt;{code};
+        say &amp;quot;Received code $code&amp;quot;;
+    },
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The parser will continue looking for ones and zeros until it&amp;rsquo;s collected enough for the
+given &lt;code&gt;bit_count&lt;/code&gt;. Once the right number has been met, it calls the subref
+specified in &lt;code&gt;callback&lt;/code&gt; with a hashref. The hashref contains keys for
+&lt;code&gt;code&lt;/code&gt; (the IR code that was detected) and &lt;code&gt;pulse_obj&lt;/code&gt; (the
+Linux::IRPulses object). All the length numbers are checked with a tolerance of 20%.&lt;/p&gt;
+
+&lt;p&gt;We don&amp;rsquo;t promise you will keep your sanity after working with IR data, but hopefully
+&lt;code&gt;Linux::IRPulses&lt;/code&gt; can help you go mad with dignity.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;(Original photo CC-BY 2.0 by Stefanus Ming at &lt;a href=&#34;https://flic.kr/p/7djHYP&#34;&gt;https://flic.kr/p/7djHYP&lt;/a&gt;)&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>What&#39;s new on CPAN - February 2016</title>
       <link>http://perltricks.com/article/what-s-new-on-cpan---february-2016/</link>
-      <pubDate>Mon, 04 Apr 2016 09:21:32 +0000</pubDate>
+      <pubDate>Fri, 04 Mar 2016 09:21:32 +0000</pubDate>
       
       <guid>http://perltricks.com/article/what-s-new-on-cpan---february-2016/</guid>
       <description>
@@ -1641,97 +1822,6 @@ location = root
 &lt;p&gt;Ok it&amp;rsquo;s not &lt;em&gt;all&lt;/em&gt; gravy. The copy file method has one downside: it overwrites the copied files every time they&amp;rsquo;re generated. This isn&amp;rsquo;t an issue for me; the commit diff only shows the changed lines, but some people may not like it.&lt;/p&gt;
 
 &lt;p&gt;For more information on Dist::Zilla, check out the official &lt;a href=&#34;http://dzil.org/tutorial/contents.html&#34;&gt;documentation&lt;/a&gt;. For a completely different approach to releasing code to CPAN, you may like&lt;a href=&#34;https://metacpan.org/pod/%20Module::Release&#34;&gt;Module::Release&lt;/a&gt;. Oh and if you find yourself in a new development environment, needing to install dependencies for a local module, David Golden has a useful &lt;a href=&#34;http://www.dagolden.com/index.php/1528/five-ways-to-install-modules-prereqs-by-hand/&#34;&gt;post&lt;/a&gt; that includes five different ways to do it.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>What&#39;s new on CPAN - November 2015</title>
-      <link>http://perltricks.com/article/202/2015/12/8/What-s-new-on-CPAN---November-2015/</link>
-      <pubDate>Tue, 08 Dec 2015 04:34:15 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/202/2015/12/8/What-s-new-on-CPAN---November-2015/</guid>
-      <description>
-
-&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!&lt;/p&gt;
-
-&lt;h3 id=&#34;apis-apps:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::Highlander&#34;&gt;App::Highlander&lt;/a&gt; can provides simple named locks. Useful!&lt;/li&gt;
-&lt;li&gt;Pick one or more random lines from input using &lt;a href=&#34;https://metacpan.org/pod/App::PickRandomLines&#34;&gt;App::PickRandomLines&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;A &amp;ldquo;Random Access Machine&amp;rdquo; Emulator: &lt;a href=&#34;https://metacpan.org/pod/Language::RAM&#34;&gt;Language::RAM&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Sync data across multiple regions with &lt;a href=&#34;https://metacpan.org/pod/Net::Amazon::DynamoDB::HighlyAvailable&#34;&gt;Net::Amazon::DynamoDB::HighlyAvailable&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::Amazon::DynamoDB::Table&#34;&gt;Net::Amazon::DynamoDB::Table&lt;/a&gt; provides a high-level interface to Net::Amazon::DyamoDB::Lite&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WWW::KeenIO&#34;&gt;WWW::KeenIO&lt;/a&gt; provides a Perl API for the event storage and analytics service&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WWW::Saucelabs&#34;&gt;WWW::Saucelabs&lt;/a&gt; is a &amp;ldquo;perilously incomplete&amp;rdquo;, yet useful, Perly interface to the Saucelabs REST API&lt;/li&gt;
-&lt;li&gt;Find out what&amp;rsquo;s on TV using the TVMaze API and &lt;a href=&#34;https://metacpan.org/pod/WWW::TVMaze&#34;&gt;WWW::TVMaze&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WebService::Zendesk&#34;&gt;WebService::Zendesk&lt;/a&gt; is another work-in-progress but useful API, this time for Zendesk&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;config-devops:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::FTPTLS&#34;&gt;Net::FTPTLS&lt;/a&gt; is a super-simple Perl FTP client with TLS support. Cool!&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::SSH2::Cisco&#34;&gt;Net::SSH2::Cisco&lt;/a&gt; let&amp;rsquo;s you talk to Cisco routers via SSH!&lt;/li&gt;
-&lt;li&gt;Configure, control and monitor rate limits for services with &lt;a href=&#34;https://metacpan.org/pod/RateLimitations&#34;&gt;RateLimitations&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;data:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Data&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Compress data at &lt;em&gt;outrageous&lt;/em&gt; speeds with &lt;a href=&#34;https://metacpan.org/pod/Compress::LZ4Frame&#34;&gt;Compress::LZ4Frame&lt;/a&gt;, which ships with the &lt;a href=&#34;https://github.com/Cyan4973/lz4&#34;&gt;LZ4 compression library&lt;/a&gt; written in C.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/DBIx::BulkUtil&#34;&gt;DBIx::BulkUtil&lt;/a&gt; provides bulk load and other features for relational databases&lt;/li&gt;
-&lt;li&gt;Wow, &lt;a href=&#34;https://metacpan.org/pod/DOM::Tiny&#34;&gt;DOM::Tiny&lt;/a&gt; is a minimalist but feature-rich DOM parser using CSS selectors&lt;/li&gt;
-&lt;li&gt;Interesting, play with a virtual file system using &lt;a href=&#34;https://metacpan.org/pod/Filesys::Virtual::Chroot&#34;&gt;Filesys::Virtual::Chroot&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/IMAP::Query&#34;&gt;IMAP::Query&lt;/a&gt; can generateIMAP search queries&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mail::DKIM::Iterator&#34;&gt;Mail::DKIM::Iterator&lt;/a&gt; validates DKIM signatures and signs asynchronously&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;development-version-control:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Devel::Trepan::Deparse&#34;&gt;Devel::Trepan::Deparse&lt;/a&gt; adds deparse support to Devel::Trepan&lt;/li&gt;
-&lt;li&gt;Call the JavaScript Handlebars template library from Perl, with &lt;a href=&#34;https://metacpan.org/pod/JavaScript::V8::Handlebars&#34;&gt;JavaScript::V8::Handlebars&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Test &lt;em&gt;some&lt;/em&gt;? Only execute a subset of your test suite using &lt;a href=&#34;https://metacpan.org/pod/Test::Some&#34;&gt;Test::Some&lt;/a&gt;, author Yanick &lt;a href=&#34;http://techblog.babyl.ca/entry/test-some&#34;&gt;blogged&lt;/a&gt; about why this might be useful&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Unix::Pledge&#34;&gt;Unix::Pledge&lt;/a&gt; restrict system operations on BSD using &lt;code&gt;pledge&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Talk to Windows machines over the network using &lt;a href=&#34;https://metacpan.org/pod/Win32::Netsh&#34;&gt;Win32::Netsh&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;hardware:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Hardware&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://metacpan.org/author/PEVANS&#34;&gt;Paul Evans&lt;/a&gt; has been hard at work releasing several new chip driver modules, way to go Paul!&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;BV4243 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::BV4243&#34;&gt;Device::Chip::BV4243&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;DS1307 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::DS1307&#34;&gt;Device::Chip::DS1307&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;INA219 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::INA219&#34;&gt;Device::Chip::INA219&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;MAX7219 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::MAX7219&#34;&gt;Device::Chip::MAX7219&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;MCP23x17 family &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::MCP23x17&#34;&gt;Device::Chip::MCP23x17&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;MPL3115A2 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::MPL3115A2&#34;&gt;Device::Chip::MPL3115A2&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;other:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Other&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Generate CSS sprites from a series of images using &lt;a href=&#34;https://metacpan.org/pod/CSS::SpriteMaker::Simple&#34;&gt;CSS::SpriteMaker::Simple&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Look up zodiac sign for a given date with &lt;a href=&#34;https://metacpan.org/pod/Zodiac::Tiny&#34;&gt;Zodiac::Tiny&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;science-mathematics:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/LCS::Similar&#34;&gt;LCS::Similar&lt;/a&gt; allows differences in the compared elements of Longest Common Subsequence (LCS) Algorithm&lt;/li&gt;
-&lt;li&gt;Simulate genomic restriction digests with &lt;a href=&#34;https://metacpan.org/pod/RestrictionDigest&#34;&gt;RestrictionDigest&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;web:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Web&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Catalyst::Plugin::URI&#34;&gt;Catalyst::Plugin::URI&lt;/a&gt; provides nicer and &lt;em&gt;safer&lt;/em&gt; way to get Controller action methods as URIs&lt;/li&gt;
-&lt;li&gt;Read and write PhantomJS cookies file using &lt;a href=&#34;https://metacpan.org/pod/HTTP::Cookies::PhantomJS&#34;&gt;HTTP::Cookies::PhantomJS&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mojolicious::Plugin::ErrorsAndWarnings&#34;&gt;Mojolicious::Plugin::ErrorsAndWarnings&lt;/a&gt; stores errors and warnings during a request for powerful introspection&lt;/li&gt;
-&lt;li&gt;Run a consul server for testing using &lt;a href=&#34;https://metacpan.org/pod/Test::Consul&#34;&gt;Test::Consul&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
 </description>
     </item>
     
