@@ -6,8 +6,366 @@
     <description>Recent content on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 08 Mar 2016 08:37:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 09 Mar 2016 10:04:57 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>What is the Perl Core?</title>
+      <link>http://perltricks.com/article/what-is-the-perl-core-/</link>
+      <pubDate>Wed, 09 Mar 2016 10:04:57 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/what-is-the-perl-core-/</guid>
+      <description>
+
+&lt;p&gt;When I use the term &amp;ldquo;Perl Core&amp;rdquo; I mean the standard library of modules (distributions actually) that ship with the &lt;code&gt;perl&lt;/code&gt; interpreter, and I think that&amp;rsquo;s what most people mean when they use that term. Knowing which modules are in the Perl Core is useful; it enables developers to build programs without any external dependencies (over which the developer has little control). The perldoc site has a handy alphabetized &lt;a href=&#34;http://perldoc.perl.org/index-modules-A.html&#34;&gt;list&lt;/a&gt; of core modules and I generally check there first to browse which modules are in core. The problem though, is that it can be wrong.&lt;/p&gt;
+
+&lt;h3 id=&#34;what-modules-are-included-in-the-perl-core:0d5c2e3cd089b0cf6cb0dbe47d066eb1&#34;&gt;What modules are included in the Perl Core?&lt;/h3&gt;
+
+&lt;p&gt;Did you know that &lt;a href=&#34;http://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt; has shipped with Perl since 2011 (version 5.14.0)? It&amp;rsquo;s not listed on &lt;a href=&#34;http://perldoc.perl.org&#34;&gt;perldoc&lt;/a&gt; (although that is on the list to be fixed at the next &lt;a href=&#34;http://act.qa-hackathon.org/qa2016/&#34;&gt;QA Hackathon&lt;/a&gt;). Luckily there is a better solution: the &lt;code&gt;corelist&lt;/code&gt; program. This is supplied with &lt;a href=&#34;https://metacpan.org/pod/Module::CoreList/&#34;&gt;Module::CoreList&lt;/a&gt;. Let&amp;rsquo;s see when Module::CoreList first shipped with Perl:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ corelist -a Module::CoreList
+
+Data for 2015-06-01
+Module::CoreList was first released with perl v5.8.9
+  v5.8.9     2.17
+  v5.9.2     1.99
+  v5.9.3     2.02
+  v5.9.4     2.08
+  v5.9.5     2.12
+  v5.10.0    2.13
+  ...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve truncated the output and kept the key details. It shows that Module::CoreList has been included since Perl version 5.8.9. At home I run Fedora 23, which comes with Perl version 5.22.1. Running the system Perl &lt;code&gt;corelist&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo corelist -a Module::CoreList
+sudo: corelist: command not found
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The program doesn&amp;rsquo;t exist; the Fedora team didn&amp;rsquo;t include it for some reason. Not only that, but great core modules like &lt;a href=&#34;http://perltricks.com/article/59/2014/1/10/Solve-almost-any-datetime-need-with-Time--Piece/&#34;&gt;Time::Piece&lt;/a&gt; aren&amp;rsquo;t included either!&lt;/p&gt;
+
+&lt;p&gt;If you don&amp;rsquo;t have &lt;code&gt;corelist&lt;/code&gt;, but want to view a list of distributions that &lt;em&gt;should&lt;/em&gt; have been bundled with your version of Perl, you can read &lt;code&gt;perldoc perlmodlib&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;which-modules-do-i-have:0d5c2e3cd089b0cf6cb0dbe47d066eb1&#34;&gt;Which modules do I have?&lt;/h3&gt;
+
+&lt;p&gt;Sometimes instead of asking which modules are in the Perl Core what we really mean is: &amp;ldquo;which modules do I have installed?&amp;rdquo; For non-core modules, I use &lt;a href=&#34;http://perltricks.com/article/14/2013/4/7/List-all-Perl-modules-installed-via-CPAN/&#34;&gt;perldoc&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;perldoc&lt;/code&gt; won&amp;rsquo;t show us the core modules that we already have, and in the case of missing core modules, Module::CoreList can&amp;rsquo;t help either (its results are based on internal lists of modules that &lt;em&gt;should&lt;/em&gt; be there, not which files are actually present). A simple way I handle this is to use the following script to search the contents of &lt;code&gt;@INC&lt;/code&gt;; the directories which &lt;code&gt;perl&lt;/code&gt; searches for modules:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use 5.10.3;
+use Path::Tiny &#39;path&#39;;
+use Getopt::Long &#39;GetOptions&#39;;
+
+GetOptions(
+  &#39;dir=s&#39; =&amp;gt; \my $dirpath,
+) or die &amp;quot;Unrecognized option\n&amp;quot;;
+die &amp;quot;--dir is required\n&amp;quot; unless $dirpath &amp;amp;&amp;amp; -d $dirpath;
+
+# append a slash if missing
+$dirpath .= &#39;/&#39; unless substr($dirpath, -1) eq &#39;/&#39;;
+
+my $iter = path($dirpath)-&amp;gt;iterator({recurse =&amp;gt; 1});
+while (my $path = $iter-&amp;gt;()) {
+  next unless &amp;quot;$path&amp;quot; =~ qr/.pm$/;
+  # remove the parent dir and trailing .pm from filename
+  my $module = substr(&amp;quot;$path&amp;quot;, length($dirpath), length(&amp;quot;$path&amp;quot;)-length($dirpath)-3);
+  $module =~ s/\//::/g;
+  say $module;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I run it like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ chmod 755 list_modules
+$ /usr/bin/perl -e &#39;for(@INC){ system &amp;quot;./list_modules -d $_&amp;quot; }&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;m using the absolute path &lt;code&gt;/usr/bin/perl&lt;/code&gt; to ensure I get my system&amp;rsquo;s &lt;code&gt;perl&lt;/code&gt; and not the local one I manage with &lt;a href=&#34;https://github.com/tokuhirom/plenv&#34;&gt;plenv&lt;/a&gt;. One downside of this approach is it lists every module (&lt;code&gt;.pm&lt;/code&gt; file) rather than every distribution, (see this &lt;a href=&#34;http://perltricks.com/article/96/2014/6/13/Perl-distributions--modules--packages-explained/&#34;&gt;explanation&lt;/a&gt; if you&amp;rsquo;re not familiar with the distinction). Another issue is it will list duplicate modules when the system uses symlinks. So the program output needs to be tidied up in a text editor.&lt;/p&gt;
+
+&lt;p&gt;What about programs? To search for Perl programs I prepared a list of Perl programs from the source for Perl 5.22, called &lt;code&gt;perl522_programs&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;c2ph
+corelist
+cpan
+enc2xs
+encguess
+h2ph
+h2xs
+instmodsh
+json_pp
+libnetcfg
+perl
+perl5.22.1
+perlbug
+perldoc
+perlivp
+perlthanks
+piconv
+pl2pm
+pod2html
+pod2man
+pod2text
+pod2usage
+podchecker
+podselect
+prove
+pstruct
+ptar
+ptardiff
+ptargrep
+shasum
+splain
+xsubpp
+zipdetails
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then I used the following script, called &lt;code&gt;find_binary&lt;/code&gt; to check for the programs:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
+my $bin = shift or die &amp;quot;You must provide a binary name to search for\n&amp;quot;;
+
+for ( qw(/sbin /bin /usr/sbin /usr/bin) )
+{
+  my $path = &amp;quot;$_/$bin&amp;quot;;
+  print &amp;quot;$path\n&amp;quot; if -e $path;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I run it like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ chmod 755 find_binary
+$ perl -ne &#39;chomp;system &amp;quot;./find_binary $_&amp;quot;&#39; perl522_programs
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This line calls the &lt;code&gt;find_binary&lt;/code&gt; script on every program listed in the file &lt;code&gt;perl522_programs&lt;/code&gt;. I &lt;code&gt;chomp&lt;/code&gt; the line before searching for it to remove the trailing newline character. This method isn&amp;rsquo;t perfect though; sneaky Ubuntu ships with a program called &lt;code&gt;perldoc&lt;/code&gt; but if you run it the system prints:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;You need to install the perl-doc package to use this program.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;core-modules-and-programs-missing-from-system-perls:0d5c2e3cd089b0cf6cb0dbe47d066eb1&#34;&gt;Core modules and programs missing from system perls&lt;/h3&gt;
+
+&lt;p&gt;Using the code above I did a comparison of the modules and programs shipped with Perl and those shipped with the following systems. Here&amp;rsquo;s what missing:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Fedora 23&lt;/th&gt;
+&lt;th&gt;Ubuntu 14.04 LTS&lt;/th&gt;
+&lt;th&gt;OSX Yosemite 10.10.5&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;B::Debug&lt;/td&gt;
+&lt;td&gt;CGI::Fast&lt;/td&gt;
+&lt;td&gt;GDBM_File&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Config::Perl::V&lt;/td&gt;
+&lt;td&gt;ODBM_File&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;CPANPLUS&lt;/td&gt;
+&lt;td&gt;perldoc&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;DB_File&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Devel::PPPort&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;ExtUtils::Embed&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;ExtUtils::MakeMaker::Locale&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;ExtUtils::Miniperl&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;File::Fetch&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;File::Spec::VMS&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Filter::Simple&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;IO::Compress::Adapter::Bzip2&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;IO::Uncompress::Adapter::Bunzip2&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::BigFloat&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::BigInt&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::BigRat&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::Complex&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::Trig&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Module::Loaded&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;PerlIO&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Text::Balanced&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Time::Piece&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Time::Seconds&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Unicode::Collate&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;autodie&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;bigint&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;bignum&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;bigrat&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;experimental&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;perlfaq&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;corelist&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;enc2xs&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;libnetcfg&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;Ubuntu and OSX ship with Perl 5.18 so I looked for missing programs and modules against the 5.18 source code. For Fedora I compared the system &lt;code&gt;perl&lt;/code&gt; against the 5.22 source. These results show that Fedora is missing quite a few modules and programs: experimental, corelist, autodie, the Math:: modules and Time::Piece strike me as significant omissions. For Ubuntu, excluding &lt;code&gt;perldoc&lt;/code&gt; is a &lt;a href=&#34;http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/&#34;&gt;real shame&lt;/a&gt;. OSX comes away gleaming though: nearly all core modules and programs were present.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:0d5c2e3cd089b0cf6cb0dbe47d066eb1&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;When writing programs that use core Perl modules be careful, especially if you&amp;rsquo;re using any of the modules or programs found to be missing earlier. One way around this is the use &lt;a href=&#34;https://metacpan.org/pod/App::FatPacker&#34;&gt;App::FatPacker&lt;/a&gt; to compile all the modules used into a single file. Another way would be to use &lt;a href=&#34;https://metacpan.org/pod/pp&#34;&gt;pp&lt;/a&gt; to create a compiled binary. Finally for modules like Time::Piece, you could always consider wrapping Perl&amp;rsquo;s built-in functions like &lt;code&gt;gmtime&lt;/code&gt; and &lt;code&gt;localtime&lt;/code&gt; in subroutines that give the behavior you need, rather than using the module.&lt;/p&gt;
+
+&lt;p&gt;Of course it&amp;rsquo;s always easier to work with a locally-installed &lt;code&gt;perl&lt;/code&gt; than the system version. The local Perls provided by &lt;a href=&#34;http://perlbrew.pl&#34;&gt;perlbrew&lt;/a&gt; and &lt;a href=&#34;https://github.com/tokuhirom/plenv&#34;&gt;plenv&lt;/a&gt; contain all the core modules and utilities. You can always &lt;a href=&#34;http://perlmaven.com/how-to-build-perl-from-source-code&#34;&gt;compile&lt;/a&gt; your own Perl too, it&amp;rsquo;s easy. &lt;a href=&#34;http://www.strawberryperl.com&#34;&gt;Strawberry Perl&lt;/a&gt; for Windows even comes with some useful extra modules and C libraries. If you do have to rely on the system Perl, you may find a core module isn&amp;rsquo;t there at all.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Controlling insanity by parsing IR codes with Linux::IRPulses</title>
@@ -1695,133 +2053,6 @@ console.log(p.coordinates());
 &lt;p&gt;&lt;sup&gt;1&lt;/sup&gt; Introduced in ES5 JavaScript - which is supported by all modern browsers. For solutions for older JavaScript versions, use &lt;code&gt;call&lt;/code&gt; or &lt;code&gt;apply&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;sup&gt;2&lt;/sup&gt; It&amp;rsquo;s probably a bad thing for users too - the overhead in processing syntactically wrong code degrades performance and worse, encourages more incorrect code to be written.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Create GitHub files automatically with Dist::Zilla</title>
-      <link>http://perltricks.com/article/203/2015/12/9/Create-GitHub-files-automatically-with-Dist--Zilla/</link>
-      <pubDate>Wed, 09 Dec 2015 13:46:17 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/203/2015/12/9/Create-GitHub-files-automatically-with-Dist--Zilla/</guid>
-      <description>
-
-&lt;p&gt;I use &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla&#34;&gt;Dist::Zilla&lt;/a&gt; to release my code to CPAN. I really like it as with a single command I can build, package and ship a distribution. But most of my code lives on GitHub. In fact, a quick check shows that I have 90 &lt;a href=&#34;https://github.com/dnmfarrell&#34;&gt;repos&lt;/a&gt;, but only 13 distributions on &lt;a href=&#34;https://metacpan.org/author/DFARRELL&#34;&gt;CPAN&lt;/a&gt;. So only 14% of my code makes it to CPAN.&lt;/p&gt;
-
-&lt;p&gt;Traditionally Dist::Zilla makes a distinction between your code and the files needed for CPAN and PAUSE to work, (like package metadata, a readme etc). The basic use case goes like this: you write your class files, scripts and unit tests, and when you tell Dist::Zilla to release the distribution, it generates all of the extra files, creates a tarball and uploads it to &lt;a href=&#34;https://pause.perl.org/pause/query&#34;&gt;PAUSE&lt;/a&gt;. The problem is though, some of those additional files would be nice to have in my GitHub repos too. I don&amp;rsquo;t want to write another &lt;code&gt;readme.md&lt;/code&gt;, or spend time copying the license file into the repo if Dist::ZIlla can already generate one. To solve this issue I use two Dist::Zilla plugins from &lt;a href=&#34;https://metacpan.org/author/RTHOMPSON&#34;&gt;Ryan Thompson&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;setup:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Setup&lt;/h3&gt;
-
-&lt;p&gt;To use the code in this article, you&amp;rsquo;ll need to install Dist::Zilla and the two plugin modules described below. You can do that with &lt;code&gt;cpan&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Dist::Zilla \
-  Dist::Zilla::Plugin::ReadmeAnyFromPod  \
-  Dist::Zilla::Plugin::CopyFilesFromBuild
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If you&amp;rsquo;re installing Dist::Zilla consider using &lt;a href=&#34;https://metacpan.org/pod/App::cpanminus&#34;&gt;cpanminus&lt;/a&gt; instead, with no tests for a much faster install:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpanm --notest Dist::Zilla \ 
-  Dist::Zilla::Plugin::ReadmeAnyFromPod \
-  Dist::Zilla::Plugin::CopyFilesFromBuild
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;creating-a-readme-automatically:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Creating a readme automatically&lt;/h3&gt;
-
-&lt;p&gt;Ryan&amp;rsquo;s module &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::ReadmeAnyFromPod&#34;&gt;Dist::Zilla::Plugin::ReadmeAnyFromPod&lt;/a&gt; can generate a readme automatically, in any common format. It uses the Pod text from the main modules in the distribution. I use it to create my GitHub readme files in Pod, by adding the following text to my &lt;code&gt;dist.ini&lt;/code&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;[ReadmeAnyFromPod]
-type = pod 
-filename = README.pod
-location = root
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If I build the distribution with Dist::Zilla, it will generate a new readme for me, including the author, copyright and version information in addition to the documentation already in the main module.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ dzil build &amp;amp;&amp;amp; dzil clean
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This line instructs Dist::Zilla to build the distribution, which generates the new &lt;code&gt;README.pod&lt;/code&gt; and then clean up the build files that it generated, leaving a clean working directory.&lt;/p&gt;
-
-&lt;h3 id=&#34;adding-a-license:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Adding a license&lt;/h3&gt;
-
-&lt;p&gt;I use another module from Ryan, &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::CopyFilesFromBuild&#34;&gt;Dist::Zilla::Plugin::CopyFilesFromBuild&lt;/a&gt; to copy the software license from the Dist::Zilla build into my project directory:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;[CopyFilesFromBuild]
-copy = LICENSE
-[GatherDir]
-exclude_filename = LICENSE
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This will copy the license out of the build directory into the root project directory. The &lt;code&gt;exclude_filename&lt;/code&gt; clause is there so that during the &lt;em&gt;next&lt;/em&gt; build, Dist::Zilla does not include the generated license in the working directory of files. Running this in the same way as before, I can generate whatever license text I want for my distribution (the type of license is specified in the &lt;code&gt;dist.ini&lt;/code&gt;).&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ dzil build &amp;amp;&amp;amp; dzil clean
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;helping-others:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Helping others&lt;/h3&gt;
-
-&lt;p&gt;Dist::Zilla is great, but if you don&amp;rsquo;t have it, installing a distribution from GitHub can really suck. Recently a friend was trying to deploy some code of mine to his Macbook with a vanilla Perl install. I didn&amp;rsquo;t want to upload the code to CPAN and wait for PAUSE to index it. Installing Dist::Zilla on the his machine was not a great option either: Dist::Zilla is a beast. According to Devel::Modlist, Dist::Zilla has &lt;strong&gt;178&lt;/strong&gt; non-core dependencies (including indirectly-used modules). That&amp;rsquo;s the price you pay for automation and modularity - Dist::Zilla is working hard so us module authors don&amp;rsquo;t have to. But for someone who barely knows Perl, installing Dist::Zilla in a virgin environment can be a nightmare.&lt;/p&gt;
-
-&lt;p&gt;To get around this issue, I used &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::CopyFilesFromBuild&#34;&gt;Dist::Zilla::Plugin::CopyFilesFromBuild&lt;/a&gt; again to copy the Makefile.PL and cpanfile into the project directory. My friend then cloned the directory with Git and used &lt;a href=&#34;https://metacpan.org/pod/App::cpanminus&#34;&gt;cpanminus&lt;/a&gt; to install it. Easy! It worked so well, I&amp;rsquo;m going to include a Makefile and cpanfile in my GitHub repos from now on.&lt;/p&gt;
-
-&lt;h3 id=&#34;a-sample-dist-zilla-config:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;A sample Dist::Zilla config&lt;/h3&gt;
-
-&lt;p&gt;Here&amp;rsquo;s a &lt;code&gt;dist.ini&lt;/code&gt; from a &lt;a href=&#34;https://github.com/dnmfarrell/Settlers-Game&#34;&gt;repo&lt;/a&gt; of mine that uses the code in this article. As certain directives are required in order, it can be useful to see the entire context:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;name    = Settlers-Game
-author  = David Farrell 
-license = FreeBSD
-copyright_holder = David Farrell
-copyright_year   = 2015
-version = 0.06
-
-[CPANFile]
-[License]
-[CopyFilesFromBuild]
-copy = cpanfile
-copy = LICENSE
-copy = Makefile.PL
-[GatherDir]
-exclude_filename = cpanfile
-exclude_filename = LICENSE
-exclude_filename = Makefile.PL
-[PkgVersion]
-[AutoPrereqs]
-[GithubMeta]
-[ChangelogFromGit]
-[MetaYAML]
-[MetaJSON]
-[MakeMaker]
-[ModuleBuild]
-[ManifestSkip]
-[Manifest]
-[PodWeaver]
-[ReadmeAnyFromPod]
-type = pod
-filename = README.pod
-location = root
-[PodSyntaxTests]
-[PodCoverageTests]
-[TestRelease]
-[Test::EOL]
-[UploadToCPAN]
-[ConfirmRelease]
-[Clean]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;To use this config with Dist::Zilla you&amp;rsquo;ll need some additional plugins:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Dist::Zilla::Plugin::Clean \
-  Dist::Zilla::Plugin::GithubMeta \
-  Dist::Zilla::Plugin::ChangelogFromGit \
-  Dist::Zilla::Plugin::PodWeaver
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;conclusion:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Conclusion&lt;/h3&gt;
-
-&lt;p&gt;Ok it&amp;rsquo;s not &lt;em&gt;all&lt;/em&gt; gravy. The copy file method has one downside: it overwrites the copied files every time they&amp;rsquo;re generated. This isn&amp;rsquo;t an issue for me; the commit diff only shows the changed lines, but some people may not like it.&lt;/p&gt;
-
-&lt;p&gt;For more information on Dist::Zilla, check out the official &lt;a href=&#34;http://dzil.org/tutorial/contents.html&#34;&gt;documentation&lt;/a&gt;. For a completely different approach to releasing code to CPAN, you may like&lt;a href=&#34;https://metacpan.org/pod/%20Module::Release&#34;&gt;Module::Release&lt;/a&gt;. Oh and if you find yourself in a new development environment, needing to install dependencies for a local module, David Golden has a useful &lt;a href=&#34;http://www.dagolden.com/index.php/1528/five-ways-to-install-modules-prereqs-by-hand/&#34;&gt;post&lt;/a&gt; that includes five different ways to do it.&lt;/p&gt;
 </description>
     </item>
     

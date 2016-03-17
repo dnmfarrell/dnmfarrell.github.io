@@ -6,8 +6,366 @@
     <description>Recent content in David Farrell on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 04 Mar 2016 09:21:32 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 09 Mar 2016 10:04:57 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/authors/david-farrell/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>What is the Perl Core?</title>
+      <link>http://perltricks.com/article/what-is-the-perl-core-/</link>
+      <pubDate>Wed, 09 Mar 2016 10:04:57 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/what-is-the-perl-core-/</guid>
+      <description>
+
+&lt;p&gt;When I use the term &amp;ldquo;Perl Core&amp;rdquo; I mean the standard library of modules (distributions actually) that ship with the &lt;code&gt;perl&lt;/code&gt; interpreter, and I think that&amp;rsquo;s what most people mean when they use that term. Knowing which modules are in the Perl Core is useful; it enables developers to build programs without any external dependencies (over which the developer has little control). The perldoc site has a handy alphabetized &lt;a href=&#34;http://perldoc.perl.org/index-modules-A.html&#34;&gt;list&lt;/a&gt; of core modules and I generally check there first to browse which modules are in core. The problem though, is that it can be wrong.&lt;/p&gt;
+
+&lt;h3 id=&#34;what-modules-are-included-in-the-perl-core:0d5c2e3cd089b0cf6cb0dbe47d066eb1&#34;&gt;What modules are included in the Perl Core?&lt;/h3&gt;
+
+&lt;p&gt;Did you know that &lt;a href=&#34;http://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt; has shipped with Perl since 2011 (version 5.14.0)? It&amp;rsquo;s not listed on &lt;a href=&#34;http://perldoc.perl.org&#34;&gt;perldoc&lt;/a&gt; (although that is on the list to be fixed at the next &lt;a href=&#34;http://act.qa-hackathon.org/qa2016/&#34;&gt;QA Hackathon&lt;/a&gt;). Luckily there is a better solution: the &lt;code&gt;corelist&lt;/code&gt; program. This is supplied with &lt;a href=&#34;https://metacpan.org/pod/Module::CoreList/&#34;&gt;Module::CoreList&lt;/a&gt;. Let&amp;rsquo;s see when Module::CoreList first shipped with Perl:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ corelist -a Module::CoreList
+
+Data for 2015-06-01
+Module::CoreList was first released with perl v5.8.9
+  v5.8.9     2.17
+  v5.9.2     1.99
+  v5.9.3     2.02
+  v5.9.4     2.08
+  v5.9.5     2.12
+  v5.10.0    2.13
+  ...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve truncated the output and kept the key details. It shows that Module::CoreList has been included since Perl version 5.8.9. At home I run Fedora 23, which comes with Perl version 5.22.1. Running the system Perl &lt;code&gt;corelist&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo corelist -a Module::CoreList
+sudo: corelist: command not found
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The program doesn&amp;rsquo;t exist; the Fedora team didn&amp;rsquo;t include it for some reason. Not only that, but great core modules like &lt;a href=&#34;http://perltricks.com/article/59/2014/1/10/Solve-almost-any-datetime-need-with-Time--Piece/&#34;&gt;Time::Piece&lt;/a&gt; aren&amp;rsquo;t included either!&lt;/p&gt;
+
+&lt;p&gt;If you don&amp;rsquo;t have &lt;code&gt;corelist&lt;/code&gt;, but want to view a list of distributions that &lt;em&gt;should&lt;/em&gt; have been bundled with your version of Perl, you can read &lt;code&gt;perldoc perlmodlib&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;which-modules-do-i-have:0d5c2e3cd089b0cf6cb0dbe47d066eb1&#34;&gt;Which modules do I have?&lt;/h3&gt;
+
+&lt;p&gt;Sometimes instead of asking which modules are in the Perl Core what we really mean is: &amp;ldquo;which modules do I have installed?&amp;rdquo; For non-core modules, I use &lt;a href=&#34;http://perltricks.com/article/14/2013/4/7/List-all-Perl-modules-installed-via-CPAN/&#34;&gt;perldoc&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;perldoc&lt;/code&gt; won&amp;rsquo;t show us the core modules that we already have, and in the case of missing core modules, Module::CoreList can&amp;rsquo;t help either (its results are based on internal lists of modules that &lt;em&gt;should&lt;/em&gt; be there, not which files are actually present). A simple way I handle this is to use the following script to search the contents of &lt;code&gt;@INC&lt;/code&gt;; the directories which &lt;code&gt;perl&lt;/code&gt; searches for modules:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use 5.10.3;
+use Path::Tiny &#39;path&#39;;
+use Getopt::Long &#39;GetOptions&#39;;
+
+GetOptions(
+  &#39;dir=s&#39; =&amp;gt; \my $dirpath,
+) or die &amp;quot;Unrecognized option\n&amp;quot;;
+die &amp;quot;--dir is required\n&amp;quot; unless $dirpath &amp;amp;&amp;amp; -d $dirpath;
+
+# append a slash if missing
+$dirpath .= &#39;/&#39; unless substr($dirpath, -1) eq &#39;/&#39;;
+
+my $iter = path($dirpath)-&amp;gt;iterator({recurse =&amp;gt; 1});
+while (my $path = $iter-&amp;gt;()) {
+  next unless &amp;quot;$path&amp;quot; =~ qr/.pm$/;
+  # remove the parent dir and trailing .pm from filename
+  my $module = substr(&amp;quot;$path&amp;quot;, length($dirpath), length(&amp;quot;$path&amp;quot;)-length($dirpath)-3);
+  $module =~ s/\//::/g;
+  say $module;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I run it like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ chmod 755 list_modules
+$ /usr/bin/perl -e &#39;for(@INC){ system &amp;quot;./list_modules -d $_&amp;quot; }&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;m using the absolute path &lt;code&gt;/usr/bin/perl&lt;/code&gt; to ensure I get my system&amp;rsquo;s &lt;code&gt;perl&lt;/code&gt; and not the local one I manage with &lt;a href=&#34;https://github.com/tokuhirom/plenv&#34;&gt;plenv&lt;/a&gt;. One downside of this approach is it lists every module (&lt;code&gt;.pm&lt;/code&gt; file) rather than every distribution, (see this &lt;a href=&#34;http://perltricks.com/article/96/2014/6/13/Perl-distributions--modules--packages-explained/&#34;&gt;explanation&lt;/a&gt; if you&amp;rsquo;re not familiar with the distinction). Another issue is it will list duplicate modules when the system uses symlinks. So the program output needs to be tidied up in a text editor.&lt;/p&gt;
+
+&lt;p&gt;What about programs? To search for Perl programs I prepared a list of Perl programs from the source for Perl 5.22, called &lt;code&gt;perl522_programs&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;c2ph
+corelist
+cpan
+enc2xs
+encguess
+h2ph
+h2xs
+instmodsh
+json_pp
+libnetcfg
+perl
+perl5.22.1
+perlbug
+perldoc
+perlivp
+perlthanks
+piconv
+pl2pm
+pod2html
+pod2man
+pod2text
+pod2usage
+podchecker
+podselect
+prove
+pstruct
+ptar
+ptardiff
+ptargrep
+shasum
+splain
+xsubpp
+zipdetails
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then I used the following script, called &lt;code&gt;find_binary&lt;/code&gt; to check for the programs:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
+my $bin = shift or die &amp;quot;You must provide a binary name to search for\n&amp;quot;;
+
+for ( qw(/sbin /bin /usr/sbin /usr/bin) )
+{
+  my $path = &amp;quot;$_/$bin&amp;quot;;
+  print &amp;quot;$path\n&amp;quot; if -e $path;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I run it like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ chmod 755 find_binary
+$ perl -ne &#39;chomp;system &amp;quot;./find_binary $_&amp;quot;&#39; perl522_programs
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This line calls the &lt;code&gt;find_binary&lt;/code&gt; script on every program listed in the file &lt;code&gt;perl522_programs&lt;/code&gt;. I &lt;code&gt;chomp&lt;/code&gt; the line before searching for it to remove the trailing newline character. This method isn&amp;rsquo;t perfect though; sneaky Ubuntu ships with a program called &lt;code&gt;perldoc&lt;/code&gt; but if you run it the system prints:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;You need to install the perl-doc package to use this program.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;core-modules-and-programs-missing-from-system-perls:0d5c2e3cd089b0cf6cb0dbe47d066eb1&#34;&gt;Core modules and programs missing from system perls&lt;/h3&gt;
+
+&lt;p&gt;Using the code above I did a comparison of the modules and programs shipped with Perl and those shipped with the following systems. Here&amp;rsquo;s what missing:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Fedora 23&lt;/th&gt;
+&lt;th&gt;Ubuntu 14.04 LTS&lt;/th&gt;
+&lt;th&gt;OSX Yosemite 10.10.5&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;B::Debug&lt;/td&gt;
+&lt;td&gt;CGI::Fast&lt;/td&gt;
+&lt;td&gt;GDBM_File&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Config::Perl::V&lt;/td&gt;
+&lt;td&gt;ODBM_File&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;CPANPLUS&lt;/td&gt;
+&lt;td&gt;perldoc&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;DB_File&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Devel::PPPort&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;ExtUtils::Embed&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;ExtUtils::MakeMaker::Locale&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;ExtUtils::Miniperl&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;File::Fetch&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;File::Spec::VMS&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Filter::Simple&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;IO::Compress::Adapter::Bzip2&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;IO::Uncompress::Adapter::Bunzip2&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::BigFloat&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::BigInt&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::BigRat&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::Complex&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::Trig&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Module::Loaded&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;PerlIO&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Text::Balanced&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Time::Piece&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Time::Seconds&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Unicode::Collate&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;autodie&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;bigint&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;bignum&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;bigrat&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;experimental&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;perlfaq&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;corelist&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;enc2xs&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;libnetcfg&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;Ubuntu and OSX ship with Perl 5.18 so I looked for missing programs and modules against the 5.18 source code. For Fedora I compared the system &lt;code&gt;perl&lt;/code&gt; against the 5.22 source. These results show that Fedora is missing quite a few modules and programs: experimental, corelist, autodie, the Math:: modules and Time::Piece strike me as significant omissions. For Ubuntu, excluding &lt;code&gt;perldoc&lt;/code&gt; is a &lt;a href=&#34;http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/&#34;&gt;real shame&lt;/a&gt;. OSX comes away gleaming though: nearly all core modules and programs were present.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:0d5c2e3cd089b0cf6cb0dbe47d066eb1&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;When writing programs that use core Perl modules be careful, especially if you&amp;rsquo;re using any of the modules or programs found to be missing earlier. One way around this is the use &lt;a href=&#34;https://metacpan.org/pod/App::FatPacker&#34;&gt;App::FatPacker&lt;/a&gt; to compile all the modules used into a single file. Another way would be to use &lt;a href=&#34;https://metacpan.org/pod/pp&#34;&gt;pp&lt;/a&gt; to create a compiled binary. Finally for modules like Time::Piece, you could always consider wrapping Perl&amp;rsquo;s built-in functions like &lt;code&gt;gmtime&lt;/code&gt; and &lt;code&gt;localtime&lt;/code&gt; in subroutines that give the behavior you need, rather than using the module.&lt;/p&gt;
+
+&lt;p&gt;Of course it&amp;rsquo;s always easier to work with a locally-installed &lt;code&gt;perl&lt;/code&gt; than the system version. The local Perls provided by &lt;a href=&#34;http://perlbrew.pl&#34;&gt;perlbrew&lt;/a&gt; and &lt;a href=&#34;https://github.com/tokuhirom/plenv&#34;&gt;plenv&lt;/a&gt; contain all the core modules and utilities. You can always &lt;a href=&#34;http://perlmaven.com/how-to-build-perl-from-source-code&#34;&gt;compile&lt;/a&gt; your own Perl too, it&amp;rsquo;s easy. &lt;a href=&#34;http://www.strawberryperl.com&#34;&gt;Strawberry Perl&lt;/a&gt; for Windows even comes with some useful extra modules and C libraries. If you do have to rely on the system Perl, you may find a core module isn&amp;rsquo;t there at all.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>What&#39;s new on CPAN - February 2016</title>
@@ -1290,104 +1648,6 @@ location = root
 &lt;p&gt;&lt;a href=&#34;https://googledrive.com/host/0BwRnByTz2iUXQk5KcVNHcElJRUU&#34; title=&#34;Install Any Perl Module&#34;&gt;&lt;img src=&#34;https://googledrive.com/host/0BwRnByTz2iUXUVBJSllmeUJiU00&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;[*] You can install any Perl module, but it may not be a good idea™&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Run only one instance of a program at a time</title>
-      <link>http://perltricks.com/article/2/2015/11/4/Run-only-one-instance-of-a-program-at-a-time/</link>
-      <pubDate>Wed, 04 Nov 2015 13:03:49 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/2/2015/11/4/Run-only-one-instance-of-a-program-at-a-time/</guid>
-      <description>
-
-&lt;p&gt;Recently I wanted to schedule a Perl app to run every minute on a server, but if an instance of the app was already running, it should exit and do nothing. This is a common problem and I was able to solve it with a lockfile. Let&amp;rsquo;s see how to use lockfiles in Perl.&lt;/p&gt;
-
-&lt;h3 id=&#34;lockfiles-you-say:e2b49cd805c9d1d81412d3e39a65e7e9&#34;&gt;Lockfiles you say?&lt;/h3&gt;
-
-&lt;p&gt;Most operating systems support file locking - it&amp;rsquo;s an essential tool to prevent multiple processes updating a file at the same time and causing data loss. Processes obtain file locks when they are accessing a file to prevent other processes changing them, and release the file lock when they&amp;rsquo;re done, freeing the file to be used by other processes again.&lt;/p&gt;
-
-&lt;p&gt;Programs can use the lock file principle to prevent multiple instances of themselves running at the same time. When the program starts it tries to lock the lockfile, if successful it executes the program, else it exits. When the program process ends, any locks it obtained are removed by the OS. You may have seen lockfiles before, they are usually ordinary files with a &lt;code&gt;.lock&lt;/code&gt; extension.&lt;/p&gt;
-
-&lt;h3 id=&#34;file-locking-in-perl:e2b49cd805c9d1d81412d3e39a65e7e9&#34;&gt;File locking in Perl&lt;/h3&gt;
-
-&lt;p&gt;Perl provides the &lt;a href=&#34;http://perldoc.perl.org/functions/flock.html&#34;&gt;flock&lt;/a&gt; function for file locking. It takes a filehandle and a constant value for the lock type. So to get an exclusive lock on a file, I could do:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $file, &amp;quot;&amp;gt;&amp;quot;, &amp;quot;app.lock&amp;quot; or die $!; 
-flock $file, 2 or die &amp;quot;Unable to lock file $!&amp;quot;;
-# we have the lock
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This code starts by opening a write filehandle to the file &lt;code&gt;app.lock&lt;/code&gt;. If successful, it attempts to get an exclusive lock on the file by calling flock with the number 2. An exclusive lock means no other process can access the file whilst the lock is active. Remembering the constant values for lock types can be a pain, so helpfully the &lt;a href=&#34;https://metacpan.org/pod/Fcntl&#34;&gt;Fcntl&lt;/a&gt; module will export constant names if you ask nicely. I&amp;rsquo;ll update the code to do that:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Fcntl qw(:flock);
-open my $file, &amp;quot;&amp;gt;&amp;quot;, &amp;quot;app.lock&amp;quot; or die $!; 
-flock $file, LOCK_EX or die &amp;quot;Unable to lock file $!&amp;quot;;
-# we have the lock
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This code does the same thing as before but we don&amp;rsquo;t need to remember the constant value for the lock type (LOCK_EX == exclusive lock). Note there is no need to unlock the file - when the program exits, the lock will be removed automatically.&lt;/p&gt;
-
-&lt;h3 id=&#34;non-blocking-flock:e2b49cd805c9d1d81412d3e39a65e7e9&#34;&gt;Non-blocking flock&lt;/h3&gt;
-
-&lt;p&gt;So far so good but we have a problem. If the file is locked, &lt;code&gt;flock&lt;/code&gt; will block and keep our program waiting around until the lock is removed. I want is the program to exit immediately if it can&amp;rsquo;t obtain the lock. The only way to check if a file is locked is with &lt;code&gt;flock&lt;/code&gt; though! Fortunately the &lt;code&gt;flock&lt;/code&gt; developers had considered this issue, and I can pass an extra argument to indicate I want a non-blocking lock.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Fcntl qw(:flock);
-open my $file, &amp;quot;&amp;gt;&amp;quot;, &amp;quot;app.lock&amp;quot; or die $!; 
-flock $file, LOCK_EX|LOCK_NB or die &amp;quot;Unable to lock file $!&amp;quot;;
-# we have the lock
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;I&amp;rsquo;ve added &lt;code&gt;|LOCK_NB&lt;/code&gt; to the flock arguments and now it will return false immediately if it cannot obtain an exclusive lock.This provides the non-blocking behavior I need.&lt;/p&gt;
-
-&lt;h3 id=&#34;testing-it-out:e2b49cd805c9d1d81412d3e39a65e7e9&#34;&gt;Testing it out&lt;/h3&gt;
-
-&lt;p&gt;I&amp;rsquo;m going to put this locking code into a quick script so I can test the lock functionality:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use Fcntl qw(:flock);
-open my $file, &amp;quot;&amp;gt;&amp;quot;, &amp;quot;app.lock&amp;quot; or die $!; 
-flock $file, LOCK_EX|LOCK_NB or die &amp;quot;Unable to lock file: $!&amp;quot;;
-
-sleep(60);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;I&amp;rsquo;ll save the script as &lt;code&gt;sleep60.pl&lt;/code&gt; and test it at the terminal:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ chmod 700 sleep60.pl
-$ ./sleep60.pl&amp;amp;
-[2] 21505
-$ ./sleep60.pl
-Unable to lock file Resource temporarily unavailable at ./sleep60.pl line 4.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Looking good! I tried to run the script twice and the second time, the system printed the expected error message and exited.&lt;/p&gt;
-
-&lt;h3 id=&#34;avoiding-external-files:e2b49cd805c9d1d81412d3e39a65e7e9&#34;&gt;Avoiding external files&lt;/h3&gt;
-
-&lt;p&gt;Using an external file feels kind-of-dirty. What I&amp;rsquo;d really like to do is tidy up by deleting the lockfile once the program has finished. However unlocking and deleting the file involves extra steps which may introduce a &lt;a href=&#34;https://en.wikipedia.org/wiki/Race_condition&#34;&gt;race condition&lt;/a&gt;. Instead of deleting the file, what if we never created it? One way to do this is to use the &lt;a href=&#34;http://perltricks.com/article/24/2013/5/11/Perl-tokens-you-should-know&#34;&gt;__DATA__&lt;/a&gt; filehandle, like so:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use Fcntl qw(:flock);
-flock DATA, LOCK_EX|LOCK_NB or die &amp;quot;Unable to lock file $!&amp;quot;;
-
-sleep(60);
-__DATA__
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This version of the script opens a lock on the &lt;code&gt;DATA&lt;/code&gt; filehandle and creates no external files. Mark Jason Dominus &lt;a href=&#34;http://perl.plover.com/yak/flock/samples/slide006.html&#34;&gt;showed&lt;/a&gt; this ingenious trick years ago. Another trick Mark showed was to open the lockfile on the program file itself:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use Fcntl qw(:flock);
-open our $file, &#39;&amp;lt;&#39;, $0 or die $!;
-flock $file, LOCK_EX|LOCK_NB or die &amp;quot;Unable to lock file $!&amp;quot;;
-
-sleep(60);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This frees up &lt;code&gt;DATA&lt;/code&gt; and has the added benefit that the code can be exported by a module (by using &lt;code&gt;our&lt;/code&gt; instead of &lt;code&gt;my&lt;/code&gt;). Note that the &lt;code&gt;open&lt;/code&gt; arguments have been changed to use a read-only filehandle to avoid truncating the source code of the program! If you need this behavior, you can implement it yourself as shown above, or use my module &lt;a href=&#34;https://metacpan.org/pod/IPC::Lockfile&#34;&gt;IPC::Lockfile&lt;/a&gt;, which will do it for you. If you need more refined lockfile functionality, have a look at &lt;a href=&#34;https://metacpan.org/pod/Sys::RunAlone&#34;&gt;Sys::RunAlone&lt;/a&gt; which uses the same trick (thanks to &lt;a href=&#34;https://metacpan.org/author/BOOK&#34;&gt;BooK&lt;/a&gt; for the reference). There are also plenty of other options on &lt;a href=&#34;https://metacpan.org/search?size=20&amp;amp;q=lockfile&amp;amp;search_type=modules&#34;&gt;CPAN&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Update:&lt;/strong&gt; &lt;em&gt;added Sys::RunAlone reference - 2015-11-28.&lt;/em&gt;&lt;/p&gt;
 </description>
     </item>
     

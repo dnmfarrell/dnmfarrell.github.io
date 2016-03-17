@@ -136,7 +136,17 @@ my $eastern_datetime = Time::Piece-&gt;strptime('2015-10-05T09:34:19 -0400','%Y-
 my $pacific_datetime = Time::Piece-&gt;strptime('2015-10-05T09:34:19 -0700','%Y-%m-%dT%T %z');
 </code></pre>
 
-<p>strptime uses the same formatting codes as strftime, you can get the full list <a href="http://man7.org/linux/man-pages/man3/strftime.3.html">here</a>.</p>
+<p><strong>Warning</strong> Time::Piece fails to parse timezones with semicolons in them. To handle that, just remove the semicolon from the timezone before passing it to <code>strptime</code>:</p>
+
+<pre><code class="language-prettyprint">use Time::Piece;
+
+my $datetime = '2015-10-05T09:34:19 -04:00';
+$datetime    =~ s/([+\-]\d\d):(\d\d)/$1$2;
+my $dt       = Time::Piece-&gt;strptime($datetime, &quot;%Y-%m-%dT%H:%M:%S %z&quot;);
+
+</code></pre>
+
+<p><code>strptime</code> uses the same formatting codes as <code>strftime</code>, you can get the full list <a href="http://man7.org/linux/man-pages/man3/strftime.3.html">here</a>.</p>
 
 <h3 id="compare-datetimes:15c12906ca779ac02701e8af216e915b">Compare datetimes</h3>
 
@@ -195,7 +205,7 @@ my $30SecondsAgo = $now - 30;
 <pre><code class="language-prettyprint">$ perldoc Time::Piece
 </code></pre>
 
-<p><strong>Updated:</strong> <em>Added timezone strptime example 2015-01-28</em></p>
+<p><strong>Updated:</strong> <em>Added timezone strptime example 2015-01-28. Added timezone semicolon handling 2016-03-17.</em></p>
 
               </article>
               <p><strong>Tags</strong></p>
@@ -237,6 +247,20 @@ my $30SecondsAgo = $now - 30;
     <div class="col-sm-12 centering">
       <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
     </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/what-is-the-perl-core-/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What is the Perl Core?</h6>
+        <p style="line-height:1"><small>Unfortunately there&#39;s more than one way to package it</small></p>
+    </div>
+      </a>
   </div>
   
         
@@ -295,20 +319,6 @@ my $30SecondsAgo = $now - 30;
       </a>
   </div>
   
-        
-        
-  <div class="row">
-      <a href="http://perltricks.com/article/magical-tied-scalars/">
-    <div class="col-sm-3">
-      <div class="circle-avatar" style="background-image:url(/images/author/brian.jpg)"></div>
-    </div>
-    <div class="col-sm-9">
-        <h6>Magical tied scalars</h6>
-        <p style="line-height:1"><small>Subvert and simplify code with tied scalars</small></p>
-    </div>
-      </a>
-  </div>
-  
 </div>
 
             <div class="row" style="margin-top:20px">
@@ -324,6 +334,14 @@ my $30SecondsAgo = $now - 30;
       </div>
     </section>
   </section>
+<script>
+ 
+var tables, i;
+tables = document.getElementsByTagName('table');
+for (i=0;i<tables.length;i++) {
+  tables[i].className = 'table table-striped';
+}
+</script>
 <div class="push"></div>
 <div class="footer">
   <div class="container">
