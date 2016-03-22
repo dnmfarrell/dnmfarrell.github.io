@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+  <title> Prevent harmful Linux updates with versionlock </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="How to avoid breaking software updates"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul id="follow-buttons" class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+          <li><a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <div class="row">
+              <article>
+              
+              
+              <h1 class="blog-post-title">Prevent harmful Linux updates with versionlock</h1>
+              <p class="blog-post-meta">Mar 21, 2016 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src="/images/prevent-harmful-updates-with-versionlock/software%20padlock.jpg"/>
+                
+
+<p>On my home machine I run Fedora, a Linux distro famous for being at the cutting-edge of Linux development. My laptop is the <a href="http://perltricks.com/article/187/2015/8/18/Laptop-review--Dell-XPS-13-2015/">Dell XPS 13</a> which uses some fairly advanced hardware. In Open Source this can be dangerous combination: older Linux kernels can&rsquo;t handle my machine&rsquo;s hardware, and brand new kernels often break it too. Every time I do a software update, I&rsquo;m walking a tightrope.</p>
+
+<p>The way I handle this is with a package manager plugin called <a href="https://github.com/rpm-software-management/dnf-plugins-extras">versionlock</a>. It lets me tell the package manager to lock certain packages at their current version and voilà! I can blindly apply all software updates and know that those troublesome packages will not be upgraded.</p>
+
+<h3 id="installation:cc50447c6adbe416d99715fce2b83d16">Installation</h3>
+
+<p>The versionlock plugin is available for both dnf and yum, so pick which package manager your system is using. For dnf:</p>
+
+<pre><code>$ sudo dnf install python-dnf-plugins-extras-versionlock
+</code></pre>
+
+<p>And for yum:</p>
+
+<pre><code>$ sudo yum install yum-plugin-versionlock
+</code></pre>
+
+<h3 id="lock-a-package:cc50447c6adbe416d99715fce2b83d16">Lock a package</h3>
+
+<p>To add a package to the locked list, simply run the package manager program with the <code>versionlock</code> and <code>add</code> commands:</p>
+
+<pre><code>$ sudo dnf versionlock add my-package
+</code></pre>
+
+<p>The yum version:</p>
+
+<pre><code>$ sudo yum versionlock add my-package
+</code></pre>
+
+<p>As you can see, the commands for dnf and yum are the same. You can lock multiple packages in one command. Here&rsquo;s how I prevent my system from upgrading the kernel packages:</p>
+
+<pre><code>$ sudo dnf versionlock add kernel-0:4.3.5-300.fc23 kernel-modules-0:4.3.5-300.fc23 kernel-core-0:4.3.5-300.fc23 kernel-devel-0:4.3.5-300.fc23
+</code></pre>
+
+<h3 id="list-locked-packages:cc50447c6adbe416d99715fce2b83d16">List locked packages</h3>
+
+<p>To see which packages are locked, use the <code>list</code> command:</p>
+
+<pre><code>$ dnf versionlock list
+Last metadata expiration check: 0:00:00 ago on Mon Mar 21 20:58:57 2016.
+kernel-0:4.3.5-300.fc23.*
+kernel-modules-0:4.3.5-300.fc23.*
+kernel-core-0:4.3.5-300.fc23.*
+kernel-devel-0:4.3.5-300.fc23.*
+</code></pre>
+
+<h3 id="unlock-a-package:cc50447c6adbe416d99715fce2b83d16">Unlock a package</h3>
+
+<p>To remove one package from the lock list, use <code>delete</code>:</p>
+
+<pre><code>$ sudo dnf versionlock delete my-package
+</code></pre>
+
+<p>To remove all packages from the lock list, use <code>clear</code>:</p>
+
+<pre><code>$ sudo yum versionlock clear
+</code></pre>
+
+<h3 id="help:cc50447c6adbe416d99715fce2b83d16">Help</h3>
+
+<p>If you ever forget these commands, you can list the available commands with <code>help</code>:</p>
+
+<pre><code>$ dnf help versionlock
+versionlock [add|exclude|list|delete|clear] [&lt;package-nevr-spec&gt;]
+</code></pre>
+
+<h3 id="how-many-installers-do-you-need:cc50447c6adbe416d99715fce2b83d16">How many installers do you need?</h3>
+
+<p>On Fedora I also remove the <a href="https://wiki.gnome.org/Apps/Software">Gnome Software</a> program (<code>gnome-software</code> package). Whilst it&rsquo;s useful to be reminded of pending updates via the GUI, any package installed via Gnome Software is not part of the dnf history. That makes it harder when it&rsquo;s necessary to downgrade or remove a troublesome package.</p>
+
+<h3 id="conclusion:cc50447c6adbe416d99715fce2b83d16">Conclusion</h3>
+
+<p>Managing packages can be a pain, but versionlock makes life easier. If you use Debian or Ubuntu you can use <code>apt-mark hold my-package</code> and <code>apt-mark unhold my-package</code> to similar effect.</p>
+
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/fedora">fedora</a></div>
+                
+                  <div class="tag"><a href="/tags/yum">yum</a></div>
+                
+                  <div class="tag"><a href="/tags/dnf">dnf</a></div>
+                
+                  <div class="tag"><a href="/tags/linux">linux</a></div>
+                
+                  <div class="tag"><a href="/tags/versionlock">versionlock</a></div>
+                
+                  <div class="tag"><a href="/tags/ubuntu">ubuntu</a></div>
+                
+                  <div class="tag"><a href="/tags/debian">debian</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
+              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/prevent-harmful-updates-with-versionlock/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/prevent-harmful-updates-with-versionlock/software%20padlock.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Prevent harmful Linux updates with versionlock</h6>
+        <p style="line-height:1"><small>How to avoid breaking software updates</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/what-is-the-perl-core-/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What is the Perl Core?</h6>
+        <p style="line-height:1"><small>Unfortunately there&#39;s more than one way to package it</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(http://googledrive.com/host/0BwRnByTz2iUXTUhuU1BhTjNkNVk)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Controlling insanity by parsing IR codes with Linux::IRPulses</h6>
+        <p style="line-height:1"><small>Parsing IR remote codes</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/what-s-new-on-cpan---february-2016/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/156/18F30D70-C0E3-11E4-AB33-E3A60EA848F6.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - February 2016</h6>
+        <p style="line-height:1"><small>A curated look at February&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/netanel-rubins-perljam-circus/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(http://googledrive.com/host/0BwRnByTz2iUXMUdoRDVvRGpsU1U)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Netanel Rubin&#39;s Perl Jam circus</h6>
+        <p style="line-height:1"><small>Responding to a misguided attack on Perl</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<script>
+ 
+var tables, i;
+tables = document.getElementsByTagName('table');
+for (i=0;i<tables.length;i++) {
+  tables[i].className = 'table table-striped';
+}
+</script>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+          <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a>
+          <a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

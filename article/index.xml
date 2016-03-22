@@ -6,8 +6,91 @@
     <description>Recent content in Articles on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 09 Mar 2016 10:04:57 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 21 Mar 2016 20:46:17 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/article/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Prevent harmful Linux updates with versionlock</title>
+      <link>http://perltricks.com/article/prevent-harmful-updates-with-versionlock/</link>
+      <pubDate>Mon, 21 Mar 2016 20:46:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/prevent-harmful-updates-with-versionlock/</guid>
+      <description>
+
+&lt;p&gt;On my home machine I run Fedora, a Linux distro famous for being at the cutting-edge of Linux development. My laptop is the &lt;a href=&#34;http://perltricks.com/article/187/2015/8/18/Laptop-review--Dell-XPS-13-2015/&#34;&gt;Dell XPS 13&lt;/a&gt; which uses some fairly advanced hardware. In Open Source this can be dangerous combination: older Linux kernels can&amp;rsquo;t handle my machine&amp;rsquo;s hardware, and brand new kernels often break it too. Every time I do a software update, I&amp;rsquo;m walking a tightrope.&lt;/p&gt;
+
+&lt;p&gt;The way I handle this is with a package manager plugin called &lt;a href=&#34;https://github.com/rpm-software-management/dnf-plugins-extras&#34;&gt;versionlock&lt;/a&gt;. It lets me tell the package manager to lock certain packages at their current version and voilà! I can blindly apply all software updates and know that those troublesome packages will not be upgraded.&lt;/p&gt;
+
+&lt;h3 id=&#34;installation:cc50447c6adbe416d99715fce2b83d16&#34;&gt;Installation&lt;/h3&gt;
+
+&lt;p&gt;The versionlock plugin is available for both dnf and yum, so pick which package manager your system is using. For dnf:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo dnf install python-dnf-plugins-extras-versionlock
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And for yum:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo yum install yum-plugin-versionlock
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;lock-a-package:cc50447c6adbe416d99715fce2b83d16&#34;&gt;Lock a package&lt;/h3&gt;
+
+&lt;p&gt;To add a package to the locked list, simply run the package manager program with the &lt;code&gt;versionlock&lt;/code&gt; and &lt;code&gt;add&lt;/code&gt; commands:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo dnf versionlock add my-package
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The yum version:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo yum versionlock add my-package
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As you can see, the commands for dnf and yum are the same. You can lock multiple packages in one command. Here&amp;rsquo;s how I prevent my system from upgrading the kernel packages:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo dnf versionlock add kernel-0:4.3.5-300.fc23 kernel-modules-0:4.3.5-300.fc23 kernel-core-0:4.3.5-300.fc23 kernel-devel-0:4.3.5-300.fc23
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;list-locked-packages:cc50447c6adbe416d99715fce2b83d16&#34;&gt;List locked packages&lt;/h3&gt;
+
+&lt;p&gt;To see which packages are locked, use the &lt;code&gt;list&lt;/code&gt; command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ dnf versionlock list
+Last metadata expiration check: 0:00:00 ago on Mon Mar 21 20:58:57 2016.
+kernel-0:4.3.5-300.fc23.*
+kernel-modules-0:4.3.5-300.fc23.*
+kernel-core-0:4.3.5-300.fc23.*
+kernel-devel-0:4.3.5-300.fc23.*
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;unlock-a-package:cc50447c6adbe416d99715fce2b83d16&#34;&gt;Unlock a package&lt;/h3&gt;
+
+&lt;p&gt;To remove one package from the lock list, use &lt;code&gt;delete&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo dnf versionlock delete my-package
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To remove all packages from the lock list, use &lt;code&gt;clear&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo yum versionlock clear
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;help:cc50447c6adbe416d99715fce2b83d16&#34;&gt;Help&lt;/h3&gt;
+
+&lt;p&gt;If you ever forget these commands, you can list the available commands with &lt;code&gt;help&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ dnf help versionlock
+versionlock [add|exclude|list|delete|clear] [&amp;lt;package-nevr-spec&amp;gt;]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;how-many-installers-do-you-need:cc50447c6adbe416d99715fce2b83d16&#34;&gt;How many installers do you need?&lt;/h3&gt;
+
+&lt;p&gt;On Fedora I also remove the &lt;a href=&#34;https://wiki.gnome.org/Apps/Software&#34;&gt;Gnome Software&lt;/a&gt; program (&lt;code&gt;gnome-software&lt;/code&gt; package). Whilst it&amp;rsquo;s useful to be reminded of pending updates via the GUI, any package installed via Gnome Software is not part of the dnf history. That makes it harder when it&amp;rsquo;s necessary to downgrade or remove a troublesome package.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:cc50447c6adbe416d99715fce2b83d16&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Managing packages can be a pain, but versionlock makes life easier. If you use Debian or Ubuntu you can use &lt;code&gt;apt-mark hold my-package&lt;/code&gt; and &lt;code&gt;apt-mark unhold my-package&lt;/code&gt; to similar effect.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>What is the Perl Core?</title>
@@ -1891,170 +1974,6 @@ To git@github.com:user/SomeProject.git
 &lt;h3 id=&#34;where-to-get-it:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;Where to get it&lt;/h3&gt;
 
 &lt;p&gt;You can read Modern Perl &lt;a href=&#34;http://modernperlbooks.com/books/modern_perl_2014/index.html&#34;&gt;online&lt;/a&gt; for free, and there are downloadable versions available from &lt;a href=&#34;http://onyxneon.com/books/modern_perl/index.html&#34;&gt;Onyx Neon&lt;/a&gt;. If you want it as an ebook, I would recommend the Pragmatic Bookshelf &lt;a href=&#34;https://pragprog.com/book/swperl/modern-perl-fourth-edition&#34;&gt;version&lt;/a&gt; - it&amp;rsquo;s beautifully styled, free, and you&amp;rsquo;ll be eligible for updates to the text as/when they appear.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Kitchen coding nightmares: JavaScript scope</title>
-      <link>http://perltricks.com/article/204/2015/12/17/Kitchen-coding-nightmares--JavaScript-scope/</link>
-      <pubDate>Thu, 17 Dec 2015 14:13:13 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/204/2015/12/17/Kitchen-coding-nightmares--JavaScript-scope/</guid>
-      <description>
-
-&lt;p&gt;Lately at the &lt;a href=&#34;https://www.recurse.com/&#34;&gt;Recurse Center&lt;/a&gt; I&amp;rsquo;ve been developing a JavaScript client for my &lt;a href=&#34;https://github.com/dnmfarrell/Settlers-Game&#34;&gt;Settlers game&lt;/a&gt;. As a Perl developer working with JavaScript, it has been a fun experience. JavaScript feels very perly - both share a flexible syntax, first class functions and objects as hashes. And both languages have a lax interpreter which should have been put in strict mode in the first place (ha-ha!). One way in which JavaScript is very different from Perl is its scoping rules. I was burned by these more than once, and so if you&amp;rsquo;re new to JavaScript, you might find the following summary and recommendations useful.&lt;/p&gt;
-
-&lt;h3 id=&#34;functional-scoping:6e2e047097a9f672ac378602b99db31f&#34;&gt;Functional scoping&lt;/h3&gt;
-
-&lt;p&gt;Variables are declared with the &lt;code&gt;var&lt;/code&gt; keyword:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;var name = &amp;quot;David&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Variables are functionally-scoped, which means that if declared within a function, the variable is private to the function block. Variables declared outside of functions are globally scoped. And there is no other type of block scoping (such as within if-else or for loops).&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;var name = &amp;quot;David&amp;quot;;
-
-function log_name (name) // private
-{
-  console.log(name);
-}
-
-var names = [&amp;quot;Jen&amp;quot;, &amp;quot;Jim&amp;quot;, &amp;quot;Jem&amp;quot;, &amp;quot;Jon&amp;quot;];
-for (var i = 0; i &amp;lt; names.length; i++)
-{
-  var name = names[i]; // overwriting the global
-}
-console.log(name); // Jon NOT David
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;functions-as-variables:6e2e047097a9f672ac378602b99db31f&#34;&gt;Functions as variables&lt;/h3&gt;
-
-&lt;p&gt;Function names are stored as variables under the same scoping rules as ordinary variables. There are two ways to declare functions:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;function log_name () { }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;and:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;var log_name = function () { }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Both of these are the same. Which means it&amp;rsquo;s possible to inadvertently overwrite a function with another variable declaration:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;function name () { return &amp;quot;David&amp;quot;; }
-var name = &amp;quot;John&amp;quot;;
-name(); // error, name is not a function anymore
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;hoisting:6e2e047097a9f672ac378602b99db31f&#34;&gt;Hoisting&lt;/h3&gt;
-
-&lt;p&gt;JavaScript interpreters have a initial-runtime phase, (similar to Perl&amp;rsquo;s &lt;code&gt;BEGIN&lt;/code&gt;), where all variable declarations are executed before other code. This is known as &amp;ldquo;hoisting&amp;rdquo;, but practically what it means is that you can use a variable before you declare it!&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;console.log(name); // yep, this works
-var name = &amp;quot;David&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;bind:6e2e047097a9f672ac378602b99db31f&#34;&gt;Bind&lt;/h3&gt;
-
-&lt;p&gt;JavaScript makes heavy use of anonymous functions and callbacks.To modify the scope of a function, JavaScript&lt;sup&gt;1&lt;/sup&gt; provides &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind?redirectlocale=en-US&amp;amp;redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FFunction%2Fbind&#34;&gt;bind&lt;/a&gt;. This is easier to understand by example. If I have a point object and I want a method to draw it to the canvas, by loading an image:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Point.prototype.draw = function()
-{
-  var ctx = get_canvas_context(); // declared elsewhere
-  var img = new Image();
-  img.onload = function () {  // anonymous function
-    ctx.drawImage(img, this.x, this.y);   
-  }.bind(this);
-  img.src = &amp;quot;/point.png&amp;quot;;
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Here I use &lt;code&gt;bind&lt;/code&gt; to inject the point object&amp;rsquo;s scope into the anonymous function. Otherwise I wouldn&amp;rsquo;t be able to access the &lt;code&gt;x&lt;/code&gt; and &lt;code&gt;y&lt;/code&gt; properties of the point as &lt;code&gt;this&lt;/code&gt; would be referencing something else.&lt;/p&gt;
-
-&lt;p&gt;For a more thorough explanation of JavaScript scope, I recommend Todd Motto&amp;rsquo;s article, &lt;a href=&#34;https://toddmotto.com/everything-you-wanted-to-know-about-javascript-scope/&#34;&gt;Everything you wanted to know about JavaScript scope&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;coping-with-scoping:6e2e047097a9f672ac378602b99db31f&#34;&gt;Coping with scoping&lt;/h3&gt;
-
-&lt;p&gt;OK so that was the bad news; the good news is there are plenty of techniques for handling JavaScript&amp;rsquo;s scoping rules. Depending on the context you may find some or all of these methods useful.&lt;/p&gt;
-
-&lt;h4 id=&#34;naming-conventions:6e2e047097a9f672ac378602b99db31f&#34;&gt;Naming conventions&lt;/h4&gt;
-
-&lt;p&gt;The first thing you can do to avoid clashes is adopt a naming convention. For example, name all functions with verb-noun constructs (like &amp;ldquo;get_address&amp;rdquo;) and all value variables with plain nouns (like &amp;ldquo;addresses&amp;rdquo;). This is not a complete solution, but at a minimum it will reduce the chances of a function being replaced by a value variable.&lt;/p&gt;
-
-&lt;h4 id=&#34;one-var-per-scope:6e2e047097a9f672ac378602b99db31f&#34;&gt;One var per scope&lt;/h4&gt;
-
-&lt;p&gt;Another technique for managing variable scope is to only allow one &lt;code&gt;var&lt;/code&gt; statement per scope. So a typical program might look like this:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;// declare global scope variables
-var foo = &amp;quot;/root/assets&amp;quot;,
-    bar = 0;
-
-function execute (foo)
-{
-  var i, j, bar; // functional scope
-
-  for (i = 0; i &amp;lt; foo.length; i++)
-  {
-    for (j = 0; j &amp;lt; foo.length; j++)
-    {
-      // do something
-    }
-  }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h4 id=&#34;use-strict:6e2e047097a9f672ac378602b99db31f&#34;&gt;Use strict&lt;/h4&gt;
-
-&lt;p&gt;This is a convention all Perl programmers should be comfortable with. Enable &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode&#34;&gt;strict mode&lt;/a&gt; in JavaScript. Just like with Perl, JavaScript&amp;rsquo;s strict mode can catch &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode#Changes_in_strict_mode&#34;&gt;several&lt;/a&gt;cases of variable-related bugs. Enable it globally with:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;quot;use strict&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Generally JavaScript experts &lt;a href=&#34;http://yuiblog.com/blog/2010/12/14/strict-mode-is-coming-to-town/&#34;&gt;recommend&lt;/a&gt; using a functionally-scoped version of strict - in this case the declaration is placed inside a function block. This is useful to prevent script concatenation errors (where an imported script does not satisfy the strict rules).&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;(function () {
-   &amp;quot;use strict&amp;quot;;
-   // this function is strict...
-}());
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h4 id=&#34;objects-as-namespaces:6e2e047097a9f672ac378602b99db31f&#34;&gt;Objects as namespaces&lt;/h4&gt;
-
-&lt;p&gt;If you were thinking a simple way to solve all of the namespace clashes was with modules, allow me to be the first to tell you that JavaScript has no notion of modules (being a &lt;a href=&#34;https://en.wikipedia.org/wiki/Prototype-based_programming&#34;&gt;prototyped language&lt;/a&gt;). There is no &lt;code&gt;import&lt;/code&gt; keyword. In HTML any code that is loaded with a &lt;code&gt;script&lt;/code&gt; tag is simply concatenated to the current scope.&lt;/p&gt;
-
-&lt;p&gt;There are solutions to this limitation though. In &lt;a href=&#34;http://www.amazon.com/JavaScript-Definitive-Guide-Activate-Guides/dp/0596805527/ref=dp_ob_title_bk&#34;&gt;JavaScript the Definitive Guide&lt;/a&gt;, author David Flanagan proposes using objects as namespaces (sixth edition, section 9.9.1). Each object&amp;rsquo;s scope can be used to encapsulate the behavior and data specific to that domain. For example:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;// everything is scoped to point.*
-var point = {};
-point.Point = function (_x, _y) {
-  this.x = _x;
-  this.y = _y
-}
-
-point.Point.prototype.coordinates = function ()
-{
-  return [this.x, this.y];
-}
-
-// now lets try it out ...
-var p = new point.Point(1,3);
-console.log(p.coordinates());
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;To package code as modules, there is the &lt;a href=&#34;http://www.adequatelygood.com/JavaScript-Module-Pattern-In-Depth.html&#34;&gt;module pattern&lt;/a&gt;. Finally although JavaScript has no native import method, there are several external libraries that can provide that behavior, like &lt;a href=&#34;http://www.requirejs.org/&#34;&gt;RequireJS&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h4 id=&#34;let:6e2e047097a9f672ac378602b99db31f&#34;&gt;Let&lt;/h4&gt;
-
-&lt;p&gt;The next major version of JavaScript, ES6 provides &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let&#34;&gt;let&lt;/a&gt;. This keyword provides block-level scoping of variables, similar to other mainstream languages. ES6 is not supported everywhere yet, but you can use a transpiler like &lt;a href=&#34;https://babeljs.io/&#34;&gt;Babel&lt;/a&gt; to convert ES6 JavaScript back to ES5.&lt;/p&gt;
-
-&lt;h4 id=&#34;use-a-code-linter:6e2e047097a9f672ac378602b99db31f&#34;&gt;Use a code linter&lt;/h4&gt;
-
-&lt;p&gt;Browsers do not throw enough exceptions when processing JavaScript. Instead they try to soldier on and do what the programmer &lt;em&gt;meant&lt;/em&gt; rather than what they typed. This is good&lt;sup&gt;2&lt;/sup&gt; for users as they get a uninterrupted browsing experience, but for us programmers this is definitely a bad thing™. Browser robustness makes JavaScript difficult to debug, and which is where a code linter steps in - it analyzes code and reports any errors or warnings they find. For JavaScript I like &lt;a href=&#34;http://jshint.com/&#34;&gt;JSHint&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;sup&gt;1&lt;/sup&gt; Introduced in ES5 JavaScript - which is supported by all modern browsers. For solutions for older JavaScript versions, use &lt;code&gt;call&lt;/code&gt; or &lt;code&gt;apply&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;sup&gt;2&lt;/sup&gt; It&amp;rsquo;s probably a bad thing for users too - the overhead in processing syntactically wrong code degrades performance and worse, encourages more incorrect code to be written.&lt;/p&gt;
 </description>
     </item>
     
