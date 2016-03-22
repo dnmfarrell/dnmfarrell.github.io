@@ -77,7 +77,7 @@
               <img alt="" src=""/>
                 
 
-<p>When I use the term &ldquo;Perl Core&rdquo; I mean the standard library of modules (distributions actually) that ship with the <code>perl</code> interpreter, and I think that&rsquo;s what most people mean when they use that term. Knowing which modules are in the Perl Core is useful; it enables developers to build programs without any external dependencies (over which the developer has little control). The perldoc site has a handy alphabetized <a href="http://perldoc.perl.org/index-modules-A.html">list</a> of core modules and I generally check there first to browse which modules are in core. The problem though, is that it can be wrong.</p>
+<p>When I use the term &ldquo;Perl Core&rdquo; I mean the standard library of modules (distributions actually) that ship with the <code>perl</code> interpreter, and I think that&rsquo;s what most people mean when they use that term. Knowing which modules are in the Perl Core is useful; it enables developers to build programs without external dependencies over which the developer has little control. The perldoc site has a handy alphabetized <a href="http://perldoc.perl.org/index-modules-A.html">list</a> of core modules and I generally check there first to browse which modules are in core. The problem though, is that it can be wrong.</p>
 
 <h3 id="what-modules-are-included-in-the-perl-core:0d5c2e3cd089b0cf6cb0dbe47d066eb1">What modules are included in the Perl Core?</h3>
 
@@ -417,13 +417,15 @@ $ perl -ne 'chomp;system &quot;./find_binary $_&quot;' perl522_programs
 </tbody>
 </table>
 
-<p>Ubuntu and OSX ship with Perl 5.18 so I looked for missing programs and modules against the 5.18 source code. For Fedora I compared the system <code>perl</code> against the 5.22 source. These results show that Fedora is missing quite a few modules and programs: experimental, corelist, autodie, the Math:: modules and Time::Piece strike me as significant omissions. For Ubuntu, excluding <code>perldoc</code> is a <a href="http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/">real shame</a>. OSX came away gleaming though: nearly all core modules and programs were present.</p>
+<p>Ubuntu and OSX ship with Perl 5.18 so I looked for missing programs and modules against the 5.18 source code. For Fedora I compared the system <code>perl</code> against the 5.22 source. These results show that Fedora is missing quite a few modules and programs: experimental, corelist, autodie, the Math:: modules and Time::Piece strike me as significant omissions (they are supplied by the <code>perl-core</code> package, which is must be installed separately). For Ubuntu, excluding <code>perldoc</code> is a <a href="http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/">real shame</a>. OSX came away gleaming though: nearly all core modules and programs were present.</p>
 
 <h3 id="conclusion:0d5c2e3cd089b0cf6cb0dbe47d066eb1">Conclusion</h3>
 
 <p>When writing programs that use core Perl modules be careful, especially if you&rsquo;re using any of the modules or programs found to be missing earlier. One way around this is the use <a href="https://metacpan.org/pod/App::FatPacker">App::FatPacker</a> to compile all the modules used into a single file. Another way would be to use <a href="https://metacpan.org/pod/pp">pp</a> to create a compiled binary. Finally for modules like Time::Piece, you could always consider wrapping Perl&rsquo;s built-in functions like <code>gmtime</code> and <code>localtime</code> in subroutines that give the behavior you need, rather than using the module.</p>
 
 <p>Of course it&rsquo;s always easier to work with a locally-installed <code>perl</code> than the system version. The local Perls provided by <a href="http://perlbrew.pl">perlbrew</a> and <a href="https://github.com/tokuhirom/plenv">plenv</a> contain all the core modules and utilities. You can always <a href="http://perlmaven.com/how-to-build-perl-from-source-code">compile</a> your own Perl too, it&rsquo;s easy. <a href="http://www.strawberryperl.com">Strawberry Perl</a> for Windows even comes with some useful extra modules and C libraries. If you do have to rely on the system Perl, you may find a core module isn&rsquo;t there at all.</p>
+
+<p><strong>Updates</strong> <em>Added reference to perl-core Fedora package, thanks to Grant McLean. 2016-03-21</em></p>
 
               </article>
               <p><strong>Tags</strong></p>
