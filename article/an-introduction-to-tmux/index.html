@@ -84,11 +84,11 @@
 <p>First you&rsquo;ll need to install Tmux via your package manager or <a href="https://tmux.github.io/">download</a> it. Tmux is highly configurable but the first change I&rsquo;d recommend is to ssh, not Tmux. Make ssh &ldquo;keep alive&rdquo; for all connections by adding this to <code>~/.ssh/config</code>:</p>
 
 <pre><code>host *
-   ServerAliveInternal 300
+   ServerAliveInterval 300
    ServerAliveCountMax 3
 </code></pre>
 
-<p>If the file doesn&rsquo;t exist, create it. This configuration instructs your local machine for all user ssh sessions to send a server alive message every 300 seconds to keep the ssh session alive. If the local machine sends 3 unanswered messages, it will disconnect the session. You should tweak these settings to suit your needs: for instance by restricting the <code>host</code> to specific domains you can have different settings per domain. If you have a slow or unreliable internet connection, consider changing <code>ServerAliveInternal</code> to a lower number to send more frequent messages.</p>
+<p>If the file doesn&rsquo;t exist, create it. This configuration instructs your local machine for all user ssh sessions to send a server alive message every 300 seconds to keep the ssh session alive. If the local machine sends 3 unanswered messages, it will disconnect the session. You should tweak these settings to suit your needs: for instance by restricting the <code>host</code> to specific domains you can have different settings per domain. If you have a slow or unreliable internet connection, consider changing <code>ServerAliveInterval</code> to a lower number to send more frequent messages.</p>
 
 <p>If you have permission on the servers you use, you can update them with a similar configuration, in <code>/etc/ssh/sshd_config</code>:</p>
 

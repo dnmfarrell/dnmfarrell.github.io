@@ -24,11 +24,11 @@
 &lt;p&gt;First you&amp;rsquo;ll need to install Tmux via your package manager or &lt;a href=&#34;https://tmux.github.io/&#34;&gt;download&lt;/a&gt; it. Tmux is highly configurable but the first change I&amp;rsquo;d recommend is to ssh, not Tmux. Make ssh &amp;ldquo;keep alive&amp;rdquo; for all connections by adding this to &lt;code&gt;~/.ssh/config&lt;/code&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;host *
-   ServerAliveInternal 300
+   ServerAliveInterval 300
    ServerAliveCountMax 3
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;If the file doesn&amp;rsquo;t exist, create it. This configuration instructs your local machine for all user ssh sessions to send a server alive message every 300 seconds to keep the ssh session alive. If the local machine sends 3 unanswered messages, it will disconnect the session. You should tweak these settings to suit your needs: for instance by restricting the &lt;code&gt;host&lt;/code&gt; to specific domains you can have different settings per domain. If you have a slow or unreliable internet connection, consider changing &lt;code&gt;ServerAliveInternal&lt;/code&gt; to a lower number to send more frequent messages.&lt;/p&gt;
+&lt;p&gt;If the file doesn&amp;rsquo;t exist, create it. This configuration instructs your local machine for all user ssh sessions to send a server alive message every 300 seconds to keep the ssh session alive. If the local machine sends 3 unanswered messages, it will disconnect the session. You should tweak these settings to suit your needs: for instance by restricting the &lt;code&gt;host&lt;/code&gt; to specific domains you can have different settings per domain. If you have a slow or unreliable internet connection, consider changing &lt;code&gt;ServerAliveInterval&lt;/code&gt; to a lower number to send more frequent messages.&lt;/p&gt;
 
 &lt;p&gt;If you have permission on the servers you use, you can update them with a similar configuration, in &lt;code&gt;/etc/ssh/sshd_config&lt;/code&gt;:&lt;/p&gt;
 
