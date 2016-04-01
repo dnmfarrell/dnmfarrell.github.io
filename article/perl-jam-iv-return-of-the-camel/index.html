@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+  <title> Perl Jam VI: The Return of the Camel </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Perl&#39;s ignored security problems"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container antonio">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <ul id="follow-buttons" class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+          <li><a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="push"></div>
+
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <div class="row">
+              <article>
+              
+              
+              <h1 class="blog-post-title">Perl Jam VI: The Return of the Camel</h1>
+              <p class="blog-post-meta">Apr 1, 2016 by <a href="#author-bio">brian d foy</a></p>
+              <img alt="" src=""/>
+                
+
+<p>A couple of recent presentations about Perl&rsquo;s security have focused on the <a href="http://www.metacpan.org/module/CGI">CGI module</a> and <a href="https://www.bugzilla.org">Bugzilla</a>. David Farrell responded to these in <a href="http://perltricks.com/article/netanel-rubins-perljam-circus/">Netanel Rubin&rsquo;s Perl Jam circus</a>. There are much worse problems with Perl that we should think about.</p>
+
+<h3 id="perl-s-rounding-problem:895dfc94e45590b36c5dd569303f6b79">Perl&rsquo;s rounding problem</h3>
+
+<p>Perl&rsquo;s approved way of rounding numbers goes through <code>(s)printf</code>, but there&rsquo;s a problem. In short, it does the wrong thing.</p>
+
+<p>Most people were taught the rule that 1, 2, 3, 4 round down to 0, and that 5, 6, 7, 8, and 9 round up to the next 0. That means that more digits round up than round down, introducing a systematic bias into any computations where you might round. You shouldn&rsquo;t have to watch <a href="http://www.imdb.com/title/tt0086393/">Superman III</a> to realize the disasterous global consequences this has.</p>
+
+<p>There&rsquo;s more than one way to round a number. Most want to get to the nearest number, but if you are half way between, there are options. There are more than two ways. There are more than three. There are, well, a lot of ways:</p>
+
+<ul>
+<li><p>Round half up</p></li>
+
+<li><p>Round half down</p></li>
+
+<li><p>Round half toward zero</p></li>
+
+<li><p>Round half away from zero</p></li>
+
+<li><p>Round half to even</p></li>
+
+<li><p>Round half to odd</p></li>
+
+<li><p>Round half alternately up and down</p></li>
+
+<li><p>Round half stochastically</p></li>
+</ul>
+
+<p>If you use the GNU C compiler (or something based on it), you round half to even as the default. Perl relies on this behavior.</p>
+
+<p>$ perl -e &lsquo;printf &ldquo;%.0f\n&rdquo;, shift&rsquo; 1.5
+  2</p>
+
+<p>$ perl -e &lsquo;printf &ldquo;%.0f\n&rdquo;, shift&rsquo; 2.5
+  2</p>
+
+<p>Every time you try this you get the same answer (so, no stochastic or alternate rounding). The GNU C compiler can also use floor, ceiling, or truncate, but those have similar problems.</p>
+
+<p>As you are rounding, you are going to get more even numbers than odd numbers. If you are writing banking software, <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.91.8055&amp;rep=rep1&amp;type=pdf">assymetric currency rounding</a> could destabilize a currency. The Risks Digest has several entries for <a href="http://catless.ncl.ac.uk/php/risks/search.php?query=rounding">security problems in rounding</a>. These issues are much worse than some lame &ldquo;attack&rdquo; on CGI.pm because a programmer can&rsquo;t read.</p>
+
+<h3 id="the-modulus-of-negative-numbers:895dfc94e45590b36c5dd569303f6b79">The modulus of negative numbers</h3>
+
+<p>Among the heated technical debates, such as vi or emacs, tabs or spaces, or Star Wars or Star Trek (the first answer in each is the right one), the ones that matter, such as the correct value of modulo addition with negative numbers, are overlooked.</p>
+
+<blockquote>
+<p>Binary &ldquo;%&rdquo; is the modulo operator, which computes the division remainder of its first argument with respect to its second argument. Given integer operands $m and $n : If $n is positive, then $m % $n is $m minus the largest multiple of $n less than or equal to $m. If $n is negative, then $m % $n is $m minus the smallest multiple of $n that is not less than $m (that is, the result will be less than or equal to zero).</p>
+
+<p>&ndash; <cite>The perldoc documentation for the % operators</cite></p>
+</blockquote>
+
+<p>The modulo operators take two numbers and does something to them. For <code>$m % $n</code>, you have:</p>
+
+<table>
+<thead>
+<tr>
+<th>$m</th>
+<th>$n</th>
+<th>%</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>undefined</td>
+</tr>
+
+<tr>
+<td>+</td>
+<td>+</td>
+<td>$m - $n * $i ∈ $n * $i &lt;= $m and ($m - $n * $i) &lt; $n</td>
+</tr>
+
+<tr>
+<td>+</td>
+<td>-</td>
+<td>$m - $n * $i ∈ $n * $i &gt;= $m and ($m - $n * $i) &lt; $n</td>
+</tr>
+
+<tr>
+<td>-</td>
+<td>+</td>
+<td></td>
+</tr>
+
+<tr>
+<td>-</td>
+<td>-</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+<pre><code class="language-prettyprint">my( $m, $n ) = @ARGV;
+
+$m //= 137;
+$n //= 13;
+
+my $template = &lt;&lt;'HERE';
+m = %d  n = %d
+
+   $m %  $n = %d
+  -$m %  $n = %d
+   $m % -$n = %d
+  -$m % -$n = %d
+HERE
+
+printf $template,
+   $m, $n,
+   $m %  $n,
+  -$m %  $n,
+   $m % -$n,
+  -$m % -$n;
+</code></pre>
+
+<p>Running this give different results depending on the location of the unary minus operator:</p>
+
+<pre><code>$ perl modulo.pl 137 12
+m = 137  n = 12
+
+   $m %  $n = 5
+  -$m %  $n = 7
+   $m % -$n = -7
+  -$m % -$n = -5
+</code></pre>
+
+<p>That unary minus operator is two precedence levels above the modulo operator. That Perl makes one operator better than another is a whole other issue, but that&rsquo;s the way it is and we can&rsquo;t fix it now. Try it again. Use the parentheses (a feature Perl stole from LISP, which had some extra to spare) to separate the operators:</p>
+
+<pre><code class="language-prettyprint">my( $m, $n ) = @ARGV;
+
+$m //= 137;
+$n //= 13;
+
+my $template = &lt;&lt;'HERE';
+m = %d  n = %d
+
+    $m %  $n  = %d
+  -($m %  $n) = %d
+    $m % -$n  = %d
+  -($m % -$n) = %d
+HERE
+
+printf $template,
+    $m, $n,
+    $m %  $n,
+  -($m %  $n),
+    $m % -$n,
+  -($m % -$n);
+</code></pre>
+
+<p>You get different numbers this time:</p>
+
+<pre><code>m = 137  n = 12
+
+    $m %  $n  = 5
+  -($m %  $n) = -5
+    $m % -$n  = -7
+  -($m % -$n) = 7
+</code></pre>
+
+<p>But it&rsquo;s even worse, because those numbers aren&rsquo;t what the documentation says they should be. &ldquo;If <code>$n</code> is positive, then <code>$m % $n</code> is <code>$m</code> minus the largest multiple of <code>$n</code> less than or equal to <code>$m</code>&rdquo;. Let&rsquo;s take the case of -137 and 12. There are a couple of ways to look at this. If a &ldquo;multiple&rdquo; we call <code>$i</code> must be positive, there is no value such that <code>$n * $i</code> will be less than or equal to any negative value. If that <code>$i</code> can be negative, the word &ldquo;largest&rdquo;  is a bit troublesome. Wikipedia says <a href="https://en.wikipedia.org/wiki/Large_numbers">large numbers are positive</a>.</p>
+
+<h3 id="fake-random-numbers:895dfc94e45590b36c5dd569303f6b79">Fake random numbers</h3>
+
+<p>Perl has a <a href="http://perldoc.perl.org/functions/rand.html">rand</a> function. It claims to return &ldquo;a random fractional number greater than or equal to 0&rdquo;, but it doesn&rsquo;t. It&rsquo;s not random. It&rsquo;s fake random in a way that might work if you only want to use one of them to complete a homework assignment in a beginning programming course in middle school. Although the documentation includes a footnote saying &ldquo;You should not rely on it in security-sensitive situations&rdquo;, it does not say &ldquo;Don&rsquo;t ever use this.&rdquo; like it should. Try this program:</p>
+
+<p>$ perl -le &lsquo;srand(137); print rand for 1 .. 10&rsquo;</p>
+
+<p>It outputs some numbers, which might look like this:</p>
+
+<pre><code>0.470744323291914
+0.278795581867115
+0.263413724062172
+0.646815254210146
+0.958771364426031
+0.3733677954733
+0.561358958619476
+0.537256242282716
+0.967152799238111
+0.846555037715689
+</code></pre>
+
+<p>Run it again:</p>
+
+<pre><code>0.470744323291914
+0.278795581867115
+0.263413724062172
+0.646815254210146
+0.958771364426031
+0.3733677954733
+0.561358958619476
+0.537256242282716
+0.967152799238111
+0.846555037715689
+</code></pre>
+
+<p>Not only do you get the same numbers, but you get them in the same order. Perl tries to hide this from you by automatically calling <code>srand</code> and giving it a &ldquo;random&rdquo; number to start the completely repeatable sequence.</p>
+
+<p>That&rsquo;s not the only problem with these fake random numbers (which, again, Perl&rsquo;s documentation never calls &ldquo;fake&rdquo;). They can only represent certain discrete values. See, for instance, the thread that <a href="https://www.quora.com/Why-does-perl-rand-on-Win32-never-generate-a-value-between-0-890655528357032-and-0-890685315537721">Why does perl rand() on Win32 never generate a value between 0.890655528357032 and 0.890685315537721?</a>. On Windows, Perl uses 15 bits to represent the range of the fake random numbers instead of the 53 bits Perl could use.</p>
+
+<p>There are a variety of ways this can screw up if you use it in an application that keeps going and going. Eventually you come back to the beginning of the sequence, perhaps colliding with existing customer data.</p>
+
+<h3 id="perl-s-lets-anyone-program:895dfc94e45590b36c5dd569303f6b79">Perl&rsquo;s lets anyone program</h3>
+
+<p>Perhaps the biggest problem with Perl is that anyone with a text editor can write a program and upload it to the internet. It&rsquo;s a feature that Perl allows someone to get their work done, but the problem shows up when someone tries to generalize that to other people&rsquo;s work. Projects such as <a href="http://nms-cgi.sourceforge.net/">Not Matt&rsquo;s Scripts</a> try to mitigate this by fixing the problem one script at a time. There are simply too many scripts to get to in the lifetime of the Universe.</p>
+
+<h3 id="in-conclusion:895dfc94e45590b36c5dd569303f6b79">In conclusion</h3>
+
+<p>If you&rsquo;ve made it this far without complaining on Twitter, Reddit, or Hacker News, congratulations. You know what day of the year it is.</p>
+
+<p>These are real issues, though, and if your application is senstive to small differences in numbers (such as calculating fundamental constants of the universe or pension fund allocations), you&rsquo;re probably using sophisticated number libraries and have various levels of audits to verify the results.</p>
+
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                
+                  <div class="tag"><a href="/tags/perl">perl</a></div>
+                
+                  <div class="tag"><a href="/tags/core">core</a></div>
+                
+                  <div class="tag"><a href="/tags/security">security</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
+              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/brian.jpg)"></div>
+              </div>
+              <div class="col-sm-10">
+                <h3>brian d foy</h3>
+                <p><a href="http://www.pair.com/~comdog/">brian d foy</a> is a Perl trainer and writer. He&rsquo;s the author of Mastering Perl and co-author of Programming Perl, Learning Perl, Intermediate Perl and Effective Perl Programming.</p>
+                <h5><a href="/authors/brian-d-foy">Browse their articles</a></h5>
+              </div>
+            </div>
+            <div class="push"></div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/perl-jam-iv-return-of-the-camel/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/brian.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Perl Jam VI: The Return of the Camel</h6>
+        <p style="line-height:1"><small>Perl&#39;s ignored security problems</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/prevent-harmful-updates-with-versionlock/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/prevent-harmful-updates-with-versionlock/software%20padlock.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Prevent harmful Linux updates with versionlock</h6>
+        <p style="line-height:1"><small>How to avoid breaking software updates</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/what-is-the-perl-core-/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What is the Perl Core?</h6>
+        <p style="line-height:1"><small>Unfortunately there&#39;s more than one way to package it</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(http://googledrive.com/host/0BwRnByTz2iUXTUhuU1BhTjNkNVk)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Controlling insanity by parsing IR codes with Linux::IRPulses</h6>
+        <p style="line-height:1"><small>Parsing IR remote codes</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/what-s-new-on-cpan---february-2016/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/156/18F30D70-C0E3-11E4-AB33-E3A60EA848F6.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - February 2016</h6>
+        <p style="line-height:1"><small>A curated look at February&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<script>
+ 
+var tables, i;
+tables = document.getElementsByTagName('table');
+for (i=0;i<tables.length;i++) {
+  tables[i].className = 'table table-striped';
+}
+</script>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+          <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a>
+          <a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

@@ -6,8 +6,231 @@
     <description>Recent content in Articles on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 21 Mar 2016 20:46:17 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 01 Apr 2016 08:32:57 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/article/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Perl Jam VI: The Return of the Camel</title>
+      <link>http://perltricks.com/article/perl-jam-iv-return-of-the-camel/</link>
+      <pubDate>Fri, 01 Apr 2016 08:32:57 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/perl-jam-iv-return-of-the-camel/</guid>
+      <description>
+
+&lt;p&gt;A couple of recent presentations about Perl&amp;rsquo;s security have focused on the &lt;a href=&#34;http://www.metacpan.org/module/CGI&#34;&gt;CGI module&lt;/a&gt; and &lt;a href=&#34;https://www.bugzilla.org&#34;&gt;Bugzilla&lt;/a&gt;. David Farrell responded to these in &lt;a href=&#34;http://perltricks.com/article/netanel-rubins-perljam-circus/&#34;&gt;Netanel Rubin&amp;rsquo;s Perl Jam circus&lt;/a&gt;. There are much worse problems with Perl that we should think about.&lt;/p&gt;
+
+&lt;h3 id=&#34;perl-s-rounding-problem:895dfc94e45590b36c5dd569303f6b79&#34;&gt;Perl&amp;rsquo;s rounding problem&lt;/h3&gt;
+
+&lt;p&gt;Perl&amp;rsquo;s approved way of rounding numbers goes through &lt;code&gt;(s)printf&lt;/code&gt;, but there&amp;rsquo;s a problem. In short, it does the wrong thing.&lt;/p&gt;
+
+&lt;p&gt;Most people were taught the rule that 1, 2, 3, 4 round down to 0, and that 5, 6, 7, 8, and 9 round up to the next 0. That means that more digits round up than round down, introducing a systematic bias into any computations where you might round. You shouldn&amp;rsquo;t have to watch &lt;a href=&#34;http://www.imdb.com/title/tt0086393/&#34;&gt;Superman III&lt;/a&gt; to realize the disasterous global consequences this has.&lt;/p&gt;
+
+&lt;p&gt;There&amp;rsquo;s more than one way to round a number. Most want to get to the nearest number, but if you are half way between, there are options. There are more than two ways. There are more than three. There are, well, a lot of ways:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Round half up&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Round half down&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Round half toward zero&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Round half away from zero&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Round half to even&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Round half to odd&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Round half alternately up and down&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Round half stochastically&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If you use the GNU C compiler (or something based on it), you round half to even as the default. Perl relies on this behavior.&lt;/p&gt;
+
+&lt;p&gt;$ perl -e &amp;lsquo;printf &amp;ldquo;%.0f\n&amp;rdquo;, shift&amp;rsquo; 1.5
+  2&lt;/p&gt;
+
+&lt;p&gt;$ perl -e &amp;lsquo;printf &amp;ldquo;%.0f\n&amp;rdquo;, shift&amp;rsquo; 2.5
+  2&lt;/p&gt;
+
+&lt;p&gt;Every time you try this you get the same answer (so, no stochastic or alternate rounding). The GNU C compiler can also use floor, ceiling, or truncate, but those have similar problems.&lt;/p&gt;
+
+&lt;p&gt;As you are rounding, you are going to get more even numbers than odd numbers. If you are writing banking software, &lt;a href=&#34;http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.91.8055&amp;amp;rep=rep1&amp;amp;type=pdf&#34;&gt;assymetric currency rounding&lt;/a&gt; could destabilize a currency. The Risks Digest has several entries for &lt;a href=&#34;http://catless.ncl.ac.uk/php/risks/search.php?query=rounding&#34;&gt;security problems in rounding&lt;/a&gt;. These issues are much worse than some lame &amp;ldquo;attack&amp;rdquo; on CGI.pm because a programmer can&amp;rsquo;t read.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-modulus-of-negative-numbers:895dfc94e45590b36c5dd569303f6b79&#34;&gt;The modulus of negative numbers&lt;/h3&gt;
+
+&lt;p&gt;Among the heated technical debates, such as vi or emacs, tabs or spaces, or Star Wars or Star Trek (the first answer in each is the right one), the ones that matter, such as the correct value of modulo addition with negative numbers, are overlooked.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Binary &amp;ldquo;%&amp;rdquo; is the modulo operator, which computes the division remainder of its first argument with respect to its second argument. Given integer operands $m and $n : If $n is positive, then $m % $n is $m minus the largest multiple of $n less than or equal to $m. If $n is negative, then $m % $n is $m minus the smallest multiple of $n that is not less than $m (that is, the result will be less than or equal to zero).&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash; &lt;cite&gt;The perldoc documentation for the % operators&lt;/cite&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The modulo operators take two numbers and does something to them. For &lt;code&gt;$m % $n&lt;/code&gt;, you have:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;$m&lt;/th&gt;
+&lt;th&gt;$n&lt;/th&gt;
+&lt;th&gt;%&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;undefined&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;+&lt;/td&gt;
+&lt;td&gt;+&lt;/td&gt;
+&lt;td&gt;$m - $n * $i ∈ $n * $i &amp;lt;= $m and ($m - $n * $i) &amp;lt; $n&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;+&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;$m - $n * $i ∈ $n * $i &amp;gt;= $m and ($m - $n * $i) &amp;lt; $n&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;+&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my( $m, $n ) = @ARGV;
+
+$m //= 137;
+$n //= 13;
+
+my $template = &amp;lt;&amp;lt;&#39;HERE&#39;;
+m = %d  n = %d
+
+   $m %  $n = %d
+  -$m %  $n = %d
+   $m % -$n = %d
+  -$m % -$n = %d
+HERE
+
+printf $template,
+   $m, $n,
+   $m %  $n,
+  -$m %  $n,
+   $m % -$n,
+  -$m % -$n;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Running this give different results depending on the location of the unary minus operator:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ perl modulo.pl 137 12
+m = 137  n = 12
+
+   $m %  $n = 5
+  -$m %  $n = 7
+   $m % -$n = -7
+  -$m % -$n = -5
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That unary minus operator is two precedence levels above the modulo operator. That Perl makes one operator better than another is a whole other issue, but that&amp;rsquo;s the way it is and we can&amp;rsquo;t fix it now. Try it again. Use the parentheses (a feature Perl stole from LISP, which had some extra to spare) to separate the operators:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my( $m, $n ) = @ARGV;
+
+$m //= 137;
+$n //= 13;
+
+my $template = &amp;lt;&amp;lt;&#39;HERE&#39;;
+m = %d  n = %d
+
+    $m %  $n  = %d
+  -($m %  $n) = %d
+    $m % -$n  = %d
+  -($m % -$n) = %d
+HERE
+
+printf $template,
+    $m, $n,
+    $m %  $n,
+  -($m %  $n),
+    $m % -$n,
+  -($m % -$n);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You get different numbers this time:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;m = 137  n = 12
+
+    $m %  $n  = 5
+  -($m %  $n) = -5
+    $m % -$n  = -7
+  -($m % -$n) = 7
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But it&amp;rsquo;s even worse, because those numbers aren&amp;rsquo;t what the documentation says they should be. &amp;ldquo;If &lt;code&gt;$n&lt;/code&gt; is positive, then &lt;code&gt;$m % $n&lt;/code&gt; is &lt;code&gt;$m&lt;/code&gt; minus the largest multiple of &lt;code&gt;$n&lt;/code&gt; less than or equal to &lt;code&gt;$m&lt;/code&gt;&amp;rdquo;. Let&amp;rsquo;s take the case of -137 and 12. There are a couple of ways to look at this. If a &amp;ldquo;multiple&amp;rdquo; we call &lt;code&gt;$i&lt;/code&gt; must be positive, there is no value such that &lt;code&gt;$n * $i&lt;/code&gt; will be less than or equal to any negative value. If that &lt;code&gt;$i&lt;/code&gt; can be negative, the word &amp;ldquo;largest&amp;rdquo;  is a bit troublesome. Wikipedia says &lt;a href=&#34;https://en.wikipedia.org/wiki/Large_numbers&#34;&gt;large numbers are positive&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;fake-random-numbers:895dfc94e45590b36c5dd569303f6b79&#34;&gt;Fake random numbers&lt;/h3&gt;
+
+&lt;p&gt;Perl has a &lt;a href=&#34;http://perldoc.perl.org/functions/rand.html&#34;&gt;rand&lt;/a&gt; function. It claims to return &amp;ldquo;a random fractional number greater than or equal to 0&amp;rdquo;, but it doesn&amp;rsquo;t. It&amp;rsquo;s not random. It&amp;rsquo;s fake random in a way that might work if you only want to use one of them to complete a homework assignment in a beginning programming course in middle school. Although the documentation includes a footnote saying &amp;ldquo;You should not rely on it in security-sensitive situations&amp;rdquo;, it does not say &amp;ldquo;Don&amp;rsquo;t ever use this.&amp;rdquo; like it should. Try this program:&lt;/p&gt;
+
+&lt;p&gt;$ perl -le &amp;lsquo;srand(137); print rand for 1 .. 10&amp;rsquo;&lt;/p&gt;
+
+&lt;p&gt;It outputs some numbers, which might look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;0.470744323291914
+0.278795581867115
+0.263413724062172
+0.646815254210146
+0.958771364426031
+0.3733677954733
+0.561358958619476
+0.537256242282716
+0.967152799238111
+0.846555037715689
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Run it again:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;0.470744323291914
+0.278795581867115
+0.263413724062172
+0.646815254210146
+0.958771364426031
+0.3733677954733
+0.561358958619476
+0.537256242282716
+0.967152799238111
+0.846555037715689
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Not only do you get the same numbers, but you get them in the same order. Perl tries to hide this from you by automatically calling &lt;code&gt;srand&lt;/code&gt; and giving it a &amp;ldquo;random&amp;rdquo; number to start the completely repeatable sequence.&lt;/p&gt;
+
+&lt;p&gt;That&amp;rsquo;s not the only problem with these fake random numbers (which, again, Perl&amp;rsquo;s documentation never calls &amp;ldquo;fake&amp;rdquo;). They can only represent certain discrete values. See, for instance, the thread that &lt;a href=&#34;https://www.quora.com/Why-does-perl-rand-on-Win32-never-generate-a-value-between-0-890655528357032-and-0-890685315537721&#34;&gt;Why does perl rand() on Win32 never generate a value between 0.890655528357032 and 0.890685315537721?&lt;/a&gt;. On Windows, Perl uses 15 bits to represent the range of the fake random numbers instead of the 53 bits Perl could use.&lt;/p&gt;
+
+&lt;p&gt;There are a variety of ways this can screw up if you use it in an application that keeps going and going. Eventually you come back to the beginning of the sequence, perhaps colliding with existing customer data.&lt;/p&gt;
+
+&lt;h3 id=&#34;perl-s-lets-anyone-program:895dfc94e45590b36c5dd569303f6b79&#34;&gt;Perl&amp;rsquo;s lets anyone program&lt;/h3&gt;
+
+&lt;p&gt;Perhaps the biggest problem with Perl is that anyone with a text editor can write a program and upload it to the internet. It&amp;rsquo;s a feature that Perl allows someone to get their work done, but the problem shows up when someone tries to generalize that to other people&amp;rsquo;s work. Projects such as &lt;a href=&#34;http://nms-cgi.sourceforge.net/&#34;&gt;Not Matt&amp;rsquo;s Scripts&lt;/a&gt; try to mitigate this by fixing the problem one script at a time. There are simply too many scripts to get to in the lifetime of the Universe.&lt;/p&gt;
+
+&lt;h3 id=&#34;in-conclusion:895dfc94e45590b36c5dd569303f6b79&#34;&gt;In conclusion&lt;/h3&gt;
+
+&lt;p&gt;If you&amp;rsquo;ve made it this far without complaining on Twitter, Reddit, or Hacker News, congratulations. You know what day of the year it is.&lt;/p&gt;
+
+&lt;p&gt;These are real issues, though, and if your application is senstive to small differences in numbers (such as calculating fundamental constants of the universe or pension fund allocations), you&amp;rsquo;re probably using sophisticated number libraries and have various levels of audits to verify the results.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Prevent harmful Linux updates with versionlock</title>
@@ -1906,74 +2129,6 @@ To git@github.com:user/SomeProject.git
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Because it&amp;rsquo;s a symbolic reference, anytime I mean to type &lt;code&gt;master&lt;/code&gt; but actually type &lt;code&gt;amster&lt;/code&gt;, Git will do the right thing. Try it!&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Modern Perl 4th edition, a review</title>
-      <link>http://perltricks.com/article/205/2015/12/21/Modern-Perl-4th-edition--a-review/</link>
-      <pubDate>Mon, 21 Dec 2015 00:02:25 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/205/2015/12/21/Modern-Perl-4th-edition--a-review/</guid>
-      <description>
-
-&lt;p&gt;The 4th edition of &lt;a href=&#34;https://pragprog.com/book/swperl/modern-perl-fourth-edition&#34;&gt;Modern Perl&lt;/a&gt; by chromatic is out. I was given an advance copy to review and the book features my praise quote, so I figured it was about time I wrote my notes up into a longer review. Overall I really like the changes to the new edition; in my opinion, Modern Perl continues to provide a valuable introduction to idiomatic Perl programming.&lt;/p&gt;
-
-&lt;h3 id=&#34;learn-the-idiomatic-perl-style:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;Learn the idiomatic Perl style&lt;/h3&gt;
-
-&lt;p&gt;Modern Perl isn&amp;rsquo;t like your typical dry programming book. For one thing, it&amp;rsquo;s opinionated. Author chromatic draws on his experience to provide an insiders&amp;rsquo; guide that shows the &lt;em&gt;right&lt;/em&gt; way to program in Perl.&lt;/p&gt;
-
-&lt;p&gt;The text is fast-moving and doesn&amp;rsquo;t baby the reader. Instead of &amp;ldquo;hello World&amp;rdquo;, the book begins by teaching the reader how to use &lt;code&gt;perldoc&lt;/code&gt; and draw upon the official documentation when they get stuck. Don&amp;rsquo;t waste time with Google when the answer &lt;a href=&#34;http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster&#34;&gt;can be found in seconds&lt;/a&gt; at the command line.&lt;/p&gt;
-
-&lt;p&gt;Chapters 1 and 2 introduce the Perl philosophy and Community. The book rapidly covers the major features of Perl (chapters 3 - 7) and even more advanced topics like recursion, anonymous functions and closures. Peppered throughout are gems of wisdom explaining the rationale behind a given concept. For instance, on including parentheses on all function calls (even ones without arguments):&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;While these parentheses are not strictly necessary for these examples—even with strict enabled—they provide clarity to human readers as well as Perl’s parser. When in doubt, use them.&lt;/p&gt;
-
-&lt;p&gt;Modern Perl 4th edition, Chapter 5, Declaring Functions&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;The focus here, though is on the practical and chromatic quickly moves on to advising on elements of good Perl style and how to learn it (chapter 8) and real-World programming tips (chapter 9). This is an honest, expert&amp;rsquo;s account of Perl, and chapter 11 describes what to avoid in Perl (chapter 5 also has an entry on function misfeatures).&lt;/p&gt;
-
-&lt;p&gt;Whilst this is an introductory text, chromatic does find time to touch upon several intermediate concepts like taint, schwartzian transforms and tail call optimizations. There is something for everybody: re-reading the &lt;a href=&#34;http://modernperlbooks.com/books/modern_perl_2014/05-perl-functions.html#U3RhdGV2ZXJzdXNDbG9zdXJlcw&#34;&gt;section&lt;/a&gt; State-versus-Closures (chapter 5) I learned a nuance that I hadn&amp;rsquo;t appreciated before.&lt;/p&gt;
-
-&lt;p&gt;Modern Perl does assume a lot and this could make it challenging for complete novices. For example the code snippets assume the reader can distinguish between command line and Perl programming context. Map and grep are used in examples but are not covered in the language overview chapters. But these are minor nits.&lt;/p&gt;
-
-&lt;h3 id=&#34;modern-perl:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;&amp;ldquo;Modern&amp;rdquo; Perl?&lt;/h3&gt;
-
-&lt;p&gt;About 10 years ago, Perl enjoyed something of a &lt;a href=&#34;http://www.modernperlbooks.com/mt/2009/07/milestones-in-the-perl-renaissance.html&#34;&gt;renaissance&lt;/a&gt; called &amp;ldquo;Modern Perl&amp;rdquo;. This was a movement that developed powerful new libraries, tools and applications which invigorated Perl programming and gave it a new lease-of-life. Today the phrase is almost synonymous with Perl &amp;ldquo;best practices&amp;rdquo; and its ethos continues to help Perl flourish.&lt;/p&gt;
-
-&lt;h3 id=&#34;what-s-changed:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;What&amp;rsquo;s changed&lt;/h3&gt;
-
-&lt;p&gt;The 4th edition brings a lot of changes, but it&amp;rsquo;s a case of evolution, not revolution. New Perl features like the double-diamond operator (&lt;code&gt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&lt;/code&gt;) and &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;subroutine signatures&lt;/a&gt; are covered. Almost every paragraph has been &lt;a href=&#34;https://github.com/chromatic/modern_perl_book/commits/master&#34;&gt;updated&lt;/a&gt;), but the chapter structure remains the same and many of the edits are tweaks rather than wholesale re-writes. Many of the changes improve the readability of the text, others de-jargonize it, like this:&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Functions are a prime mechanism for abstraction, encapsulation, and re-use in Perl.&lt;/p&gt;
-
-&lt;p&gt;Modern Perl, 3rd Edition, Chapter 5&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;became:&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Functions are a prime mechanism for organizing code into similar groups, identifying individual pieces by name, and providing reusable units of behavior.&lt;/p&gt;
-
-&lt;p&gt;Modern Perl, 3rd Edition, Chapter 5&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Which is clearly easier for beginners to understand. Code-wise, many of the examples have changed from a BSD to K&amp;amp;R style, presumably to save vertical space. Overall the book length remains about the same (205 vs 204 pages).&lt;/p&gt;
-
-&lt;p&gt;The biggest change with the new edition comes from The Pragmatic Bookshelf - their version is simply &lt;em&gt;gorgeous&lt;/em&gt;. Full color with larger fonts, icons and callouts, the book really pops. This is the layout Modern Perl needs &lt;em&gt;and&lt;/em&gt; deserves. See this comparison between the Onyx Neon and Pragmatic Bookshelf versions:&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://googledrive.com/host/0BwRnByTz2iUXUFN1Smo5WGJRZ0U/&#34; title=&#34;The Pragmatic Bookshelf edition is gorgeous&#34;&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXeDgzVlJRWmtkX0k/&#34; alt=&#34;Modern Perl side-by-side comparison of editions&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;h3 id=&#34;alternatives:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;Alternatives&lt;/h3&gt;
-
-&lt;p&gt;As an opinionated introduction to Perl, Modern Perl is a compromise between a tutorial and a best-practices style cookbook. I love the direction and terse writing style, but the book might move too fast for complete beginners. So it depends on what you&amp;rsquo;re looking for - &lt;a href=&#34;http://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840&#34;&gt;Beginning Perl&lt;/a&gt; and &lt;a href=&#34;http://www.amazon.com/Learning-Perl-Randal-L-Schwartz/dp/1449303587&#34;&gt;Learning Perl&lt;/a&gt; are fine introductions to the language. &lt;a href=&#34;http://www.amazon.com/Effective-Perl-Programming-Idiomatic-Development/dp/0321496949&#34;&gt;Effective Perl Programming&lt;/a&gt; is my favorite Perl cookbook. But Modern Perl is a unique blend of both styles.&lt;/p&gt;
-
-&lt;h3 id=&#34;where-to-get-it:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;Where to get it&lt;/h3&gt;
-
-&lt;p&gt;You can read Modern Perl &lt;a href=&#34;http://modernperlbooks.com/books/modern_perl_2014/index.html&#34;&gt;online&lt;/a&gt; for free, and there are downloadable versions available from &lt;a href=&#34;http://onyxneon.com/books/modern_perl/index.html&#34;&gt;Onyx Neon&lt;/a&gt;. If you want it as an ebook, I would recommend the Pragmatic Bookshelf &lt;a href=&#34;https://pragprog.com/book/swperl/modern-perl-fourth-edition&#34;&gt;version&lt;/a&gt; - it&amp;rsquo;s beautifully styled, free, and you&amp;rsquo;ll be eligible for updates to the text as/when they appear.&lt;/p&gt;
 </description>
     </item>
     
