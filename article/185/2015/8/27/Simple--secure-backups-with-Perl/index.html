@@ -96,101 +96,69 @@
 
 <p>I can save all of these directories and files to Dropbox:</p>
 
-<pre><code class="language-prettyprint">$ stasis --destination ~/Dropbox --files files_to_backup.txt --passphrase mysecretkey
+<pre><code>$ stasis --destination ~/Dropbox --files files_to_backup.txt --passphrase mysecretkey
 </code></pre>
 
 <p>Or more tersely:</p>
 
-<pre><code class="language-prettyprint">$ stasis -d ~/Dropbox -f files_to_backup.txt --passphrase mysecretkey
+<pre><code>$ stasis -de ~/Dropbox -f files_to_backup.txt --passphrase mysecretkey
 </code></pre>
 
 <p>Use passfile instead of passphrase:</p>
 
-<pre><code class="language-prettyprint">$ stasis -d ~/Dropbox -f files_to_backup.txt --passfile /path/to/passfile
+<pre><code>$ stasis -de ~/Dropbox -f files_to_backup.txt --passfile /path/to/passfile
 </code></pre>
 
 <p>Use the &ldquo;referrer&rdquo; argument to provide a GPG key instead of a passphrase:</p>
 
-<pre><code class="language-prettyprint">$ stasis -d ~/Dropbox -f files_to_backup.txt -r keyname@example.com
+<pre><code>$ stasis -de ~/Dropbox -f files_to_backup.txt -r keyname@example.com
 </code></pre>
 
 <p>Ignore the files matching patterns in <code>.stasisignore</code>. This is useful if I wanted to ignore certain types of files, like OSX <code>.DS_Store</code> index files or more broadly, all hidden files: <code>.*</code>.</p>
 
-<pre><code class="language-prettyprint">$ stasis -d ~/Dropbox -f files_to_backup.txt -r keyname@example.com -i .stasisignore
+<pre><code>$ stasis -de ~/Dropbox -f files_to_backup.txt -r keyname@example.com -i .stasisignore
 </code></pre>
 
-<p>Only keep the most recent 5 backups:</p>
+<h3 id="limiting-the-number-of-backups:58ff53ab1c4471a3eaca8fcffabc9318">Limiting the number of backups</h3>
 
-<pre><code class="language-prettyprint">$ stasis -d ~/Dropbox -f files_to_backup.txt -r mygpgkey@email.com -l 5
+<p>Stasis accepts the <code>--limit</code> option to only retain the most recent x backups:</p>
+
+<pre><code>$ stasis -de ~/Dropbox -f files_to_backup.txt -r mygpgkey@email.com --limit 4
+</code></pre>
+
+<p>It works really nicely with the <code>--days</code> option, which tells stasis to only create a new archive if one deosn&rsquo;t already exist within x days. So to keep a months&rsquo; worth of weekly archives, I can do this:</p>
+
+<pre><code>$ stasis -de ~/Dropbox -f files_to_backup.txt -r mygpgkey@email.com --limit 4 --days 7
+</code></pre>
+
+<p>Now stasis will only retain the last 4 archives, and only create one new archive a week. My personal laptop isn&rsquo;t always on, so I have a cron job that checks for this every 30 minutes:</p>
+
+<pre><code>*/30 * * * * stasis -de ~/Dropbox -f files_to_backup.txt -r mygpgkey@email.com -l 4 -da 7
 </code></pre>
 
 <h3 id="restoring-a-backup:58ff53ab1c4471a3eaca8fcffabc9318">Restoring a backup</h3>
 
 <p>First decrypt the the backup with <code>gpg</code>:</p>
 
-<pre><code class="language-prettyprint">$ gpg -d /path/to/backup.tar.gz.gpg &gt; /path/to/output.tar.gz
+<pre><code>$ gpg -d /path/to/backup.tar.gz.gpg &gt; /path/to/output.tar.gz
 gpg: AES256 encrypted data
 gpg: encrypted with 1 passphrase
 </code></pre>
 
 <p>GPG will ask for the passphrase or GPG key passphrase to unlock the data. You can then inspect the decrypted archive&rsquo;s files with <code>tar</code>:</p>
 
-<pre><code class="language-prettyprint">$ tar --list -f /path/to/output.tar.gz
+<pre><code>$ tar --list -f /path/to/output.tar.gz
 </code></pre>
 
 <p>Or:</p>
 
-<pre><code class="language-prettyprint">$ tar -zvtf /path/to/output.tar.gz
+<pre><code>$ tar -zvtf /path/to/output.tar.gz
 </code></pre>
 
 <p>To unzip the archive:</p>
 
-<pre><code class="language-prettyprint">$ tar -zvxf /path/to/output.tar.gz
+<pre><code>$ tar -zvxf /path/to/output.tar.gz
 </code></pre>
-
-<h3 id="scripting-stasis:58ff53ab1c4471a3eaca8fcffabc9318">Scripting Stasis</h3>
-
-<p>This script creates weekly backups using Stasis. I have a cron job that runs the script every 30 minutes - if it can&rsquo;t find a Stasis backup archive that is less than a week old, it will start a new backup.</p>
-
-<pre><code class="language-prettyprint">#!/usr/bin/env perl
-use strict;
-use warnings;
-use Time::Piece;
-use Time::Seconds;
-use Getopt::Long 'GetOptions';
-
-GetOptions ( force =&gt; \my $force );
-
-my $time_now   = localtime;
-my $week_ago   = $time_now - ONE_WEEK;
-my $backup_dir = '/home/dfarrell/Dropbox/backups';
-my $need_backup= 'true';
-
-# look for a backup file younger than 1 week
-opendir(my $dir, $backup_dir) or die &quot;Can't open backup_dir $!\n&quot;;
-while (readdir $dir)
-{
-  next unless /^stasis-.+?\.gpg$/;
-  my @stat = stat &quot;$backup_dir/$_&quot;;
-  $need_backup = 0 if $stat[10] &gt; $week_ago-&gt;epoch;
-}
-
-if ($need_backup || $force)
-{
-  system('/home/dfarrell/Projects/Stasis/stasis \
-    -d /home/dfarrell/Dropbox/backups \
-    -f /home/dfarrell/Projects/Stasis/backup_list \
-    -i /home/dfarrell/Projects/Stasis/.stasisignore \
-    -l 4 \
-    --passfile /home/dfarrell/.stasis'
-  ) == 0 or die &quot;Error creating backup $?\n&quot;;
-}
-else
-{
-  print &quot;No backup required\n&quot;;
-</code></pre>
-
-<p>The script is saved in my path as <code>backup</code>. So I can also generate a fresh backup anytime with this terminal command <code>backup --force</code>. If you use the script, be sure to update the filepaths for your own system. Both Stasis and this script only use core Perl - no additional modules should need to installed providing you have a fairly modern Perl distribution.</p>
 
 <h3 id="disadvantages-of-stasis:58ff53ab1c4471a3eaca8fcffabc9318">Disadvantages of Stasis</h3>
 
@@ -198,7 +166,7 @@ else
 
 <p>As Stasis creates a new archive every time, it can be a resource intensive process to backup. On my ultrabook, it takes Stasis about 20 seconds to create a new 400MB new archive. If you are intending to archive large amounts of data, you may need another solution.</p>
 
-<p>Archive names are fixed and should not be changed. Stasis creates encrypted archives with the ISO 8601 datetime in the filename like:<code>stasis-0000-00-00T00:00:00.tar.gz.gpg</code>. To detect previous backup files, Stasis looks for files matching this pattern in the backup directory. This comes into play of you use the <code>--limit</code> option, which will limit the number of archives retained.</p>
+<p>Archive names are fixed and should not be changed. Stasis creates encrypted archives with the ISO 8601 datetime in the filename like:<code>stasis-0000-00-00T00:00:00.tar.gz.gpg</code>. To detect previous backup files, Stasis looks for files matching this pattern in the backup directory. This comes into play of you use the <code>--limit</code> option.</p>
 
 <h3 id="stasis-cheatsheet:58ff53ab1c4471a3eaca8fcffabc9318">Stasis cheatsheet</h3>
 
@@ -206,17 +174,20 @@ else
 
 Options:
 
-    --destination -d  destination directory to save the encrypted archive to
-    --files       -f  filepath to a text file of filepaths to backup
-    --ignore      -i  filepath to a text file of glob patterns to ignore
-    --limit       -l  limit number of stasis backups to keep in destination directory (optional)
-    --passphrase      passphrase to use
-    --passfile        filepath to a textfile containing the password to use
-    --referrer    -r  name of the gpg key to use (instead of a passphrase or passfile)
-    --temp        -t  temp directory path, uses /tmp by default
-    --verbose     -v  verbose, print progress statements
-    --help        -h  print this documentation
+  --destination -de destination directory to save the encrypted archive to
+  --days        -da only create an archive if one doesn't exist within this many days (optional)
+  --files       -f  filepath to a text file of filepaths to backup
+  --ignore      -i  filepath to a text file of glob patterns to ignore (optional)
+  --limit       -l  limit number of stasis backups to keep in destination directory (optional)
+  --passphrase      passphrase to use
+  --passfile        filepath to a textfile containing the password to use
+  --referrer    -r  name of the gpg key to use (instead of a passphrase or passfile)
+  --temp        -t  temp directory path, uses /tmp by default
+  --verbose     -v  verbose, print progress statements (optional)
+  --help        -h  print this documentation (optional)
 </code></pre>
+
+<p><strong>Updated</strong>:<em>Added new section covering &ndash;days options, removed scripting section 2016-04-02</em></p>
 
               </article>
               <p><strong>Tags</strong></p>
@@ -232,6 +203,12 @@ Options:
                 
                   <div class="tag"><a href="/tags/aes">aes</a></div>
                 
+                  <div class="tag"><a href="/tags/encryption">encryption</a></div>
+                
+                  <div class="tag"><a href="/tags/security">security</a></div>
+                
+                  <div class="tag"><a href="/tags/privacy">privacy</a></div>
+                
                   <div class="tag"><a href="/tags/old_site">old_site</a></div>
                 
               </div>
@@ -243,7 +220,7 @@ Options:
               </div>
               <div class="col-sm-10">
                 <h3>David Farrell</h3>
-                <p>David is the founder and editor of PerlTricks.com. An organizer of the New York Perl Meetup, he works as a technology consultant in New York City.</p>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the <a href="http://www.meetup.com/The-New-York-Perl-Meetup-Group/">New York Perl Meetup</a>, he works as a technology consultant in New York City.</p>
                 <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
               </div>
             </div>
