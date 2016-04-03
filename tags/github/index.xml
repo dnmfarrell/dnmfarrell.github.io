@@ -318,7 +318,7 @@ June 2014
 
 &lt;p&gt;Now open your browser and navigate to &lt;a href=&#34;http://localhost:5000&#34;&gt;http://localhost:5000&lt;/a&gt;. You should see something like this:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide1.png&#34; title=&#34;A single slide presentation&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide1_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/94/slide1.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Let&amp;rsquo;s add a second slide to showcase how different headers appear. In App::revealup the horizontal slide separator is three hyphens in a row (&amp;ldquo;&amp;mdash;&amp;rdquo;).&lt;/p&gt;
 
@@ -336,7 +336,7 @@ June 2014
 
 &lt;p&gt;App::reveal dynamically reads the source presentation file, so you can leave the process running and just save the changes to the source presentation file. Reloading the browser at &lt;a href=&#34;http://localhost:5000&#34;&gt;http://localhost:5000&lt;/a&gt; should show the updated presentation. Press → to move to the second slide.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide2.png&#34; title=&#34;Our second slide&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide2_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/94/slide2.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;You can add vertical slides too. These are delimited by three underscores (&amp;rdquo;___&amp;rdquo;):&lt;/p&gt;
 
@@ -365,15 +365,15 @@ ___
 
 &lt;p&gt;Refreshing the browser, we get two additional slides. Press ↓ to move down one slide:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide3.png&#34; title=&#34;An unordered list. Press down to see the next vertical slide&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide3_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/94/slide3.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide4.png&#34; title=&#34;An ordered list&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide4_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/94/slide4.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Instead of trawling through every slide, I&amp;rsquo;ve completed the rest of the presentation and put it on &lt;a href=&#34;https://gist.github.com/dnmfarrell/1b118c5813a7a10ea7e2&#34;&gt;GitHub&lt;/a&gt;. The presentation content is an overview of the markdown syntax. Try running it with App::revealup!&lt;/p&gt;
 
 &lt;p&gt;One nice feature is if you ever want to zoom out, just press the escape key:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide_zoom.png&#34; title=&#34;Zoomed out view of completed presentation&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide_zoom_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/94/slide_zoom.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;h3 id=&#34;how-app-revealup-works:69eb22f12abc28dbc259e04444743098&#34;&gt;How App::revealup works&lt;/h3&gt;
 
@@ -415,17 +415,17 @@ ___
 
 &lt;p&gt;To contribute to a project on GitHub, we&amp;rsquo;ll use the &amp;ldquo;fork and pull&amp;rdquo; approach. First we&amp;rsquo;ll login to GitHub:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_1.png&#34; title=&#34;Login to GitHub&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_1_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/91/github_1.png&#34; alt=&#34;&#34; title=&#34;Login to GitHub&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Next, search for the exercism/xperl5 repo:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_2.png&#34; title=&#34;Search for exercism/xperl5&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_2_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/91/github_2.png&#34; alt=&#34;&#34; title=&#34;Search for exercism/xperl5&#34; /&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_3.png&#34; title=&#34;Click the fork button&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_3_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/91/github_3.png&#34; alt=&#34;&#34; title=&#34;Click the fork button&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Click the &amp;ldquo;Fork&amp;rdquo; button to copy the repo into our own perltricks/xperl5 repo:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_4.png&#34; title=&#34;Our own forked repo&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_4_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/91/github_4.png&#34; alt=&#34;&#34; title=&#34;Our own forked repo&#34; /&gt;&lt;/p&gt;
 
 &lt;h3 id=&#34;get-the-exercises:96c520196f6519b815b433280ae5ea10&#34;&gt;Get the exercises&lt;/h3&gt;
 
@@ -590,11 +590,11 @@ $ git push origin master
 
 &lt;p&gt;Returning to GitHub, all we have to do is initiate a pull request from our forked repo at perltricks/xperl5. Clicking the &amp;ldquo;pull requests&amp;rdquo; link on the right of the screen brings us to the pull requests screen:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_5.png&#34; title=&#34;The pull requests screen&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_5_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/91/github_5.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Clicking the &amp;ldquo;new pull request&amp;rdquo; button will create the pull request form, GitHub automatically knows that the pull request should go back to exercism/xperl5.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/91/github_6.png&#34; title=&#34;The new pull request. Send the pull request!&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/91/github_6_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/91/github_6.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Clicking the &amp;ldquo;Send pull request&amp;rdquo; button submits the pull request and we&amp;rsquo;re done! The exercism repo committers usually respond within a couple of hours. So now you&amp;rsquo;ve seen how easy it is to port an exercise, be warned it can be addictive &amp;hellip;&lt;/p&gt;
 
@@ -620,29 +620,29 @@ $ git push origin master
 
 &lt;p&gt;PearlBee comes with an administration portal from where you can write new blog posts. It&amp;rsquo;s accessed via a login page at /admin. The default login credentials are &amp;ldquo;admin&amp;rdquo; and &amp;ldquo;password&amp;rdquo;.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/69/admin_login.png&#34; alt=&#34;PearlBee login page screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/69/admin_login.png&#34; alt=&#34;PearlBee login page screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Once logged in, by default the new post form will display:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/69/new_post.png&#34; alt=&#34;PearlBee new post page screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/69/new_post.png&#34; alt=&#34;PearlBee new post page screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The form is well put together: it has title, slug and cover image file upload controls and a WYSIWYG editor for the main blog text. To the right of the main form is a details form, for setting the blog post category and adding tags. PearlBee creates a tag object for every tag text entered, allowing the tags to be searched against and reused in later posts.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/69/completed_post.png&#34; alt=&#34;PearlBee new post page screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/69/completed_post.png&#34; alt=&#34;PearlBee new post page screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Having completed the form, press &amp;ldquo;Publish&amp;rdquo; to save the post and make it live. PearlBee will display a helpful success message:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/69/saved_post.png&#34; alt=&#34;PearlBee saved post page screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/69/saved_post.png&#34; alt=&#34;PearlBee saved post page screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;And the post will now be live on the main blog page:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/69/post_on_frontpage.png&#34; alt=&#34;PearlBee page frontpage screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/69/post_on_frontpage.png&#34; alt=&#34;PearlBee page frontpage screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Notice how PearlBee has updated the categories and tags on the right side of the screen for convenient filtering.&lt;/p&gt;
 
 &lt;p&gt;One thing that could be better is the image handling. I found that a square image was unevenly flattened into landscape proportions (but it displays correctly on the blog front page).&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/69/flat_onion_image.png&#34; alt=&#34;PearlBee saved post flat image page screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/69/flat_onion_image.png&#34; alt=&#34;PearlBee saved post flat image page screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;I tested PearlBee&amp;rsquo;s image upload with both jpeg and png files and both worked fine.&lt;/p&gt;
 
@@ -650,7 +650,7 @@ $ git push origin master
 
 &lt;p&gt;PearlBee&amp;rsquo;s admin portal has a slick and clean interface. Menu drop-down lists expand and contract smoothly and forms are provided to manage the site&amp;rsquo;s data. We&amp;rsquo;ve encountered some of the database model objects already: posts, categories and tags. Here is the post management page:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/69/post_management.png&#34; alt=&#34;PearlBee post management page screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/69/post_management.png&#34; alt=&#34;PearlBee post management page screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The page lists all posts and provides there high level attributes such as author, title and categories. It also provides switches to quickly change a post&amp;rsquo;s status. This is useful if a post needs to be taken-down and edited, or re-posted. At the time of review the page contained a couple of typos and unfortunately the link to view the article did not work (neither the link on the title or the eye icon). These can be worked around though.&lt;/p&gt;
 
@@ -662,13 +662,13 @@ $ git push origin master
 
 &lt;p&gt;PearlBee comes with a comments system built-in. The comments form appears beneath a blog post, with existing comments showing there as well:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/69/comment_posted.png&#34; alt=&#34;PearlBee comment management page screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/69/comment_posted.png&#34; alt=&#34;PearlBee comment management page screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;I thought the styling on the comments form looks professional and reminded me of the &amp;ldquo;Disqus&amp;rdquo; comments system design. PearlBee provides a CAPTCHA on the form out-of-the-box, which is a useful spam filter.&lt;/p&gt;
 
 &lt;p&gt;All comments are moderated, and require approval before going live. I tested the comment submission and moderation process and it worked first time. This is the comments management page:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/69/comment_management.png&#34; alt=&#34;PearlBee comment management page screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/69/comment_management.png&#34; alt=&#34;PearlBee comment management page screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Once approved, comments appear beneath the blog post.&lt;/p&gt;
 

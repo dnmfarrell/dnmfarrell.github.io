@@ -374,7 +374,7 @@ June 2014
 
 &lt;p&gt;Now open your browser and navigate to &lt;a href=&#34;http://localhost:5000&#34;&gt;http://localhost:5000&lt;/a&gt;. You should see something like this:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide1.png&#34; title=&#34;A single slide presentation&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide1_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/94/slide1.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Let&amp;rsquo;s add a second slide to showcase how different headers appear. In App::revealup the horizontal slide separator is three hyphens in a row (&amp;ldquo;&amp;mdash;&amp;rdquo;).&lt;/p&gt;
 
@@ -392,7 +392,7 @@ June 2014
 
 &lt;p&gt;App::reveal dynamically reads the source presentation file, so you can leave the process running and just save the changes to the source presentation file. Reloading the browser at &lt;a href=&#34;http://localhost:5000&#34;&gt;http://localhost:5000&lt;/a&gt; should show the updated presentation. Press → to move to the second slide.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide2.png&#34; title=&#34;Our second slide&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide2_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/94/slide2.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;You can add vertical slides too. These are delimited by three underscores (&amp;rdquo;___&amp;rdquo;):&lt;/p&gt;
 
@@ -421,15 +421,15 @@ ___
 
 &lt;p&gt;Refreshing the browser, we get two additional slides. Press ↓ to move down one slide:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide3.png&#34; title=&#34;An unordered list. Press down to see the next vertical slide&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide3_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/94/slide3.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide4.png&#34; title=&#34;An ordered list&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide4_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/94/slide4.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Instead of trawling through every slide, I&amp;rsquo;ve completed the rest of the presentation and put it on &lt;a href=&#34;https://gist.github.com/dnmfarrell/1b118c5813a7a10ea7e2&#34;&gt;GitHub&lt;/a&gt;. The presentation content is an overview of the markdown syntax. Try running it with App::revealup!&lt;/p&gt;
 
 &lt;p&gt;One nice feature is if you ever want to zoom out, just press the escape key:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/94/slide_zoom.png&#34; title=&#34;Zoomed out view of completed presentation&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/94/slide_zoom_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/94/slide_zoom.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;h3 id=&#34;how-app-revealup-works:69eb22f12abc28dbc259e04444743098&#34;&gt;How App::revealup works&lt;/h3&gt;
 

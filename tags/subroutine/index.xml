@@ -101,7 +101,7 @@ cmpthese(-5, {
 
 &lt;p&gt;Would changing the number of variables assigned in the subroutine affect the relative performance of the three subroutine types? I re-ran the benchmarks, only this time incrementing the number of variables being assigned and plotted the results:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/88/signatures%20comparison.png&#34; title=&#34;Comparison of signatures speed with varying number of variables&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/88/signatures%20comparison_small.png&#34; alt=&#34;Comparison of signatures speed with increasing number of variables&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/88/signatures%20comparison.png&#34; alt=&#34;Comparison of signatures speed with increasing number of variables&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The results showed that increasing the number of variables improved the relative speed of native subroutine signatures against Method::Signatures. With two variable assignments their speed is about par. With three or more variables, native subroutine signatures outperforms, up to 18% faster. When I discussed these results with Ricardo Signes, he confirmed that the native subroutine signatures code had been optimized for multiple variable assignments, which correlates with the results shown above.&lt;/p&gt;
 

@@ -115,13 +115,13 @@
 
 <h3 id="php-packagist:e4033a7178e3036bc1983cb5214477f8">PHP: Packagist</h3>
 
-<p><a href="/static/images/110/pm_packagist.png" title="The Packagist homepage"><img src="/static/images/110/pm_packagist_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_packagist.png" alt="" /></p>
 
 <p>First up is <a href="https://packagist.org/statistics">Packagist</a>, the largest PHP package search engine, with over 36,000 <a href="https://packagist.org/statistics">packages</a> indexed. Packagist integrates with <a href="https://getcomposer.org/">Composer</a>, a PHP dependency management system.</p>
 
 <p>Packagist auto-focused to the text search box and provided live search results as I entered the search terms. For every search result Packagist return the package name, description, number of downloads and star count. Search results were paginated and no facility for sorting or filtering the search results was provided.</p>
 
-<p><a href="/static/images/110/pm_packagist_search_selenium.png" title="Packagist search"><img src="/static/images/110/pm_packagist_search_selenium_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_packagist_search_selenium.png" alt="" /></p>
 
 <p>The search results were mixed: the target <a href="https://packagist.org/packages/alexandresalome/php-selenium">selenium package</a> was returned 3rd on the list of results. The SQLite3 search did not return any useful packages (bindings to SQLite3), but this is perhaps because PHP 5.3 ships with a built in <a href="http://php.net/manual/en/book.sqlite3.php">SQLite class</a>. The Web Framework <a href="https://packagist.org/search/?q=web%20framework">search</a> did not return any <a href="http://mashable.com/2014/04/04/php-frameworks-build-applications/">target packages</a> in the top 20 results, with <a href="https://packagist.org/packages/laravel/framework">Laravel</a> being returned 21<sup>st</sup>.</p>
 
@@ -129,7 +129,7 @@
 
 <p>Packagist provided a basic set of metadata including: name, description, version number, download statistics, version history and dependencies. No package had license information, unit test coverage, platform compatibility or continuous integration results. There was no facility to &ldquo;star&rdquo; or review a module (presumably the star count on the search results came from GitHub).</p>
 
-<p><a href="/static/images/110/pm_packagist_laravel.png" title="Laravel package page"><img src="/static/images/110/pm_packagist_laravel_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_packagist_laravel.png" alt="" /></p>
 
 <h4 id="metadata-2-5:e4033a7178e3036bc1983cb5214477f8">Metadata: <sup>2</sup>&frasl;<sub>5</sub></h4>
 
@@ -154,13 +154,13 @@
 
 <h3 id="python-pypi:e4033a7178e3036bc1983cb5214477f8">Python: PyPI</h3>
 
-<p><a href="/static/images/110/pm_pypi.png" title="The PyPI homepage"><img src="/static/images/110/pm_pypi_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_pypi.png" alt="" /></p>
 
 <p>Next up is Python&rsquo;s <a href="https://pypi.python.org/pypi">PyPi</a>, which has over 47,500 packages.</p>
 
 <p>PyPI&rsquo;s search results returned the package name, a match-strength indicator called &ldquo;weight&rdquo; and a description. The search results for <a href="https://pypi.python.org/pypi/selenium/2.42.1">Selenium</a> and <a href="https://pypi.python.org/pypi/db-sqlite3/0.0.1">SQLite3</a> were good with the target libraries in the top 2 results each time.</p>
 
-<p><a href="/static/images/110/pm_pypi_search_selenium.png" title="PyPI search"><img src="/static/images/110/pm_pypi_search_selenium_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_pypi_search_selenium.png" alt="" /></p>
 
 <p>The search results for &ldquo;web framework&rdquo; were mixed: I was looking for common Python <a href="https://wiki.python.org/moin/WebFrameworks">web frameworks</a> and only one, <a href="https://pypi.python.org/pypi/watson-framework/2.2.7">Watson</a> was listed in the top 20 results. Django was 280<sup>th</sup> with Flask arriving 574<sup>th</sup> in the list. PyPI was the only package manager to not paginate search results, which made it easy to traverse search results results and export them. There was no function to filter or sort the results under different criteria.</p>
 
@@ -168,7 +168,7 @@
 
 <p>The metadata provided varied from package to package, but PyPI usually provided: the last upload date, number of downloads, author name, package owner and maintainers, package homepage link and a DOAP.xml record. The <a href="https://pypi.python.org/pypi/watson-framework/2.2.7">Watson</a> package included a build status with unit test coverage. Only 1 of the three packages provided a license. There didn&rsquo;t seem to be a facility to provide user reviews or &ldquo;stars&rdquo; which would indicate whether a package was any good or not.</p>
 
-<p><a href="/static/images/110/pm_pypi_selenium.png" title="Selenium package page"><img src="/static/images/110/pm_pypi_selenium_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_pypi_selenium.png" alt="" /></p>
 
 <h4 id="metadata-3-5:e4033a7178e3036bc1983cb5214477f8">Metadata: <sup>3</sup>&frasl;<sub>5</sub></h4>
 
@@ -188,19 +188,19 @@
 
 <h3 id="perl-metacpan:e4033a7178e3036bc1983cb5214477f8">Perl: metacpan</h3>
 
-<p><a href="/static/images/110/pm_metacpan.png" title="The metacpan homepage"><img src="/static/images/110/pm_metacpan_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_metacpan.png" alt="" /></p>
 
 <p><a href="https://metacpan.org/">metacpan</a> is described as a CPAN <a href="https://metacpan.org/about">search engine</a> and provides nearly all of the features of CPAN, plus many features that CPAN doesn&rsquo;t offer. It has been around since 2013, and indexes over 30,000 packages.</p>
 
 <p>metacpan&rsquo;s search page autofocused on the text input search box and provide predictive text search. The search results contained the package name, description, an average review score (if there are any reviews), a count of &ldquo;++&ldquo;s (which are like GitHub stars) and the author name. Helpfully, sub-packages in the same namespace were indented below higher-level packages.</p>
 
-<p><a href="/static/images/110/pm_cpan_selenium_search.png" title="metacpan search"><img src="/static/images/110/pm_cpan_selenium_search_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_cpan_selenium_search.png" alt="" /></p>
 
 <p>The Selenium search returned the target package (<a href="https://metacpan.org/pod/WWW::Selenium">WWW:Selenium</a>) first, however SQLite3&rsquo;s target package (<a href="https://metacpan.org/pod/DBD::SQLite">DBD::SQLite</a>) was returned 17th in the search results. The Web Framework search results were not great: the first 20 results were for old frameworks or irrelevant packages. However the target packages (e.g. Catalyst, Dancer, Mojolicious and Kelp) were found in top 40 results. metacpan paginated the search results, 20 per page, which meant the target packages were actually on <a href="https://metacpan.org/search?p=2&amp;q=web+framework">page 2</a> . No method to filter or sort the search results was provided.</p>
 
 <h4 id="search-3-5-2:e4033a7178e3036bc1983cb5214477f8">Search: <sup>3</sup>&frasl;<sub>5</sub></h4>
 
-<p><a href="/static/images/110/pm_cpan_sqlite.png" title="DBD::SQLite package page"><img src="/static/images/110/pm_cpan_sqlite_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_cpan_sqlite.png" alt="" /></p>
 
 <p>metacpan provided a wealth of package metadata: the package name, description, version number, activity histogram, issues list, CPAN Testers <a href="http://www.cpantesters.org/distro/D/DBD-SQLite.html?oncpan=1&amp;distmat=1&amp;version=1.42">results</a> (an external CI platform that runs the package against many different operating systems and Perl versions to detect portability issues), <a href="http://cpants.cpanauthors.org/kwalitee">kwalitee</a> rating, reviews and &ldquo;++&rdquo; counts. It also provides a dependencies list, a dependent packages list and a nifty dependencies chart. This example is for <a href="https://metacpan.org/pod/WWW::Selenium">WWW::Selenium</a>:</p>
 
@@ -226,19 +226,19 @@
 
 <p>Node.js: npm</p>
 
-<p><a href="/static/images/110/pm_npm.png" title="The npm homepage"><img src="/static/images/110/pm_npm_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_npm.png" alt="" /></p>
 
 <p><a href="https://www.npmjs.org/">npm</a> is the Node.js package manager. It boasts over 89,500 packages, which is the most of any package manager in this review.</p>
 
 <p>The npm search results were good: although the target Selenium <a href="https://www.npmjs.org/package/selenium-webdriver">package</a> was 7th in the list of results, both the SQLite3 and Web Framework searches returned the target packages (<a href="https://www.npmjs.org/package/sqlite3">sqlite3</a>, [](<a href="https://www.npmjs.org/package/express)express">https://www.npmjs.org/package/express)express</a>) first in the results list. npm displayed the package name, description, download statistics, a &ldquo;star&rdquo; count and a keyword list. The search results were paginated and no filtering or sorting function was provided.</p>
 
-<p><a href="/static/images/110/pm_npm_search_webf.png" title="npm web framework search"><img src="/static/images/110/pm_npm_search_webf_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_npm_search_webf.png" alt="" /></p>
 
 <h4 id="search-5-5:e4033a7178e3036bc1983cb5214477f8">Search: <sup>5</sup>&frasl;<sub>5</sub></h4>
 
 <p>npm provided a useful set of metadata including: download statistics, license, issues link, version, dependencies and dependant packages When available it also pulled the Travis CI status from GitHub. No information was provided regarding unit test coverage or platform availability. There didn&rsquo;t seem to be a function for adding user reviews of packages to npm.</p>
 
-<p><a href="/static/images/110/pm_npm_express.png" title="express package page"><img src="/static/images/110/pm_npm_express_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_npm_express.png" alt="" /></p>
 
 <h4 id="metadata-4-5:e4033a7178e3036bc1983cb5214477f8">Metadata: <sup>4</sup>&frasl;<sub>5</sub></h4>
 
@@ -258,25 +258,25 @@
 
 <h3 id="ruby-rubygems:e4033a7178e3036bc1983cb5214477f8">Ruby: RubyGems</h3>
 
-<p><a href="/static/images/110/pm_gem.png" title="The RubyGems homepage"><img src="/static/images/110/pm_gem_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_gem.png" alt="" /></p>
 
 <p><a href="https://rubygems.org">RubyGems</a> is the Ruby package manager and has over 87,000 packages.</p>
 
 <p>RubyGems search was mixed, for the SQLite3 and Selenium searches the target package was returned in the top 2 results. However RubyGems returned no results for the Web Framework search, which given the popularity of Ruby on Rails is astonishing. For each search result RubyGems displayed the package name, description and number of downloads. Results were paginated and no facility was provided for sorting or filtering the results returned.</p>
 
-<p><a href="/static/images/110/pm_gem_search_webf.png" title="RubyGems web framework search"><img src="/static/images/110/pm_gem_search_webf_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_gem_search_webf.png" alt="" /></p>
 
 <h4 id="search-2-5:e4033a7178e3036bc1983cb5214477f8">Search: <sup>2</sup>&frasl;<sub>5</sub></h4>
 
 <p>A basic set of metadata was provided: package name, description, author(s), version number, download statistics, license name, dependencies and a version history time line. There was no facility to &ldquo;star&rdquo; or review a module. No information was provided regarding cross platform support or unit test coverage.</p>
 
-<p><a href="/static/images/110/pm_gem_sqlite.png" title="SQLite package page"><img src="/static/images/110/pm_gem_sqlite_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_gem_sqlite.png" alt="" /></p>
 
 <h4 id="metadata-2-5-1:e4033a7178e3036bc1983cb5214477f8">Metadata: <sup>2</sup>&frasl;<sub>5</sub></h4>
 
 <p>RubyGems&rsquo; documentation consisted of a link to an external site. The SQLite3 package used <a href="http://rubydoc.info/">RubyDoc</a> which is like a nicer-looking JavaDoc. Selenium-Webdriver used Google code and in the case of Sinatra, their own <a href="http://www.sinatrarb.com/">website</a>. The documentation was inconsistent in style, layout, content and quality.</p>
 
-<p><a href="/static/images/110/pm_gem_sqlite_doc.png" title="SQLite documentation"><img src="/static/images/110/pm_gem_sqlite_doc_small.png" alt="" /></a></p>
+<p><img src="/images/110/pm_gem_sqlite_doc.png" alt="" /></p>
 
 <h4 id="documentation-2-5-3:e4033a7178e3036bc1983cb5214477f8">Documentation: <sup>2</sup>&frasl;<sub>5</sub></h4>
 
@@ -399,7 +399,7 @@
   <div class="row">
       <a href="http://perltricks.com/article/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/">
     <div class="col-sm-3">
-      <div class="circle-avatar" style="background-image:url(http://googledrive.com/host/0BwRnByTz2iUXTUhuU1BhTjNkNVk)"></div>
+      <div class="circle-avatar" style="background-image:url(/images/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/chopsticks.png)"></div>
     </div>
     <div class="col-sm-9">
         <h6>Controlling insanity by parsing IR codes with Linux::IRPulses</h6>

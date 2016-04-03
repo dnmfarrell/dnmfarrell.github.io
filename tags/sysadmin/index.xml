@@ -591,7 +591,7 @@ $ tar xvf android-sdk_r22.6.2-linux.tgz
 
 &lt;p&gt;This will open a GUI menu from where you can download and install the required Android tools and libraries. Using the menu, install Android SDK Tools, Android SDK Platform-tools, Android SDK Build-tools and Android 4.2.2.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_sdk_manager.png&#34; title=&#34;The Android SDK Manager&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_sdk_manager_small.png&#34; alt=&#34;The Android SDK Manager&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/97/android_sdk_manager.png&#34; alt=&#34;The Android SDK Manager&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;You&amp;rsquo;ll also need a copy of the Perl 5.20.0 &lt;a href=&#34;http://www.cpan.org/src/5.0/perl-5.20.0.tar.gz&#34;&gt;tarball&lt;/a&gt;. Untar this at the command line too:&lt;/p&gt;
 
@@ -607,15 +607,15 @@ $ tar xvf android-sdk_r22.6.2-linux.tgz
 
 &lt;p&gt;This will launch the Android Virtual Device Manager:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_avd_1.png&#34; title=&#34;The Android Virtual Device Manager&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_avd_1_small.png&#34; alt=&#34;The Android Virtual Device Manager&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/97/android_avd_1.png&#34; alt=&#34;The Android Virtual Device Manager&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Click &amp;ldquo;new&amp;rdquo; to create a new AVD. I created one with the following settings:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_avd_2.png&#34; title=&#34;Create a new AVD&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_avd_2.png&#34; alt=&#34;Create a new AVD&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/97/android_avd_2.png&#34; alt=&#34;Create a new AVD&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Make sure you select &amp;ldquo;ARM (androideabi-v7a)&amp;rdquo; as the CPU/ABI option. Keep in mind your platform&amp;rsquo;s hardware when choosing these settings. I found higher resolution devices ran very slowly on my old MacBook. The &amp;ldquo;use snapshot&amp;rdquo; option is a timesaver that saves the virtual device&amp;rsquo;s state post-boot, so saves you from waiting for the virtual device to boot up again after the first time. Once you&amp;rsquo;ve created the AVD, you should see it listed in the AVD Manager window:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_avd_4.png&#34; title=&#34;The AVD has been created&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_avd_4_small.png&#34; alt=&#34;The AVD has been created&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/97/android_avd_4.png&#34; alt=&#34;The AVD has been created&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Having created a new AVD, you can close the AVD Manager window.&lt;/p&gt;
 
@@ -643,11 +643,11 @@ $ export PATH=$PATH:$ANDROID_NDK/toolchains/$TARGET_ARCH-4.8/prebuilt/linux-x86_
 
 &lt;p&gt;You should see your emulated device start booting in a new window:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_boot.png&#34; title=&#34;The loaded AVD&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_boot.png&#34; alt=&#34;The loaded AVD&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/97/android_boot.png&#34; alt=&#34;The loaded AVD&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Once it&amp;rsquo;s booted, it will look like this:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/97/android_loaded.png&#34; title=&#34;The AVD is booting&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/97/android_loaded.png&#34; alt=&#34;The AVD is booting&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/97/android_loaded.png&#34; alt=&#34;The AVD is booting&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;With the fully booted AVD still running, return to the command line and type:&lt;/p&gt;
 
@@ -995,45 +995,45 @@ $ every 3 months script.sh
 
 &lt;p&gt;Head over to Stratopan, sign up to create a new account and login. You should be presented with this message:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_1_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_1_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Click the create repository link and complete the information on the following screen. Be sure to select the private option if you want your repository not to be publicly visible.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_2_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_2_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;You should now have a new repository.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_19_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_19_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;h3 id=&#34;add-or-pull-modules:713592ed043727253fc234d9fe0e3d2b&#34;&gt;Add or pull modules&lt;/h3&gt;
 
 &lt;p&gt;Modules reside in &amp;ldquo;stacks&amp;rdquo; which belong to a repository and helpfully Stratopan creates a default &amp;ldquo;master&amp;rdquo; stack for you. To insert modules into a stack you can &amp;ldquo;pull&amp;rdquo; them from CPAN or &amp;ldquo;add&amp;rdquo; them from a local machine. Let&amp;rsquo;s start by pulling a module onto our master stack. Click the &amp;ldquo;pulling&amp;rdquo; link to launch the pull module screen and start typing the name of the module you want to pull. Note that this must be the distribution name and not the module name. For example to pull the module &amp;ldquo;Method::Signatures&amp;rdquo;, you should type &amp;ldquo;Method-Signatures&amp;rdquo;. Helpfully Stratopan provides a case-insensitive predictive text search and lists the module version numbers available too, in case you need a specific variant. Let&amp;rsquo;s pull my wildly unpopular &lt;a href=&#34;https://metacpan.org/pod/WWW::CheckHTML&#34;&gt;WWW::CheckHTML&lt;/a&gt; module:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_3_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_3_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Decide if you want Stratopan to recursively pull all module dependencies; this is usually a good option. What&amp;rsquo;s nice about this is the &amp;ldquo;recursive&amp;rdquo; pull will grab all the modules dependent on your chosen module&amp;rsquo;s dependencies.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_4_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_4_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;It can be surprising how many dependencies there are - for example &lt;a href=&#34;https://metacpan.org/pod/WWW::CheckHTML&#34;&gt;WWW::CheckHTML&lt;/a&gt; has 5 direct dependencies and 69 indirect ones. Obviously when there are more dependent modules, Stratopan will take longer to pull them into the stack (usually a minute or two). When it&amp;rsquo;s finished, Stratopan will present the the latest view of the stack.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_5_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_5_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Stratopan provides some useful stack features. A link to &lt;a href=&#34;https://metacpan.org&#34;&gt;metapcan&lt;/a&gt; is provided for every module (except for private modules that have been added from a local machine) and it&amp;rsquo;s possible to browse the *.pm files in a module by clicking on it:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_20_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_20_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Each stack has it&amp;rsquo;s own commit history, accessed via the aptly-named &amp;ldquo;history&amp;rdquo; link:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_22_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_22_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The &amp;ldquo;graphs&amp;rdquo; link is much more interesting. It opens this cool, rotatable dependencies chart:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_21_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_21_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Finally the &amp;ldquo;settings&amp;rdquo; link let&amp;rsquo;s you update the stack name, description and target Perl version. You can also delete the stack from here.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_23_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_23_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;h3 id=&#34;installing-modules-from-your-stratopan-stack:713592ed043727253fc234d9fe0e3d2b&#34;&gt;Installing modules from your Stratopan stack&lt;/h3&gt;
 
@@ -1044,7 +1044,7 @@ $ every 3 months script.sh
 
 &lt;p&gt;Once cpanm has installed, open one of your stacks on Stratopan and copy the stack URL (shown in red below).&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/Stratopan/stratopan_24_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_24_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;At the terminal type &amp;ldquo;cpanm &amp;ndash;mirror-only &amp;ndash;mirror &amp;rdquo; and paste your copied stack URL and enter one or more module names that you wish to install. For example to install &lt;a href=&#34;https://metacpan.org/pod/WWW::CheckHTML&#34;&gt;WWW::CheckHTML&lt;/a&gt; from my master stack:&lt;/p&gt;
 

@@ -197,7 +197,7 @@ use XML::Dataset;
 use Data::Printer;
 use HTTP::Tiny;
 
-my $url = 'http://perltricks.com/static/sitemap.xml';
+my $url = 'http://perltricks.com/sitemap.xml';
 
 my $sitemap_data 
     = HTTP::Tiny-&gt;new-&gt;get($url)-&gt;{content};
@@ -327,7 +327,7 @@ p parse_using_profile($sitemap_data, $sitemap_data_profile);
   <div class="row">
       <a href="http://perltricks.com/article/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/">
     <div class="col-sm-3">
-      <div class="circle-avatar" style="background-image:url(http://googledrive.com/host/0BwRnByTz2iUXTUhuU1BhTjNkNVk)"></div>
+      <div class="circle-avatar" style="background-image:url(/images/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/chopsticks.png)"></div>
     </div>
     <div class="col-sm-9">
         <h6>Controlling insanity by parsing IR codes with Linux::IRPulses</h6>

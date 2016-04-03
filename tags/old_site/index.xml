@@ -649,7 +649,7 @@ To git@github.com:user/SomeProject.git
 
 &lt;p&gt;The biggest change with the new edition comes from The Pragmatic Bookshelf - their version is simply &lt;em&gt;gorgeous&lt;/em&gt;. Full color with larger fonts, icons and callouts, the book really pops. This is the layout Modern Perl needs &lt;em&gt;and&lt;/em&gt; deserves. See this comparison between the Onyx Neon and Pragmatic Bookshelf versions:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://googledrive.com/host/0BwRnByTz2iUXUFN1Smo5WGJRZ0U/&#34; title=&#34;The Pragmatic Bookshelf edition is gorgeous&#34;&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXeDgzVlJRWmtkX0k/&#34; alt=&#34;Modern Perl side-by-side comparison of editions&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/205/comparison.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;h3 id=&#34;alternatives:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;Alternatives&lt;/h3&gt;
 
@@ -1057,15 +1057,15 @@ location = root
 
 &lt;p&gt;First find an image you want to convert and open it in GIMP. I&amp;rsquo;m going to use my profile photo:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXNWNOWmlnb1lxT1E&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/201/0BwRnByTz2iUXNWNOWmlnb1lxT1E&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;To prepare the image for stenciling, I need to reduce the image contrast. The first thing I do is remove the background. I use a variety of techniques for this: if it is a single color, I use the color selection tool and delete it; else a combination of the lasso select with delete and the eraser usually do the trick:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXSEN5ZHBTOFRvcHM&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/201/0BwRnByTz2iUXSEN5ZHBTOFRvcHM&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;I use the same techniques to remove my body:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXd3FCS0tsZ2hRSVE&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/201/0BwRnByTz2iUXd3FCS0tsZ2hRSVE&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Next I convert the image to black and white (go to Image-&amp;gt;mode-&amp;gt;grayscale) and crop it (Image-&amp;gt;Autocrop Image).&lt;/p&gt;
 
@@ -1073,15 +1073,15 @@ location = root
 
 &lt;p&gt;With the image adequately prepped, I can use GIMP&amp;rsquo;s color threshold tool to convert it to a rough stencil (Colors-&amp;gt;Threshold). I adjust the default threshold until I get an appearance I like:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXTE9aR0F6RGNSVkk&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/201/0BwRnByTz2iUXTE9aR0F6RGNSVkk&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
-&lt;p&gt;I export this image from GIMP as a PNG file and open it with Inkscape. Within Inkscape I left-click the image so that it is selected and then trace the bitmap (Path-&amp;gt;Trace Bitmap). This creates a new, smoother version of the image. Then I delete the original image from Inkscape. At this point the image is good but it&amp;rsquo;s too small for general use, so when I export it as a PNG (File-&amp;gt;Export PNG Image) I adjust the image dimensions to the size required. This works because an SVG will scale to any dimension (click image for a larger sample).&lt;/p&gt;
+&lt;p&gt;I export this image from GIMP as a PNG file and open it with Inkscape. Within Inkscape I left-click the image so that it is selected and then trace the bitmap (Path-&amp;gt;Trace Bitmap). This creates a new, smoother version of the image. Then I delete the original image from Inkscape. At this point the image is good but it&amp;rsquo;s too small for general use, so when I export it as a PNG (File-&amp;gt;Export PNG Image) I adjust the image dimensions to the size required. This works because an SVG will scale to any dimension (click &lt;a href=&#34;http://perltricks.com/images/201/0BwRnByTz2iUXQnJvajhCY3VWMmM&#34;&gt;here&lt;/a&gt; for a larger version).&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://googledrive.com/host/0BwRnByTz2iUXQnJvajhCY3VWMmM&#34; title=&#34;The SVG version&#34;&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXc1l5NXlldGV4OE0&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/201/0BwRnByTz2iUXc1l5NXlldGV4OE0&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;At this stage I could put this image on any color of t-shirt. Instead I&amp;rsquo;ll re-import the image into GIMP and add a funky background color:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://googledrive.com/host/0BwRnByTz2iUXVXg3eDRPMmVyT1U&#34; title=&#34;The final version&#34;&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXeUs0WGpVdDQ1Q0E&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/201/0BwRnByTz2iUXeUs0WGpVdDQ1Q0E&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Don&amp;rsquo;t forget to back the &lt;a href=&#34;https://www.kickstarter.com/projects/1422827986/heroes-of-the-revolution-t-shirts-larry-wall&#34;&gt;Kickstarter&lt;/a&gt; project if you want a t-shirt. Best of all, it&amp;rsquo;s Larry Wall approved ™&lt;/p&gt;
 </description>
@@ -1093,9 +1093,9 @@ location = root
       <pubDate>Sat, 28 Nov 2015 00:11:17 +0000</pubDate>
       
       <guid>http://perltricks.com/article/200/2015/11/28/How-to-install-any--Perl-module/</guid>
-      <description>&lt;p&gt;It&amp;rsquo;s our 200th article! Installing CPAN modules can be a pain, particularly for users not familiar with the Perl toolchain. To try something different, I&amp;rsquo;m uploading the article as an image file under creative commons. Feel free to share it, use it, whatever. If you use Perl at your office, maybe print it out for reference. You can download a copy &lt;a href=&#34;https://drive.google.com/file/d/0BwRnByTz2iUXQk5KcVNHcElJRUU/view?usp=sharing&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+      <description>&lt;p&gt;It&amp;rsquo;s our 200th article! Installing CPAN modules can be a pain, particularly for users not familiar with the Perl toolchain. To try something different, I&amp;rsquo;m uploading the article as an image file under creative commons. Feel free to share it, use it, whatever. If you use Perl at your office, maybe print it out for reference. You can download a copy &lt;a href=&#34;http://perltricks.com/images/200/chart.png&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://googledrive.com/host/0BwRnByTz2iUXQk5KcVNHcElJRUU&#34; title=&#34;Install Any Perl Module&#34;&gt;&lt;img src=&#34;https://googledrive.com/host/0BwRnByTz2iUXUVBJSllmeUJiU00&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/200/chart.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;[*] You can install any Perl module, but it may not be a good idea™&lt;/p&gt;
 </description>

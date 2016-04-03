@@ -141,7 +141,7 @@ say scalar $count;
 
 <p>The other difference is that this code will run a lot faster than the first example. How much faster depends on the platform and the number of input records. In my testing on a quad core processor, I found that the MCE::Grep was consistently 100-150% faster, but with more cores I would expect this to increase further.</p>
 
-<p><img src="/static/images/61/mce_grep_comparison_630.png" alt="" /></p>
+<p><img src="/images/61/mce_grep_comparison_630.png" alt="" /></p>
 
 <p>The other basic automation models <a href="https://metacpan.org/pod/MCE::Loop">MCE::Loop</a> and <a href="https://metacpan.org/pod/MCE::Map">MCE::Map</a> work in much the same was as MCE::Grep.</p>
 
@@ -189,7 +189,7 @@ MCE::Grep::init({max_workers =&gt; 3});
 
 <p>When the source type is an array, MCE auto-calculates the chunk size based on the number of input records and workers available. You can override this, however in my testing I found that the auto-calculated chunk-size was nearly always optimal. Here is a typical result set, for processing a 55mb log file:</p>
 
-<p><img src="/static/images/61/mce_grep_chunk_size_630.png" alt="" /></p>
+<p><img src="/images/61/mce_grep_chunk_size_630.png" alt="" /></p>
 
 <p>If the source type is a filehandle, the chunk size defaults to 2 (The module&rsquo;s author Mario Roy has told me this will change in the next version, 1.506). Therefore you may want to override the chunk size to try to get better performance. You can do this using the &ldquo;init()&rdquo; method:</p>
 
@@ -294,7 +294,7 @@ MCE::Grep::init({chunk_size =&gt; 500});
   <div class="row">
       <a href="http://perltricks.com/article/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/">
     <div class="col-sm-3">
-      <div class="circle-avatar" style="background-image:url(http://googledrive.com/host/0BwRnByTz2iUXTUhuU1BhTjNkNVk)"></div>
+      <div class="circle-avatar" style="background-image:url(/images/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/chopsticks.png)"></div>
     </div>
     <div class="col-sm-9">
         <h6>Controlling insanity by parsing IR codes with Linux::IRPulses</h6>

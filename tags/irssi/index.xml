@@ -26,15 +26,15 @@
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan -fi Gtk3::Notify
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Gtk3::Notify has several C library &lt;a href=&#34;https://github.com/sillymoose/irssi/blob/master/gnotify.pl#L98&#34;&gt;dependencies&lt;/a&gt;, so you&amp;rsquo;ll need to install those too - your Linux distro&amp;rsquo;s package manager should have them.&lt;/p&gt;
+&lt;p&gt;Gtk3::Notify has several C library &lt;a href=&#34;https://github.com/dnmfarrell/irssi/blob/master/gnotify.pl#L98&#34;&gt;dependencies&lt;/a&gt;, so you&amp;rsquo;ll need to install those too - your Linux distro&amp;rsquo;s package manager should have them.&lt;/p&gt;
 
 &lt;h3 id=&#34;installation:ce6f8b6323c39b7022df382ce5c1d78c&#34;&gt;Installation&lt;/h3&gt;
 
-&lt;p&gt;Unless you&amp;rsquo;re running any scripts with Irssi already, you&amp;rsquo;ll need to create a scripts directory, and download &lt;a href=&#34;https://raw.githubusercontent.com/sillymoose/irssi/master/gnotify.pl&#34;&gt;gnotify.pl&lt;/a&gt;:&lt;/p&gt;
+&lt;p&gt;Unless you&amp;rsquo;re running any scripts with Irssi already, you&amp;rsquo;ll need to create a scripts directory, and download &lt;a href=&#34;https://raw.githubusercontent.com/dnmfarrell/irssi/master/gnotify.pl&#34;&gt;gnotify.pl&lt;/a&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ mkdir ~/.irssi/scripts
 $ cd ~/.irssi/scripts
-$ curl -O https://raw.githubusercontent.com/sillymoose/irssi/master/gnotify.pl
+$ curl -O https://raw.githubusercontent.com/dnmfarrell/irssi/master/gnotify.pl
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;To have Irssi to autoload the script, create an &amp;ldquo;autorun&amp;rdquo; subdirectory with a symlink back to the script:&lt;/p&gt;
@@ -53,11 +53,11 @@ $ ln -s ../gnotify.pl
 
 &lt;p&gt;Just replace username with your own IRC username, for me it looks like this:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/95/irssi_msg.png&#34; title=&#34;A popup alert shows the message&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/95/irssi_msg_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/95/irssi_msg.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;At the bottom of the screen you can see the popup alert.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/95/irssi_gnotify.png&#34; title=&#34;Sending a private message on Irssi&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/95/irssi_gnotify_small.png&#34; alt=&#34;&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/95/irssi_gnotify.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;h3 id=&#34;conclusion:ce6f8b6323c39b7022df382ce5c1d78c&#34;&gt;Conclusion&lt;/h3&gt;
 

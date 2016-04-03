@@ -83,45 +83,45 @@
 
 <p>Head over to Stratopan, sign up to create a new account and login. You should be presented with this message:</p>
 
-<p><img src="/static/images/Stratopan/stratopan_1_600.png" alt="stratopan screenshot" /></p>
+<p><img src="/images/Stratopan/stratopan_1_600.png" alt="stratopan screenshot" /></p>
 
 <p>Click the create repository link and complete the information on the following screen. Be sure to select the private option if you want your repository not to be publicly visible.</p>
 
-<p><img src="/static/images/Stratopan/stratopan_2_600.png" alt="stratopan screenshot" /></p>
+<p><img src="/images/Stratopan/stratopan_2_600.png" alt="stratopan screenshot" /></p>
 
 <p>You should now have a new repository.</p>
 
-<p><img src="/static/images/Stratopan/stratopan_19_600.png" alt="stratopan screenshot" /></p>
+<p><img src="/images/Stratopan/stratopan_19_600.png" alt="stratopan screenshot" /></p>
 
 <h3 id="add-or-pull-modules:713592ed043727253fc234d9fe0e3d2b">Add or pull modules</h3>
 
 <p>Modules reside in &ldquo;stacks&rdquo; which belong to a repository and helpfully Stratopan creates a default &ldquo;master&rdquo; stack for you. To insert modules into a stack you can &ldquo;pull&rdquo; them from CPAN or &ldquo;add&rdquo; them from a local machine. Let&rsquo;s start by pulling a module onto our master stack. Click the &ldquo;pulling&rdquo; link to launch the pull module screen and start typing the name of the module you want to pull. Note that this must be the distribution name and not the module name. For example to pull the module &ldquo;Method::Signatures&rdquo;, you should type &ldquo;Method-Signatures&rdquo;. Helpfully Stratopan provides a case-insensitive predictive text search and lists the module version numbers available too, in case you need a specific variant. Let&rsquo;s pull my wildly unpopular <a href="https://metacpan.org/pod/WWW::CheckHTML">WWW::CheckHTML</a> module:</p>
 
-<p><img src="/static/images/Stratopan/stratopan_3_600.png" alt="stratopan screenshot" /></p>
+<p><img src="/images/Stratopan/stratopan_3_600.png" alt="stratopan screenshot" /></p>
 
 <p>Decide if you want Stratopan to recursively pull all module dependencies; this is usually a good option. What&rsquo;s nice about this is the &ldquo;recursive&rdquo; pull will grab all the modules dependent on your chosen module&rsquo;s dependencies.</p>
 
-<p><img src="/static/images/Stratopan/stratopan_4_600.png" alt="stratopan screenshot" /></p>
+<p><img src="/images/Stratopan/stratopan_4_600.png" alt="stratopan screenshot" /></p>
 
 <p>It can be surprising how many dependencies there are - for example <a href="https://metacpan.org/pod/WWW::CheckHTML">WWW::CheckHTML</a> has 5 direct dependencies and 69 indirect ones. Obviously when there are more dependent modules, Stratopan will take longer to pull them into the stack (usually a minute or two). When it&rsquo;s finished, Stratopan will present the the latest view of the stack.</p>
 
-<p><img src="/static/images/Stratopan/stratopan_5_600.png" alt="stratopan screenshot" /></p>
+<p><img src="/images/Stratopan/stratopan_5_600.png" alt="stratopan screenshot" /></p>
 
 <p>Stratopan provides some useful stack features. A link to <a href="https://metacpan.org">metapcan</a> is provided for every module (except for private modules that have been added from a local machine) and it&rsquo;s possible to browse the *.pm files in a module by clicking on it:</p>
 
-<p><img src="/static/images/Stratopan/stratopan_20_600.png" alt="stratopan screenshot" /></p>
+<p><img src="/images/Stratopan/stratopan_20_600.png" alt="stratopan screenshot" /></p>
 
 <p>Each stack has it&rsquo;s own commit history, accessed via the aptly-named &ldquo;history&rdquo; link:</p>
 
-<p><img src="/static/images/Stratopan/stratopan_22_600.png" alt="stratopan screenshot" /></p>
+<p><img src="/images/Stratopan/stratopan_22_600.png" alt="stratopan screenshot" /></p>
 
 <p>The &ldquo;graphs&rdquo; link is much more interesting. It opens this cool, rotatable dependencies chart:</p>
 
-<p><img src="/static/images/Stratopan/stratopan_21_600.png" alt="stratopan screenshot" /></p>
+<p><img src="/images/Stratopan/stratopan_21_600.png" alt="stratopan screenshot" /></p>
 
 <p>Finally the &ldquo;settings&rdquo; link let&rsquo;s you update the stack name, description and target Perl version. You can also delete the stack from here.</p>
 
-<p><img src="/static/images/Stratopan/stratopan_23_600.png" alt="stratopan screenshot" /></p>
+<p><img src="/images/Stratopan/stratopan_23_600.png" alt="stratopan screenshot" /></p>
 
 <h3 id="installing-modules-from-your-stratopan-stack:713592ed043727253fc234d9fe0e3d2b">Installing modules from your Stratopan stack</h3>
 
@@ -132,7 +132,7 @@
 
 <p>Once cpanm has installed, open one of your stacks on Stratopan and copy the stack URL (shown in red below).</p>
 
-<p><img src="/static/images/Stratopan/stratopan_24_600.png" alt="stratopan screenshot" /></p>
+<p><img src="/images/Stratopan/stratopan_24_600.png" alt="stratopan screenshot" /></p>
 
 <p>At the terminal type &ldquo;cpanm &ndash;mirror-only &ndash;mirror &rdquo; and paste your copied stack URL and enter one or more module names that you wish to install. For example to install <a href="https://metacpan.org/pod/WWW::CheckHTML">WWW::CheckHTML</a> from my master stack:</p>
 
@@ -241,7 +241,7 @@ Successfully installed WWW-CheckHTML-0.04
   <div class="row">
       <a href="http://perltricks.com/article/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/">
     <div class="col-sm-3">
-      <div class="circle-avatar" style="background-image:url(http://googledrive.com/host/0BwRnByTz2iUXTUhuU1BhTjNkNVk)"></div>
+      <div class="circle-avatar" style="background-image:url(/images/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/chopsticks.png)"></div>
     </div>
     <div class="col-sm-9">
         <h6>Controlling insanity by parsing IR codes with Linux::IRPulses</h6>

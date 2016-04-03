@@ -450,7 +450,7 @@ use XML::Dataset;
 use Data::Printer;
 use HTTP::Tiny;
 
-my $url = &#39;http://perltricks.com/static/sitemap.xml&#39;;
+my $url = &#39;http://perltricks.com/sitemap.xml&#39;;
 
 my $sitemap_data 
     = HTTP::Tiny-&amp;gt;new-&amp;gt;get($url)-&amp;gt;{content};

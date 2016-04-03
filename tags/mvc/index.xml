@@ -181,7 +181,7 @@ $ sudo ln -s ../sites-available/localhost
 
 &lt;p&gt;Now check out the site at &lt;a href=&#34;http://localhost:&#34;&gt;http://localhost:&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/102/dancer2.png&#34; title=&#34;The default Dancer app - statically deployed&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/102/dancer2_small.png&#34; alt=&#34;The default Dancer app - statically deployed&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/102/dancer2.png&#34; alt=&#34;The default Dancer app - statically deployed&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Looks pretty good to me!&lt;/p&gt;
 
@@ -230,7 +230,8 @@ $ sudo ln -s ../sites-available/localhost
 
 &lt;p&gt;I created two stacks, one for &lt;a href=&#34;https://stratopan.com/sillymoose/WebStuff/Catalyst/graphs&#34;&gt;Catalyst&lt;/a&gt; and one for &lt;a href=&#34;https://stratopan.com/sillymoose/WebStuff/Dancer2/graphs&#34;&gt;Dancer2&lt;/a&gt;. Their respective dependency graphs are shown below:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/85/catalyst%20dependencies.png&#34; title=&#34;Stratopan Catalyst stack&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/85/catalyst%20dependencies_small.png&#34; alt=&#34;Catalyst framework&#34; /&gt;&lt;/a&gt; &lt;a href=&#34;http://perltricks.com/static/images/85/dancer2%20dependencies.png&#34; title=&#34;Stratopan Dancer2 stack&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/85/dancer2%20dependencies_small.png&#34; alt=&#34;Dancer2 framework&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/85/catalyst%20dependencies.png&#34; alt=&#34;Catalyst framework&#34; /&gt;
+&lt;img src=&#34;http://perltricks.com/images/85/dancer2%20dependencies.png&#34; alt=&#34;Dancer2 framework&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Tabulating the Stratopan data for the two stacks we get:&lt;/p&gt;
 
@@ -319,13 +320,13 @@ $ make test
 &lt;li&gt;Log, monitor and notify&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;So there are 5 criteria, but how you do implement them? I&amp;rsquo;ve created a &lt;a href=&#34;https://github.com/sillymoose/SecApp_login&#34;&gt;new web application&lt;/a&gt; called &amp;ldquo;SecApp&amp;rdquo; using Perl&amp;rsquo;s Catalyst web framework that attempts to satisfy these criteria - we&amp;rsquo;ll step through each one and you can judge for yourself if it does.&lt;/p&gt;
+&lt;p&gt;So there are 5 criteria, but how you do implement them? I&amp;rsquo;ve created a &lt;a href=&#34;https://github.com/dnmfarrell/SecApp_login&#34;&gt;new web application&lt;/a&gt; called &amp;ldquo;SecApp&amp;rdquo; using Perl&amp;rsquo;s Catalyst web framework that attempts to satisfy these criteria - we&amp;rsquo;ll step through each one and you can judge for yourself if it does.&lt;/p&gt;
 
 &lt;h3 id=&#34;how-to-setup-the-app:ba4c9275de3995b673588b08da4e28c2&#34;&gt;How to setup the app&lt;/h3&gt;
 
 &lt;p&gt;If you&amp;rsquo;d like to download the app and follow along you can, but this step is optional. You&amp;rsquo;re going to need at least Perl 5.14.4 and a git installed. To download the app from our github page, just open up the command line and enter:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git clone https://github.com/sillymoose/SecApp_login
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git clone https://github.com/dnmfarrell/SecApp_login
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;There&amp;rsquo;s no way around it; this app has a lot of dependencies. To ease the burden, start by installing &lt;a href=&#34;https://metacpan.org/pod/App::cpanminus&#34;&gt;cpanminus&lt;/a&gt; at the command line:&lt;/p&gt;
@@ -352,25 +353,25 @@ HTTP::Server::PSGI: Accepting connections at http://0:3000/
 
 &lt;p&gt;Open your browsers and navigate to &lt;a href=&#34;http://localhost:3000&#34;&gt;http://localhost:3000&lt;/a&gt;. You see this simple welcome message:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/84/secapp_welcome.png&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/84/secapp_welcome_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/84/secapp_welcome.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;If you visit &lt;a href=&#34;http://localhost/login&#34;&gt;http://localhost/login&lt;/a&gt;, it should load the login page:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/84/secapp_login.png&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/84/secapp_login_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/84/secapp_login.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Using the username &amp;ldquo;test_user_01&amp;rdquo; and &amp;ldquo;Hfa *-£(&amp;amp;&amp;amp;%HBbWqpV%&amp;rdquo;_=asd&amp;rdquo; you should be able to login.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/84/secapp_login_credentials.png&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/84/secapp_login_credentials_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/84/secapp_login_credentials.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;A successful login will display a simple message and logout link:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/84/secapp_landing.png&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/84/secapp_landing_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/84/secapp_landing.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;h3 id=&#34;1-prevent-information-leaks:ba4c9275de3995b673588b08da4e28c2&#34;&gt;1. Prevent information leaks&lt;/h3&gt;
 
 &lt;p&gt;Information leaks give would-be attackers clues that undermine the login security. One way they do this is by giving information about the software running the web application (which may have known weaknesses).&lt;/p&gt;
 
-&lt;p&gt;In SecApp I&amp;rsquo;ve turned off the typical Catalyst information leaks. In the root application file &lt;a href=&#34;https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp.pm&#34;&gt;SecApp.pm&lt;/a&gt; the &amp;ldquo;-Debug&amp;rdquo; plugin has been removed, which prints a full stack trace in the case of an error:&lt;/p&gt;
+&lt;p&gt;In SecApp I&amp;rsquo;ve turned off the typical Catalyst information leaks. In the root application file &lt;a href=&#34;https://github.com/dnmfarrell/SecApp_login/blob/master/lib/SecApp.pm&#34;&gt;SecApp.pm&lt;/a&gt; the &amp;ldquo;-Debug&amp;rdquo; plugin has been removed, which prints a full stack trace in the case of an error:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Catalyst qw/
     Static::Simple
@@ -391,7 +392,7 @@ enable_catalyst_header =&amp;gt; 0,
 
 &lt;p&gt;The other type of information leak we need to prevent is indicating logical vulnerabilities by responding differently to similar requests. For example, by responding to login attempts with incorrect usernames with the error message &amp;ldquo;incorrect username&amp;rdquo;, attackers can brute-force attack the username until they receive the message &amp;ldquo;incorrect password&amp;rdquo;, at which point they know they have guessed a correct username.&lt;/p&gt;
 
-&lt;p&gt;In SecApp, we want to respond with a generic message every time the login attempt fails, and not indicate which field was incorrect. The login function is implemented in our &lt;a href=&#34;https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp/Controller/Root.pm#L42&#34;&gt;Root.pm&lt;/a&gt; controller - we&amp;rsquo;ll look at the code later, but for now you can see that there is only one error message returned.&lt;/p&gt;
+&lt;p&gt;In SecApp, we want to respond with a generic message every time the login attempt fails, and not indicate which field was incorrect. The login function is implemented in our &lt;a href=&#34;https://github.com/dnmfarrell/SecApp_login/blob/master/lib/SecApp/Controller/Root.pm#L42&#34;&gt;Root.pm&lt;/a&gt; controller - we&amp;rsquo;ll look at the code later, but for now you can see that there is only one error message returned.&lt;/p&gt;
 
 &lt;h3 id=&#34;2-handle-credentials-secretively:ba4c9275de3995b673588b08da4e28c2&#34;&gt;2. Handle credentials secretively&lt;/h3&gt;
 
@@ -401,7 +402,7 @@ enable_catalyst_header =&amp;gt; 0,
 &lt;p&gt;All credentials should be created, stored, and transmitted in a manner that does not lead to unauthorized disclosure.&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;In SecApp &lt;a href=&#34;https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp/Controller/Root.pm#L11&#34;&gt;Root.pm&lt;/a&gt;, we use Catalyst&amp;rsquo;s auto Controller function to check that every request is over SSL:&lt;/p&gt;
+&lt;p&gt;In SecApp &lt;a href=&#34;https://github.com/dnmfarrell/SecApp_login/blob/master/lib/SecApp/Controller/Root.pm#L11&#34;&gt;Root.pm&lt;/a&gt;, we use Catalyst&amp;rsquo;s auto Controller function to check that every request is over SSL:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# this method will be called everytime
 sub auto :Private {
@@ -433,7 +434,7 @@ sub auto :Private {
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;SecApp sets several other security headers in the &lt;a href=&#34;https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp/Controller/Root.pm#L90&#34;&gt;end method&lt;/a&gt;, you can read about what they do &lt;a href=&#34;http://perltricks.com/article/81/2014/3/31/Perl-web-application-security-HTTP-headers&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;SecApp sets several other security headers in the &lt;a href=&#34;https://github.com/dnmfarrell/SecApp_login/blob/master/lib/SecApp/Controller/Root.pm#L90&#34;&gt;end method&lt;/a&gt;, you can read about what they do &lt;a href=&#34;http://perltricks.com/article/81/2014/3/31/Perl-web-application-security-HTTP-headers&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;SecApp only authenticates login requests received via POST. We achieve this by using Catalyst&amp;rsquo;s chained dispatching and HTTP method matching:&lt;/p&gt;
 
@@ -456,9 +457,9 @@ sub login_form :Chained(&#39;login&#39;) PathPart(&#39;&#39;) Args(0) GET {
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp/Controller/Root.pm#L42&#34;&gt;code&lt;/a&gt; has been abbreviated here for clarity. But effectively the &amp;ldquo;login_auth&amp;rdquo; subroutine will only fire if the request to &amp;ldquo;/login&amp;rdquo; was made via POST, else just load the login page with the &amp;ldquo;login_form&amp;rdquo; sub. Cool right? Catalyst project manager John Napiorkowski mused on these features in an illustrative &lt;a href=&#34;http://jjnapiorkowski.typepad.com/modern-perl/2013/08/thoughts-on-catalyst-soa-and-web-services.html#.U11rEjnXvqg&#34;&gt;blog post&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The &lt;a href=&#34;https://github.com/dnmfarrell/SecApp_login/blob/master/lib/SecApp/Controller/Root.pm#L42&#34;&gt;code&lt;/a&gt; has been abbreviated here for clarity. But effectively the &amp;ldquo;login_auth&amp;rdquo; subroutine will only fire if the request to &amp;ldquo;/login&amp;rdquo; was made via POST, else just load the login page with the &amp;ldquo;login_form&amp;rdquo; sub. Cool right? Catalyst project manager John Napiorkowski mused on these features in an illustrative &lt;a href=&#34;http://jjnapiorkowski.typepad.com/modern-perl/2013/08/thoughts-on-catalyst-soa-and-web-services.html#.U11rEjnXvqg&#34;&gt;blog post&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Finally, SecApp stores the passwords in an hashed format, using a relatively strong algorithm (bcrypt). The following code in &lt;a href=&#34;https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp/Schema/Result/User.pm#L130&#34;&gt;User.pm&lt;/a&gt; adds the functionality:&lt;/p&gt;
+&lt;p&gt;Finally, SecApp stores the passwords in an hashed format, using a relatively strong algorithm (bcrypt). The following code in &lt;a href=&#34;https://github.com/dnmfarrell/SecApp_login/blob/master/lib/SecApp/Schema/Result/User.pm#L130&#34;&gt;User.pm&lt;/a&gt; adds the functionality:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;__PACKAGE__-&amp;gt;add_columns(
             &#39;password&#39; =&amp;gt; {
@@ -520,16 +521,16 @@ sub login_form :Chained(&#39;login&#39;) PathPart(&#39;&#39;) Args(0) GET {
 
 &lt;p&gt;Let&amp;rsquo;s walk through the code. If the CAPTCHA functionality is enabled, the login function will attempt to validate the CAPTCHA. If successful, the code then retrieves the username and password, and if they exist, attempts to validate them using the authenticate method. The authenticate method checks both username and password in full against the database. If the username and password are validated, then the user will be re-directed to the landing page which is in the secure Admin.pm controller. Else an error message will set indicating a bad username or password. In all failing cases, the login form will be reloaded and displayed.&lt;/p&gt;
 
-&lt;p&gt;So the code looks good, but how do we know if it will do the right thing in all cases? Fortunately &lt;a href=&#34;https://metacpan.org/pod/Catalyst::Test&#34;&gt;Catalyst::Test&lt;/a&gt; can make unit testing an application&amp;rsquo;s methods easy. SecApp has the test file &lt;a href=&#34;https://github.com/sillymoose/SecApp_login/blob/master/t/Root.t&#34;&gt;Root.t&lt;/a&gt; which tests the login function with many different combinations of credentials, such as null, zero-length string, correct username incorrect password etc. Running these tests makes it easy to confirm that the login function does the right thing. Want to check for yourself? At the command line run:&lt;/p&gt;
+&lt;p&gt;So the code looks good, but how do we know if it will do the right thing in all cases? Fortunately &lt;a href=&#34;https://metacpan.org/pod/Catalyst::Test&#34;&gt;Catalyst::Test&lt;/a&gt; can make unit testing an application&amp;rsquo;s methods easy. SecApp has the test file &lt;a href=&#34;https://github.com/dnmfarrell/SecApp_login/blob/master/t/Root.t&#34;&gt;Root.t&lt;/a&gt; which tests the login function with many different combinations of credentials, such as null, zero-length string, correct username incorrect password etc. Running these tests makes it easy to confirm that the login function does the right thing. Want to check for yourself? At the command line run:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ TESTING=1 perl -Ilib t/Root.t
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h3 id=&#34;4-prevent-brute-force-attacks:ba4c9275de3995b673588b08da4e28c2&#34;&gt;4. Prevent brute-force attacks&lt;/h3&gt;
 
-&lt;p&gt;Brute force attacks are attempts to crack the username and password of an account by repeatedly trying different combinations until one succeeds. SecApp uses &lt;a href=&#34;https://metacpan.org/pod/Captcha::reCAPTCHA&#34;&gt;Captcha::reCAPTCHA&lt;/a&gt; to prevent automated brute force attacks. You&amp;rsquo;ll need a Google account and web domain to sign up for it (it&amp;rsquo;s free). The difficulty of the captcha puzzles presented are very difficult to reliably pass with automation. If you do have a Google &lt;a href=&#34;https://www.google.com/recaptcha/intro/index.html&#34;&gt;reCAPtCHA account&lt;/a&gt;, you can try it out with SecApp by updating &lt;a href=&#34;https://github.com/sillymoose/SecApp_login/blob/master/lib/SecApp.pm#L54&#34;&gt;SecApp.pm&lt;/a&gt; with your account credentials.&lt;/p&gt;
+&lt;p&gt;Brute force attacks are attempts to crack the username and password of an account by repeatedly trying different combinations until one succeeds. SecApp uses &lt;a href=&#34;https://metacpan.org/pod/Captcha::reCAPTCHA&#34;&gt;Captcha::reCAPTCHA&lt;/a&gt; to prevent automated brute force attacks. You&amp;rsquo;ll need a Google account and web domain to sign up for it (it&amp;rsquo;s free). The difficulty of the captcha puzzles presented are very difficult to reliably pass with automation. If you do have a Google &lt;a href=&#34;https://www.google.com/recaptcha/intro/index.html&#34;&gt;reCAPtCHA account&lt;/a&gt;, you can try it out with SecApp by updating &lt;a href=&#34;https://github.com/dnmfarrell/SecApp_login/blob/master/lib/SecApp.pm#L54&#34;&gt;SecApp.pm&lt;/a&gt; with your account credentials.&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/84/secapp_login_catpcha.png&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/84/secapp_login_catpcha_600.png&#34; alt=&#34;secapp&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/84/secapp_login_catpcha.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Seeing as brute-force attacks can only succeed if they can try millions of attempts, why not just add a time-delay like &amp;ldquo;sleep(2)&amp;rdquo; to the login function? The problem with that defence is that it opens the web application up to another attack-vector: denial of service. If an attacker can issue several requests every 2 seconds to the login function, it may tie up all of the application&amp;rsquo;s processes and stop it from responding to regular web requests. Not good!&lt;/p&gt;
 

@@ -101,7 +101,7 @@ cmpthese(-5, {
 
 &lt;p&gt;Would changing the number of variables assigned in the subroutine affect the relative performance of the three subroutine types? I re-ran the benchmarks, only this time incrementing the number of variables being assigned and plotted the results:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/static/images/88/signatures%20comparison.png&#34; title=&#34;Comparison of signatures speed with varying number of variables&#34;&gt;&lt;img src=&#34;http://perltricks.com/static/images/88/signatures%20comparison_small.png&#34; alt=&#34;Comparison of signatures speed with increasing number of variables&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/88/signatures%20comparison.png&#34; alt=&#34;Comparison of signatures speed with increasing number of variables&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The results showed that increasing the number of variables improved the relative speed of native subroutine signatures against Method::Signatures. With two variable assignments their speed is about par. With three or more variables, native subroutine signatures outperforms, up to 18% faster. When I discussed these results with Ricardo Signes, he confirmed that the native subroutine signatures code had been optimized for multiple variable assignments, which correlates with the results shown above.&lt;/p&gt;
 
@@ -261,7 +261,7 @@ say scalar $count;
 
 &lt;p&gt;The other difference is that this code will run a lot faster than the first example. How much faster depends on the platform and the number of input records. In my testing on a quad core processor, I found that the MCE::Grep was consistently 100-150% faster, but with more cores I would expect this to increase further.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/61/mce_grep_comparison_630.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/61/mce_grep_comparison_630.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The other basic automation models &lt;a href=&#34;https://metacpan.org/pod/MCE::Loop&#34;&gt;MCE::Loop&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/MCE::Map&#34;&gt;MCE::Map&lt;/a&gt; work in much the same was as MCE::Grep.&lt;/p&gt;
 
@@ -309,7 +309,7 @@ MCE::Grep::init({max_workers =&amp;gt; 3});
 
 &lt;p&gt;When the source type is an array, MCE auto-calculates the chunk size based on the number of input records and workers available. You can override this, however in my testing I found that the auto-calculated chunk-size was nearly always optimal. Here is a typical result set, for processing a 55mb log file:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/static/images/61/mce_grep_chunk_size_630.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/61/mce_grep_chunk_size_630.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;If the source type is a filehandle, the chunk size defaults to 2 (The module&amp;rsquo;s author Mario Roy has told me this will change in the next version, 1.506). Therefore you may want to override the chunk size to try to get better performance. You can do this using the &amp;ldquo;init()&amp;rdquo; method:&lt;/p&gt;
 
