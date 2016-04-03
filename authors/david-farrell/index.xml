@@ -757,9 +757,15 @@ bind-key          o select-pane -t :.+
 
 &lt;h3 id=&#34;pane-control:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Pane control&lt;/h3&gt;
 
-&lt;p&gt;Panes are great. You can split a window horizontally, vertically and with any dimensions you like. Recently I was processing a huge set of data; I arranged my Tmux window with 3 panes running the data processing and 1 pane monitoring the server resources with &lt;a href=&#34;http://hisham.hm/htop/&#34;&gt;htop&lt;/a&gt;. This server is almost overloaded:&lt;/p&gt;
+&lt;p&gt;Panes are great. You can split a window horizontally, vertically and with any dimensions you like. Have you ever wanted to quickly look up a man page whilst coding? Instead of dropping back to the terminal, looking up the man page and then foregrounding your editor, just open a new vertical pane, like this:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXazVBdzNFRU1QV1k&#34; alt=&#34;Tmux Panes&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/an-introduction-to-tmux/tmux-split-screen.png&#34; alt=&#34;Tmux Panes&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now you can read the man page and code at the same time; you can even copy and paste between the two panes. Much more convenient!&lt;/p&gt;
+
+&lt;p&gt;Recently I was processing a huge set of data; I arranged my Tmux window with 3 panes running the data processing and 1 pane monitoring the server resources with &lt;a href=&#34;http://hisham.hm/htop/&#34;&gt;htop&lt;/a&gt;. This server is almost overloaded:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/an-introduction-to-tmux/tmux-panes.png&#34; alt=&#34;Tmux Panes&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;These are the key pane controls:&lt;/p&gt;
 
@@ -780,7 +786,7 @@ Ctrl-b !      pop a pane into a new window
 
 &lt;h3 id=&#34;scrolling-and-copy-paste:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Scrolling and copy/paste&lt;/h3&gt;
 
-&lt;p&gt;If you can master scrolling and copy/paste in Tmux, you can master anything. I won&amp;rsquo;t lie, this is the clunkiest feature. But it&amp;rsquo;s really useful. The interface is modal, so start by entering scroll mode:&lt;/p&gt;
+&lt;p&gt;If you can master scrolling and copy/paste in Tmux, you can master anything. I won&amp;rsquo;t lie, this is the clunkiest feature. But it&amp;rsquo;s really useful. The interface is modal, so start by entering scroll mode.&lt;/p&gt;
 
 &lt;p&gt;Type &lt;code&gt;Ctrl-b [&lt;/code&gt;. Pressing &lt;code&gt;esc&lt;/code&gt; will exit scroll mode. You should know you&amp;rsquo;re in scroll mode because an orange line count appears in the top-right corner of the pane.&lt;/p&gt;
 
@@ -788,11 +794,11 @@ Ctrl-b !      pop a pane into a new window
 
 &lt;p&gt;You can copy and paste in scroll mode. This is useful when you have split screens as a regular highlight and copy using the mouse won&amp;rsquo;t work across vertically split panes.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXN09fQVJCS1hTVXc&#34; alt=&#34;copy fail&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/an-introduction-to-tmux/tmux-copy-fail.png&#34; alt=&#34;copy fail&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;To copy, position the cursor where you want to start copying. Press &lt;code&gt;Ctrl-space&lt;/code&gt; to begin highlighting the text to copy. Press &lt;code&gt;Alt-w&lt;/code&gt; to copy the highlighted text. Pressing &lt;code&gt;Ctrl-b ]&lt;/code&gt; will paste the copied text. There are ways to make copy and paste easier: Tmux has a &amp;ldquo;vim like&amp;rdquo; copy mode (see the Config options section).&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://googledrive.com/host/0BwRnByTz2iUXYjRpRTIxZWVDUUE&#34; alt=&#34;copy win&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/an-introduction-to-tmux/tmux-copy-win.png&#34; alt=&#34;copy win&#34; /&gt;&lt;/p&gt;
 
 &lt;h3 id=&#34;session-control:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Session control&lt;/h3&gt;
 
@@ -819,7 +825,7 @@ Ctrl-b !      pop a pane into a new window
 
 &lt;h3 id=&#34;config-options:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Config options&lt;/h3&gt;
 
-&lt;p&gt;The file &lt;code&gt;~/.tmux.conf&lt;/code&gt; is a plaintext file used by Tmux for local config. This example config file shows some common options:&lt;/p&gt;
+&lt;p&gt;The file &lt;code&gt;~/.tmux.conf&lt;/code&gt; is a plaintext file used by Tmux for local config. This is what mine looks like:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;# set scroll history to 10,000 lines
 set-option -g history-limit 10000
@@ -828,17 +834,16 @@ set-option -g history-limit 10000
 set -g utf8 on set-window-option -g utf8 on
 set -g default-terminal screen-256color
 
+# don&#39;t use a login shell
+set-option -g default-command /bin/bash
+
 # unbind the prefix and bind it to Ctrl-a like screen
 unbind C-b set -g prefix C-a bind C-a send-prefix
-
-# use zsh instead of bash
-set -g default-command /bin/zsh set -g default-shell /bin/zsh \`\`\`
-
-# enable vi-like copy/paste
-set-window-option -g mode-keys vi
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;To reload your &lt;code&gt;.tmux.conf&lt;/code&gt; within a Tmux session, type: &lt;code&gt;Ctrl-b :&lt;/code&gt; then &lt;code&gt;source-file ~/.tmux.conf&lt;/code&gt;. These are just example settings - you should tweak them to suit your preferences.&lt;/p&gt;
+&lt;p&gt;By default Tmux uses a login shell, so every new pane will execute &lt;code&gt;.bash_profile&lt;/code&gt;. I prefer to disable that behavior and just launch regular non-login shells. Tmux has hundreds more options: many users will switch to a different shell like zsh, enable pane switching with the trackpad, display custom data in the Tmux footer (like weather info!) and so on. Copying other programmers&amp;rsquo; &lt;a href=&#34;https://github.com/search?utf8=%E2%9C%93&amp;amp;q=.tmux.conf&#34;&gt;conf files&lt;/a&gt; is a great way to learn and experiment.&lt;/p&gt;
+
+&lt;p&gt;To reload your &lt;code&gt;.tmux.conf&lt;/code&gt; within a Tmux session, type: &lt;code&gt;Ctrl-b :&lt;/code&gt; then &lt;code&gt;source-file ~/.tmux.conf&lt;/code&gt;.&lt;/p&gt;
 
 &lt;h3 id=&#34;tmux-resources:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Tmux resources&lt;/h3&gt;
 
