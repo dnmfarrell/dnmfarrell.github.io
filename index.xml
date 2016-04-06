@@ -6,8 +6,87 @@
     <description>Recent content on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 01 Apr 2016 08:32:57 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 06 Apr 2016 09:12:09 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>What&#39;s new on CPAN - March 2016</title>
+      <link>http://perltricks.com/article/what-s-new-on-cpan---march-2016/</link>
+      <pubDate>Wed, 06 Apr 2016 09:12:09 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/what-s-new-on-cpan---march-2016/</guid>
+      <description>
+
+&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Everything old was new again in March. Apart from smatterings of cool new toys, CPAN got several new loggers, plugin loaders, templates, and configuration management tools.&lt;/p&gt;
+
+&lt;h3 id=&#34;apis-apps:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::Pushover&#34;&gt;Net::Pushover&lt;/a&gt; provides a Perly interface to Pushover, the message delivery service&lt;/li&gt;
+&lt;li&gt;Get a client for the TeamCity, the CI service with &lt;a href=&#34;https://metacpan.org/pod/WebService::TeamCity&#34;&gt;WebService::TeamCity&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Finance::Robinhood&#34;&gt;Finance::Robinhood&lt;/a&gt; allows you to trade stocks and ETFs with RobinHood, the free brokerage startup&lt;/li&gt;
+&lt;li&gt;Use the Let&amp;rsquo;s Encrypt certificate service with &lt;a href=&#34;https://metacpan.org/pod/WWW::LetsEncrypt&#34;&gt;WWW::LetsEncrypt&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WWW::PubNub&#34;&gt;WWW::PubNub&lt;/a&gt; provides an interface to PubNub, the streaming network service&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;config-devops:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Footprintless&#34;&gt;Footprintless&lt;/a&gt; is a configuration management program with minimal installations&lt;/li&gt;
+&lt;li&gt;Log to date/time-stamped files with &lt;a href=&#34;https://metacpan.org/pod/Log::File::Rolling&#34;&gt;Log::File::Rolling&lt;/a&gt;, a fork of Log::Dispatch::File::Rolling&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Logging::Simple&#34;&gt;Logging::Simple&lt;/a&gt; aims to be a minimalist but useful logging system&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Task::Viral&#34;&gt;Task::Viral&lt;/a&gt; is a Perl configuration and installation system, like Pinto, CPAN::Mini et al.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;data:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Data&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/AtteanX::Endpoint&#34;&gt;AtteanX::Endpoint&lt;/a&gt; is a SPARQL 1.1 endpoint for &lt;a href=&#34;https://metacpan.org/pod/Attean&#34;&gt;Attean&lt;/a&gt;, the semantic web framework&lt;/li&gt;
+&lt;li&gt;Print nice calendars at the terminal using &lt;a href=&#34;https://metacpan.org/pod/Calendar::Gregorian&#34;&gt;Calendar::Gregorian&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Data::Tubes&#34;&gt;Data::Tubes&lt;/a&gt; is a cute data transformation module; needs iterators!&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/JSON::Typist&#34;&gt;JSON::Typist&lt;/a&gt; aims to &amp;ldquo;replace mushy strings and numbers&amp;rdquo; with proper typed classes. Useful&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Template::Pure&#34;&gt;Template::Pure&lt;/a&gt; is a port of &lt;a href=&#34;http://beebole.com/pure/&#34;&gt;pure.js&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;development-version-control:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Extract a stack trace from an exception object with &lt;a href=&#34;https://metacpan.org/pod/Devel::StackTrace::Extract&#34;&gt;Devel::StackTrace::Extract&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::SmokeTests&#34;&gt;Dist::Zilla::Plugin::SmokeTests&lt;/a&gt; makes it easy to run smoke tests run automated environments only&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/MCE::Shared&#34;&gt;MCE::Shared&lt;/a&gt; is an extension for sharing threads and processes, also &lt;a href=&#34;https://metacpan.org/pod/MCE&#34;&gt;MCE&lt;/a&gt; is great&lt;/li&gt;
+&lt;li&gt;Load plugins from files or modules with &lt;a href=&#34;https://metacpan.org/pod/Plugin::Simple&#34;&gt;Plugin::Simple&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Test::Doctest&#34;&gt;Test::Doctest&lt;/a&gt; can extract and evaluate tests from pod fragments - curious&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;hardware:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Hardware&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Linux::IRPulses&#34;&gt;Linux::IRPulses&lt;/a&gt; Parse infra-red pulse data - also see Timm&amp;rsquo;s recent &lt;a href=&#34;http://localhost:1313/article/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/&#34;&gt;article&lt;/a&gt; on the subject&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;language-international:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Language &amp;amp; International&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Guess language from text using a word list with &lt;a href=&#34;https://metacpan.org/pod/Text::Guess::Language&#34;&gt;Text::Guess::Language&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Check if text is UTF8 compatible with &lt;a href=&#34;https://metacpan.org/pod/Unicode::CheckUTF8::PP&#34;&gt;Unicode::CheckUTF8::PP&lt;/a&gt; a pure Perl module&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/ecl&#34;&gt;ecl&lt;/a&gt; executes Embedded Common Lisp code within Perl&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;science-mathematics:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/EMDIS::ECS&#34;&gt;EMDIS::ECS&lt;/a&gt; provides useful subroutines for the European Marrow Donor Information System standard&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;web:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Web&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Get a simple local search engine for your Dancer app with &lt;a href=&#34;https://metacpan.org/pod/Dancer::SearchApp&#34;&gt;Dancer::SearchApp&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mojo::ACME&#34;&gt;Mojo::ACME&lt;/a&gt; use the Let&amp;rsquo;s Encrypt ACME API with your Mojo app&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Plack::Middleware::Pod&#34;&gt;Plack::Middleware::Pod&lt;/a&gt; can render POD files as HTML&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Perl Jam VI: The Return of the Camel</title>
@@ -2101,39 +2180,6 @@ $ rakudobrew build panda
 &lt;/ul&gt;
 
 &lt;p&gt;&lt;strong&gt;Update&lt;/strong&gt; - Visual Studio article now includes instructions for VS2015. Added link to nu42.com. 2016-01-04&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Quick tip: git push origin hamster?</title>
-      <link>http://perltricks.com/article/206/2015/12/24/Quick-tip--git-push-origin-hamster-/</link>
-      <pubDate>Thu, 24 Dec 2015 17:20:05 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/206/2015/12/24/Quick-tip--git-push-origin-hamster-/</guid>
-      <description>&lt;p&gt;My typing is horrible. I make mistakes all the time. I&amp;rsquo;m an avid &lt;a href=&#34;http://www.vim.org/&#34;&gt;Vim&lt;/a&gt; user but I still use the arrow keys. I&amp;rsquo;m one of those people who need technology that does what they meant, not what they asked for. So if you&amp;rsquo;re a coder like me, you probably see this a lot:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git push origin amster
-error: src refspec amster does not match any.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Fortunately there is a simple workaround: Git&amp;rsquo;s &lt;a href=&#34;https://git-scm.com/docs/git-symbolic-ref&#34;&gt;symbolic references&lt;/a&gt;. I can add a symbolic reference for &lt;code&gt;amster&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git symbolic-ref refs/heads/amster refs/heads/master
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;And now Git does what I meant:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git push origin amster
-Counting objects: 3, done.
-Delta compression using up to 4 threads.
-Compressing objects: 100% (3/3), done.
-Writing objects: 100% (3/3), 695 bytes | 0 bytes/s, done.
-Total 3 (delta 2), reused 0 (delta 0)
-To git@github.com:user/SomeProject.git
-   ec208c7..fb0cb8f  amster -&amp;gt; master
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Because it&amp;rsquo;s a symbolic reference, anytime I mean to type &lt;code&gt;master&lt;/code&gt; but actually type &lt;code&gt;amster&lt;/code&gt;, Git will do the right thing. Try it!&lt;/p&gt;
 </description>
     </item>
     
