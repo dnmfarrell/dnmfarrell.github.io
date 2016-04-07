@@ -1,0 +1,970 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Testing on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/categories/testing/</link>
+    <description>Recent content in Testing on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 05 Jan 2016 14:32:45 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/categories/testing/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Save time with compile tests</title>
+      <link>http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/</link>
+      <pubDate>Tue, 05 Jan 2016 14:32:45 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/</guid>
+      <description>
+
+&lt;p&gt;Over the past year I&amp;rsquo;ve been working on several large Perl projects, sometimes as part of a team and sometimes alone. As the codebase grows, testing becomes increasingly important and one test in particular that pays dividends is the compile test. That is, before running any other tests, simply check if that every module in the codebase compiles.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-basics:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;The basics&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s look at a simple compile test, I&amp;rsquo;ve adapted this example from &lt;a href=&#34;https://github.com/dnmfarrell/Perly-Bot&#34;&gt;Perly-Bot&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Test::More;
+use lib &#39;lib&#39;;
+
+my @modules = qw(
+  Perly::Bot
+  Perly::Bot::Feed
+  Perly::Bot::Feed::Post
+  Perly::Bot::Cache
+  Perly::Bot::Media
+  Perly::Bot::Media::Twitter
+  Perly::Bot::Media::Reddit
+);
+for my $module ( @modules )
+{
+  BAIL_OUT( &amp;quot;$module does not compile&amp;quot; ) unless require_ok( $module );
+}
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code is simple enough; it adds the local &lt;code&gt;lib&lt;/code&gt; directory to the list of directories for Perl to search for modules. Then it declares an array of module names called &lt;code&gt;@modules&lt;/code&gt;. Finally it loops through each module name and tries to import it, bailing out if any module fails to load. Because tests are usually run in alphabetical order, this file is called &lt;code&gt;00-compile.t&lt;/code&gt; so that it is run first. I can run this test at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./t/00-compile.t
+perl t/00-compile.t 
+ok 1 - use Perly::Bot;
+ok 2 - use Perly::Bot::Feed;
+ok 3 - use Perly::Bot::Feed::Post;
+ok 4 - use Perly::Bot::Cache;
+ok 5 - use Perly::Bot::Media;
+ok 6 - use Perly::Bot::Media::Twitter;
+ok 7 - use Perly::Bot::Media::Reddit;
+1..7
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;write-once-compile-tests:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;Write-once compile tests&lt;/h3&gt;
+
+&lt;p&gt;The basic compile test example has an obvious flaw: it requires the programmer to list all the module names to be tested. This means that every time a new module is added to the codebase or a module is renamed, this test needs to be updated. This also introduces the risk of error - a failing module could exist in the codebase and never be tested. Instead of a static list of modules, I can tell Perl to search the &lt;code&gt;lib&lt;/code&gt; directory and try to import any module it finds:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Test::More;
+use lib &#39;lib&#39;;
+use Path::Tiny;
+
+# try to import every .pm file in /lib
+my $dir = path(&#39;lib/&#39;);
+my $iter = $dir-&amp;gt;iterator({
+            recurse         =&amp;gt; 1,
+            follow_symlinks =&amp;gt; 0,
+           }); 
+while (my $path = $iter-&amp;gt;())
+{
+  next if $path-&amp;gt;is_dir || $path !~ /\.pm$/;
+  BAIL_OUT( &amp;quot;$path does not compile&amp;quot; ) unless require_ok( $path );
+}
+done_testing;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here I use &lt;a href=&#34;https://metacpan.org/pod/Path::Tiny&#34;&gt;Path::Tiny&lt;/a&gt; to iterate through the files in &lt;code&gt;lib&lt;/code&gt;. Instead of passing module names, I pass the filepath to &lt;code&gt;require_ok&lt;/code&gt;. Now this compile test is dynamic, it will always pick up any new modules added or removed from the codebase. Nice!&lt;/p&gt;
+
+&lt;h3 id=&#34;require-warnings:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;Require warnings&lt;/h3&gt;
+
+&lt;p&gt;One problem with using &lt;a href=&#34;http://perldoc.perl.org/functions/require.html&#34;&gt;require&lt;/a&gt; to load filepaths instead of module names is that it can generate &amp;ldquo;subroutine redefined&amp;rdquo; warnings if the same module is loaded twice by different files. Imagine this code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;require &#39;lib/Game.pm&#39;;
+require &#39;lib/Game/Asset/Player.pm&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If &lt;code&gt;Game.pm&lt;/code&gt; loads &lt;code&gt;Game::Asset::Player&lt;/code&gt;, Perl will emit the subroutine redefined warning when the second &lt;code&gt;require&lt;/code&gt; statement is executed. I can deal with this in a couple of ways: I could suppress the warning by adding &lt;code&gt;no warnings &#39;redefine&#39;;&lt;/code&gt; to my compile test file. But this would mask genuine warnings that could be helpful, like if I have circular dependencies in my codebase. Or I can convert the filepath into a module name, and then &lt;code&gt;require&lt;/code&gt; won&amp;rsquo;t complain, for example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;require &#39;Game&#39;;
+require &#39;Game::Asset::Player&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For the compile tests, I can use substitute regexes to convert the filepath into a module name. When the compile tests run they won&amp;rsquo;t generate spurious &amp;ldquo;subroutine redefined&amp;rdquo; warnings.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Test::More;
+use lib &#39;lib&#39;;
+use Path::Tiny;
+
+# try to import every .pm file in /lib
+my $dir = path(&#39;lib/&#39;);
+my $iter = $dir-&amp;gt;iterator({
+            recurse         =&amp;gt; 1,
+            follow_symlinks =&amp;gt; 0,
+           });
+while (my $path = $iter-&amp;gt;())
+{
+  next if $path-&amp;gt;is_dir || $path !~ /\.pm$/;
+  my $module = $path-&amp;gt;relative;
+  $module =~ s/(?:^lib\/|\.pm$)//g;
+  $module =~ s/\//::/g;
+  BAIL_OUT( &amp;quot;$module does not compile&amp;quot; ) unless require_ok( $module );
+}
+done_testing;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;additional-thoughts:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;Additional thoughts&lt;/h3&gt;
+
+&lt;p&gt;Another way to write compile tests is using &lt;a href=&#34;https://metacpan.org/pod/Class::Load&#34;&gt;Class::Load&lt;/a&gt; to do the module importing. It has a several useful functions for dynamically loading modules.&lt;/p&gt;
+
+&lt;p&gt;Compile tests are an interesting class of test. They&amp;rsquo;re an implementation of the axiom: &amp;ldquo;the codebase should always compile&amp;rdquo;. Depending on the application, there are other axioms you can test for. For example with a web application, every admin URL should only be accessible to authenticated and authorized users. So you could write a dynamic test that enumerates every admin URL and attempts to fetch it unauthorized (the test fails if any request is successful). For testing Catalyst web applications, you might find my module &lt;a href=&#34;https://metacpan.org/pod/Catalyst::Plugin::ActionPaths&#34;&gt;Catalyst::Plugin::ActionPaths&lt;/a&gt; useful. Testing axioms usually has a high reward for little or no maintenance cost. Seek them out!&lt;/p&gt;
+
+&lt;p&gt;If you ever need to suppress a particular warning, in newer versions of Perl the warnings pragma &lt;a href=&#34;http://perldoc.perl.org/warnings.html&#34;&gt;documentation&lt;/a&gt; lists all of the types of warnings it recognizes. This is especially useful when using experimental features like &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;subroutine signatures&lt;/a&gt;. You can read it for your version of Perl at the command line with:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc warnings
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Check your DuckDuckGo cheatsheets with Perl</title>
+      <link>http://perltricks.com/article/190/2015/8/28/Check-your-DuckDuckGo-cheatsheets-with-Perl/</link>
+      <pubDate>Fri, 28 Aug 2015 02:10:48 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/190/2015/8/28/Check-your-DuckDuckGo-cheatsheets-with-Perl/</guid>
+      <description>
+
+&lt;p&gt;With DuckDuckGo&amp;rsquo;s global &lt;a href=&#34;https://duck.co/blog&#34;&gt;Quack &amp;amp; Hack&lt;/a&gt; just around the corner, I&amp;rsquo;ve pulled together a &lt;a href=&#34;https://github.com/dnmfarrell/DDG-cheatsheet-check&#34;&gt;script&lt;/a&gt; for checking &lt;a href=&#34;http://perltricks.com/article/189/2015/8/22/Writing-DuckDuckGo-plugins-just-got-easier&#34;&gt;cheatsheets&lt;/a&gt;. The script checks the cheatsheet is valid JSON and has the required entries and values.&lt;/p&gt;
+
+&lt;h3 id=&#34;setup:ba1b9af695697190964a2575a16eb6fa&#34;&gt;Setup&lt;/h3&gt;
+
+&lt;p&gt;To run the script, download it from &lt;a href=&#34;https://github.com/dnmfarrell/DDG-cheatsheet-check/blob/master/cheatsheet_check&#34;&gt;Github&lt;/a&gt;. It requires the &lt;a href=&#34;https://metacpan.org/pod/JSON&#34;&gt;JSON&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt; Perl modules which you can install with &lt;code&gt;cpan&lt;/code&gt; at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan JSON HTTP::Tiny
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Be sure to give execute permissions to the script too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ chmod 744 cheatsheet_check
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;usage:ba1b9af695697190964a2575a16eb6fa&#34;&gt;Usage&lt;/h3&gt;
+
+&lt;p&gt;Once you have a cheatsheet in JSON that you want to check, just pass the filepath to &lt;code&gt;cheatsheet_check&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./cheatsheet_check /path/to/cheatsheet.json
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Example output for the &lt;code&gt;perldoc&lt;/code&gt; cheatsheet:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    # Subtest: file
+    ok 1 - file exists
+    ok 2 - filename is appropriate
+    ok 3 - file content can be read
+    ok 4 - content is valid JSON
+    1..4
+ok 1 - file
+    # Subtest: headers
+    ok 1 - has id
+    ok 2 - has name
+    ok 3 - has description
+    1..3
+ok 2 - headers
+    # Subtest: metadata
+    ok 1 - has metadata
+    ok 2 - has metadata sourceName
+    ok 3 - has metadata sourceUrl
+    ok 4 - sourceUrl is not undef
+    ok 5 - fetch sourceUrl
+    1..5
+ok 3 - metadata
+    # Subtest: sections
+    ok 1 - has section_order
+    ok 2 - section_order is an array of section names
+    ok 3 - has sections
+    ok 4 - sections is a hash of section key/pairs
+    ok 5 - &#39;Usage&#39; exists in sections
+    ok 6 - &#39;Module Options&#39; exists in sections
+    ok 7 - &#39;Search Options&#39; exists in sections
+    ok 8 - &#39;Common Options&#39; exists in sections
+    ok 9 - &#39;Search Options&#39; exists in section_order
+    ok 10 - &#39;Search Options&#39; is an array
+    ok 11 - &#39;Search Options&#39; entry: 0 has a key
+    ok 12 - &#39;Search Options&#39; entry: 0 has a val
+    ok 13 - &#39;Search Options&#39; entry: 1 has a key
+    ok 14 - &#39;Search Options&#39; entry: 1 has a val
+    ok 15 - &#39;Search Options&#39; entry: 2 has a key
+    ok 16 - &#39;Search Options&#39; entry: 2 has a val
+    ok 17 - &#39;Common Options&#39; exists in section_order
+    ok 18 - &#39;Common Options&#39; is an array
+    ok 19 - &#39;Common Options&#39; entry: 0 has a key
+    ok 20 - &#39;Common Options&#39; entry: 0 has a val
+    ok 21 - &#39;Common Options&#39; entry: 1 has a key
+    ok 22 - &#39;Common Options&#39; entry: 1 has a val
+    ok 23 - &#39;Common Options&#39; entry: 2 has a key
+    ok 24 - &#39;Common Options&#39; entry: 2 has a val
+    ok 25 - &#39;Common Options&#39; entry: 3 has a key
+    ok 26 - &#39;Common Options&#39; entry: 3 has a val
+    ok 27 - &#39;Common Options&#39; entry: 4 has a key
+    ok 28 - &#39;Common Options&#39; entry: 4 has a val
+    ok 29 - &#39;Module Options&#39; exists in section_order
+    ok 30 - &#39;Module Options&#39; is an array
+    ok 31 - &#39;Module Options&#39; entry: 0 has a key
+    ok 32 - &#39;Module Options&#39; entry: 0 has a val
+    ok 33 - &#39;Module Options&#39; entry: 1 has a key
+    ok 34 - &#39;Module Options&#39; entry: 1 has a val
+    ok 35 - &#39;Module Options&#39; entry: 2 has a key
+    ok 36 - &#39;Module Options&#39; entry: 2 has a val
+    ok 37 - &#39;Module Options&#39; entry: 3 has a key
+    ok 38 - &#39;Module Options&#39; entry: 3 has a val
+    ok 39 - &#39;Usage&#39; exists in section_order
+    ok 40 - &#39;Usage&#39; is an array
+    ok 41 - &#39;Usage&#39; entry: 0 has a key
+    ok 42 - &#39;Usage&#39; entry: 0 has a val
+    ok 43 - &#39;Usage&#39; entry: 1 has a key
+    ok 44 - &#39;Usage&#39; entry: 1 has a val
+    1..44
+ok 4 - sections
+1..4
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will run over 20 different tests against the cheatsheet. The script checks that the JSON is valid, that the required headers are present (e.g. id, name and description). It checks that the metadata is valid and points to a live URL. Finally it checks that the sections are valid and correctly mapped.&lt;/p&gt;
+
+&lt;h3 id=&#34;wrap-up:ba1b9af695697190964a2575a16eb6fa&#34;&gt;Wrap up&lt;/h3&gt;
+
+&lt;p&gt;Remember, even if the cheatsheet passes all the tests, you still need to check it looks right in the browser. &lt;a href=&#34;https://metacpan.org/pod/App::DuckPAN&#34;&gt;App::DuckPAN&lt;/a&gt; can help with that. This Saturday I&amp;rsquo;ll be hanging out at the NYC Quack &amp;amp; Hack at &lt;a href=&#34;http://www.meetup.com/Quack-Hack-New-York-City/events/224567174/&#34;&gt;Orbital&lt;/a&gt;. I look forward to seeing everyone there!&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update:&lt;/strong&gt; added HTTP::Tiny dependency. 2015-08-28&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Separate data and behavior with table-driven testing</title>
+      <link>http://perltricks.com/article/178/2015/6/17/Separate-data-and-behavior-with-table-driven-testing/</link>
+      <pubDate>Wed, 17 Jun 2015 13:09:04 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/178/2015/6/17/Separate-data-and-behavior-with-table-driven-testing/</guid>
+      <description>&lt;p&gt;How can I easily run the same tests on different data without duplicating a lot of code? If I follow my usual pattern, I start off with a couple of tests where I write some code then cut-and-paste that a couple of times. I add a few more tests before I realize I have a mess. If I had the foresight to know that I would make a mess (again), I would have started with a table of data and a little bit of code that went through it.&lt;/p&gt;
+
+&lt;p&gt;Consider a silly and small example of testing &lt;code&gt;sprintf&lt;/code&gt;-like behavior of &lt;a href=&#34;https://metacpan.org/pod/String::Sprintf&#34;&gt;String::Sprintf&lt;/a&gt;. I can use this module to create my own format specifiers, such as one to commify a number. I stole this mostly from its documentation, although I threw in the &lt;a href=&#34;http://www.effectiveperlprogramming.com/2015/04/use-v5-20-subroutine-signatures/&#34;&gt;v5.20 signatures feature&lt;/a&gt; and the &lt;a href=&#34;http://www.effectiveperlprogramming.com/2010/09/use-the-r-substitution-flag-to-work-on-a-copy/&#34;&gt;v5.14 non-destructive substitution operator&lt;/a&gt; because I love those features:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.20;
+use feature qw(signatures);
+no warnings qw(experimental::signatures);
+
+use String::Sprintf;
+
+my $f = String::Sprintf-&amp;gt;formatter(
+  N =&amp;gt; sub {
+    my($width, $value, $values, $letter) = @_;
+    return commify(sprintf &amp;quot;%${width}f&amp;quot;, $value);
+  });
+
+say &amp;quot;Numbers are: &amp;quot; . 
+  $f-&amp;gt;sprintf(
+    &#39;%10.2N, %10.2N&#39;, 
+    12345678.901, 87654.321
+  );
+
+sub commify ( $n ) {
+  $n =~ s/(\.\d+)|(?&amp;lt;=\d)(?=(?:\d\d\d)+\b)/$1 || &#39;,&#39;/rge;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;Numbers are: 12,345,678.90,   87,654.32
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The mess I might make to test this starts with a single input and output with the &lt;a href=&#34;https://metacpan.org/pod/Test::More&#34;&gt;Test::More&lt;/a&gt; function &lt;code&gt;is&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.20;
+use feature qw(signatures);
+no warnings qw(experimental::signatures);
+
+use Test::More;
+    
+sub commify ( $n ) {
+  $n =~ s/(\.\d+)|(?&amp;lt;=\d)(?=(?:\d\d\d)+\b)/$1 || &#39;,&#39;/rge;
+}
+
+my $class = &#39;String::Sprintf&#39;;  
+use_ok( $class );
+    
+my $f = String::Sprintf-&amp;gt;formatter(
+  N =&amp;gt; sub {
+    my($width, $value, $values, $letter) = @_;
+    return commify(sprintf &amp;quot;%${width}f&amp;quot;, $value);
+  });
+    
+isa_ok(  $f, $class );
+can_ok( $f, &#39;sprintf&#39; );
+
+is(  $f-&amp;gt;sprintf( &#39;%.2N&#39;, &#39;1234.56&#39; ), &#39;1,234.56&#39; );
+
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I decide to test another value, and I think the easiest thing to do is to duplicate that line with &lt;code&gt;is&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;is(  $f-&amp;gt;sprintf( &#39;%.2N&#39;, &#39;1234.56&#39; ), &#39;1,234.56&#39; );
+is(  $f-&amp;gt;sprintf( &#39;%.2N&#39;, &#39;1234&#39; ),    &#39;1,234.00&#39; );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The particular thing to test isn&amp;rsquo;t the point of this article. It&amp;rsquo;s all the stuff around it that I want to highlight. Or, more correctly, I want to de-emphasize all this stuff around it. I had to duplicate the test although most of the structure is the same.&lt;/p&gt;
+
+&lt;p&gt;I can convert those tests to a structure to hold the data and another structure for the behavior:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @data = (
+    [ ( 1234.56, &#39;1,234.56&#39; ) ],
+    [ ( 1234,    &#39;1,234.00&#39; ) ],
+);
+
+foreach my $row ( @data ) {
+  is(  $f-&amp;gt;sprintf( &#39;%.2N&#39;, $row-&amp;gt;[0] ), $row-&amp;gt;[1] );
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can add many more rows to &lt;code&gt;@data&lt;/code&gt; but the meat of the code, that &lt;code&gt;foreach&lt;/code&gt; loop, doesn&amp;rsquo;t change.&lt;/p&gt;
+
+&lt;p&gt;I can improve this though. So far I only test that one &lt;code&gt;sprintf&lt;/code&gt; template. I can add that to &lt;code&gt;@data&lt;/code&gt; too, and use that to make a label for the test:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $ndot2_f = &#39;%.2N&#39;;
+
+my @data = (
+    [ $ndot2_f,( 1234.56, &#39;1,234.56&#39; ) ],
+    [ $ndot2_f, ( 1234,    &#39;1,234.00&#39; ) ],
+);
+
+foreach my $row ( @data ) {
+  is( $f-&amp;gt;sprintf( $row-&amp;gt;[0], $row-&amp;gt;[1] ), $row-&amp;gt;[2],
+       &amp;quot;$row-&amp;gt;[1] with format $row-&amp;gt;[0] returns $row-&amp;gt;[2]&amp;quot;
+   );
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can add another test with a different format. If I had kept going the way I started, this would look like a new test because the format changed. Now the format is just part of the input:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $ndot2_f = &#39;%.2N&#39;;
+
+my @data = (
+    [ $ndot2_f, ( 1234.56, &#39;1,234.56&#39; ) ],
+    [ $ndot2_f, ( 1234,    &#39;1,234.00&#39; ) ],
+    [ &#39;%.0N&#39;  , ( 1234.49, &#39;1,234&#39;    ) ],
+);
+
+foreach my $row ( @data ) {
+  is( $f-&amp;gt;sprintf( $row-&amp;gt;[0], $row-&amp;gt;[1] ), $row-&amp;gt;[2],
+       &amp;quot;$row-&amp;gt;[1] with format $row-&amp;gt;[0] returns $row-&amp;gt;[2]&amp;quot;
+  );
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As I go on things get more complicated. If a test fails, I want some extra information about which one failed. I&amp;rsquo;ll change up how I go through the table. In this case, I&amp;rsquo;ll use the &lt;a href=&#34;http://www.effectiveperlprogramming.com/2010/05/perl-5-12-lets-you-use-each-on-an-array/&#34;&gt;v5.12 feature&lt;/a&gt; that allows &lt;code&gt;each&lt;/code&gt; on an array so I get back the index and the value:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;while( my( $index, $row ) = each @data ) {
+  is( $f-&amp;gt;sprintf( $row-&amp;gt;[0], $row-&amp;gt;[1] ), $row-&amp;gt;[2],
+       &amp;quot;$index: $row-&amp;gt;[1] with format $row-&amp;gt;[0] returns $row-&amp;gt;[2]&amp;quot;
+  );
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;My code for the test behavior changed but I didn&amp;rsquo;t have to mess with the input data at all. The particular code in this case doesn&amp;rsquo;t matter. This table-driven testing separates the inputs and the tests; that&amp;rsquo;s what you should pay attention to.&lt;/p&gt;
+
+&lt;p&gt;It can get even better. So far, I&amp;rsquo;ve put all the input data in the test file itself, but now that it&amp;rsquo;s separate from the test code, I can grab the input from somewhere else. That might be a tab-separated values file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;%.2N   1234.56 1,234.56 
+%.2N    1234    1,234.00
+%.0N    1234.49 1,234
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I create &lt;code&gt;@data&lt;/code&gt; in the test file by reading and parsing the external file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $test_data_fh, &#39;&amp;lt;&#39;, $test_file_name or die ...;
+
+my @data;
+while( &amp;lt;$test_data_fh&amp;gt; ) {
+  chomp;
+  push @data, split /\t/;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now none of the data are in the test file. And, there&amp;rsquo;s nothing special about a simple text file. I could do a little bit more work to take the data from an Excel file (perhaps the most useful wizard skill in business) or even a database:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use DBI;
+    
+my $dbh = DBI-&amp;gt;connect( ... );
+my $sth = $dbh-&amp;gt;prepare( &#39;SELECT * FROM tests&#39; );
+    
+$sth-&amp;gt;execute();
+    
+while( my $row = $sth-&amp;gt;fetchrow_arrayref ) {
+  state $index = 0;
+
+  is( $f-&amp;gt;sprintf( $row-&amp;gt;[0], $row-&amp;gt;[1] ), $row-&amp;gt;[2],
+       $index++ . &amp;quot;: $row-&amp;gt;[1] with format $row-&amp;gt;[0] returns $row-&amp;gt;[2]&amp;quot;
+  );
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s the idea. I separate the data and the tests to give myself some flexibility. How I access the data and how I test depend on my particular problems.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Get to grips with Prove, Perl&#39;s test workhorse</title>
+      <link>http://perltricks.com/article/177/2015/6/9/Get-to-grips-with-Prove--Perl-s-test-workhorse/</link>
+      <pubDate>Tue, 09 Jun 2015 12:59:02 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/177/2015/6/9/Get-to-grips-with-Prove--Perl-s-test-workhorse/</guid>
+      <description>
+
+&lt;p&gt;Prove is a test running tool that ships with Perl. It has a ton of options, which can make it confusing for a beginner to use. If you have never used prove, or are not confident using it, do not despair! This article will get you up to speed with prove and it&amp;rsquo;s most common options.&lt;/p&gt;
+
+&lt;h3 id=&#34;basics:21cbf2b2f91d9b431c49ffbcae20ce43&#34;&gt;Basics&lt;/h3&gt;
+
+&lt;p&gt;If you have Perl installed, you should already have Prove installed as well. To demo the features of Prove, I&amp;rsquo;m going to clone the Mojolicious repo using Git. I like demoing Prove with Mojolicious as it has a large test suite. At the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git clone https://github.com/kraih/mojo
+$ cd mojo
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So I&amp;rsquo;ve cloned the Mojolicious repo and changed into the project directory. Now I&amp;rsquo;m ready to run some tests with Prove!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -l t/mojo/asset.t
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I executed Prove using the &lt;code&gt;prove&lt;/code&gt; command. I included the &lt;code&gt;-l&lt;/code&gt; option so that Prove would load the Mojolicious code beneath the &lt;code&gt;lib&lt;/code&gt; directory. If I didn&amp;rsquo;t do this, Perl would not find the Mojolicious code referenced in &lt;code&gt;t/mojo/asset.t&lt;/code&gt; and raise an error, or perhaps worse, it might run the tests against an older version of Mojolicious I already had installed on my system.&lt;/p&gt;
+
+&lt;p&gt;Sometimes the code to include is not directly in the &lt;code&gt;lib&lt;/code&gt; directory. For these cases Prove has the &lt;code&gt;-I&lt;/code&gt; option for &amp;ldquo;include&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;prove -I/path/to/lib /path/to/test_file
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Prove can run a single test file, or if given a directory containing multiple test files, with will execute them all:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -l t/mojo
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This runs all the test files in &lt;code&gt;t/mojo&lt;/code&gt; directory.&lt;/p&gt;
+
+&lt;h3 id=&#34;recursively-execute-test-files-with-r:21cbf2b2f91d9b431c49ffbcae20ce43&#34;&gt;Recursively execute test files with &amp;ldquo;r&amp;rdquo;&lt;/h3&gt;
+
+&lt;p&gt;The Mojolicious project has test files in several different directories beneath the &lt;code&gt;t&lt;/code&gt; directory. It would be tiresome to locate all of these directory paths and give them to Prove. Instead, Prove provides the &lt;code&gt;-r&lt;/code&gt; option to recursively search for test files.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -lr
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This option executed every test file under the &lt;code&gt;t&lt;/code&gt; directory, about 10,000 tests across 85 different files. Pretty convenient huh? Note that I didn&amp;rsquo;t provide the &lt;code&gt;t&lt;/code&gt; directory as an argument, because Prove searches the &lt;code&gt;t&lt;/code&gt; directory by default. Now that&amp;rsquo;s convenience!&lt;/p&gt;
+
+&lt;h3 id=&#34;run-tests-in-parallel-using-j:21cbf2b2f91d9b431c49ffbcae20ce43&#34;&gt;Run tests in parallel using &amp;ldquo;j&amp;rdquo;&lt;/h3&gt;
+
+&lt;p&gt;The ability to run lots of test files is useful, but it can take a long time to run all of the tests. On my machine, executing the Mojolicious test suite takes 32 seconds. To speed things up, Prove can run test files in parallel, to share the work across multiple processes. To do this I just add the &lt;code&gt;-j&lt;/code&gt; option plus the number of processes I want to use. I have a quad core machine, so I&amp;rsquo;m going to use 4 different processes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -lr -j 4
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This time, prove executed all the tests in 12 seconds. That&amp;rsquo;s a 266% speed-up, not bad!&lt;/p&gt;
+
+&lt;h3 id=&#34;get-more-detail-with-v-for-verbose:21cbf2b2f91d9b431c49ffbcae20ce43&#34;&gt;Get more detail with &amp;ldquo;v&amp;rdquo; for verbose&lt;/h3&gt;
+
+&lt;p&gt;To minimize line noise, by default Prove provides summary-level statistics and low-level detail for test failures. Sometimes it&amp;rsquo;s useful to see the output for each test. I can see this detail by adding the &lt;code&gt;-v&lt;/code&gt; option for &amp;ldquo;verbose&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -lrv
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;running-perl-6-tests:21cbf2b2f91d9b431c49ffbcae20ce43&#34;&gt;Running Perl 6 tests&lt;/h3&gt;
+
+&lt;p&gt;Prove can run tests for other languages, as long as the tests follow the Test Anything Protocol. Perl 6 unit tests follow TAP, so we can use Prove to run Perl 6 tests too! I can demo this on my Perl 6 module, &lt;a href=&#34;https://github.com/dnmfarrell/URI-Encode&#34;&gt;URI::Encode&lt;/a&gt;. To follow along, just clone the repo with Git:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git clone https://github.com/dnmfarrell/URI-Encode
+$ cd URI-Encode
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To run non Perl tests with Prove, we need to pass the &lt;code&gt;--exec&lt;/code&gt; option, with a program name. That tells Prove which program to execute the tests with. Like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove --exec perl6
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that I didn&amp;rsquo;t have to pass the filepath of which tests to run. It&amp;rsquo;s just lucky that by convention Perl6 modules have their tests in the &lt;code&gt;t&lt;/code&gt; directory, usually with a &lt;code&gt;.t&lt;/code&gt; extension. For other languages, you&amp;rsquo;ll need to specify the test filepath:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove --exec some_program /path/to/testfile
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;documentation:21cbf2b2f91d9b431c49ffbcae20ce43&#34;&gt;Documentation&lt;/h3&gt;
+
+&lt;p&gt;You can get a summary of the options Prove accepts by using the &lt;code&gt;-h&lt;/code&gt; option for help:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -h
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For more detailed documentation, use &lt;code&gt;perldoc&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc prove
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Perldoc is another useful Perl tool, if you&amp;rsquo;d like to know more about it, have a look at our introductory &lt;a href=&#34;http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster&#34;&gt;article&lt;/a&gt;. Prove also has a man page entry (if you&amp;rsquo;re on Unix/BSD based systems).&lt;/p&gt;
+
+&lt;h3 id=&#34;prove-cheat-sheet:21cbf2b2f91d9b431c49ffbcae20ce43&#34;&gt;Prove Cheat sheet&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;prove [options] [filepath]
+
+Options
+-------
+l       Include the &amp;quot;lib&amp;quot; dir
+I       Include a dir: -I/path/to/lib
+r       Recursively search and run test files
+j       Parallel, specify # procs: -j 4
+v       Verbose test output
+h       Help, summary of options
+exec    Exec tests in another program: --exec perl6
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Unit test your code on an in-memory database</title>
+      <link>http://perltricks.com/article/167/2015/4/15/Unit-test-your-code-on-an-in-memory-database/</link>
+      <pubDate>Wed, 15 Apr 2015 03:05:00 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/167/2015/4/15/Unit-test-your-code-on-an-in-memory-database/</guid>
+      <description>
+
+&lt;p&gt;Unit test scripts should be independent, stateless and free from side-effects. These ideals are not always achievable but by using tools like mock objects we can often get close. Some functionality is harder to test than others though; for example how do you test database interface code? Databases have state - even if you reset the data after you&amp;rsquo;ve tested it, there&amp;rsquo;s no guarantee the data is the same, or that other code hasn&amp;rsquo;t accessed the database during the test execution.&lt;/p&gt;
+
+&lt;p&gt;One way to deal with this is to create an in-memory database, visible only to the unit testing process and automatically deleted once the tests have completed. Fortunately it&amp;rsquo;s really easy to do this with SQLite3 and Perl.&lt;/p&gt;
+
+&lt;h3 id=&#34;dbi:03c65913e1217b9d9e3f5eed982602df&#34;&gt;DBI&lt;/h3&gt;
+
+&lt;p&gt;The Perl &lt;a href=&#34;https://metacpan.org/pod/DBI&#34;&gt;DBI&lt;/a&gt; module is the de-facto way of accessing relational databases in Perl. To create an in-memory database, I can use call &lt;code&gt;connect&lt;/code&gt; specifying the SQLite driver, and the database name as &amp;ldquo;:memory:&amp;ldquo;. This returns a database handle to a new, in memory SQLite3 database.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::More;
+use DBI;
+
+# load in-memory db
+my $dbh = DBI-&amp;gt;connect(&#39;dbi:SQLite:dbname=:memory:&#39;,&#39;&#39;,&#39;&#39;);
+
+# create tables
+my $create_table_script =
+  do {  local $/; 
+        open my $SQL, &#39;&amp;lt;&#39;, &#39;create_tables.sql&#39;;
+        &amp;lt;$SQL&amp;gt;;
+     };  
+
+my $sth = 
+  $dbh-&amp;gt;prepare($create_table_script) or BAIL_OUT ($dbh-&amp;gt;errstr);
+$sth-&amp;gt;execute or BAIL_OUT($sth-&amp;gt;errstr);
+
+# add unit tests here ...
+
+done_testing;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;From here I slurp a SQL script for creating the tables into a string and use the database handle to execute it. The &lt;code&gt;BAIL_OUT&lt;/code&gt; function is called if any of the database steps fail, ending the testing prematurely. At this point I have a brand new database with fresh tables, ready for testing.&lt;/p&gt;
+
+&lt;h3 id=&#34;dbix-class:03c65913e1217b9d9e3f5eed982602df&#34;&gt;DBIx::Class&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/DBIx::Class&#34;&gt;DBIx::Class&lt;/a&gt;, the Perl ORM uses the same underlying technology as DBI, but because it creates Perl classes representing each table, I can leverage that code to make the database setup even easier than with vanilla DBI:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::More;
+use SomeApp::Schema;
+
+# load an in-memory database and deploy the required tables
+SomeApp::Schema-&amp;gt;connection(&#39;dbi:SQLite:dbname=:memory:&#39;,&#39;&#39;,&#39;&#39;);
+SomeApp::Schema-&amp;gt;load_namespaces;
+SomeApp::Schema-&amp;gt;deploy;
+
+# add unit tests here ...
+
+done_testing;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;m using an example app, called &lt;code&gt;SomeApp&lt;/code&gt; to demonstrate. First the &lt;code&gt;connection&lt;/code&gt; is set to the same database connection string as with the DBI example. The &lt;code&gt;load_namespaces&lt;/code&gt; method loads all of the result and resultset DBIx::Class modules in the application and &lt;code&gt;deploy&lt;/code&gt; creates them on the in-memory database. Obviously this approach requires that you&amp;rsquo;ve already created the DBIx::Class files. If you haven&amp;rsquo;t done that yet, but you have an application database with the tables in it, you can use the &lt;code&gt;dbicdump&lt;/code&gt; command from &lt;a href=&#34;https://metacpan.org/pod/DBIx::Class::Schema::Loader&#34;&gt;DBIx::Class::Schema::Loader&lt;/a&gt; to auto generate them for you.&lt;/p&gt;
+
+&lt;h3 id=&#34;not-just-for-testing:03c65913e1217b9d9e3f5eed982602df&#34;&gt;Not just for testing&lt;/h3&gt;
+
+&lt;p&gt;The in-memory feature of SQLite is provided by &lt;a href=&#34;https://metacpan.org/pod/DBD::SQLite&#34;&gt;DBD::SQLite&lt;/a&gt;, the DBI driver. It&amp;rsquo;s a cool feature, and could be used for more than just unit testing. Anytime you have a need for a temporary relational datastore, consider this; it&amp;rsquo;s fast, is portable and automatically cleans itself up when the program ends.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Quickly Debug your Perl code at the command line</title>
+      <link>http://perltricks.com/article/160/2015/3/13/Quickly-Debug-your-Perl-code-at-the-command-line/</link>
+      <pubDate>Fri, 13 Mar 2015 13:34:06 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/160/2015/3/13/Quickly-Debug-your-Perl-code-at-the-command-line/</guid>
+      <description>
+
+&lt;p&gt;I remember when I first started programming in Perl, whenever something wasn&amp;rsquo;t working as I expected it to, I would write a quick script to isolate the problem and test it. I didn&amp;rsquo;t give the scripts good names; they were throwaway, and soon I had hundreds of useless Perl scripts littered all over my hard drive.&lt;/p&gt;
+
+&lt;p&gt;I rarely write scripts like that anymore. If I&amp;rsquo;m developing a module, I&amp;rsquo;ll write a unit test to bottom-out whatever problem I&amp;rsquo;m investigating - that way I&amp;rsquo;m making an investment instead of throwing code away. Most of the time however, I just write a one liner, which is a single line of Perl code typed directly into the terminal. One liners are fast to type and they hang around in your terminal history for quick iterations. So if you find yourself needing to test a particular function is doing what you think it does, or are unsure if you&amp;rsquo;re carefully-crafted regex works, write a one liner.&lt;/p&gt;
+
+&lt;h3 id=&#34;one-liner-basics:13cc8d082772e2403612220d551b65fb&#34;&gt;One liner basics&lt;/h3&gt;
+
+&lt;p&gt;Perl has a ton of command line switches (see &lt;code&gt;perldoc perlrun&lt;/code&gt;), but I&amp;rsquo;m just going to cover the ones you&amp;rsquo;ll commonly need to debug code. The most important switch is &lt;code&gt;-e&lt;/code&gt;, for execute (or maybe &amp;ldquo;engage&amp;rdquo; :) ). The &lt;code&gt;-e&lt;/code&gt; switch takes a quoted string of Perl code and executes it. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -e &#39;print &amp;quot;Hello, World!\n&amp;quot;&#39;
+Hello, World!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;rsquo;s important that you use single-quotes to quote the code for &lt;code&gt;-e&lt;/code&gt;. This usually means you can&amp;rsquo;t use single-quotes within the one liner code. If you&amp;rsquo;re using Windows cmd.exe or PowerShell, you must use double-quotes instead.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m always forgetting what Perl&amp;rsquo;s predefined special variables do, and often test them at the command line with a one liner to see what they contain. For instance do you remember what &lt;code&gt;$^O&lt;/code&gt; is?&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -e &#39;print &amp;quot;$^O\n&amp;quot;&#39;
+linux
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;rsquo;s the operating system name. With that cleared up, let&amp;rsquo;s see what else we can do. If you&amp;rsquo;re using a relatively new Perl (5.10.0 or higher) you can use the &lt;code&gt;-E&lt;/code&gt; switch instead of &lt;code&gt;-e&lt;/code&gt;. This turns on some of Perl&amp;rsquo;s newer features, like &lt;code&gt;say&lt;/code&gt;, which prints a string and appends a newline to it. This saves typing and makes the code cleaner:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -E &#39;say &amp;quot;$^O&amp;quot;&#39;
+linux
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Pretty handy! &lt;code&gt;say&lt;/code&gt; is a nifty feature that you&amp;rsquo;ll use again and again.&lt;/p&gt;
+
+&lt;h3 id=&#34;v-is-for-version:13cc8d082772e2403612220d551b65fb&#34;&gt;V is for version&lt;/h3&gt;
+
+&lt;p&gt;If you ever need to check which version of Perl is installed on your system, use the &lt;code&gt;-v&lt;/code&gt; switch:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -v
+
+This is perl 5, version 20, subversion 2 (v5.20.2) built for x86_64-linux
+(with 1 registered patch, see perl -V for more detail)
+
+Copyright 1987-2015, Larry Wall
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Quick tip: if you need detailed information about the installed Perl version, use a capital: &lt;code&gt;-V&lt;/code&gt; instead.&lt;/p&gt;
+
+&lt;h3 id=&#34;load-modules-with-m:13cc8d082772e2403612220d551b65fb&#34;&gt;Load modules with M&lt;/h3&gt;
+
+&lt;p&gt;Modules can be loaded at the command line too. For instance to download and print the PerlTricks.com homepage, I can use &lt;a href=&#34;https://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -MHTTP::Tiny -E &#39;say HTTP::Tiny-&amp;gt;new-&amp;gt;get(&amp;quot;http://perltricks.com&amp;quot;)-&amp;gt;{content}&#39;;
+&amp;lt;!DOCTYPE html&amp;gt;
+&amp;lt;html lang=&amp;quot;en&amp;quot;&amp;gt;
+  &amp;lt;head&amp;gt;
+    &amp;lt;title&amp;gt;PerlTricks.com - Perl programming news, code and culture&amp;lt;/title&amp;gt;
+    &amp;lt;meta charset=&amp;quot;utf-8&amp;quot;&amp;gt;
+   ,,,
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you need to import functions from a module, use an equals sign followed by a comma separated list of function names. I can check if an XML file is valid XML with &lt;a href=&#34;https://metacpan.org/pod/XML::Simple&#34;&gt;XML::Simple&lt;/a&gt; and it&amp;rsquo;s &lt;code&gt;XMLin&lt;/code&gt; function just by loading the XML file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -MXML::Simple=XMLin -e &#39;XMLin(&amp;quot;data.xml&amp;quot;)&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If &lt;code&gt;XMLin&lt;/code&gt; doesn&amp;rsquo;t emit any warnings or exceptions, the data is probably correctly formatted.&lt;/p&gt;
+
+&lt;h3 id=&#34;turn-on-warnings-with-w:13cc8d082772e2403612220d551b65fb&#34;&gt;Turn on warnings with w&lt;/h3&gt;
+
+&lt;p&gt;This one is pretty simple: use &lt;code&gt;-w&lt;/code&gt; to turn on warnings. This can be incredibly helpful when code is not behaving the way you think it should. Warnings can help you identify issues that would otherwise be hard to spot:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -E &#39;$counter = 2; $countor = 3; say $counter&#39;
+2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Hmm &lt;code&gt;$counter&lt;/code&gt; should be 3 shouldn&amp;rsquo;t it? Turning on warnings quickly identifies the issue:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -wE &#39;$counter = 2; $countor = 3; say $counter&#39;
+Name &amp;quot;main::countor&amp;quot; used only once: possible typo at -e line 1.
+2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There are plenty of more subtle bugs that warnings won&amp;rsquo;t identify directly, but the fact that Perl issues a warning puts you onto the fact that something is wrong. Take this example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -MTry::Tiny -wE &#39;$pass; try { $pass = &amp;quot;true&amp;quot; } catch { say $_ } return $pass if $pass or die&#39;
+Useless use of a variable in void context at -e line 1.
+Died at -e line 1.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Can you see what&amp;rsquo;s wrong here? The &lt;code&gt;catch&lt;/code&gt; block is missing a trailing semicolon. With warnings turned on, you can see that &lt;em&gt;something&lt;/em&gt; is up, but it&amp;rsquo;s not obvious what&amp;rsquo;s wrong.&lt;/p&gt;
+
+&lt;h3 id=&#34;use-i-to-include-directories:13cc8d082772e2403612220d551b65fb&#34;&gt;Use I to include directories&lt;/h3&gt;
+
+&lt;p&gt;Sometimes you&amp;rsquo;ll be working with modules that are not installed in Perl&amp;rsquo;s standard locations. This often happens when you&amp;rsquo;re debugging an application but it&amp;rsquo;s not installed via CPAN. To demonstrate this, I&amp;rsquo;ll download my &lt;a href=&#34;https://metacpan.org/pod/WWW::curlmyip&#34;&gt;WWW::curlmyip&lt;/a&gt; module:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan -g WWW::curlmyip
+$~ tar xzf WWW-curlmyip-0.02.tar.gz 
+$ cd WWW-curlmyip-0.02/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;WWW::curlmyip exports a function called &lt;code&gt;get_ip&lt;/code&gt; which returns your external IP address. I can use it in a one liner:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -MWWW::curlmyip -E &#39;say get_ip&#39;
+Can&#39;t locate WWW/curlmyip.pm in @INC (you may need to install the WWW::curlmyip module) (@INC contains: /home/dfarrell/.plenv/versions/5.20.2/lib/perl5/site_perl/5.20.2/x86_64-linux /home/dfarrell/.plenv/versions/5.20.2/lib/perl5/site_perl/5.20.2 /home/dfarrell/.plenv/versions/5.20.2/lib/perl5/5.20.2/x86_64-linux /home/dfarrell/.plenv/versions/5.20.2/lib/perl5/5.20.2 .).
+BEGIN failed--compilation aborted.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That didn&amp;rsquo;t work. Perl is complaining that it can&amp;rsquo;t find WWW::curlmyip. To fix this, I can include the distribution &lt;code&gt;lib&lt;/code&gt; directory that contains the module using &lt;code&gt;-I&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -Ilib -MWWW::curlmyip -E &#39;say get_ip&#39;
+100.241.20.7
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And the &lt;code&gt;get_ip&lt;/code&gt; function now works.&lt;/p&gt;
+
+&lt;h3 id=&#34;wrap-up:13cc8d082772e2403612220d551b65fb&#34;&gt;Wrap-up&lt;/h3&gt;
+
+&lt;p&gt;If you ever need to check the one liner syntax, just run &lt;code&gt;perl -h&lt;/code&gt; to get a summary of the available options. Another good resource is the official documentation, which you can read at the terminal with &lt;code&gt;perldoc perlrun&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;This article has covered the most common command line switches used for debugging code but a whole book could be written about Perl one liners. In fact, one has: &lt;a href=&#34;http://www.catonmat.net/blog/perl-one-liners-no-starch-press/&#34;&gt;Perl One-Liners&lt;/a&gt; by Peteris Krummins. In the book Peteris describes the various command line switches with example programs. It also has an excellent &amp;ldquo;how to&amp;rdquo; for running one liners on Windows.&lt;/p&gt;
+
+&lt;p&gt;Finally, Perl 6 also has excellent one liner support and the switches are mostly the same as Perl 5. If you&amp;rsquo;re interested, check out our article &lt;a href=&#34;http://perltricks.com/article/136/2014/11/20/Get-started-with-Perl-6-one-liners&#34;&gt;Get started with Perl 6 one liners&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to test for exceptions in Perl</title>
+      <link>http://perltricks.com/article/157/2015/3/5/How-to-test-for-exceptions-in-Perl/</link>
+      <pubDate>Thu, 05 Mar 2015 13:27:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/157/2015/3/5/How-to-test-for-exceptions-in-Perl/</guid>
+      <description>
+
+&lt;p&gt;Most Perl programmers are familiar with &lt;a href=&#34;https://metacpan.org/pod/Test::More&#34;&gt;Test::More&lt;/a&gt;; it&amp;rsquo;s the go-to library for writing unit tests in Perl. But Test::More doesn&amp;rsquo;t provide functions for testing exceptions. For that you&amp;rsquo;ll need &lt;a href=&#34;https://metacpan.org/pod/Test::Exception&#34;&gt;Test::Exception&lt;/a&gt;. And good code throws exceptions - Paul Fenwick &lt;a href=&#34;http://perltraining.com.au/tips/2008-08-20.html&#34;&gt;once&lt;/a&gt; summed this approach nicely:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;bIlujDI&#39; yIchegh()Qo&#39;; yIHegh()!
+
+It is better to die() than to return() in failure.
+
+    -- Klingon programming proverb.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The simplest way to throw an exception is with Perl&amp;rsquo;s built-in &lt;code&gt;die&lt;/code&gt; function. Just like Test::More makes it easy to test that subroutines return the right values, Test::Exception makes it easy to check the code is &lt;em&gt;dying&lt;/em&gt; in the right way (and &lt;a href=&#34;https://metacpan.org/pod/Test::Fatal&#34;&gt;Test::Fatal&lt;/a&gt; is a good alternative).&lt;/p&gt;
+
+&lt;h3 id=&#34;did-my-code-die-ok:e7d97283f2b325db6a8881183934ffb4&#34;&gt;Did my code die ok?&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s say we&amp;rsquo;re writing unit tests for the following package which exports the &lt;code&gt;double_integer&lt;/code&gt; subroutine:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Double;
+use Exporter;
+@ISA = &#39;Exporter&#39;;
+@EXPORT = &#39;double_integer&#39;;
+
+sub double_integer
+{
+  my ($number) = @_;
+  die &#39;double_integer() requires a positive integer as an argument&#39;
+    unless defined $number &amp;amp;&amp;amp; $number =~ /^\d+$/;
+
+  return $number * 2;
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code will &lt;code&gt;die&lt;/code&gt; unless the double_integer subroutine is called with a positive integer. I&amp;rsquo;ll save this package as &lt;code&gt;Double.pm&lt;/code&gt;. Let&amp;rsquo;s write a test script for this package. Test::Exception exports the &lt;code&gt;dies_ok&lt;/code&gt; function that checks the code dies as expected:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::Exception tests =&amp;gt; 1;
+use Double;
+
+dies_ok { double_integer() } &#39;double_integer() dies with no number&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;dies_ok&lt;/code&gt; is clever, it won&amp;rsquo;t actually let your code die and the program exit, as that would interrupt testing! Instead it catches any thrown exceptions so testing can continue. My program should also die if &lt;code&gt;double_integer&lt;/code&gt; is called with a non-number as an argument. I can add more tests for some common scenarios:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::Exception test =&amp;gt; 6;
+use Double;
+
+dies_ok { double_integer() } &#39;double_integer() dies with no number&#39;;
+dies_ok { double_integer(undef) } &#39;double_integer() dies with undef&#39;;
+dies_ok { double_integer(&#39;abc&#39;) } &#39;double_integer() dies with text&#39;;
+dies_ok { double_integer(&#39;1 two&#39;) } &#39;double_integer() dies with mixed&#39;;
+dies_ok { double_integer(&#39;-7&#39;) } &#39;double_integer() dies with a negative&#39;;
+dies_ok { double_integer(&#39;2.5&#39;) } &#39;double_integer() dies with a decimal&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can also check the code throws the right exception with &lt;code&gt;throws_ok&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::Exception tests =&amp;gt; 1;
+use Double;
+
+throws_ok { double_integer() } qr/requires a positive integer/, 
+  &#39;double_integer() requires a positive integer&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;throws_ok&lt;/code&gt; function checks that the code throws an exception, but also that the exception message matches a regex. This is useful if you have several different conditions that may throw different types of exceptions: imagine with a web application, you&amp;rsquo;d want to throw a different exception code if the user requested a page they didn&amp;rsquo;t have permission to access (403) versus requesting a non-existent page (404).&lt;/p&gt;
+
+&lt;p&gt;Test::Exception is fully compatible with Test::More so you can combine functions from both libraries in the same file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::More;
+use Test::Exception;
+use Double;
+
+# test arg validation works
+dies_ok { double_integer() } &#39;double_integer() dies with no number&#39;;
+dies_ok { double_integer(undef) } &#39;double_integer() dies with undef&#39;;
+dies_ok { double_integer(&#39;abc&#39;) } &#39;double_integer() dies with text&#39;;
+dies_ok { double_integer(&#39;1 two&#39;) } &#39;double_integer() dies with mixed&#39;;
+dies_ok { double_integer(&#39;-7&#39;) } &#39;double_integer() dies with a negative&#39;;
+dies_ok { double_integer(&#39;2.5&#39;) } &#39;double_integer() dies with a decimal&#39;;
+
+# test exception message
+throws_ok { double_integer() } qr/requires a positive integer/, 
+  &#39;double_integer() requires a positive integer&#39;;
+
+# test double_integer works
+lives_ok { double_integer(1) } &#39;calling double() with a number lives&#39;;
+is double_integer(0), 0, &#39;zero doubled is zero&#39;;
+is double_integer(2), 4, &#39;two doubled is four&#39;;
+is double_integer(999), 1998, 
+  &#39;nine nine nine doubled is one nine nine eight&#39;;
+
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now the test script checks both that the function throws the appropriate exception when the argument is wrong, and it returns the argument doubled when the argument is valid. If I save this test file as &lt;code&gt;Double.t&lt;/code&gt; I can run the tests at the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl Double.t
+ok 1 - double_integer() dies with no number
+ok 2 - double_integer() dies with undef
+ok 3 - double_integer() dies with text
+ok 4 - double_integer() dies with mixed
+ok 5 - double_integer() dies with a negative
+ok 6 - double_integer() dies with a decimal
+ok 7 - double_integer() requires a positive integer
+ok 8 - calling double() with a number lives
+ok 9 - zero doubled is zero
+ok 10 - two doubled is four
+ok 11 - nine nine nine doubled is one nine nine eight
+1..11
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All the tests pass. &lt;a href=&#34;https://metacpan.org/pod/Test::Exception&#34;&gt;Test::Exception&lt;/a&gt; has great documentation and is easy to use, so add exception testing to your code today!&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Updated:&lt;/strong&gt; &lt;em&gt;Added Test::Fatal reference 2015-03-10&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Boost your Perl productivity with auto-compile checking</title>
+      <link>http://perltricks.com/article/133/2014/11/10/Boost-your-Perl-productivity-with-auto-compile-checking/</link>
+      <pubDate>Mon, 10 Nov 2014 14:01:51 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/133/2014/11/10/Boost-your-Perl-productivity-with-auto-compile-checking/</guid>
+      <description>
+
+&lt;p&gt;The Perl command line option &lt;code&gt;-c&lt;/code&gt; causes Perl to check the syntax of the program, but not execute it (apart from code in BEGIN, CHECK and UNITCHECK blocks - watch out for those). For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -c lib/Devel/DidYouMean.pm
+lib/Devel/DidYouMean.pm syntax OK
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is useful but it&amp;rsquo;s kind of clunky to type it every time you want to check the syntax of a program or file.&lt;/p&gt;
+
+&lt;h3 id=&#34;continuous-syntax-checking:8b44f8b5a95c23d489bedfd99622b8bb&#34;&gt;Continuous syntax checking&lt;/h3&gt;
+
+&lt;p&gt;One of my favourite &lt;a href=&#34;https://metacpan.org/pod/Catalyst::Manual::Tutorial::02_CatalystBasics#The-Simplest-Way&#34;&gt;features&lt;/a&gt; when developing Catalyst web apps is using the test server to automatically check the syntax of the web app as I develop it. This saves me time as I know immediately if the web app compiles or not and don&amp;rsquo;t waste time opening up a browser only to get an error. if you&amp;rsquo;re working on a Unix-based operating system you can achieve a similar effect for any Perl program (not just web apps). The &lt;code&gt;watch&lt;/code&gt; program can automatically run the check command. Just start a new terminal, and enter:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ watch &#39;perl -c lib/Devel/DidYouMean.pm&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Giving this output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Every 2s perl -c lib/Devel/DidYouMean.pm           Sat Nov  8 2014
+
+lib/Devel/DidYouMean.pm syntax OK
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In this case I&amp;rsquo;m watching the file &lt;code&gt;lib/Devel/DidYouMean.pm&lt;/code&gt; but you can provide any path to a Perl file that you want to check for syntax errors. By default &lt;code&gt;watch&lt;/code&gt; will run the command every 2 seconds. So if I save a bad update to the file, the watching terminal window will show the error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Every 2.0s: perl -c lib/Devel/DidYouMean.pm           Sat Nov  8 2014
+
+syntax error at lib/Devel/DidYouMean.pm line 122, near &amp;quot;} keys&amp;quot;
+
+lib/Devel/DidYouMean.pm had compilation errors.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This enables me to catch the error before running the program, saving time.&lt;/p&gt;
+
+&lt;h3 id=&#34;checking-syntax-in-a-text-editor:8b44f8b5a95c23d489bedfd99622b8bb&#34;&gt;Checking syntax in a text-editor&lt;/h3&gt;
+
+&lt;p&gt;Using &lt;code&gt;watch&lt;/code&gt; is useful, but I find it can be annoying to have to check a separate terminal window to know if my program compiles or not. Another way to do this is to run the command from within your text-editor. I&amp;rsquo;ll show how you how to do this in vim, but it should be possible to do this in any text-editor that has save events which you can hook in to (e.g. examples for &lt;a href=&#34;http://www.klaascuvelier.be/2013/06/sublime-command-on-save/&#34;&gt;Sublime Text&lt;/a&gt; and &lt;a href=&#34;http://flycheck.readthedocs.org/en/latest/&#34;&gt;Emacs&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;Add the following line to your .vimrc file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;autocmd BufWritePost *.pm,*.t,*.pl echom system(&amp;quot;perl -Ilib -c &amp;quot; . &#39;&amp;quot;&#39; . expand(&amp;quot;%:p&amp;quot;). &#39;&amp;quot;&#39; )
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;What this command does is every time a file ending in .pm, .t, or.pl is saved, vim will run the check syntax command on the file, echoing the results to the current window. Reload your .vimrc with this vim command: &lt;code&gt;:so $MYVIMRC&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Now you don&amp;rsquo;t have to bother setting up a separate terminal window and watching the file; vim will notify you immediately if any Perl file is saved with compilation errors. Much more convenient!&lt;/p&gt;
+
+&lt;h3 id=&#34;alternative-methods-in-vim:8b44f8b5a95c23d489bedfd99622b8bb&#34;&gt;Alternative Methods in Vim&lt;/h3&gt;
+
+&lt;p&gt;Several readers got in touch to recommend the Syntastic &lt;a href=&#34;https://github.com/scrooloose/syntastic&#34;&gt;plugin&lt;/a&gt; for Vim (&lt;a href=&#34;https://github.com/scrooloose/syntastic&#34;&gt;manual&lt;/a&gt;). One nice thing about Syntastic is you can chain compile checks: first run &lt;code&gt;perl -c&lt;/code&gt;, if it passes, then run &lt;a href=&#34;https://metacpan.org/pod/Perl::Critic&#34;&gt;Perl::Critic&lt;/a&gt; and so on. Syntastic also integrates syntax checkers for many other languages, so if Vim is your editor of choice, you might want to check it out.&lt;/p&gt;
+
+&lt;p&gt;A simpler alternative to Syntastic is to use Vim&amp;rsquo;s built-in compiler support. With a Perl file in the current buffer, type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;:compiler perl
+:make
+:cope
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will run Perl&amp;rsquo;s syntax checks checks on the current buffer. Vim reads the output into an error list, which the &lt;code&gt;:cope&lt;/code&gt; command displays. You can jump to the line referenced by a specific error by pressing the enter key (&lt;a href=&#34;http://vimdoc.sourceforge.net/htmldoc/quickfix.html#quickfix-window&#34;&gt;manual&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Updates:&lt;/strong&gt; &lt;em&gt;BEGIN, CHECK, UNITCHECK blocks caution added. Emacs link and addition Vim methods added. 2014-11-10&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Vim autocmd example updated to handle filepaths containing spaces. Thanks to Henry An for the suggestion. 2015-01-22&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/runneralan/10092757714/in/photolist--88qSeT-88u7R1-dqTSLE-atoyrp-bD3QaN-93yNyq-8QYfKX-diG9h4-bD3NV9-88u847-gnS2f3-55QWyu-dqTHcF-9AJTkV-88qSdr-7h39AP-7nPgCT-88qSfv-5MyRfE-bRXxYv-bD3PXU-88u7pC-imjBX2-8xz38b-32eo27-a8YVvZ-8WJgFA-93ySDG-57KLMs-oYUnQ1-88qRL4-fturhH-88qRMx-cUx3nS-4GMFL2-88qSrv-5RhqjZ-ftuqAr-ehAoHf-ftJLsq-88u7fU-5R22Pk-5CNDM-bv2wve-9vnwcd-6dyA62-ejP2nf-329MpH-88u7ds&#34;&gt;Alan Kotok&lt;/a&gt; image has been digitally altered&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Check your module POD using perldoc</title>
+      <link>http://perltricks.com/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</link>
+      <pubDate>Mon, 01 Apr 2013 22:45:35 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/9/2013/4/1/Check-your-module-POD-using-perldoc/</guid>
+      <description>&lt;p&gt;Perl ships with a command-line program called perldoc that makes it easier to search and read Perl&amp;rsquo;s vast documentation in the POD markup language. If perldoc is called with the -F flag, it will display the POD markup of an input file - this can be useful when your are developing a new Perl distribution and want to check the appearance of the POD in your module before it appears on CPAN for all to see.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# Pass a local file to perldoc
+
+perldoc -F ProxyManager.pm
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will then display the POD markup:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;ProxyManager(3)                                            
+
+NAME
+       Net::OpenVPN::ProxyManager - connect to proxy servers using OpenVPN.
+
+SYNOPSIS
+       use Net::OpenVPN::ProxyManager;
+       my $pm = Net::OpenVPN::ProxyManager-&amp;gt;new;
+
+       # Create a config object to capture proxy server details
+       my $config_object = $pm-&amp;gt;create_config({remote =&amp;gt; &#39;100.120.3.34 53&#39;, proto =&amp;gt; &#39;udp&#39;});
+
+       # Launch OpenVPN and connect to the proxy
+       $pm-&amp;gt;connect($config_object);
+       # do some stuff
+
+       # Disconnect from the proxy server
+       $pm-&amp;gt;disconnect();
+
+DESCRIPTION
+       Net::OpenVPN::ProxyManager is an object oriented module that provides methods to simplify the management of proxy connections that support OpenVPN.
+
+This is a base generic class, see Net::OpenVPN::ProxyManager::HMA for additional methods to interact with hidemyass.com proxy servers.
+
+METHODS
+   new
+       The constructor accepts an anonymous hash for two optional parameters: config_path and warning_flag. config_path is the path that ProxyManager.pm will use to create the config file when the create_config method is called. By default config_path is set to &#39;/tmp/openvpn-config.conf&#39;.
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

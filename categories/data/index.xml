@@ -1,0 +1,1958 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Data on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/categories/data/</link>
+    <description>Recent content in Data on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 06 Oct 2015 13:18:48 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/categories/data/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Display real-time data with Curses</title>
+      <link>http://perltricks.com/article/197/2015/10/6/Display-real-time-data-with-Curses/</link>
+      <pubDate>Tue, 06 Oct 2015 13:18:48 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/197/2015/10/6/Display-real-time-data-with-Curses/</guid>
+      <description>&lt;p&gt;Sometimes a terminal interface is the easiest way to get an answer, and when it is, I like to use Curses to make the experience pleasant. In this article, I&amp;rsquo;ll rewrite a Curses program I&amp;rsquo;ve written many times, mostly because I forget where I had put it the last time I created it (and this time I found that I&amp;rsquo;d posted it to &lt;a href=&#34;http://www.perlmonks.org/index.pl/jacques?node_id=388218&#34;&gt;Perlmonks&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;Every time I reinvent it I write it a little differently than I did before, and now I want to update it for Perl&amp;rsquo;s new features, mainly its &lt;a href=&#34;http://www.effectiveperlprogramming.com/2015/04/use-v5-20-subroutine-signatures/&#34;&gt;subroutine signatures&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;One day I had a small task to prune a directory tree and I wanted to look at the largest files in it. I knew about &lt;code&gt;du&lt;/code&gt; and that it could show me a list of files and their sizes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ du -a
+16  ./apache2/extra
+16  ./apache2/original/extra
+32  ./apache2/original
+0   ./apache2/other
+16  ./apache2/users
+192 ./apache2
+0   ./asl
+104 ./certificates
+...
+12904
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The problem is the command&amp;rsquo;s depth-first traversal. I could play various tricks to sort the output once I had it, but for a large directory I want to see the results as they come in. Perl, being the Unix glue language (Swiss Army Chainsaw, etc.), is perfect for this. I can read the real-time output of &lt;code&gt;du&lt;/code&gt; and display it how I like.&lt;/p&gt;
+
+&lt;p&gt;The first part is easy. I can open a pipe to the external command (see my earlier article &lt;a href=&#34;http://perltricks.com/article/182/2015/7/15/Stupid-open---tricks&#34;&gt;Stupid open tricks&lt;/a&gt;). This time, I use the three-argument pipe-open instead of the two-argument form I&amp;rsquo;d used earlier.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $pipe, &#39;-|&#39;, &#39;du -a&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;After that, I need to display the data. My concept is that the on-screen list will update with the largest files so far. I take each line of output, split it into its size and filename, and add them to the list. I&amp;rsquo;ve created a class to handle that, including the parts that decide which files are large enough to display:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $files = Local::files-&amp;gt;new;
+
+while( &amp;lt;$pipe&amp;gt; ) {
+  chomp;
+  my( $size, $file ) = split /\s+/, $_, 2;
+  next if -d $file;
+  next if $file eq &amp;quot;.&amp;quot;;
+  $files-&amp;gt;add( $size, &amp;quot;$file&amp;quot; );
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The next part I update for Perl 5.12&amp;rsquo;s &lt;a href=&#34;http://www.effectiveperlprogramming.com/2013/08/declare-packages-outside-of-their-block/&#34;&gt;package NAME BLOCK&lt;/a&gt; syntax that allows me to declare the &lt;code&gt;package&lt;/code&gt; outside of its block:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Local::files {
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The rest is list manipulation and Curses stuff. I won&amp;rsquo;t go through the list code. Basically, if the next item is greater than the size of the last element in the list, the new, larger element replaces the existing one. After that, I resort the list.&lt;/p&gt;
+
+&lt;p&gt;The setup for Curses is easy. It knows the screen size already:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub init ($self) {   
+  initscr;
+  curs_set(0); # hide cursor
+  $win = Curses-&amp;gt;new;
+    
+  for( my $i = MAX; $i &amp;gt;= 0; $i-- ) {
+    $self-&amp;gt;size_at( $i, undef );
+    $self-&amp;gt;name_at( $i, &#39;&#39; );
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I need to remember to undo all the magic that Curses does by calling &lt;code&gt;endwin&lt;/code&gt; at the end, so I put the &lt;code&gt;DESTROY&lt;/code&gt; right after the part I go through the initial setup:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub DESTROY { endwin; }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once I have the sorted list, I have to draw it to the screen. This involves two things. I need to erase what&amp;rsquo;s already there so a shorter filename doesn&amp;rsquo;t leave parts of a longer filename it might replace. The &lt;code&gt;addstr&lt;/code&gt; puts text on the screen (the top-left corner being (1,1)). None of the new text shows up until I call &lt;code&gt;refresh&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub draw ($self) {
+  for( my $i = 0; $i &amp;lt; MAX; $i++ ) {
+    next if $self-&amp;gt;size_at( $i ) == 0 or $self-&amp;gt;name_at( $i ) eq &#39;&#39;;
+    $win-&amp;gt;addstr( $i,  1, &amp;quot; &amp;quot; x $Curses::COLS );
+    $win-&amp;gt;addstr( $i,  1, sprintf( &amp;quot;%8d&amp;quot;, $self-&amp;gt;[$i][SIZE] || &#39;&#39; )  );
+    $win-&amp;gt;addstr( $i, 10, $self-&amp;gt;name_at( $i ) );
+    $win-&amp;gt;refresh;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now I have a little script that makes some fancy output to the screen as I sort the list of largest files in real time. Here&amp;rsquo;s a run against my &lt;a href=&#34;https://metacpan.org/pod/CPAN::Mini&#34;&gt;MiniCPAN&lt;/a&gt; directory:&lt;/p&gt;
+
+&lt;p&gt;The way I&amp;rsquo;ve written it, I have to run it from the directory I want to check. I can avoid all sorts of nonsense with taint-checking and weird directory names that way. You could easily make it work otherwise. You could even adapt this program to list something else. The list management stuff is already there and it doesn&amp;rsquo;t really care about the particular problem. The full code is on &lt;a href=&#34;https://github.com/PerlTricks/du-curses/blob/master/curses.pl&#34;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Gzipping data directly from Perl</title>
+      <link>http://perltricks.com/article/162/2015/3/27/Gzipping-data-directly-from-Perl/</link>
+      <pubDate>Fri, 27 Mar 2015 12:48:28 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/162/2015/3/27/Gzipping-data-directly-from-Perl/</guid>
+      <description>
+
+&lt;p&gt;Perl can read and write gzipped streams through its IO layers. &lt;a href=&#34;https://metacpan.org/author/NWCLARK&#34;&gt;Nicholas Clark&lt;/a&gt; recently updated &lt;a href=&#34;https://metacpan.org/pod/PerlIO::gzip&#34;&gt;PerlIO::gzip&lt;/a&gt; (with patches from &lt;a href=&#34;https://metacpan.org/author/ZEFRAM&#34;&gt;Zefram&lt;/a&gt;), after nine years since the last release. Now it works with Perl v5.20 and the upcoming v5.22, although it still has problems on Windows. But as we are used to, there is more then one way to do it.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-pipe-way:73581e43f14f9bf5179ccccf00045752&#34;&gt;The pipe way&lt;/h3&gt;
+
+&lt;p&gt;Perl is versatile, and being the Unix duct tape that it is, reading or writing from the standard filehandles is easy. You might know about the three-argument &lt;a href=&#34;http://perldoc.perl.org/functions/open.html&#34;&gt;open&lt;/a&gt;, but I can give it as many arguments as I like. For a piped open, I can set the mode as the second argument and the command as a list as I would for &lt;a href=&#34;http://perldoc.perl.org/functions/system.html&#34;&gt;system&lt;/a&gt; (see the &amp;ldquo;Secure Programming Chapter&amp;rdquo; of &lt;a href=&#34;http://www.masteringperl.org&#34;&gt;Mastering Perl&lt;/a&gt;). I remember where to put the &lt;code&gt;-&lt;/code&gt; on the side of the &lt;code&gt;|&lt;/code&gt; where the command would go:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ENV{PATH} = &#39;&#39;;
+
+open my $z, &#39;-|&#39;, &#39;/usr/bin/gunzip&#39;, &#39;-c&#39;, &#39;moby_dick.txt.gz&#39;;
+
+while( &amp;lt;$z&amp;gt; ) {
+    print;
+    }
+
+close $z 
+    or die &amp;quot;There was a problem with the pipe open!&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I could go the other way too by printing through a pipe to a command that will &lt;em&gt;gzip&lt;/em&gt; the data for me. The &lt;code&gt;-&lt;/code&gt; flips to the other side of the &lt;code&gt;|&lt;/code&gt; and I use shell redirection to move the result of &lt;em&gt;gzip&lt;/em&gt; into a file. I don&amp;rsquo;t use the list form since I want the &lt;code&gt;&amp;gt;&lt;/code&gt; in the command to be special (if only &lt;em&gt;gzip&lt;/em&gt; had a switch to set the output filename):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ENV{PATH} = &#39;&#39;;
+
+open my $z, &#39;|-&#39;, &#39;/usr/bin/gzip &amp;gt; data.gz&#39;;
+
+while(  ) {
+    print { $z } $_;
+    }
+
+close $z 
+    or die &amp;quot;There was a problem with the pipe open!&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s the general form that I can use with any sort of command. It has the drawbacks of multiple processes and the reliance of an external command in a particular place. If I can do it directly in the Perl process, I don&amp;rsquo;t have those drawbacks. Fortunately, I can, because Perl is like that.&lt;/p&gt;
+
+&lt;h3 id=&#34;reading-gzipped-data:73581e43f14f9bf5179ccccf00045752&#34;&gt;Reading gzipped data&lt;/h3&gt;
+
+&lt;p&gt;To read a gzippped file in Perl, I can use the &lt;code&gt;gzip&lt;/code&gt; I/O layer (see &lt;a href=&#34;http://perldoc.perl.org/perlopentut.html&#34;&gt;perlopen&lt;/a&gt;). Once I open the file, I can read its lines (assuming it&amp;rsquo;s text) like I would a &amp;ldquo;normal&amp;rdquo; text file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;&amp;lt;:gzip&#39; $filename 
+    or die &amp;quot;Could not read from $filename: $!&amp;quot;;
+
+while( &amp;lt;$fh&amp;gt; ) {
+    print;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or, I can read octets if the data aren&amp;rsquo;t text:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;&amp;lt;:gzip&#39; $filename 
+    or die &amp;quot;Could not read from $filename: $!&amp;quot;;
+
+while( read( $fh, $buffer, 1024 ) ) {
+    ...; # do something with $buffer (... is a v5.12 feature!)
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If I can&amp;rsquo;t use the I/O layers, perhaps because the operating system does not support it or it&amp;rsquo;s broken on my version of Perl, I can use the &lt;a href=&#34;http://www.metacpan.org/pod/IO::Compress&#34;&gt;IO::Compress&lt;/a&gt; modules instead. This example uses its object interface to create the write filehandle:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use IO::Compress::Gunzip;
+
+my $z = IO::Compress::Gunzip-&amp;gt;new( $filename )
+    or die &amp;quot;Could not read from $filename: $GunzipError&amp;quot;;
+
+while( &amp;lt;$z&amp;gt; ) {
+    print;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The I/O layer is faster than the module, but the PerlIO documentation notes that we shouldn&amp;rsquo;t trust our data to it. People have been using it without major problems, but you could be that one person who loses all their data. Sinan Ünür writes about the performance in &lt;a href=&#34;http://www.nu42.com/2013/02/large-gzipped-files-long-lines.html&#34;&gt;Large gzipped files, long lines, extracting columns etc&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;writing-gzipped-data:73581e43f14f9bf5179ccccf00045752&#34;&gt;Writing gzipped data&lt;/h3&gt;
+
+&lt;p&gt;I can also directly write gzipped data to a file. It&amp;rsquo;s similar my previous examples with the filehandles moved around. This one uses the I/O layer:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;&amp;gt;:gzip&#39; $filename 
+    or die &amp;quot;Could not write to $filename: $!&amp;quot;;
+
+while(  ) {
+    print { $fh } $_;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And this one uses &lt;a href=&#34;http://www.metacpan.org/pod/IO::Compress::Gzip&#34;&gt;IO::Compress::Gzip&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use IO::Compress::Gzip;
+
+my $z = IO::Compress::Gzip-&amp;gt;new( $filename )
+    or die &amp;quot;Could not write to $filename: $GzipError&amp;quot;;
+
+while(  ) {
+    print { $z } $_;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;an-advanced-tip:73581e43f14f9bf5179ccccf00045752&#34;&gt;An advanced tip&lt;/h3&gt;
+
+&lt;p&gt;I can read multiple streams of gzipped data with a single filehandle. The &lt;code&gt;MultiStream&lt;/code&gt; option in &lt;a href=&#34;http://www.metacpan.org/pod/IO::Compress::Gunzip&#34;&gt;IO::Compress::Gunzip&lt;/a&gt; allows the decompressor to reset itself when it thinks it has detected a new stream and continue to provide output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use IO::Uncompress::Gunzip qw($GunzipError);
+
+my $z = IO::Uncompress::Gunzip-&amp;gt;new( *STDIN, MultiStream =&amp;gt; 1 )
+    or die &amp;quot;Could not make uncompress object: $GunzipError&amp;quot;;
+    
+while( &amp;lt;$z&amp;gt; ) {
+    print;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With this I can read several gzipped files at the same time:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ cat *.gz |  ./multistream.pl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This sort of thing is quite handy for rotated logs when I want to read them all and don&amp;rsquo;t care that they were split up.&lt;/p&gt;
+
+&lt;h3 id=&#34;and-a-small-bonus:73581e43f14f9bf5179ccccf00045752&#34;&gt;And, a small bonus&lt;/h3&gt;
+
+&lt;p&gt;If you want to know more about the gzip compression, &lt;a href=&#34;http://jvns.ca/blog/2013/10/24/day-16-gzip-plus-poetry-equals-awesome/%0A&#34;&gt;Julia Evans created a nice animation of gzip working in real time on &lt;em&gt;The Raven&lt;/em&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;You can see a bit more abstract &lt;a href=&#34;http://www.data-compression.com/lempelziv.html%0A&#34;&gt;animation&lt;/a&gt; at www.data-compression.com. You can see how this single-pass method works and how it can work from a possibly infinite stream like I provide in this article.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Calculate Fortune&#39;s Formula with Perl</title>
+      <link>http://perltricks.com/article/161/2015/3/23/Calculate-Fortune-s-Formula-with-Perl/</link>
+      <pubDate>Mon, 23 Mar 2015 12:42:08 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/161/2015/3/23/Calculate-Fortune-s-Formula-with-Perl/</guid>
+      <description>
+
+&lt;p&gt;The &lt;a href=&#34;https://en.wikipedia.org/wiki/Kelly_criterion&#34;&gt;Kelly criterion&lt;/a&gt; is an equation for deriving the optimal fraction of a bankroll to place on a bet, given the probability and the betting odds. I read about it a few years ago in William Poundstone&amp;rsquo;s page turner, &lt;a href=&#34;http://www.amazon.com/Fortunes-Formula-Scientific-Betting-Casinos-ebook/dp/B000SBTWNC&#34;&gt;Fortune&amp;rsquo;s Formula&lt;/a&gt;. To use the Kelly criterion in Perl code, you can used &lt;a href=&#34;https://metacpan.org/pod/Algorithm::Kelly&#34;&gt;Algorithm::Kelly&lt;/a&gt;, a module I released last week.&lt;/p&gt;
+
+&lt;h3 id=&#34;using-algorithm-kelly:6603fc8888aa1b670ad980bfec65ce66&#34;&gt;Using Algorithm::Kelly&lt;/h3&gt;
+
+&lt;p&gt;Algorithm::Kelly exports the &lt;code&gt;optimal_f&lt;/code&gt; sub, which takes two parameters: the probability of the event occurring (a value between 0.00 and 1.00) and the payoff (net betting odds). &lt;code&gt;optimal_f&lt;/code&gt; returns the optimal fraction of your betting bankroll to place on the bet.&lt;/p&gt;
+
+&lt;p&gt;For example if I want to find the optimal f of a bet which has a 50% chance of winning, and pays 3-to-1:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Algorithm::Kelly;
+
+my $optimal_f = optimal_f(0.5, 3);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here &lt;code&gt;optimal_f&lt;/code&gt; returns a value of &lt;code&gt;0.25&lt;/code&gt;, which means I should place 25% of my bankroll on this bet. Let&amp;rsquo;s look at another example: a bet which has 12% chance of occurring and pays 5-to-1. I can also calculate optimal f at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -MAlgorithm::Kelly -E &#39;say optimal_f(0.12, 5)&#39;;
+-0.056
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So this time, optimal f is &lt;code&gt;-0.056&lt;/code&gt;, or negative 5.6%, which means I shouldn&amp;rsquo;t take this bet as the odds are not generous enough, given the probability of the bet winning. This is tremendously useful: the optimal fraction can be used to eliminate bad bets, and also rank competing betting options, to find the best value bet.&lt;/p&gt;
+
+&lt;h3 id=&#34;practical-pitfalls:6603fc8888aa1b670ad980bfec65ce66&#34;&gt;Practical pitfalls&lt;/h3&gt;
+
+&lt;p&gt;The Kelly criterion is only as accurate as its inputs, and whilst it&amp;rsquo;s easy to look up the odds offered for a particular bet, precisely calculating the probability of the bet winning is usually a far more difficult task. It&amp;rsquo;s easy to calculate the probability for casino games like roulette, but they have negative optimal fs and are not worth pursuing. Some successful sport bettors use statistical modeling techniques to estimate the probability of a bet winning - but this is only an estimate.&lt;/p&gt;
+
+&lt;p&gt;The second issue with the Kelly criterion is the size of optimal f. The Kelly criterion will always maximize return over the long term, but there is not an infinite market of bets available, and regularly risking high percentages of your bankroll will mean a big short term losses. Further, even if you have a sizable bankroll, many markets are simply not liquid enough to accommodate the size of bets recommended by optimal f. Bettors will often use a &amp;ldquo;half-Kelly&amp;rdquo; instead, which is the optimal f of a bet divided by 2.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Time::Moment can save time</title>
+      <link>http://perltricks.com/article/148/2015/2/2/Time--Moment-can-save-time/</link>
+      <pubDate>Mon, 02 Feb 2015 14:04:40 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/148/2015/2/2/Time--Moment-can-save-time/</guid>
+      <description>&lt;p&gt;A long time ago in a galaxy far, far away, the rebel alliance ran into a slight problem when the starship carrying the princess left two hours late because its software was in the wrong time zone, running into an imperial cruiser that was patrolling an hour early for a similar reason. The bad guys unwittingly solved the rebels&amp;rsquo; problem by removing the wrong time zone when they removed that special case—a solution familiar to programmers. The rebels exploited an imperial bug when a literal hole in their defense was left open an hour late.&lt;/p&gt;
+
+&lt;p&gt;You might think that we are in the computer revolution (&lt;a href=&#34;https://www.youtube.com/watch?v=oKg1hTOQXoY&#34;&gt;Alan Kay says we aren&amp;rsquo;t&lt;/a&gt;), but for all of our fancy hardware, the cheap or free platforms and services, and the amazing programming tools we have, the way we handle and times is often a mess. Y2K has nothing on this.&lt;/p&gt;
+
+&lt;p&gt;When Dave Rolsky came out with &lt;a href=&#34;http://www.metacpan.org/module/DateTime&#34;&gt;DateTime&lt;/a&gt;, everyone rejoiced. It&amp;rsquo;s a masterful piece of software that strives to be pedantically correct down to the nanosecond and leap seconds. Before then, I used a hodge-podge of modules to deal with dates and avoided date math.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.metacpan.org/module/DateTime&#34;&gt;DateTime&lt;/a&gt; can represent dates and tell me various things about them, such as the day of the quarter, give me locale-specific names, format them in interesting ways, and also give me the difference between dates:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Date::Time;
+
+my $dt = DateTime-&amp;gt;new(
+    year       =&amp;gt; 2014,
+    month      =&amp;gt; 12,
+    day        =&amp;gt; 18,
+    hour       =&amp;gt; 12,
+    minute     =&amp;gt; 37,
+    second     =&amp;gt; 57,
+    nanosecond =&amp;gt; 0,
+    time_zone  =&amp;gt; &#39;UTC&#39;,
+);
+
+my $quarter = $dt-&amp;gt;quarter;
+my $day_of_quarter = $dt-&amp;gt;day_of_quarter;
+
+my $month_name = $dt-&amp;gt;month_name;  # can be locale specific
+
+my $ymd = $dt-&amp;gt;ymd(&#39;/&#39;); # 2015/02/06
+
+my $now = DateTime-&amp;gt;now;
+
+my $duration = $now - $dt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.metacpan.org/module/DateTime&#34;&gt;DateTime&lt;/a&gt; doesn&amp;rsquo;t parse dates. Separate modules in the same namespace can do that while returning a &lt;a href=&#34;http://www.metacpan.org/module/DateTime&#34;&gt;DateTime&lt;/a&gt; object. For instance, the &lt;a href=&#34;http://www.metacpan.org/module/DateTime::Format::W3CDTF&#34;&gt;DateTime::Format::W3CDTF&lt;/a&gt; module parses dates and turn them into objects:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use DateTime::Format::W3CDTF;
+
+my $w3c = DateTime::Format::W3CDTF-&amp;gt;new;
+my $dt = $w3c-&amp;gt;parse_datetime( &#39;2003-02-15T13:50:05-05:00&#39; );
+
+# 2003-02-15T13:50:05-05:00
+$w3c-&amp;gt;format_datetime($dt);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Brilliant. &lt;a href=&#34;http://www.metacpan.org/module/DateTime&#34;&gt;DateTime&lt;/a&gt; is the standard answer to any date question. It works with almost no thought on my side.&lt;/p&gt;
+
+&lt;p&gt;But &lt;a href=&#34;http://www.metacpan.org/module/DateTime&#34;&gt;DateTime&lt;/a&gt; has a problem. It creates big objects and in the excitement to use something that works (slow and correct is better than fast and wrong), I might end up with hundreds of those objects, not leaving much space for other things. Try dumping one of these objects to see its extent. I won&amp;rsquo;t waste space with that in this article.&lt;/p&gt;
+
+&lt;p&gt;Although &lt;a href=&#34;http://www.metacpan.org/module/DateTime&#34;&gt;DateTime&lt;/a&gt; is exactingly correct, sometimes I&amp;rsquo;d like to be a little less exact and quite a bit faster. That&amp;rsquo;s where Christian Hansen&amp;rsquo;s &lt;a href=&#34;http://www.metacpan.org/module/Time::Moment&#34;&gt;Time::Moment&lt;/a&gt; comes in (see his &lt;a href=&#34;http://blogs.perl.org/users/chansen/2014/08/timemoment-vs-datetime.html&#34;&gt;Time::Moment vs DateTime&lt;/a&gt;). It works in UTC, ignores leap seconds, and limits its dates to the years 1 to 9999. It&amp;rsquo;s objects are immutable, so it can be a bit faster. To get a new datetime, you get a new object. And, it has many of the common features and an interface close to &lt;a href=&#34;http://www.metacpan.org/module/DateTime&#34;&gt;DateTime&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://www.metacpan.org/module/Time::Moment&#34;&gt;Time::Moment&lt;/a&gt; distribution comes with a program, &lt;em&gt;dev/bench.pl&lt;/em&gt;, that allows me to compare the performance. Here&amp;rsquo;s some of the output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ perl dev/bench.pl
+Benchmarking constructor: -&amp;gt;new()
+                  Rate     DateTime Time::Moment
+DateTime       14436/s           --         -99%
+Time::Moment 1064751/s        7276%           --
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s make a more interesting benchmark that constructs an object from a string, add a day to it, and check if it&amp;rsquo;s before today. As with every benchmark, you have to check it against your particular use:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Benchmark;
+use DateTime;
+use Time::Moment;
+use DateTime::Format::W3CDTF;
+
+my $dtf_string =&#39;2014-02-01T13:01:37-05:00&#39;;
+
+my $time_moment = sub {
+    my $tm = Time::Moment-&amp;gt;from_string( $dtf_string );
+    my $tm2 = $tm-&amp;gt;plus_days( 1 );
+    
+    my $now = Time::Moment-&amp;gt;now;
+    
+    my $comparison = $now &amp;gt; $tm2;
+    };
+        
+my $datetime = sub {
+    my $w3c = DateTime::Format::W3CDTF-&amp;gt;new;
+    my $dt = $w3c-&amp;gt;parse_datetime( $dtf_string );
+    $dt-&amp;gt;add( days =&amp;gt; 1 );
+
+    my $now = DateTime-&amp;gt;now;
+
+    my $comparison = $now &amp;gt; $dt;
+    };
+
+Benchmark::cmpthese( -10, {
+    &#39;Time::Moment&#39; =&amp;gt; $time_moment,
+    &#39;DateTime&#39;     =&amp;gt; $datetime,
+    });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.metacpan.org/module/Time::Moment&#34;&gt;Time::Moment&lt;/a&gt; is still really fast. Amazingly fast:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ perl dtf_bench.pl
+                 Rate     DateTime Time::Moment
+DateTime       1889/s           --         -99%
+Time::Moment 273557/s       14384%           --
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If my problem is within the limits of &lt;a href=&#34;http://www.metacpan.org/module/Time::Moment&#34;&gt;Time::Moment&lt;/a&gt; (and, who ever needs more than 640k?), I can get big wins. When that no longer applies, with a little work I can switch to &lt;a href=&#34;http://www.metacpan.org/module/DateTime&#34;&gt;DateTime&lt;/a&gt;. Either way, you might want to wipe the memory of your droids.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;http://creativecommons.org/licenses/by-nc/2.5/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;http://xkcd.com/1179/&#34;&gt;XKCD&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Extracting from HTML with Mojo::DOM</title>
+      <link>http://perltricks.com/article/143/2015/1/8/Extracting-from-HTML-with-Mojo--DOM/</link>
+      <pubDate>Thu, 08 Jan 2015 14:01:42 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/143/2015/1/8/Extracting-from-HTML-with-Mojo--DOM/</guid>
+      <description>&lt;p&gt;Everyone wants to parse HTML, and many people reach for a regular expression to do that. Although you can &lt;a href=&#34;http://stackoverflow.com/a/4234491/2766176&#34;&gt;use a regex to parse HTML&lt;/a&gt;, it&amp;rsquo;s not as fun as my latest favorite way: &lt;a href=&#34;http://www.metacpan.org/module/Mojo::DOM&#34;&gt;Mojo::DOM&lt;/a&gt; with CSS3 selectors. I find this much easier than trying to remember XPATH and I get to play with Mojo.&lt;/p&gt;
+
+&lt;p&gt;The DOM is the &lt;a href=&#34;http://www.w3.org/DOM/&#34;&gt;&amp;ldquo;Document Object Model&amp;rdquo;&lt;/a&gt;. Something behind the scenes parses and organizes the information and allows me to query it with questions such as &amp;ldquo;find all the &lt;code&gt;a&lt;/code&gt; tags inside a &lt;code&gt;div&lt;/code&gt; tag&amp;rdquo;, or &amp;ldquo;find all the tags of a particular class&amp;rdquo;. I don&amp;rsquo;t manipulate the text myself.&lt;/p&gt;
+
+&lt;p&gt;If I&amp;rsquo;m using &lt;a href=&#34;http://mojolicio.us/perldoc/Mojo/UserAgent&#34;&gt;Mojo::UserAgent&lt;/a&gt;, I can get a DOM object from the response object from an HTTP request:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Mojo::UserAgent;
+my $ua = Mojo::UserAgent-&amp;gt;new;
+
+my $dom = $ua-&amp;gt;get( &#39;http://search.cpan.org/~bdfoy/&#39; )
+    -&amp;gt;res
+    -&amp;gt;dom;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The Mojo method-chaining style with one method per line shows its strengths as I get into more complicated tasks later.&lt;/p&gt;
+
+&lt;p&gt;I don&amp;rsquo;t &lt;em&gt;have&lt;/em&gt; to make a request to get a DOM object. I&amp;rsquo;m often presented with HTML files to parse with no server to give them to me. Depending on the tractability of the task, I might hand edit it to remove the parts I don&amp;rsquo;t want to think about then use a regex to handle the rest. That way, I don&amp;rsquo;t have to do a lot of work to save state and know where I am in the document. With a DOM, that&amp;rsquo;s not a problem.&lt;/p&gt;
+
+&lt;p&gt;In the first example, I fetched &lt;code&gt;http://search.cpan.org/~bdfoy/&#39;&lt;/code&gt;, my author page at &lt;a href=&#34;http://search.cpan.org/&#34;&gt;CPAN Search&lt;/a&gt;. I&amp;rsquo;ll start with that HTML, assuming I already have it in a string.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Mojo::DOM;
+
+my $string = ...;
+
+my $dom = Mojo::DOM-&amp;gt;new( $string );
+
+my $module_list = $dom
+    -&amp;gt;find(&#39;a&#39;)
+    -&amp;gt;join(&amp;quot;\n&amp;quot;);
+
+print $module_list;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once I have the &lt;code&gt;$dom&lt;/code&gt; object, I can use &lt;code&gt;find&lt;/code&gt; to select elements. I give &lt;code&gt;find&lt;/code&gt; a &lt;a href=&#34;http://mojolicio.us/perldoc/Mojo/DOM/CSS#SELECTORS&#34;&gt;CSS3 selector&lt;/a&gt;, in this case just &lt;code&gt;a&lt;/code&gt; to find all the anchor links. &lt;code&gt;find&lt;/code&gt; returns a &lt;a href=&#34;=&#34; title=&#34;http://mojolicio.us/perldoc/Mojo/Collection&#34;&gt;Mojo::Collection&lt;/a&gt; object, a fancy way to store a list and do things do it. The Mojolicious style makes heavy use of method chaining so it needs a way to call methods on the result. In this example, I merely &lt;code&gt;join&lt;/code&gt; the elements with a newline. These are the results:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;lt;a href=&amp;quot;/&amp;quot;&amp;gt;&amp;lt;img alt=&amp;quot;CPAN&amp;quot; src=&amp;quot;http://st.pimg.net/tucs/img/cpan_banner.png&amp;quot;&amp;gt;&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/&amp;quot;&amp;gt;Home&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/author/&amp;quot;&amp;gt;Authors&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/recent&amp;quot;&amp;gt;Recent&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;http://log.perl.org/cpansearch/&amp;quot;&amp;gt;News&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/mirror&amp;quot;&amp;gt;Mirrors&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/faq.html&amp;quot;&amp;gt;FAQ&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/feedback&amp;quot;&amp;gt;Feedback&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;Acme-BDFOY-0.01/&amp;quot;&amp;gt;Acme-BDFOY-0.01&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/CPAN/authors/id/B/BD/BDFOY/Acme-BDFOY-0.01.tar.gz&amp;quot;&amp;gt;Download&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;/src/BDFOY/Acme-BDFOY-0.01/&amp;quot;&amp;gt;Browse&amp;lt;/a&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s a good start, but I extracted all of the links. I want to limit it to the links to my distributions. Looking at the HTML, I see that the link I want is in the first &lt;code&gt;td&lt;/code&gt; tag in a &lt;code&gt;tr&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;lt;tr class=s&amp;gt;
+    &amp;lt;td&amp;gt;&amp;lt;a href=&amp;quot;Data-Constraint-1.17/&amp;quot;&amp;gt;Data-Constraint-1.17&amp;lt;/a&amp;gt;&amp;lt;/td&amp;gt;
+    &amp;lt;td&amp;gt;prototypical value checking&amp;lt;/td&amp;gt;
+    &amp;lt;td&amp;gt;&amp;lt;small&amp;gt;[&amp;lt;a href=&amp;quot;/CPAN/authors/id/B/BD/BDFOY/Data-Constraint-1.17.tar.gz&amp;quot;&amp;gt;Download&amp;lt;/a&amp;gt;] [&amp;lt;a
+      href=&amp;quot;/src/BDFOY/Data-Constraint-1.17/&amp;quot;&amp;gt;Browse&amp;lt;/a&amp;gt;]&amp;lt;/small&amp;gt;&amp;lt;/td&amp;gt;
+    &amp;lt;td nowrap&amp;gt;26 Aug 2014&amp;lt;/td&amp;gt;
+   &amp;lt;/tr&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I change my selector to look for the first anchor in the first table cell in a table row:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $module_list = $dom
+    -&amp;gt;find(&#39;tr td:first-child a:first-child&#39;)
+    -&amp;gt;join(&amp;quot;\n&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now I have a list of the links I want, but with the anchor HTML and text:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;lt;a href=&amp;quot;Acme-BDFOY-0.01/&amp;quot;&amp;gt;Acme-BDFOY-0.01&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;Apache-Htaccess-1.4/&amp;quot;&amp;gt;Apache-Htaccess-1.4&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;Apache-iTunes-0.11/&amp;quot;&amp;gt;Apache-iTunes-0.11&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;App-Module-Lister-0.15/&amp;quot;&amp;gt;App-Module-Lister-0.15&amp;lt;/a&amp;gt;
+&amp;lt;a href=&amp;quot;App-PPI-Dumper-1.02/&amp;quot;&amp;gt;App-PPI-Dumper-1.02&amp;lt;/a&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I still have a bit of work to do. I want to extract the value of the &lt;code&gt;href&lt;/code&gt; attribute. I can do that with the &lt;code&gt;map&lt;/code&gt; method from &lt;a href=&#34;http://mojolicio.us/perldoc/Mojo/Collection&#34;&gt;Mojo::Collection&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $module_list = $dom
+    -&amp;gt;find(&#39;tr td:first-child a:first-child&#39;)
+    -&amp;gt;map( attr =&amp;gt; &#39;href&#39; )
+    -&amp;gt;join(&amp;quot;\n&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Each element in the collection is actually a &lt;a href=&#34;http://mojolicio.us/perldoc/Mojo/DOM&#34;&gt;Mojo::DOM&lt;/a&gt; object. The first argument to &lt;code&gt;map&lt;/code&gt; is the method to call on each element and the remaining arguments pass through to that method. In this case, I&amp;rsquo;m calling &lt;code&gt;attr(&#39;href&#39;)&lt;/code&gt; on each object. Now I mostly have the values I want:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Acme-BDFOY-0.01/
+Apache-Htaccess-1.4/
+Apache-iTunes-0.11/
+App-Module-Lister-0.15/
+App-PPI-Dumper-1.02/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I don&amp;rsquo;t want that trailing slash. I can use another &lt;code&gt;map&lt;/code&gt;, but with an anonymous subroutine. The result of the subroutine replaces the element in the collection. I use the &lt;a href=&#34;http://www.effectiveperlprogramming.com/2010/09/use-the-r-substitution-flag-to-work-on-a-copy/&#34;&gt;&lt;code&gt;/r&lt;/code&gt; of the substitution operator to return the modified string&lt;/a&gt; instead of the number of substitutions (best Perl enhancement ever):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.14;
+
+my $module_list = $dom
+    -&amp;gt;find(&#39;tr td:first-child a:first-child&#39;)
+    -&amp;gt;map( attr =&amp;gt; &#39;href&#39; )
+    -&amp;gt;map( sub { s|/\z||r } )
+    -&amp;gt;join(&amp;quot;\n&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now I have my list of distributions:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Acme-BDFOY-0.01
+Apache-Htaccess-1.4
+Apache-iTunes-0.11
+App-Module-Lister-0.15
+App-PPI-Dumper-1.02
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s still as one string since I ended the method chain with &lt;code&gt;join(&amp;quot;\n&amp;quot;)&lt;/code&gt;. To get a list, I use &lt;code&gt;each&lt;/code&gt; to get the list, which I join myself later:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @module_list = $dom
+    -&amp;gt;find(&#39;tr td:first-child a:first-child&#39;)
+    -&amp;gt;map( attr =&amp;gt; &#39;href&#39; )
+    -&amp;gt;map( sub { s|/\z||r } )
+    -&amp;gt;each;
+
+print join &amp;quot;\n&amp;quot;, @module_list;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can get even fancier. Instead of the distribution name with the version, I can break it up with &lt;a href=&#34;http://www.metacpan.org/module/CPAN::DistnameInfo&#34;&gt;CPAN::DistnameInfo&lt;/a&gt;. I&amp;rsquo;ll turn every found link into a tuple of name and version. Since that module wants to deal with a distribution filename, I tack on &lt;em&gt;.tar.gz&lt;/em&gt; to make it work out:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Data::Printer;
+use CPAN::DistnameInfo;
+
+my $dom = Mojo::DOM-&amp;gt;new( $string );
+
+my @module_list = $dom
+    -&amp;gt;find(&#39;tr td:first-child a:first-child&#39;)
+    -&amp;gt;map( attr =&amp;gt; &#39;href&#39; )
+    -&amp;gt;map( sub { s|/\z||r } )
+    -&amp;gt;map( sub { 
+        my $d = CPAN::DistnameInfo-&amp;gt;new( &amp;quot;$_.tar.gz&amp;quot; );
+        [ map { $d-&amp;gt;$_() } qw(dist version) ];
+         } )
+    -&amp;gt;each;
+
+p @module_list;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;each&lt;/code&gt; extracts each element from the collection and returns it. I use &lt;a href=&#34;https://metacpan.org/pod/Data::Printer&#34;&gt;Data::Printer&lt;/a&gt; to display the array:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;[
+    [0]   [
+        [0] &amp;quot;Acme-BDFOY&amp;quot;,
+        [1] 0.01
+    ],
+    [1]   [
+        [0] &amp;quot;Apache-Htaccess&amp;quot;,
+        [1] 1.4
+    ],
+    [2]   [
+        [0] &amp;quot;Apache-iTunes&amp;quot;,
+        [1] 0.11
+    ],
+    [3]   [
+        [0] &amp;quot;App-Module-Lister&amp;quot;,
+        [1] 0.15
+    ],
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If I want only the distributions that are development versions, I can use &lt;a href=&#34;http://mojolicio.us/perldoc/Mojo/Collection&#34;&gt;Mojo::Collection&lt;/a&gt;&amp;rsquo;s &lt;code&gt;grep&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @module_list = $dom
+    -&amp;gt;find(&#39;tr td:first-child a:first-child&#39;)
+    -&amp;gt;map( attr =&amp;gt; &#39;href&#39; )
+    -&amp;gt;map( sub { s|/\z||r } )
+    -&amp;gt;map( sub { 
+        my $d = CPAN::DistnameInfo-&amp;gt;new( &amp;quot;$_.tar.gz&amp;quot; );
+        [ map { $d-&amp;gt;$_() } qw(dist version) ];
+         } )
+    -&amp;gt;grep( sub { $_-&amp;gt;[-1] =~ /_/ } )
+    -&amp;gt;each;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;grep&lt;/code&gt; selects each element of the collection for which the subroutine returns a true value:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;[
+    [0]  [
+        [0] &amp;quot;Brick&amp;quot;,
+        [1] &amp;quot;0.227_01&amp;quot;
+    ],
+    [1]  [
+        [0] &amp;quot;Distribution-Guess-BuildSystem&amp;quot;,
+        [1] &amp;quot;0.12_02&amp;quot;
+    ],
+    [2]  [
+        [0] &amp;quot;File-Fingerprint&amp;quot;,
+        [1] &amp;quot;0.10_02&amp;quot;
+    ],
+    [3]  [
+        [0] &amp;quot;Geo-GeoNames&amp;quot;,
+        [1] &amp;quot;1.01_01&amp;quot;
+    ],
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s the process. No HTML shows up in my code. The rest is figuring out how to select the particular element that I want.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Analyzing GitHub with the search API</title>
+      <link>http://perltricks.com/article/112/2014/9/5/Analyzing-GitHub-with-the-search-API/</link>
+      <pubDate>Fri, 05 Sep 2014 12:11:51 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/112/2014/9/5/Analyzing-GitHub-with-the-search-API/</guid>
+      <description>
+
+&lt;p&gt;The Net::GitHub module provides a perly interface to GitHub&amp;rsquo;s feature-rich API. You can do everything with it, from creating new repos to managing issues and initiating pull requests. Today I&amp;rsquo;m going to focus on search.&lt;/p&gt;
+
+&lt;h3 id=&#34;setup:aca40df9e1d07f7ddcf3dfd9a21817db&#34;&gt;Setup&lt;/h3&gt;
+
+&lt;p&gt;Grab yourself a copy of &lt;a href=&#34;https://metacpan.org/pod/Net::GitHub&#34;&gt;Net::GitHub&lt;/a&gt; (make sure it&amp;rsquo;s version 0.68 or higher). The CPAN Testers &lt;a href=&#34;http://matrix.cpantesters.org/?dist=Net-GitHub+0.68&#34;&gt;results&lt;/a&gt; show that it builds on all major platforms, including Windows. You can install it via from CPAN at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Net::GitHub
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;first-steps:aca40df9e1d07f7ddcf3dfd9a21817db&#34;&gt;First steps&lt;/h3&gt;
+
+&lt;p&gt;First we need to create a search object. You can search GitHub anonymously up to 5 times per minute or if you authenticate, 20 times per minute. The module &lt;a href=&#34;https://metacpan.org/pod/Net::GitHub&#34;&gt;documentation&lt;/a&gt; shows examples of how to authenticate, so we&amp;rsquo;ll proceed here unauthenticated.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Net::GitHub::V3;
+
+# unauthenticated
+my $gh = Net::GitHub::V3-&amp;gt;new;
+my $search = $gh-&amp;gt;search;
+my %data = $search-&amp;gt;repositories({ q =&amp;gt; &#39;docker&#39;});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above creates a &lt;code&gt;$search&lt;/code&gt; object, and initiates a repo search for docker. The &lt;code&gt;%data&lt;/code&gt; hash contains the search results. Let&amp;rsquo;s have a look at them:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;{&#39;incomplete_results&#39; =&amp;gt; bless( do{\(my $o = 0)}, &#39;JSON::XS::Boolean&#39; ),
+ &#39;total_count&#39; =&amp;gt; 12830,
+ &#39;items&#39; =&amp;gt; [ {
+                   &#39;open_issues_count&#39; =&amp;gt; 771,
+                   &#39;url&#39; =&amp;gt; &#39;https://api.github.com/repos/docker/docker&#39;,
+                   &#39;has_downloads&#39; =&amp;gt; bless( do{\(my $o = 1)}, &#39;JSON::XS::Boolean&#39; ),
+                   &#39;tags_url&#39; =&amp;gt; &#39;https://api.github.com/repos/docker/docker/tags&#39;,
+                   &#39;forks_count&#39; =&amp;gt; 2794,
+                   &#39;has_issues&#39; =&amp;gt; $VAR1-&amp;gt;{&#39;items&#39;}[0]{&#39;has_downloads&#39;},
+                   &#39;clone_url&#39; =&amp;gt; &#39;https://github.com/docker/docker.git&#39;,
+                   &#39;name&#39; =&amp;gt; &#39;docker&#39;,
+                   &#39;private&#39; =&amp;gt; $VAR1-&amp;gt;{&#39;incomplete_results&#39;},
+                   &#39;watchers_count&#39; =&amp;gt; 14846,
+                   &#39;pushed_at&#39; =&amp;gt; &#39;2014-09-05T00:32:46Z&#39;,
+                   &#39;description&#39; =&amp;gt; &#39;Docker - the open-source application container engine&#39;,
+                   &#39;updated_at&#39; =&amp;gt; &#39;2014-09-04T21:59:25Z&#39;,
+                   &#39;html_url&#39; =&amp;gt; &#39;https://github.com/docker/docker&#39;,
+                   &#39;stargazers_count&#39; =&amp;gt; 14846,
+                   &#39;size&#39; =&amp;gt; 135198,
+                   &#39;watchers&#39; =&amp;gt; 14846,
+                   &#39;created_at&#39; =&amp;gt; &#39;2013-01-18T18:10:
+                   &#39;open_issues&#39; =&amp;gt; 771,
+                   &#39;language&#39; =&amp;gt; &#39;Go&#39;,
+                   &#39;git_url&#39; =&amp;gt; &#39;git://github.com/docker/docker.
+                   &#39;full_name&#39; =&amp;gt; &#39;docker/docker&#39;,
+                   &#39;homepage&#39; =&amp;gt; &#39;http://www.docker.com&#39;,
+                   &#39;forks&#39; =&amp;gt; 2794,
+                   &#39;score&#39; =&amp;gt; &#39;89.950935&#39;,
+                    ...
+                   },
+            ]
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve truncated the results for the sake of brevity, to show the top level key values and one simplified repo:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;incomplete_results&lt;/code&gt; is a key value pair that returns a boolean true if the are more search results than those returned by the search&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;total_count&lt;/code&gt; shows the total number of repos returned by the search&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;items&lt;/code&gt; is the interesting one - it&amp;rsquo;s an arrayref of repo hashes&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;getting-more-results:aca40df9e1d07f7ddcf3dfd9a21817db&#34;&gt;Getting more results&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s update the code to pull more results. GitHub permits up to 100 results per API call and a 1,000 results per search.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Net::GitHub::V3;
+
+my $gh = Net::GitHub::V3-&amp;gt;new;
+my $search = $gh-&amp;gt;search;
+
+my @data = @{ $search-&amp;gt;repositories({ q =&amp;gt; &#39;docker&#39;,
+                                      per_page =&amp;gt; 100 })-&amp;gt;{items} };
+
+while ($search-&amp;gt;has_next_page) {
+    sleep 12; # 5 queries max per minute
+    push @data, @{ $search-&amp;gt;next_page-&amp;gt;{items} };
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above executes the same search as before, except now I&amp;rsquo;m passing the &lt;code&gt;per_page&lt;/code&gt; parameter to get 100 results per call. I also extract the &lt;code&gt;items&lt;/code&gt; arrayref directly into the &lt;code&gt;@data&lt;/code&gt; array. The while loop will continue to call the search API until no further results are returned or we hit the 1,000 result limit.&lt;/p&gt;
+
+&lt;h3 id=&#34;analyzing-the-data:aca40df9e1d07f7ddcf3dfd9a21817db&#34;&gt;Analyzing the data&lt;/h3&gt;
+
+&lt;p&gt;So now we have a full set of results in , what can we do with it? One analysis that could be interesting is a count by programming language. Every repo hash contains a &lt;code&gt;language&lt;/code&gt; key value pair, so we can extract and count it. Lets see which language most docker-related repos are written in.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Net::GitHub::V3;
+
+my $gh = Net::GitHub::V3-&amp;gt;new;
+my $search = $gh-&amp;gt;search;
+
+my @data = @{ $search-&amp;gt;repositories({ q =&amp;gt; &#39;docker+created:&amp;gt;2014-09-01&#39;,
+                                      per_page =&amp;gt; 100 })-&amp;gt;{items} };
+
+while ($search-&amp;gt;has_next_page) {
+    sleep 12; # 5 queries max per minute
+    push @data, @{ $search-&amp;gt;next_page-&amp;gt;{items} };
+}
+
+my %languages;
+
+for my $repo (@data) {
+    my $language = $repo-&amp;gt;{language} ? $repo-&amp;gt;{language} : &#39;Other&#39;;
+    $languages{ $language }++;
+}
+
+for (sort { $languages{$b} &amp;lt;=&amp;gt; $languages{$a} } keys %languages) {
+    printf &amp;quot;%10s: %5i\n&amp;quot;, $_, $languages{$_};
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s walk through this code. First of all, I changed the search argument to limit results to repos created since September 2014 using the &lt;code&gt;created&lt;/code&gt; qualifier. This was to ensure we didn&amp;rsquo;t hit the 1,000 result search limit. The GitHub search API supports a whole range of useful &lt;a href=&#34;https://developer.github.com/v3/search/#parameters&#34;&gt;search qualifiers&lt;/a&gt; (although it&amp;rsquo;s not documented, &lt;code&gt;created&lt;/code&gt; will take a full timestamp like &lt;code&gt;2014-09-01T00:00:00Z&lt;/code&gt;).&lt;/p&gt;
+
+&lt;p&gt;Next I declared the &lt;code&gt;%languages&lt;/code&gt; hash and iterated through the results, extracting each repo&amp;rsquo;s language. Where language was &lt;code&gt;undef&lt;/code&gt;, I labelled the repo &amp;ldquo;Other&amp;rdquo;. Finally I sorted the results and printed them using &lt;a href=&#34;http://perldoc.perl.org/functions/printf.html&#34;&gt;printf&lt;/a&gt;to get a nicely formatted output. Here are the results:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;     Shell:   238
+     Other:    58
+    Python:    13
+      Ruby:    10
+JavaScript:     8
+        Go:     6
+      Perl:     2
+       PHP:     2
+   Clojure:     1
+      Java:     1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Perhaps as is to be expected, the results show shell programs dominating the Docker space in September.&lt;/p&gt;
+
+&lt;h3 id=&#34;further-info:aca40df9e1d07f7ddcf3dfd9a21817db&#34;&gt;Further Info&lt;/h3&gt;
+
+&lt;p&gt;GitHub&amp;rsquo;s search API supports more than just repo search. You can search issues, code and users as well. Check out the official GitHub search API &lt;a href=&#34;https://developer.github.com/v3/search/&#34;&gt;documentation&lt;/a&gt; for more examples.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::GitHub&#34;&gt;Net::GitHub&lt;/a&gt; provides an interface for far more than just search though. It&amp;rsquo;s a full-featured API - you can literally manage your GitHub account via Perl code with Net::GitHub. The developer Fayland Lam has provided loads of documentation, and I found him helpful responsive to enquiries. Thanks Fayland!&lt;/p&gt;
+
+&lt;p&gt;If you&amp;rsquo;re looking for more than just search, you may also want to look at Ingy döt Net&amp;rsquo;s awesome &lt;a href=&#34;https://github.com/ingydotnet/git-hub&#34;&gt;git-hub&lt;/a&gt;, which provides the full power of GitHub at the command line.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Facing the music with Perl</title>
+      <link>http://perltricks.com/article/111/2014/8/29/Facing-the-music-with-Perl/</link>
+      <pubDate>Fri, 29 Aug 2014 15:03:09 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/111/2014/8/29/Facing-the-music-with-Perl/</guid>
+      <description>&lt;p&gt;My digital music libraries were messed up. Spread across several devices and a couple of flirtations with iTunes Match and iCloud, I didn&amp;rsquo;t have everything in one place—ironically. Not only that, but Apple had replaced some files with what it considered better versions. Although I don&amp;rsquo;t want to perform the experiment to confirm it, I&amp;rsquo;m sure that the new files had different metadata. I needed to sort it out to start on a better system. I thought the task would be arduous, and it was until I settled on a simpler problem that a couple of Perl modules solved quickly.&lt;/p&gt;
+
+&lt;p&gt;For my first step, I needed to find all the music I had. I had backed up my files before I let Apple replace them with better versions. But I seemed to have made several backups, each with a different subset of my music. One backup would have most of the Led Zepplin but none of the Beatles, while another had no Zepplin and some of the Beatles. Another had all of the Beatles but no Cat Stevens.&lt;/p&gt;
+
+&lt;p&gt;I started by collecting all the unique files from the directories in which I had found music. This program has some of my favorite things about Perl, especially since I still have the wounds from moving files around during my C phase.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+use strict;
+use warnings;
+
+use Digest::MD5 qw(md5_hex);
+use File::Copy  qw(copy);
+use File::Find;
+use File::Map   qw(map_file);
+use File::Path  qw(make_path);
+use File::Spec::Functions qw(catfile);
+
+my $wanted = sub {
+    state $Seen  = {};
+
+    my $full_name = $File::Find::name;
+    return if -d $full_name;
+
+    map_file my $map, $full_name, &#39;+&amp;lt;&#39;;
+    my $digest_hex = md5_hex( $map );
+    return if $Seen-&amp;gt;{ $digest_hex }++;
+    
+    my( $extension )     = $full_name  =~ /(\.[^.]+)\z/;
+    my( $n, $m, $o, $p ) = $digest_hex =~ /\A (..) (..) (..) (..)/x;
+
+    my $basename = $_;
+    my $dir = catfile( $new_dir, $n, $m, $o, $p );
+    my $new_file = catfile( $dir, $basename );
+    return if -e $new_file;
+
+    make_path( $dir ) unless -d $dir;
+
+    copy(
+        $full_name, 
+        catfile( $dir, $basename )
+        );
+    };
+
+find( $wanted, @ARGV );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.metacpan.org/module/File::Find&#34;&gt;File::Find&lt;/a&gt; provides the code to traverse the file structure for me. I give find the list of starting directories, in this case those in &lt;code&gt;@ARGV&lt;/code&gt;, and a callback subroutine as a reference. The meat of my program is in that &lt;code&gt;$wanted&lt;/code&gt; subroutine. The hardest part of this code is remembering that &lt;code&gt;$File::Find::name&lt;/code&gt; is the full path and &lt;code&gt;$_&lt;/code&gt; is the filename only. I put those into variables to remind me which is which.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.metacpan.org/pod/File::Map&#34;&gt;File::Map&lt;/a&gt; allows me to access a file&amp;rsquo;s data directly from disk as a memory map rather than reading it into memory. I don&amp;rsquo;t need to change the file to get its digest (using &lt;a href=&#34;http://www.metacpan.org/pod/Digest::MD5&#34;&gt;Digest::MD5&lt;/a&gt;), so memory mapping is a big win across tens of thousands of music files. If I have seen that digest before, I move on to the next file. Otherwise I do some string manipulations to create new file paths, putting the pieces together with the cross-plaform &lt;a href=&#34;http://www.metacpan.org/pod/File::Spec&#34;&gt;File::Spec&lt;/a&gt;. I copy the file to the new location with &lt;a href=&#34;http://www.metacpan.org/pod/File::Copy&#34;&gt;File::Copy&lt;/a&gt;. I specifically make a copy so I leave the original files where they are for now. I anticipate messing up at least a couple of times. The new path is four levels deep with each deeper level based on the next two characters in the file&amp;rsquo;s digest. That way, no directory gets too big, slowing down all directory operations.&lt;/p&gt;
+
+&lt;p&gt;Some rough calculations showed me that no particular music library was more than 85% complete. This was where the real fun began, but also my embarrassing tales of woe. Out of the newly copied files, I needed to select the ones I wanted to keep.&lt;/p&gt;
+
+&lt;p&gt;First, I merely cleaned out my iTunes library and reimported everything to see what I was working with. Most music I had in duplicates, and some in triplicates. iTunes Match had upgraded MP3 files to M4A (encoded in Apple&amp;rsquo;s AAC codec) and had done the same for M4P files, the DRM-ed versions of music I had purchased. Each version had a different digest, so several versions of the same content survived.&lt;/p&gt;
+
+&lt;p&gt;I struggled with the next part of the problem because I have too much computer power at my disposal. I could collect all of the metadata for each file and store it in a database. I could throw it into a NoSQL thingy. I even thought about redis. Any one of these technologies are fun diversions but they require too much work. I started and abandoned several approaches, including a brief attempt to use AppleScript to interact with iTunes directly. Oh, the insanity.&lt;/p&gt;
+
+&lt;p&gt;Working from the digested directory each time was a bad decision. I&amp;rsquo;d have to collect the metadata then group files by album or artist. iTunes had already done that for me, although I didn&amp;rsquo;t realize this for a week. When I imported the music, it copied the files into folders named after the artist and album (something I could have done instead of using the digests). Most of my work would be limited to the files in a single directory. I don&amp;rsquo;t need a data structure to hold all of that. I certainly didn&amp;rsquo;t need a database.&lt;/p&gt;
+
+&lt;p&gt;If I could enter a directory, examine each file in that directory, then process them on the way out of that directory, removing the duplicate files becomes much easier. I remembered that &lt;a href=&#34;http://www.metacpan.org/pod/File::Find&#34;&gt;File::Find&lt;/a&gt; has a &lt;code&gt;post_process&lt;/code&gt; option that allows me to do this, although I haven&amp;rsquo;t used it in years:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use File::Find qw(find);
+
+find( 
+    { 
+    wanted      =&amp;gt; $wanted,   #code refs
+    postprocess =&amp;gt; $post,
+    },
+    @ARGV,
+    );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;While I was in each directory, I could collect information on each file. Each file is already sorted by artist and album but I still need to choose which one of the duplicate files to keep. After a bit of thought, the solution turned out to be simple. I could sort on file extension, looking up the ordering in a hash. When I have two files with the same extension I&amp;rsquo;ll choose the one with the higher bitrate. When the bitrates match, I&amp;rsquo;ll choose the one with the shortest filename. With the various music libraries, I had some files like &lt;em&gt;Susie Q.m4a&lt;/em&gt; and &lt;em&gt;Susie Q 1.m4a&lt;/em&gt;; essentially the same file except for some slight metadata differences. I used &lt;a href=&#34;http://www.metacpan.org/pod/Music::Tag&#34;&gt;Music::Tag&lt;/a&gt; to get the metadata since it automatically delegated to plugins for the various file formats.&lt;/p&gt;
+
+&lt;p&gt;After sorting, I mark for deletion everything except the first element in the list. I don&amp;rsquo;t delete them right away; I print the list to a file which I can use later to delete files. I&amp;rsquo;ve been around too long to delete files right away.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/Users/brian/bin/perls/perl5.18.1
+use v5.18;
+use Digest::MD5 qw( md5_hex );
+use Data::Dumper;
+use File::Basename qw( basename );
+use File::Find;
+use File::Map   qw( map_file );
+use File::Copy  qw( copy );
+use File::Path  qw( make_path );
+use File::Spec::Functions  qw(abs2rel rel2abs splitdir);
+use Music::Tag;
+
+my $extensions_order = {
+    m4a =&amp;gt; -2,        
+    mp3 =&amp;gt; -1,
+    m4p =&amp;gt;  0,
+    };
+
+open my $fh, &#39;&amp;gt;&#39;, &#39;delete_files.txt&#39;;
+
+my $hash = {};
+
+my( $wanted, $post ) = make_subs( $dir, $hash );
+
+find( 
+    { 
+    wanted      =&amp;gt; $wanted,
+    postprocess =&amp;gt; $post,
+    },
+    @ARGV,
+    );
+    
+sub make_subs {
+    my( $dir, $hash ) = @_;
+    
+    sub { # wanted
+        # my $path     = $File::Find::name;
+        # my $filename = $_;
+        
+        state $count = 0;
+
+        return if( -d $File::Find::name or -l $File::Find::name );
+        return if $_ eq &#39;.DS_Store&#39;;
+
+        my $filename = basename( $File::Find::name );
+        my $relative = abs2rel( $File::Find::name, $dir );
+        
+        my $basename_no_ext = $filename =~ s/\.[^.]+\z//r;
+
+        my( $extension ) = $filename =~ m/ \. ( [^.]+ ) \z /x;
+        return unless exists $extensions_order-&amp;gt;{$extension};
+
+        my $this_file = {};
+
+        my $info = eval { Music::Tag-&amp;gt;new( $filename )-&amp;gt;get_tag };
+        
+        my $title = eval{ $info-&amp;gt;title };
+        if( $@ ) { 
+            warn &amp;quot;Title had a problem: $@&amp;quot;;
+            }
+
+        $this_file-&amp;gt;{tag} = {
+            title   =&amp;gt; $title,
+            bitrate =&amp;gt; eval{ $info-&amp;gt;bitrate },
+            };    
+        $this_file-&amp;gt;{file} = {
+            extension =&amp;gt; $extension,
+            basename  =&amp;gt; $filename,
+            relative  =&amp;gt; $relative,
+            no_ext    =&amp;gt; $basename_no_ext,
+            &#39;File::Find::name&#39; =&amp;gt; $File::Find::name,
+            &#39;_&#39; =&amp;gt; $_,
+            };    
+        
+        push @{ $hash-&amp;gt;{$File::Find::dir}{$title} }, $this_file;
+
+        $hash-&amp;gt;{extensions}{$extension}++;
+        },
+        
+    sub { # postprocess        
+        my $this = $hash-&amp;gt;{$File::Find::dir};
+
+        TITLE: foreach my $title ( sort keys %$this ) {
+            my $songs = $this-&amp;gt;{ $title };
+            next if @$songs == 1; # no duplicates, no problem
+
+            my @sorted = sort {
+              state $e = $extensions_order;
+                
+              $e-&amp;gt;{ $a-&amp;gt;{file}{extension} } &amp;lt;=&amp;gt; $e-&amp;gt;{ $b-&amp;gt;{file}{extension} }
+                    or
+              length $a-&amp;gt;{file}{basename} &amp;lt;=&amp;gt; length $b-&amp;gt;{file}{basename}
+                    or
+              $b-&amp;gt;{tag}{bitrate} &amp;lt;=&amp;gt; $a-&amp;gt;{tag}{bitrate}
+              } @$songs;
+
+            # everything without the chosen key will be deleted
+            $sorted[0]{chosen}++;
+            
+            SONG: foreach my $song ( @sorted ) {
+                $hash-&amp;gt;{seen}++;
+                next unless exists $extensions_order-&amp;gt;{
+                    $song-&amp;gt;{file}{extension} };
+                $hash-&amp;gt;{examined}++;
+                next if $song-&amp;gt;{chosen};
+                
+                # ignore other files, such as videos and e-books
+                next unless exists $extensions_order-&amp;gt;{
+                    $song-&amp;gt;{file}{extension} };
+
+                $hash-&amp;gt;{deleted}++;
+                print { $fh } &amp;quot;delete:\t$song-&amp;gt;{file}{relative}\n&amp;quot;;
+                }
+            }
+
+        delete $hash-&amp;gt;{$File::Find::dir};
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And that was it. This left behind a couple of problems, such as messed up metadata, but I wasn&amp;rsquo;t going to be able to solve that programmatically anyway. Getting a complete set of files with no duplicates solved most of the problem and leaves me with the joy of flipping through physical albums that only us grey beards remember.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Parse Excel with ease using Perl</title>
+      <link>http://perltricks.com/article/108/2014/8/5/Parse-Excel-with-ease-using-Perl/</link>
+      <pubDate>Tue, 05 Aug 2014 13:41:48 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/108/2014/8/5/Parse-Excel-with-ease-using-Perl/</guid>
+      <description>
+
+&lt;p&gt;In the business world, it seems like Excel spreadsheets are everywhere. Recently I had to parse several hundred spreadsheets under a tight deadline for a client. To make matters worse, the spreadsheets were in a mix of Excel 2003 (xls) and 2007 (xlsx) formats. Fortunately I know Perl, and using the Spreadsheet::Read module, it was easy. This article will show you how to use Spreadsheet::Read to parse Excel spreadsheets.&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:0b46a0650427715cdfe7d0a01e84588d&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need to install &lt;a href=&#34;https://metacpan.org/pod/Spreadsheet::Read&#34;&gt;Spreadsheet::Read&lt;/a&gt; and a couple of interface modules. &lt;a href=&#34;https://metacpan.org/pod/Spreadsheet::ParseExcel&#34;&gt;Spreadsheet::ParseExcel&lt;/a&gt; is an interface for Excel 2003 spreadsheets and &lt;a href=&#34;https://metacpan.org/pod/Spreadsheet::XLSX&#34;&gt;Spreadsheet::XLSX&lt;/a&gt; is for reading the modern Excel format. You can install all three modules from the terminal using cpan:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Spreadsheet::ParseExcel Spreadsheet::XLSX Spreadsheet::Read
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;using-spreadsheet-read:0b46a0650427715cdfe7d0a01e84588d&#34;&gt;Using Spreadsheet::Read&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s parse the spreadsheet shown in the cover image, which contains an income statement. Spreadsheet::Read provides a simple, unified interface for reading spreadsheets. It exports the &lt;code&gt;ReadData&lt;/code&gt; function which requires a filepath to the spreadsheet:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Spreadsheet::Read;
+
+my $workbook = ReadData(&#39;income_statement.xlsx&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now &lt;code&gt;$workbook&lt;/code&gt; contains the data structure representing the spreadsheet. We can inspect this structure by printing it with &lt;a href=&#34;https://metacpan.org/pod/Data::Printer&#34;&gt;Data::Printer&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ [
+    [0] {
+        error     undef,
+        parser    &amp;quot;Spreadsheet::XLSX&amp;quot;,
+        sheet     {
+            Sheet1   1
+        },
+        sheets    1,
+        type      &amp;quot;xlsx&amp;quot;,
+        version   0.13
+    },
+    [1] {
+        attr     [],
+        B1       &amp;quot;Income Statement 2014&amp;quot;,
+        B2       &amp;quot;Revenue&amp;quot;,
+        B3       &amp;quot;Cost of goods sold&amp;quot;,
+        B4       &amp;quot;Gross profit&amp;quot;,
+        B5       &amp;quot;Financing costs&amp;quot;,
+        B6       &amp;quot;Tax&amp;quot;,
+        B7       &amp;quot;Net profit&amp;quot;,
+        cell     [
+            [0] [],
+            [1] [],
+            [2] [
+                [0] undef,
+                [1] &amp;quot;Income Statement 2014&amp;quot;,
+                [2] &amp;quot;Revenue&amp;quot;,
+                [3] &amp;quot;Cost of goods sold&amp;quot;,
+                [4] &amp;quot;Gross profit&amp;quot;,
+                [5] &amp;quot;Financing costs&amp;quot;,
+                [6] &amp;quot;Tax&amp;quot;,
+                [7] &amp;quot;Net profit&amp;quot;
+            ],
+            [3] [
+                [0] undef,
+                [1] undef,
+                [2] 50000,
+                [3] 2500,
+                [4] 47500,
+                [5] 7150,
+                [6] 10087.5,
+                [7] 30262.5
+            ]
+        ],
+        C2       &amp;quot; $ 50,000.00 &amp;quot;,
+        C3       &amp;quot; $ 2,500.00 &amp;quot;,
+        C4       &amp;quot; $ 47,500.00 &amp;quot;,
+        C5       &amp;quot; $ 7,150.00 &amp;quot;,
+        C6       &amp;quot; $ 10,087.50 &amp;quot;,
+        C7       &amp;quot; $ 30,262.50 &amp;quot;,
+        label    &amp;quot;Sheet1&amp;quot;,
+        maxcol   3,
+        maxrow   7
+    }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This shows that &lt;code&gt;$workbook&lt;/code&gt; is an arrayref, whose first element describes the file, and subsequent elements represent the individual worksheets. The &lt;code&gt;label&lt;/code&gt; key pair contains the worksheet name, access it like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$workbook-&amp;gt;[1]{label}; #Sheet1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Cells can be referenced using Excel&amp;rsquo;s grid notation (&amp;ldquo;A3&amp;rdquo;) or via standard Perl array access. The different between these is formatting:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$workbook-&amp;gt;[1]{C2}; #$ 50,000.00
+
+$workbook-&amp;gt;[1]{cell}[3][2]; #50000
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So if you need to perform additional processing on the data you&amp;rsquo;re extracting (such as saving to a database), you probably want to use the &lt;code&gt;{cell}&lt;/code&gt; notation, to obtain clean data. With Spreadsheet::Read array indexes begin at 1, so cell &amp;ldquo;C2&amp;rdquo; is [3][2].&lt;/p&gt;
+
+&lt;p&gt;Perhaps you want to loop through two columns at once and print them? No problem:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;for (2..7) {
+    print &amp;quot;$workbook-&amp;gt;[1]{cell}[2][$_]: $workbook-&amp;gt;[1]{cell}[3][$_]\n&amp;quot;; 
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There are some data points which Spreadsheet::Read does not provide: you cannot access the underlying formula of a cell and the styling data is also not available.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:0b46a0650427715cdfe7d0a01e84588d&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Spreadsheet::Read isn&amp;rsquo;t just great for command line apps, it has many uses. Unlike the Microsoft .Net interop library, Perl&amp;rsquo;s Excel interfaces are not single threaded and do not require Excel to be installed to work. Instead Spreadsheet::Read directly parses the Excel file. That makes it possible to process large computing tasks in parallel. Another possible use case is for a spreadsheet upload interface on a web application; Spreadsheet::Read also supports the Libre / Open Office formats as well as CSV text files.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>HTML pro-parsing tips</title>
+      <link>http://perltricks.com/article/101/2014/7/10/HTML-pro-parsing-tips/</link>
+      <pubDate>Thu, 10 Jul 2014 12:33:45 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/101/2014/7/10/HTML-pro-parsing-tips/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Perl has some fantastic modules for parsing HTML and one of the best is XML::LibXML. It&amp;rsquo;s an interface to the libxml2 C library; super fast but also super-picky. I&amp;rsquo;ve often found XML::LibXML croaking on relatively simple - but incorrectly formed HTML. If you find this, do not give up! This article shares 3 simple techniques for overcoming malformed HTML when parsing with XML::LibXML.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;tip-1-turn-on-recovery-mode:9d73a78b2b77c7daf47ac5782dcbfdfb&#34;&gt;Tip 1: turn on recovery mode&lt;/h3&gt;
+
+&lt;p&gt;If XML::LibXML is croaking on a later part of the HTML, try turning on recovery mode, which will return all of the correctly parsed HTML up until XML::LibXML encountered the error.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use XML::LibXML;
+
+my $xml = XML::LibXML-&amp;gt;new( recover =&amp;gt; 1 );
+my $dom = $xml-&amp;gt;load_html( string =&amp;gt; $html );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With recovery mode set to 1, the parser will still warn about parsing errors. To suppress the warnings, set recover to 2.&lt;/p&gt;
+
+&lt;h3 id=&#34;tip-2-sanitize-the-input-first-with-html-scrubber:9d73a78b2b77c7daf47ac5782dcbfdfb&#34;&gt;Tip 2: sanitize the input first with HTML::Scrubber&lt;/h3&gt;
+
+&lt;p&gt;Sometimes recovery mode alone is not enough - XML::LibXML will croak at the first whiff of HTML if there are two doctype declarations for example. In these situations, consider sanitizing the HTML with &lt;a href=&#34;https://metacpan.org/pod/HTML::Scrubber&#34;&gt;HTML::Scrubber&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;HTML::Scrubber provides both whitelist and blacklist functions to include or exclude HTML tags and attributes. It&amp;rsquo;s a powerful combination which allows you to create a custom filter to scrub the HTML that you want to parse.&lt;/p&gt;
+
+&lt;p&gt;By default HTML::Scrubber removes all tags, but in the case of a duplicate doctype declaration, you just need that one tag removed. Let&amp;rsquo;s remove all div tags too for good measure:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use HTML::Scrubber;
+
+my $scrubber = HTML::Scrubber-&amp;gt;new( deny =&amp;gt; [ &#39;doctype&#39;, &#39;div&#39; ],
+                                    allow=&amp;gt; &#39;*&#39; );
+my $scrubbed_html = $scrubber-&amp;gt;scrub($html);
+my $dom = XML::LibXML-&amp;gt;load_html( string =&amp;gt; $scrubbed_html );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &amp;ldquo;deny&amp;rdquo; rule sets the scrubber blacklist (what to exclude) and the &amp;ldquo;allow&amp;rdquo; rule specifies the whitelist (what to include). Here we passed an asterisk (&amp;rdquo;*&amp;rdquo;) to allow, which means allow everything, but because we&amp;rsquo;re denying div and doctype tags, they&amp;rsquo;ll be removed.&lt;/p&gt;
+
+&lt;h3 id=&#34;tip-3-extract-a-subset-of-data-with-a-regex-capture:9d73a78b2b77c7daf47ac5782dcbfdfb&#34;&gt;Tip 3: extract a subset of data with a regex capture&lt;/h3&gt;
+
+&lt;p&gt;If the subset HTML you want to parse has a unique identifier (such as an id attribute), consider using a regex capture to extract it from the HTML document. You can then scrub or immediately parse this subset with XML::LibXML.&lt;/p&gt;
+
+&lt;p&gt;For example recently I had to extract an HTML table from a badly-formed web page. Fortunately the table had an id attribute, which made extracting it with a regex a piece-of-cake:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;if ( $html =~ /(&amp;lt;table id=&amp;quot;t2&amp;quot;&amp;gt;.*?&amp;lt;\/table&amp;gt;)/s ) {
+    my $dom = XML::LibXML-&amp;gt;load_html( string =&amp;gt; $1 );
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note the use of the &amp;ldquo;s&amp;rdquo; modifier in the regex to match multiline. Many HTML pages contain newlines and you don&amp;rsquo;t want your match fail because of that.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:9d73a78b2b77c7daf47ac5782dcbfdfb&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Hopefully these tips will make parsing HTML with XML::LibXML easier. My GitHub account has a web scraper &lt;a href=&#34;https://gist.github.com/sillymoose/998b9199007589199dce#file-get_swift_code-pl-L42&#34;&gt;script&lt;/a&gt; that uses some of these tips. If you&amp;rsquo;re looking for an entirely different approach to parsing HTML, check out &lt;a href=&#34;https://metacpan.org/pod/XML::Rabbit&#34;&gt;XML::Rabbit&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/HTML::TreeBuilder&#34;&gt;HTML::TreeBuilder&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F101%2F2014%2F7%2F10%2FHTML-pro-parsing-tips&amp;amp;text=HTML+pro-parsing+tips&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F101%2F2014%2F7%2F10%2FHTML-pro-parsing-tips&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Managing files is a breeze with this DBIx::Class plugin</title>
+      <link>http://perltricks.com/article/98/2014/6/30/Managing-files-is-a-breeze-with-this-DBIx--Class-plugin/</link>
+      <pubDate>Mon, 30 Jun 2014 12:17:25 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/98/2014/6/30/Managing-files-is-a-breeze-with-this-DBIx--Class-plugin/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Managing application file uploads is challenging: storage, de-duplication, retrieval and permissions all need to be handled. DBIx::Class::InflateColumn::FS simplifies the challenge by handling the backend storage of files so the programmer can focus on application development. Let&amp;rsquo;s take a closer look at how it works.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:da68520d418322a2aba4c2ed5fa6b38c&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;To use this example, you&amp;rsquo;ll need to install &lt;a href=&#34;https://metacpan.org/pod/DBIx::Class::InflateColumn::FS&#34;&gt;DBIx::Class::InflateColumn::FS&lt;/a&gt; from CPAN. The CPAN Testers &lt;a href=&#34;http://matrix.cpantesters.org/?dist=DBIx-Class-InflateColumn-FS+0.01007&#34;&gt;results&lt;/a&gt; show that it should run on all platforms, including Windows. You&amp;rsquo;ll also need &lt;a href=&#34;https://metacpan.org/pod/DBIx::Class::Schema::Loader&#34;&gt;DBIx::Class::Schema::Loader&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/File::MimeInfo&#34;&gt;File::MimeInfo&lt;/a&gt; if you don&amp;rsquo;t already have them and &lt;a href=&#34;https://sqlite.org/&#34;&gt;SQLite3&lt;/a&gt;. To install the Perl modules, open the terminal and enter:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan DBIx::Class::InflateColumn::FS DBIx::Class::Schema::Loader File::MimeInfo
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;setup-the-result-class:da68520d418322a2aba4c2ed5fa6b38c&#34;&gt;Setup the result class&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s create an example class for handling file uploads. DBIx::Class maps objects to database tables, so we need to create a database table that represents our file upload object. This is the SQL code for creating the upload table:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;create table upload (
+    id          integer     primary key,
+    file        text        not null,
+    mime        text        not null
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Save the code into a script called create_upload.sql and run it at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ sqlite3 MyApp.db &amp;lt; create_upload.sql
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will create the upload table. Next we can use the &amp;ldquo;dbicdump&amp;rdquo; app that comes with DBIx::Class::Schema::Loader to create the basic result class for us:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ dbicdump MyApp::Schema dbi:SQLite:MyApp.db
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Open up the newly-created MyApp/Schema/Result/Upload.pm in a text editor and add the following code, below the line beginning &amp;ldquo;# DO NOT MODIFY &amp;hellip;&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use File::MimeInfo &#39;extensions&#39;;
+
+__PACKAGE__-&amp;gt;load_components(&amp;quot;InflateColumn::FS&amp;quot;);
+__PACKAGE__-&amp;gt;add_columns(
+    &amp;quot;file&amp;quot;,
+    {   
+        data_type      =&amp;gt; &#39;TEXT&#39;,
+        is_fs_column   =&amp;gt; 1,
+        fs_column_path =&amp;gt; &#39;uploads&#39;,
+    }   
+);
+
+sub extension { 
+    my ($self) = @_;
+    [ extensions($self-&amp;gt;mime) ]-&amp;gt;[0];
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code enables the DBIx::Class::InflateColumn::FS plugin on the &amp;ldquo;file&amp;rdquo; attribute of our Upload class. Additionally we&amp;rsquo;ve added a subroutine called &amp;ldquo;extension&amp;rdquo; that will return the file extension for the file.&lt;/p&gt;
+
+&lt;h3 id=&#34;create-an-upload:da68520d418322a2aba4c2ed5fa6b38c&#34;&gt;Create an upload&lt;/h3&gt;
+
+&lt;p&gt;This script will create an upload object:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use MyApp::Schema;
+use MIME::Types;
+use lib &#39;.&#39;;
+
+open(my $file, &#39;&amp;lt;&#39;, $ARGV[0]) or die $!; 
+
+my $schema = MyApp::Schema-&amp;gt;connect(&#39;dbi:SQLite:MyApp.db&#39;);
+
+# Add the file to the database and file system
+my $upload = $schema-&amp;gt;resultset(&#39;Upload&#39;)-&amp;gt;
+        create({ file =&amp;gt; $file,
+                 mime =&amp;gt; (MIME::Types-&amp;gt;new-&amp;gt;mimeTypeOf($ARGV[0])) });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Saving the script as &amp;ldquo;create_upload.pl&amp;rdquo; we can call it at the terminal, passing the filepath to the file we want to save:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl create_upload.pl perltricks_logo.png
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Just by creating the object, DBIx::Class::InflateColumn::FS will save the file in our uploads directory. No need to write extra code that explicitly copies the file.&lt;/p&gt;
+
+&lt;h3 id=&#34;retrieve-an-upload:da68520d418322a2aba4c2ed5fa6b38c&#34;&gt;Retrieve an upload&lt;/h3&gt;
+
+&lt;p&gt;This script will retrieve the upload object. DBIx::Class::InflateColumn::FS automatically inflates the &amp;ldquo;file&amp;rdquo; column to be a &lt;a href=&#34;https://metacpan.org/pod/Path::Class::File&#34;&gt;Path::Class::File&lt;/a&gt; object, which gives us many convenience methods:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use MyApp::Schema;
+use lib &#39;.&#39;;
+
+my $schema = MyApp::Schema-&amp;gt;connect(&#39;dbi:SQLite:MyApp.db&#39;);
+
+# retrieve the upload
+my $upload = $schema-&amp;gt;resultset(&#39;Upload&#39;)-&amp;gt;find(1);
+
+# get the relative path
+$upload-&amp;gt;file-&amp;gt;relative;
+
+# get the absolute path
+$upload-&amp;gt;file-&amp;gt;absolute;
+
+# get the base filename
+$upload-&amp;gt;file-&amp;gt;basename;
+
+# get the mime type (image/png)
+$upload-&amp;gt;mime;
+
+# get the file extension
+$upload-&amp;gt;extension;
+
+# get a read filehandle
+$upload-&amp;gt;file-&amp;gt;openr;
+
+# get a write filehandle
+$upload-&amp;gt;file-&amp;gt;openw;
+
+# get an append filehandle
+$upload-&amp;gt;file-&amp;gt;opena;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;delete-an-upload:da68520d418322a2aba4c2ed5fa6b38c&#34;&gt;Delete an upload&lt;/h3&gt;
+
+&lt;p&gt;DBIx::Class::InflateColumn::FS makes it super-simple to delete files. Simply call delete on the result object to delete it from the table and the file system:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use MyApp::Schema;
+use lib &#39;.&#39;;
+
+my $schema = MyApp::Schema-&amp;gt;connect(&#39;dbi:SQLite:MyApp.db&#39;);
+
+# retrieve the upload
+my $upload = $schema-&amp;gt;resultset(&#39;Upload&#39;)-&amp;gt;find(1);
+
+# delete the file from the database and file system
+$upload-&amp;gt;delete;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:da68520d418322a2aba4c2ed5fa6b38c&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;DBIx::Class::InflateColumn::FS is useful as-is, but it shines in certain situations. For example if you&amp;rsquo;re managing image files, it really pays to store the original high-quality image, and dynamically re-size the image when requested. This way you minimize disk use and retain the flexibility in the application logic to adjust the images as required.&lt;/p&gt;
+
+&lt;p&gt;Thanks to Devin Austin whose Catalyst advent calendar &lt;a href=&#34;http://www.catalystframework.org/calendar/2008/5&#34;&gt;article&lt;/a&gt; was a useful source for this article.&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F98%2F2014%2F6%2F30%2FManaging-files-is-a-breeze-with-this-DBIx--Class-plugin&amp;amp;text=Managing+files+is+a+breeze+with+this+DBIx%3A%3AClass+plugin&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F98%2F2014%2F6%2F30%2FManaging-files-is-a-breeze-with-this-DBIx--Class-plugin&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;https://creativecommons.org/licenses/by/2.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/brightmeadow/3748310435/in/photolist-6He56Z-bDdcmL-5Jp3Z-aZWgk-aaGbZM-aZWfK-5uGDfb-63MA6m-88qSJK-6B33mX-76En59-6N6eHG-5UFiwj-3rXHK-aZWiH-4CmaD2-6vWgnX-3bai1p-c3CSTq-3PChVM-7hdnBS-2iYPPt-8Vx4Eo-4Cmav8-6P8qMy-jfddWn-4RoQjt-5ZrohQ-eQikQL-dGWiLV-4C7epr-dH2HeL-4C7eve-bnpqbW-4CmavB-8Nvnmc-8SfZR6-3ppzd-7PEzCG-FLPq-9gXmeE-dGWi5t-8Sg3sF-7h9qon-8EWHyq-dGWhC6-buGn9s-c1AukG-7VSc8B-dRCTcZ&#34;&gt;Cas&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Parsing data couldn&#39;t be easier with XML::Dataset</title>
+      <link>http://perltricks.com/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</link>
+      <pubDate>Fri, 09 May 2014 03:14:01 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;It&amp;rsquo;s hard to believe that when it comes to XML parsing CPAN hasn&amp;rsquo;t already got you covered, but &lt;a href=&#34;https://metacpan.org/pod/XML::Dataset&#34;&gt;XML::Dataset&lt;/a&gt; is a new module that fills a useful void. XML::Dataset let&amp;rsquo;s you declare a plaintext data collection schema, and then goes and extracts the data for you, super fast. Read on to see how it works.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;The CPAN Testers results &lt;a href=&#34;http://matrix.cpantesters.org/?dist=XML-Dataset+0.006&#34;&gt;show&lt;/a&gt; that XML::Dataset v0.06 will run on any platform with Perl (down to 5.8.9). To install the module with CPAN, open up the terminal and type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan XML::Dataset
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;your-data-extracted:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;Your data, extracted&lt;/h3&gt;
+
+&lt;p&gt;To use XML::Dataset you&amp;rsquo;ll need some stringified XML source data and a data profile. A profile is just a plaintext schema which specifies the data you&amp;rsquo;d like to extract. Let&amp;rsquo;s look at an example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use XML::Dataset;
+use Data::Printer;
+
+my $sample_data = q(&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;
+&amp;lt;colleagues&amp;gt;
+    &amp;lt;colleague&amp;gt;
+        &amp;lt;title&amp;gt;The Boss&amp;lt;/title&amp;gt;
+        &amp;lt;phone&amp;gt;+1 202-663-9108&amp;lt;/phone&amp;gt;
+    &amp;lt;/colleague&amp;gt;
+    &amp;lt;colleague&amp;gt;
+        &amp;lt;title&amp;gt;Admin Assistant&amp;lt;/title&amp;gt;
+        &amp;lt;phone&amp;gt;+1 347-999-5454&amp;lt;/phone&amp;gt;
+        &amp;lt;email&amp;gt;inbox@the_company.com&amp;lt;/email&amp;gt;
+    &amp;lt;/colleague&amp;gt;
+    &amp;lt;colleague&amp;gt;
+        &amp;lt;title&amp;gt;Minion&amp;lt;/title&amp;gt;
+        &amp;lt;phone&amp;gt;+1 792-123-4109&amp;lt;/phone&amp;gt;
+    &amp;lt;/colleague&amp;gt;
+&amp;lt;/colleagues&amp;gt;);
+
+my $sample_data_profile
+    = q(colleagues
+            colleague
+                title   = dataset:colleagues
+                email   = dataset:colleagues
+                phone   = dataset:colleagues);
+
+p parse_using_profile($sample_data, $sample_data_profile);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above declares a simple XML dataset ($sample_data) and a data profile to extract the required data ($sample_data_profile). XML::Dataset requires every indented newline in the data profile to map to another nested level of the data set. Once we reach the data attributes we want to extract, we simply assign a dataset to them (dataset:colleagues).&lt;/p&gt;
+
+&lt;p&gt;XML::Dataset exports the &amp;ldquo;parse_using_profile&amp;rdquo; function which extracts the data using our data profile and returns a Perl data structure. We use &lt;a href=&#34;https://metacpan.org/pod/Data::Printer&#34;&gt;Data::Printer&lt;/a&gt; to print out the results. Running this code we get this output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ {
+    colleagues   [
+        [0] {
+            phone   &amp;quot;+1 202-663-9108&amp;quot;,
+            title   &amp;quot;The Boss&amp;quot;
+        },
+        [1] {
+            email   &amp;quot;inbox@the_company.com&amp;quot;,
+            phone   &amp;quot;+1 347-999-5454&amp;quot;,
+            title   &amp;quot;Admin Assistant&amp;quot;
+        },
+        [2] {
+            phone   &amp;quot;+1 792-123-4109&amp;quot;,
+            title   &amp;quot;Minion&amp;quot;
+        },
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that XML::Dataset had no problem extracting the one email address that was present in the data, even though the other colleagues did not have that attribute. What if we wanted to collect emails and phone numbers, but in separate datasets? All we need to do is update $sample_data_profile with two datasets:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $sample_data_profile
+    = q(colleagues
+            colleague
+                title   = dataset:emails dataset:phones
+                email   = dataset:emails
+                phone   = dataset:phones);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Re-running the code, XML::Dataset now produces two datasets for us:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ {
+    emails   [
+        [0] {
+            title   &amp;quot;The Boss&amp;quot;
+        },
+        [1] {
+            email   &amp;quot;inbox@the_company.com&amp;quot;,
+            title   &amp;quot;Admin Assistant&amp;quot;
+        },
+        [2] {
+            title   &amp;quot;Minion&amp;quot;
+        }
+    ],
+    phones   [
+        [0] {
+            phone   &amp;quot;+1 202-663-9108&amp;quot;,
+            title   &amp;quot;The Boss&amp;quot;
+        },
+        [1] {
+            phone   &amp;quot;+1 347-999-5454&amp;quot;,
+            title   &amp;quot;Admin Assistant&amp;quot;
+        },
+        [2] {
+            phone   &amp;quot;+1 792-123-4109&amp;quot;,
+            title   &amp;quot;Minion&amp;quot;
+        }
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;a-real-example:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;A real example&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s write a program to parse a a more realistic data set. Many websites provide a sitemap that lists all of the content on the website, and when it was last updated. This information is used by search engines to optimize their crawling routines. The sitemap has a defined xml format, so it&amp;rsquo;s a cinch to parse it with XML::Dataset:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use XML::Dataset;
+use Data::Printer;
+use HTTP::Tiny;
+
+my $url = &#39;http://perltricks.com/sitemap.xml&#39;;
+
+my $sitemap_data 
+    = HTTP::Tiny-&amp;gt;new-&amp;gt;get($url)-&amp;gt;{content};
+
+my $sitemap_data_profile
+    = q(urlset
+            url
+                loc     = dataset:sitemap_locations_modified
+                lastmod = dataset:sitemap_locations_modified);
+
+p parse_using_profile($sitemap_data, $sitemap_data_profile);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above downloads the PerlTricks.com sitemap using &lt;a href=&#34;https://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt; and extracts every URL and last modified timestamp from the sitemap. Running the code, we get this output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ {
+    sitemap_locations_modified   [
+        [0]  {
+            lastmod   &amp;quot;2014-05-09&amp;quot;,
+            loc       &amp;quot;http://perltricks.com/&amp;quot;
+        },
+        [1]  {
+            lastmod   &amp;quot;2013-03-24&amp;quot;,
+            loc       &amp;quot;http://perltricks.com/article/1/2013/3/24/3-quick-ways-to-find-out-the-version-number-of-an-installed-Perl-module-from-the-terminal&amp;quot;
+        },
+        [2]  {
+            lastmod   &amp;quot;2013-03-27&amp;quot;,
+            loc       &amp;quot;http://perltricks.com/article/3/2013/3/27/How-to-cleanly-uninstall-a-Perl-module&amp;quot;
+        },
+        ...
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;No problem! We could re-use that same program to download and parse any sitemap on the Internet.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;XML::Dataset is fantastic for extracting fixed data schemas from XML. The plaintext data profiles are so easy to use, a non-programmer could write them. XML::Dataset is also fast: under the hood it uses XML::LibXML (and a few optimizations) and could be adapted for well-formatted HTML. It has great &lt;a href=&#34;https://metacpan.org/pod/XML::Dataset&#34;&gt;documentation&lt;/a&gt; and offers some advanced features like partial dataset parse dispatching. Module author James Spurin deserves credit for producing a quality module and a welcome addition to CPAN&amp;rsquo;s XML namespace.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Do you have a much-loved CPAN module that you&amp;rsquo;d like us to cover? Drop us an &lt;a href=&#34;mailto:perltricks.com@gmail.com&#34;&gt;email&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;https://creativecommons.org/licenses/by/2.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/dullhunk/3948166814/in/photolist-71TorC-5RcLVC-5RcLk1-5R8vpe-5RcMC9-5R8w7D-5R8v7e-5RcM9Q-5RcLeL-5R8upk-5RcMso-5RcL7J-72QCEU-7KoKym-72QCsE-6FtTJ-6m6pyB-5AJCpY-6FvjN-6FuLy-6FtQL-6Fv4J-5BHeXd-6FuUe-6FtXH-6Fu9t-6FuAs-5AJCs3-5AJCsd-5AJCro-tS2dS-6kzkkD-6kDvjQ-6kDAtY-6kDvzS-6kD45L-6kzqYM-6kDvsE-6kDuys-6kDvcE-6m6prT-6kDupU-6kDuWw-6kDv6j-6kzkd2-6kDALo-5AJCsA-CJhVy-5AJCrN-5MzAkw&#34;&gt;Duncun Hull&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>3 ways to include data with your Perl distribution</title>
+      <link>http://perltricks.com/article/66/2014/2/7/3-ways-to-include-data-with-your-Perl-distribution/</link>
+      <pubDate>Fri, 07 Feb 2014 04:05:13 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/66/2014/2/7/3-ways-to-include-data-with-your-Perl-distribution/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;As a module author, being able to include data in your Perl distribution is super-useful. Data can be used for things like configuration and writing data-driven tests. Here are three ways to include data in a Perl distribution.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;EDIT: &lt;em&gt;Article updated on 9th February 2014 to include ExtUtils::MakeMaker solution option 3.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;use-data:6eeab3451604b74e59681fcd51f63947&#34;&gt;Use __DATA__&lt;/h3&gt;
+
+&lt;p&gt;The &amp;ldquo;__DATA__&amp;rdquo; token is a Perl keyword that signifies the end of the code in the file. Any text that appears after the token is automatically read into the DATA filehandle at runtime. For example, let&amp;rsquo;s include the Perl TIOBE statistics for the past decade as YAML data in a Perl test file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use YAML::XS;
+use Test::More;
+
+my $yaml = do { local $/; &amp;lt;main::DATA&amp;gt; };
+my $data = Load $yaml;
+
+do { ... };
+
+done_testing();
+
+__DATA__
+---
+2014: 0.917
+2013: 2.264
+2012: 2.768
+2011: 2.857
+2010: 3.562
+2009: 4.303
+2008: 5.247
+2007: 6.237
+2006: 7.045
+2005: 8.861
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here we use a do block to slurp the main::DATA filehandle into $yaml. We then use the YAML::XS &amp;ldquo;Load&amp;rdquo; function to decode $yaml into a Perl data structure stored in $data. From here we&amp;rsquo;re free to use the data in our tests.&lt;/p&gt;
+
+&lt;p&gt;What&amp;rsquo;s nice about the __DATA__ approach is that it is simple, fast to code, cross platform functional and you should never have trouble locating the data (unlike with an external file). The downside with __DATA__ is that it forces you to include the data in the same file as the code. What if you have a large volume of data? Every time the module is used, the data would increase the burden of using that module, whether or not the data is actually used. Additionally the content of __DATA__ is largely fixed - only the developer can overwrite it.&lt;/p&gt;
+
+&lt;h3 id=&#34;use-findbin-to-locate-the-data-file:6eeab3451604b74e59681fcd51f63947&#34;&gt;Use FindBin to locate the data file&lt;/h3&gt;
+
+&lt;p&gt;FindBin is a fabulous little module that comes with core Perl and provides the &amp;ldquo;Bin&amp;rdquo; function which returns the absolute path of the current file&amp;rsquo;s directory. So the pattern here is to include a data file in the same directory as the Perl file and reference the data file using FindBin&amp;rsquo;s Bin function. Let&amp;rsquo;s look at an example:&lt;/p&gt;
+
+&lt;p&gt;First we have our Tiobe Perl YAML data, saved in the file perl_tiobe.yaml:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;---
+2014: 0.917
+2013: 2.264
+2012: 2.768
+2011: 2.857
+2010: 3.562
+2009: 4.303
+2008: 5.247
+2007: 6.237
+2006: 7.045
+2005: 8.861
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Next we reference the file in our modified test script:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use YAML::XS;
+use Test::More;
+use FindBin;
+
+open (my $DATA, &#39;&amp;lt;&#39;, &amp;quot;$FindBin::Bin/perl_tiobe.yaml&amp;quot;) or die $!;
+my $yaml = do { local $/; &amp;lt;$DATA&amp;gt; };
+my $data = Load $yaml;
+
+do { ... };
+
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s review what&amp;rsquo;s changed in this script from the previous version. First of all we&amp;rsquo;re importing Findbin. We&amp;rsquo;re then opening a filehandle called $DATA that points to the current directory returned by FindBin::Bin plus the name of the data file.&lt;/p&gt;
+
+&lt;p&gt;The FindBin pattern works well if you can guarantee the data file will be in the same place as the code file. This makes it great for test files, as (by convention) they are always in the t directory and are not copied elsewhere as part of the module installation. You can use this pattern when distributing data files with Perl application (e.g. in the Makefile include both the binary and the data file in the EXE_FILES directive). However this does mean that the data file will be copied to the target bin directory, which is the kind of file pollution that attracts ire quickly.&lt;/p&gt;
+
+&lt;h3 id=&#34;update-makefile-pl-build-pl-and-use-file-share:6eeab3451604b74e59681fcd51f63947&#34;&gt;Update Makefile.PL / Build.PL and use File::Share&lt;/h3&gt;
+
+&lt;p&gt;Another way to include data files with a Perl distribution is to place them in a &amp;lsquo;share&amp;rsquo; directory within the distribution root directory, update the Makefile.PL / Build.PL to copy the data files during install and then use File::Share to access the files.&lt;/p&gt;
+
+&lt;p&gt;If your distribution uses ExtUtils::MakeMaker, you can use &lt;a href=&#34;https://metacpan.org/pod/File::ShareDir::Install&#34;&gt;File::ShareDir::Install&lt;/a&gt; in your Makefile.PL to copy the data files. Here is a vanilla Makefile.PL for a fictional module &amp;ldquo; Data::File&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use 5.006;
+use strict;
+use warnings FATAL =&amp;gt; &#39;all&#39;;
+use ExtUtils::MakeMaker;
+use File::ShareDir::Install;
+
+install_share dist =&amp;gt; &#39;share&#39;;
+
+WriteMakefile(
+    NAME             =&amp;gt; &#39;Data::Dir&#39;,
+    AUTHOR           =&amp;gt; q{David Farrell },
+    VERSION_FROM     =&amp;gt; &#39;lib/Data/Dir.pm&#39;,
+    ABSTRACT_FROM    =&amp;gt; &#39;lib/Data/Dir.pm&#39;,
+    LICENSE          =&amp;gt; &#39;Artistic_2_0&#39;,
+    PL_FILES         =&amp;gt; {}, 
+    MIN_PERL_VERSION =&amp;gt; 5.006,
+    CONFIGURE_REQUIRES =&amp;gt; {
+        &#39;ExtUtils::MakeMaker&#39; =&amp;gt; 0,
+    },  
+    BUILD_REQUIRES =&amp;gt; {
+        &#39;Test::More&#39; =&amp;gt; 0,
+    },  
+    PREREQ_PM =&amp;gt; {
+        #&#39;ABC&#39;              =&amp;gt; 1.6,
+        #&#39;Foo::Bar::Module&#39; =&amp;gt; 5.0401,
+    },  
+    dist  =&amp;gt; { COMPRESS =&amp;gt; &#39;gzip -9f&#39;, SUFFIX =&amp;gt; &#39;gz&#39;, },
+    clean =&amp;gt; { FILES =&amp;gt; &#39;Data-Dir-*&#39; },
+);
+
+package MY;
+use File::ShareDir::Install &#39;postamble&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the Makefile we import File::ShareDir:Install, and pass our &amp;ldquo;share&amp;rdquo; directory as an argument to the &amp;ldquo;install_share&amp;rdquo; function. The strange last two lines of the Makefile include a package declaration for MY and an import of File::ShareDir::Install&amp;rsquo;s &amp;ldquo;postamble&amp;rdquo; method. Be sure to include those two lines else the data files will not be copied.&lt;/p&gt;
+
+&lt;p&gt;If you are using &lt;a href=&#34;https://metacpan.org/pod/Module::Build::API&#34;&gt;Module::Build&lt;/a&gt;, update Build.PL file with the &lt;a href=&#34;https://metacpan.org/pod/https://metacpan.org/pod/Module::Build::API#share_dir&#34;&gt;share_dir&lt;/a&gt; directive. Here&amp;rsquo;s a vanilla Build.PL for a fictional module &amp;ldquo;Data::File&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use 5.006;
+use strict;
+use warnings FATAL =&amp;gt; &#39;all&#39;;
+use Module::Build;
+
+my $builder = Module::Build-&amp;gt;new(
+    module_name         =&amp;gt; &#39;Data::File&#39;,
+    license             =&amp;gt; &#39;Artistic_2_0&#39;,
+    dist_author         =&amp;gt; q{David Farrell },
+    dist_version_from   =&amp;gt; &#39;lib/Data/File.pm&#39;,
+    release_status      =&amp;gt; &#39;stable&#39;,
+    configure_requires =&amp;gt; {
+        &#39;Module::Build&#39; =&amp;gt; 0,
+    },
+    build_requires =&amp;gt; {
+        &#39;Test::More&#39; =&amp;gt; 0,
+    },  
+    requires =&amp;gt; {
+        #&#39;ABC&#39;              =&amp;gt; 1.6,
+        #&#39;Foo::Bar::Module&#39; =&amp;gt; 5.0401,
+    },  
+    add_to_cleanup     =&amp;gt; [ &#39;Data-File-*&#39; ],
+    create_makefile_pl =&amp;gt; &#39;traditional&#39;,
+    share_dir =&amp;gt; &#39;share&#39;,
+);
+
+$builder-&amp;gt;create_build_script();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &amp;ldquo;share_dir&amp;rdquo; directive in the example Build.PL above instructs Module::Build to copy any files in the distributions share directory to the distribution&amp;rsquo;s auto directory at install time.&lt;/p&gt;
+
+&lt;p&gt;Whether your distribution uses a Makefile.PL or a Build.PL, accessing the data file is now a matter of code. Here is a stripped-own File.pm file from our fictional module &amp;ldquo;Data::File&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Data::File;
+use strict;
+use warnings;
+use YAML::XS;
+use File::Share &#39;:all&#39;; 
+    
+sub read_data {         
+    my $data_location = dist_file(&#39;Data-File&#39;, &#39;perl_tiobe.yaml&#39;);
+    open (my $DATA, &#39;&amp;lt;&#39;, $data_location) or die $!;
+    my $yaml = do { local $/; &amp;lt;$DATA&amp;gt; };
+    my $data = Load $yaml; 
+    
+    do { ... };
+}   
+        
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Much of this code should look familiar. In the &amp;ldquo;read_data&amp;rdquo; subroutine we use the &amp;ldquo;dist_file&amp;rdquo; function of &lt;a href=&#34;https://metacpan.org/pod/File::Share&#34;&gt;File::Share&lt;/a&gt; to get the absolute filepath for the data file. The &amp;ldquo;dist_file&amp;rdquo; function is great: it will find the data file during testing and once the module is installed. After that line we open a filehandle to the file and process it as normal.&lt;/p&gt;
+
+&lt;p&gt;This method requires more work than the first two, but also offers a lot in return: we are able to include data with the distribution and access it at install and runtime. Our code files are not clogged with additional data that we may not need and we are not restricted to including the data files in the same directory as the consuming code file. It&amp;rsquo;s even possible to share data from distribution with another (using &amp;ldquo;dist_file&amp;rdquo;).&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:6eeab3451604b74e59681fcd51f63947&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;The examples have focused on including YAML data, but the solutions would work for most data types. Including data with Perl distributions is not as easy as it should be. However with the three solutions described here, you should be equipped to tackle the typical scenarios.&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F66%2F2014%2F2%2F7%2F3-ways-to-include-data-with-your-Perl-distribution&amp;amp;text=3%20ways%20to%20include%20data%20with%20your%20Perl%20distribution&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F66%2F2014%2F2%2F7%2F3-ways-to-include-data-with-your-Perl-distribution&amp;amp;via=perltricks&#34;&gt;retweet&lt;/a&gt; it!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Solve almost any datetime need with Time::Piece</title>
+      <link>http://perltricks.com/article/59/2014/1/10/Solve-almost-any-datetime-need-with-Time--Piece/</link>
+      <pubDate>Fri, 10 Jan 2014 04:24:25 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/59/2014/1/10/Solve-almost-any-datetime-need-with-Time--Piece/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Datetimes come up all the time in programming, so being fluent in handling them is an essential skill. There are &lt;a href=&#34;https://metacpan.org/search?q=date+time&#34;&gt;many modules&lt;/a&gt; on CPAN for dealing with datetimes, but for most tasks you only need one: &lt;a href=&#34;https://metacpan.org/pod/Time::Piece&#34;&gt;Time::Piece&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:15c12906ca779ac02701e8af216e915b&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;Time::Piece has been in Perl core since version 5.8, so you should already have it installed. If you don&amp;rsquo;t have it, you can install it via cpan at the terminal.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Time::Piece
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;create-a-time-piece-object:15c12906ca779ac02701e8af216e915b&#34;&gt;Create a Time::Piece object&lt;/h3&gt;
+
+&lt;p&gt;To create a new Time::Piece object with the current system time, use new:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
+
+my $time = Time::Piece-&amp;gt;new;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;get-a-datetime-string-in-any-format:15c12906ca779ac02701e8af216e915b&#34;&gt;Get a datetime string in any format&lt;/h3&gt;
+
+&lt;p&gt;Time::Piece provides many methods for printing the datetime in common formats. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$time;           # Thu Jan  9 21:21:36 2014
+$time-&amp;gt;datetime; # 2014-01-09T21:21:36
+$time-&amp;gt;date;     # 2014-01-09
+$time-&amp;gt;mdy;      # 01-09-2014
+$time-&amp;gt;fullday;  # Thursday
+$time-&amp;gt;hms;      # 21:21:36
+$time-&amp;gt;epoch;    # 1389320496 (Unix time)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you need to get the datetime in a custom format, Time::Piece provides a &amp;ldquo;strftime&amp;rdquo; method which takes a custom string format. A complete list of formatting codes is on the &lt;a href=&#34;http://man7.org/linux/man-pages/man3/strftime.3.html&#34;&gt;man page&lt;/a&gt;. Here are some examples:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
+
+my $time = Time::Piece-&amp;gt;new;
+$time-&amp;gt;strftime(&#39;%y/%m/%d %H:%M&#39;); # 14/01/09 21:21
+$time-&amp;gt;strftime(&#39;%y_%m_%d&#39;);       # 14_01_09
+$time-&amp;gt;strftime(&#39;%s&#39;);             # 1389320496 (Unix time)
+$time-&amp;gt;strftime(&#39;%Y %y %G %g&#39;);    # 2014 14 2014 14 (4 different years,really)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;read-a-datetime-string-in-any-format:15c12906ca779ac02701e8af216e915b&#34;&gt;Read a datetime string in any format&lt;/h3&gt;
+
+&lt;p&gt;Time::Piece also provides a strptime method which takes a string, and a string format and initializes a new Time::Piece object with that datetime. If either the date or time component is missing, Time::Piece assumes the current date or time. Here are some examples:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
+
+my $yesterday    = Time::Piece-&amp;gt;strptime(&#39;01-08-2014&#39;, &#39;%m-%d-%Y&#39;);
+my $yesterdayDMY = Time::Piece-&amp;gt;strptime(&#39;08-01-14&#39;, &#39;%d-%m-%y&#39;);
+my $lunchhour24  = Time::Piece-&amp;gt;strptime(&#39;12:30&#39;, &#39;%H:%M&#39;);
+my $bedtime      = Time::Piece-&amp;gt;strptime(&#39;12:30 AM&#39;, &#39;%l:%M %p&#39;);
+
+# timezones are easy too
+my $utc_datetime = Time::Piece-&amp;gt;strptime(&#39;Mon, 19 Jan 2015 14:56:20 +0000&#39;,&#39;%a, %d %b %Y %H:%M:%S %z&#39;);
+my $eastern_datetime = Time::Piece-&amp;gt;strptime(&#39;2015-10-05T09:34:19 -0400&#39;,&#39;%Y-%m-%dT%T %z&#39;);
+my $pacific_datetime = Time::Piece-&amp;gt;strptime(&#39;2015-10-05T09:34:19 -0700&#39;,&#39;%Y-%m-%dT%T %z&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;Warning&lt;/strong&gt; Time::Piece fails to parse timezones with semicolons in them. To handle that, just remove the semicolon from the timezone before passing it to &lt;code&gt;strptime&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
+
+my $datetime = &#39;2015-10-05T09:34:19 -04:00&#39;;
+$datetime    =~ s/([+\-]\d\d):(\d\d)/$1$2;
+my $dt       = Time::Piece-&amp;gt;strptime($datetime, &amp;quot;%Y-%m-%dT%H:%M:%S %z&amp;quot;);
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;strptime&lt;/code&gt; uses the same formatting codes as &lt;code&gt;strftime&lt;/code&gt;, you can get the full list &lt;a href=&#34;http://man7.org/linux/man-pages/man3/strftime.3.html&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;compare-datetimes:15c12906ca779ac02701e8af216e915b&#34;&gt;Compare datetimes&lt;/h3&gt;
+
+&lt;p&gt;This is easy. Just initialize two Time::Piece objects and compare them with an operator (&amp;lt;, &amp;lt;=, ==, &amp;gt;=, &amp;gt; and &amp;lt;=&amp;gt;). For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
+
+my $today = Time::Piece-&amp;gt;new;
+my $yesterday = Time::Piece-&amp;gt;strptime(&#39;01/08/2014&#39;, &#39;%m/%d/%Y&#39;);
+
+if ($today &amp;gt; $yesterday) {
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;datetime-math:15c12906ca779ac02701e8af216e915b&#34;&gt;Datetime math&lt;/h3&gt;
+
+&lt;p&gt;The first thing to know is that Time::Piece objects are &lt;strong&gt;immutable&lt;/strong&gt; so any operation performed on them will return a new object.&lt;/p&gt;
+
+&lt;p&gt;Time::Piece provides a couple of methods for adding months and years (&amp;ldquo;add_months&amp;rdquo;, &amp;ldquo;add_years&amp;rdquo;) from Time::Piece objects. Simply use a negative integer to subtract. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
+
+my $datetime = Time::Piece-&amp;gt;new;
+my $nextMonth   = $datetime-&amp;gt;add_months(1);   # plus one month
+my $lastQuarter = $datetime-&amp;gt;add_months(-3);  # minus three months
+my $nextDecade  = $datetime-&amp;gt;add_years(10);   # plus 10 years
+my $lastYear    = $datetime-&amp;gt;add_years(-1);   # minus 1 year
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You&amp;rsquo;ll often need more granular control over the datetime, and that&amp;rsquo;s where the &lt;a href=&#34;https://metacpan.org/pod/Time::Seconds&#34;&gt;Time::Seconds&lt;/a&gt; module comes in. Just include it in your program, and it will export several constants which can be used to adjust the datetime. The constants are: ONE_MINUTE, ONE_HOUR, ONE_DAY, ONE_WEEK, ONE_MONTH, ONE_YEAR, ONE_FINANCIAL_MONTH, LEAP_YEAR, NON_LEAP_YEAR.&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s see how to use the constants:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
+use Time::Seconds;
+
+my $time = Time::Piece-&amp;gt;new;
+my $tomorrow  = $time + ONE_DAY;
+my $lastWeek  = $time - ONE_WEEK;
+my $lastMonth = $time - ONE_MONTH;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you need to change the datetime by seconds, with you can simply use integer arithmetic.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
+
+my $now = Time::Piece-&amp;gt;new;
+my $30SecondsAgo = $now - 30; 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;documentation:15c12906ca779ac02701e8af216e915b&#34;&gt;Documentation&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/Time::Piece&#34;&gt;Time::Piece&lt;/a&gt; has excellent documentation, you can read it on the command line with perldoc:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc Time::Piece
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;Updated:&lt;/strong&gt; &lt;em&gt;Added timezone strptime example 2015-01-28. Added timezone semicolon handling 2016-03-17.&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to Load YAML Config Files</title>
+      <link>http://perltricks.com/article/29/2013/9/17/How-to-Load-YAML-Config-Files/</link>
+      <pubDate>Tue, 17 Sep 2013 03:18:10 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/29/2013/9/17/How-to-Load-YAML-Config-Files/</guid>
+      <description>
+
+&lt;p&gt;Config files are used by programmers to store local variables as it&amp;rsquo;s usually better to update a config file than to edit source code. &lt;a href=&#34;http://www.yaml.org/spec/1.2/spec.html#Introduction&#34;&gt;YAML&lt;/a&gt; is a popular data serialization language that&amp;rsquo;s easy to read and can serialize the common Perl variables (scalars, arrays and hashes). This article describes how to read a YAML config file in Perl and access the config file&amp;rsquo;s variables.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-config-file:3635643ce2dafff7a934f356c4953c84&#34;&gt;The config file&lt;/h3&gt;
+
+&lt;p&gt;YAML defines different types of &lt;a href=&#34;http://www.yaml.org/spec/1.2/spec.html#id2759963&#34;&gt;data collections&lt;/a&gt; that can be used to serialize (represent or store) Perl variables. Let&amp;rsquo;s define a YAML config file to store some local email data. The config.yaml file could look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;---
+emailName: David
+emailAddresses: 
+    - sillymoos@cpan.org
+    - perltricks.com@gmail.com
+credentials:
+    username: sillymoose
+    password: itsasecret
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s walkthrough config.yaml: the config file starts with three hyphens (&amp;ldquo;&amp;mdash;&amp;rdquo;) to signify the start of the document, &amp;ldquo;emailName&amp;rdquo;: is a scalar mapping with the value &amp;ldquo;David&amp;rdquo;, &amp;ldquo;emailAddresses&amp;rdquo; is a sequence of email addresses and &amp;ldquo;credentials&amp;rdquo; is a mapping of scalar mappings for the email username and password.&lt;/p&gt;
+
+&lt;h3 id=&#34;load-the-config-file:3635643ce2dafff7a934f356c4953c84&#34;&gt;Load the config file&lt;/h3&gt;
+
+&lt;p&gt;Perl&amp;rsquo;s &lt;a href=&#34;https://metacpan.org/module/YAML::XS&#34;&gt;YAML::XS&lt;/a&gt; module provides a &lt;code&gt;LoadFile&lt;/code&gt; subroutine that can be used to read any YAML file into a scalar variable. This script loads the &amp;ldquo;config.yaml&amp;rdquo; config file and prints it using &lt;a href=&#34;https://metacpan.org/pod/Data::Dumper&#34;&gt;Data::Dumper&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use YAML::XS &#39;LoadFile&#39;;
+use Data::Dumper;
+    
+my $config = LoadFile(&#39;config.yaml&#39;);
+
+print Dumper($config);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If we run this script we get the following results:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$VAR1 = {
+          &#39;emailName&#39; =&amp;gt; &#39;David&#39;,
+          &#39;credentials&#39; =&amp;gt; {
+                           &#39;password&#39; =&amp;gt; &#39;itsasecret&#39;,
+                           &#39;username&#39; =&amp;gt; &#39;sillymoose&#39;
+                         },
+          &#39;emailAddresses&#39; =&amp;gt; [
+                              &#39;sillymoos@cpan.org&#39;,
+                              &#39;perltricks.com@gmail.com&#39;
+                            ]
+        };
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;These results show that config.yaml has been read into &lt;code&gt;$config&lt;/code&gt; as a hash reference with three keys: &amp;ldquo;emailName&amp;rdquo;, &amp;ldquo;credentials&amp;rdquo; and &amp;ldquo;emailAddresses&amp;rdquo;.&lt;/p&gt;
+
+&lt;h3 id=&#34;accessing-the-config-data:3635643ce2dafff7a934f356c4953c84&#34;&gt;Accessing the config data&lt;/h3&gt;
+
+&lt;p&gt;So far the script reads the contents of config.yaml into &lt;code&gt;$config&lt;/code&gt;. To access the config data we need to dereference the data from &lt;code&gt;$config&lt;/code&gt;. The following script shows examples of accessing the config scalar, array and hash data.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use YAML::XS &#39;LoadFile&#39;;
+use feature &#39;say&#39;;
+
+my $config = LoadFile(&#39;config.yaml&#39;);
+
+# access the scalar emailName
+my $emailName = $config-&amp;gt;{emailName};
+
+# access the array emailAddresses directly
+my $firstEmailAddress = $config-&amp;gt;{emailAddresses}-&amp;gt;[0];
+my $secondEmailAddress= $config-&amp;gt;{emailAddresses}-&amp;gt;[1];
+
+# loop through and print emailAddresses
+for (@{$config-&amp;gt;{emailAddresses}}) { say }
+
+# access the credentials hash key values directly
+my $username = $config-&amp;gt;{credentials}-&amp;gt;{username};
+my $password = $config-&amp;gt;{credentials}-&amp;gt;{password};
+
+# loop through and print credentials
+for (keys %{$config-&amp;gt;{credentials}}) {
+    say &amp;quot;$_: $config-&amp;gt;{credentials}-&amp;gt;{$_}&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;more-yaml:3635643ce2dafff7a934f356c4953c84&#34;&gt;More YAML&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/module/YAML::XS&#34;&gt;YAML::XS&lt;/a&gt; uses the libyaml C library and provides strong performance and adherence to the YAML specification. However if you have difficulty installing YAML::XS, there are pure Perl alternatives available: &lt;a href=&#34;https://metacpan.org/module/YAML&#34;&gt;YAML&lt;/a&gt; is not actively maintained and has several bugs but excellent documentation and generally works, &lt;a href=&#34;https://metacpan.org/module/YAML::Tiny&#34;&gt;YAML::Tiny&lt;/a&gt; is a newer module that implements a useful subset of the YAML specification.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Read an entire file into a string</title>
+      <link>http://perltricks.com/article/21/2013/4/21/Read-an-entire-file-into-a-string/</link>
+      <pubDate>Sun, 21 Apr 2013 20:54:15 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/21/2013/4/21/Read-an-entire-file-into-a-string/</guid>
+      <description>
+
+&lt;p&gt;There are several ways in Perl to read an entire file into a string, (a procedure also known as &amp;ldquo;slurping&amp;rdquo;).&lt;/p&gt;
+
+&lt;p&gt;If you have access to CPAN, you can use the &lt;a href=&#34;https://metacpan.org/module/File::Slurp&#34;&gt;File::Slurp&lt;/a&gt; module:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use File::Slurp;
+
+my $file_content = read_file(&#39;text_document.txt&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;File::Slurp&amp;rsquo;s &lt;code&gt;read_file&lt;/code&gt; function to reads the entire contents of a file with the file name and returns it as a string. It&amp;rsquo;s simple and usually does what it&amp;rsquo;s expected to do. However use of &lt;code&gt;File::Slurp&lt;/code&gt; is discouraged as it has some encoding layer problems that may cause issues. &lt;a href=&#34;https://metacpan.org/pod/File::Slurper&#34;&gt;File::Slurper&lt;/a&gt; aims to be a safer alternative that, regrettably is still described as experimental:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use File::Slurper;
+
+my $content = read_text(&#39;text_document.txt&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;File::Slurper&amp;rsquo;s &lt;code&gt;read_text&lt;/code&gt; function accepts an optional encoding argument, and can automatically decode &lt;code&gt;crlf&lt;/code&gt; line endings if you request it (for Windows files).&lt;/p&gt;
+
+&lt;h3 id=&#34;slurping-files-without-modules:6e7298651c4cb8ae2dfdff77b8dd1aac&#34;&gt;Slurping files without modules&lt;/h3&gt;
+
+&lt;p&gt;Slurping files is not complicated though and requires just a few lines of Perl. First I open a filehandle:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;&amp;lt;&#39;, &#39;text_document.txt&#39; or die &amp;quot;Can&#39;t open file $!&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now I can read the file contents:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $file_content = do { local $/; &amp;lt;$fh&amp;gt; };
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Within the &lt;code&gt;do&lt;/code&gt; block it localizes Perl&amp;rsquo;s record separator variable &lt;code&gt;$/&lt;/code&gt; to &lt;code&gt;undef&lt;/code&gt;, so that the diamond &lt;code&gt;&amp;lt;&amp;gt;&lt;/code&gt; operator will read all the lines of the file at once (usually &lt;code&gt;$/&lt;/code&gt; is set to newline).&lt;/p&gt;
+
+&lt;p&gt;Once you&amp;rsquo;ve opened a filehandle to the file you want to slurp, instead of a &lt;code&gt;do&lt;/code&gt; block, you can also use &lt;code&gt;read&lt;/code&gt; to slurp a file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;read $fh, my $file_content, -s $fh;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;read&lt;/code&gt; requires a filehandle, a target variable to read content into and a length argument. To get the length of the file, we use the &lt;code&gt;-s&lt;/code&gt; function on the filehandle, which returns the file size in bytes. For large files, this approach is faster than the &lt;code&gt;do&lt;/code&gt; block method.&lt;/p&gt;
+
+&lt;h3 id=&#34;perlio-layers:6e7298651c4cb8ae2dfdff77b8dd1aac&#34;&gt;PerlIO Layers&lt;/h3&gt;
+
+&lt;p&gt;When slurping a file, you may want to add a PerlIO layer &lt;a href=&#34;http://perldoc.perl.org/PerlIO.html&#34;&gt;instruction&lt;/a&gt; to the open argument:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;&amp;lt;:unix&#39;, &#39;text_document.txt&#39; or die &amp;quot;Couldn&#39;t open $filename: $!&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With this code the first line looks the same except &lt;code&gt;:unix&lt;/code&gt; has been appended to the file open direction. You can read more about the PerlIO layers &lt;a href=&#34;http://perldoc.perl.org/PerlIO.html&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;yet-another-way:6e7298651c4cb8ae2dfdff77b8dd1aac&#34;&gt;Yet another way&lt;/h3&gt;
+
+&lt;p&gt;In the comments section of a blog &lt;a href=&#34;http://blogs.perl.org/users/leon_timmermans/2013/05/why-you-dont-need-fileslurp.html&#34;&gt;post&lt;/a&gt;, Damien Krotkine showed that it&amp;rsquo;s also possible to slurp a file in &amp;ldquo;one line&amp;rdquo; of Perl, or at least without using &lt;code&gt;open&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $file_content = do{local(@ARGV,$/)=$filename;&amp;lt;&amp;gt;};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Cool, huh? This works by localizing &lt;code&gt;@ARGV&lt;/code&gt; and saving &lt;code&gt;$filename&lt;/code&gt; as the first element of &lt;code&gt;@ARGV&lt;/code&gt;. The empty diamond operator &lt;code&gt;&amp;lt;&amp;gt;&lt;/code&gt; automatically opens a filehandle to the first element of &lt;code&gt;@ARGV&lt;/code&gt;, which is the filename. If you need to set a PerlIO layer, the filehandle name is &lt;code&gt;ARGV&lt;/code&gt; so you can use binmode to set the layer (&lt;em&gt;before&lt;/em&gt; the file is read!):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;binmode ARGV, $layer;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;Updated:&lt;/strong&gt; changed to give more examples, File::Slurp warning and include File::Slurper. 2015-06-26&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

@@ -1,0 +1,1271 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Managing_perl on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/categories/managing_perl/</link>
+    <description>Recent content in Managing_perl on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 09 Mar 2016 10:04:57 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/categories/managing_perl/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>What is the Perl Core?</title>
+      <link>http://perltricks.com/article/what-is-the-perl-core-/</link>
+      <pubDate>Wed, 09 Mar 2016 10:04:57 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/what-is-the-perl-core-/</guid>
+      <description>
+
+&lt;p&gt;When I use the term &amp;ldquo;Perl Core&amp;rdquo; I mean the standard library of modules (distributions actually) that ship with the &lt;code&gt;perl&lt;/code&gt; interpreter, and I think that&amp;rsquo;s what most people mean when they use that term. Knowing which modules are in the Perl Core is useful; it enables developers to build programs without external dependencies over which the developer has little control. The perldoc site has a handy alphabetized &lt;a href=&#34;http://perldoc.perl.org/index-modules-A.html&#34;&gt;list&lt;/a&gt; of core modules and I generally check there first to browse which modules are in core. The problem though, is that it can be wrong.&lt;/p&gt;
+
+&lt;h3 id=&#34;what-modules-are-included-in-the-perl-core:0d5c2e3cd089b0cf6cb0dbe47d066eb1&#34;&gt;What modules are included in the Perl Core?&lt;/h3&gt;
+
+&lt;p&gt;Did you know that &lt;a href=&#34;http://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt; has shipped with Perl since 2011 (version 5.14.0)? It&amp;rsquo;s not listed on &lt;a href=&#34;http://perldoc.perl.org&#34;&gt;perldoc&lt;/a&gt; (although that is on the list to be fixed at the next &lt;a href=&#34;http://act.qa-hackathon.org/qa2016/&#34;&gt;QA Hackathon&lt;/a&gt;). Luckily there is a better solution: the &lt;code&gt;corelist&lt;/code&gt; program. This is supplied with &lt;a href=&#34;https://metacpan.org/pod/Module::CoreList/&#34;&gt;Module::CoreList&lt;/a&gt;. Let&amp;rsquo;s see when Module::CoreList first shipped with Perl:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ corelist -a Module::CoreList
+
+Data for 2015-06-01
+Module::CoreList was first released with perl v5.8.9
+  v5.8.9     2.17
+  v5.9.2     1.99
+  v5.9.3     2.02
+  v5.9.4     2.08
+  v5.9.5     2.12
+  v5.10.0    2.13
+  ...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve truncated the output and kept the key details. It shows that Module::CoreList has been included since Perl version 5.8.9. At home I run Fedora 23, which comes with Perl version 5.22.1. Running the system Perl &lt;code&gt;corelist&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo corelist -a Module::CoreList
+sudo: corelist: command not found
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The program doesn&amp;rsquo;t exist; the Fedora team didn&amp;rsquo;t include it for some reason. Not only that, but great core modules like &lt;a href=&#34;http://perltricks.com/article/59/2014/1/10/Solve-almost-any-datetime-need-with-Time--Piece/&#34;&gt;Time::Piece&lt;/a&gt; aren&amp;rsquo;t included either!&lt;/p&gt;
+
+&lt;p&gt;If you don&amp;rsquo;t have &lt;code&gt;corelist&lt;/code&gt;, but want to view a list of distributions that &lt;em&gt;should&lt;/em&gt; have been bundled with your version of Perl, you can read &lt;code&gt;perldoc perlmodlib&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;which-modules-do-i-have:0d5c2e3cd089b0cf6cb0dbe47d066eb1&#34;&gt;Which modules do I have?&lt;/h3&gt;
+
+&lt;p&gt;Sometimes instead of asking which modules are in the Perl Core what we really mean is: &amp;ldquo;which modules do I have installed?&amp;rdquo; For non-core modules, I use &lt;a href=&#34;http://perltricks.com/article/14/2013/4/7/List-all-Perl-modules-installed-via-CPAN/&#34;&gt;perldoc&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;perldoc&lt;/code&gt; won&amp;rsquo;t show us the core modules that we already have, and in the case of missing core modules, Module::CoreList can&amp;rsquo;t help either (its results are based on internal lists of modules that &lt;em&gt;should&lt;/em&gt; be there, not which files are actually present). A simple way I handle this is to use the following script to search the contents of &lt;code&gt;@INC&lt;/code&gt;; the directories which &lt;code&gt;perl&lt;/code&gt; searches for modules:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use 5.10.3;
+use Path::Tiny &#39;path&#39;;
+use Getopt::Long &#39;GetOptions&#39;;
+
+GetOptions(
+  &#39;dir=s&#39; =&amp;gt; \my $dirpath,
+) or die &amp;quot;Unrecognized option\n&amp;quot;;
+die &amp;quot;--dir is required\n&amp;quot; unless $dirpath &amp;amp;&amp;amp; -d $dirpath;
+
+# append a slash if missing
+$dirpath .= &#39;/&#39; unless substr($dirpath, -1) eq &#39;/&#39;;
+
+my $iter = path($dirpath)-&amp;gt;iterator({recurse =&amp;gt; 1});
+while (my $path = $iter-&amp;gt;()) {
+  next unless &amp;quot;$path&amp;quot; =~ qr/.pm$/;
+  # remove the parent dir and trailing .pm from filename
+  my $module = substr(&amp;quot;$path&amp;quot;, length($dirpath), length(&amp;quot;$path&amp;quot;)-length($dirpath)-3);
+  $module =~ s/\//::/g;
+  say $module;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I run it like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ chmod 755 list_modules
+$ /usr/bin/perl -e &#39;for(@INC){ system &amp;quot;./list_modules -d $_&amp;quot; }&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;m using the absolute path &lt;code&gt;/usr/bin/perl&lt;/code&gt; to ensure I get my system&amp;rsquo;s &lt;code&gt;perl&lt;/code&gt; and not the local one I manage with &lt;a href=&#34;https://github.com/tokuhirom/plenv&#34;&gt;plenv&lt;/a&gt;. One downside of this approach is it lists every module (&lt;code&gt;.pm&lt;/code&gt; file) rather than every distribution, (see this &lt;a href=&#34;http://perltricks.com/article/96/2014/6/13/Perl-distributions--modules--packages-explained/&#34;&gt;explanation&lt;/a&gt; if you&amp;rsquo;re not familiar with the distinction). Another issue is it will list duplicate modules when the system uses symlinks. So the program output needs to be tidied up in a text editor.&lt;/p&gt;
+
+&lt;p&gt;What about programs? To search for Perl programs I prepared a list of Perl programs from the source for Perl 5.22, called &lt;code&gt;perl522_programs&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;c2ph
+corelist
+cpan
+enc2xs
+encguess
+h2ph
+h2xs
+instmodsh
+json_pp
+libnetcfg
+perl
+perl5.22.1
+perlbug
+perldoc
+perlivp
+perlthanks
+piconv
+pl2pm
+pod2html
+pod2man
+pod2text
+pod2usage
+podchecker
+podselect
+prove
+pstruct
+ptar
+ptardiff
+ptargrep
+shasum
+splain
+xsubpp
+zipdetails
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then I used the following script, called &lt;code&gt;find_binary&lt;/code&gt; to check for the programs:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
+my $bin = shift or die &amp;quot;You must provide a binary name to search for\n&amp;quot;;
+
+for ( qw(/sbin /bin /usr/sbin /usr/bin) )
+{
+  my $path = &amp;quot;$_/$bin&amp;quot;;
+  print &amp;quot;$path\n&amp;quot; if -e $path;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I run it like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ chmod 755 find_binary
+$ perl -ne &#39;chomp;system &amp;quot;./find_binary $_&amp;quot;&#39; perl522_programs
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This line calls the &lt;code&gt;find_binary&lt;/code&gt; script on every program listed in the file &lt;code&gt;perl522_programs&lt;/code&gt;. I &lt;code&gt;chomp&lt;/code&gt; the line before searching for it to remove the trailing newline character. This method isn&amp;rsquo;t perfect though; sneaky Ubuntu ships with a program called &lt;code&gt;perldoc&lt;/code&gt; but if you run it the system prints:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;You need to install the perl-doc package to use this program.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;core-modules-and-programs-missing-from-system-perls:0d5c2e3cd089b0cf6cb0dbe47d066eb1&#34;&gt;Core modules and programs missing from system perls&lt;/h3&gt;
+
+&lt;p&gt;Using the code above I did a comparison of the modules and programs shipped with Perl and those shipped with the following systems. Here&amp;rsquo;s what missing:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Fedora 23&lt;/th&gt;
+&lt;th&gt;Ubuntu 14.04 LTS&lt;/th&gt;
+&lt;th&gt;OSX Yosemite 10.10.5&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;B::Debug&lt;/td&gt;
+&lt;td&gt;CGI::Fast&lt;/td&gt;
+&lt;td&gt;GDBM_File&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Config::Perl::V&lt;/td&gt;
+&lt;td&gt;ODBM_File&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;CPANPLUS&lt;/td&gt;
+&lt;td&gt;perldoc&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;DB_File&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Devel::PPPort&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;ExtUtils::Embed&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;ExtUtils::MakeMaker::Locale&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;ExtUtils::Miniperl&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;File::Fetch&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;File::Spec::VMS&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Filter::Simple&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;IO::Compress::Adapter::Bzip2&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;IO::Uncompress::Adapter::Bunzip2&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::BigFloat&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::BigInt&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::BigRat&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::Complex&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Math::Trig&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Module::Loaded&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;PerlIO&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Text::Balanced&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Time::Piece&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Time::Seconds&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Unicode::Collate&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;autodie&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;bigint&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;bignum&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;bigrat&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;experimental&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;perlfaq&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;corelist&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;enc2xs&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;libnetcfg&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;Ubuntu and OSX ship with Perl 5.18 so I looked for missing programs and modules against the 5.18 source code. For Fedora I compared the system &lt;code&gt;perl&lt;/code&gt; against the 5.22 source. These results show that Fedora is missing quite a few modules and programs: experimental, corelist, autodie, the Math:: modules and Time::Piece strike me as significant omissions (they are supplied by the &lt;code&gt;perl-core&lt;/code&gt; package, which is must be installed separately). For Ubuntu, excluding &lt;code&gt;perldoc&lt;/code&gt; is a &lt;a href=&#34;http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/&#34;&gt;real shame&lt;/a&gt;. OSX came away gleaming though: nearly all core modules and programs were present.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:0d5c2e3cd089b0cf6cb0dbe47d066eb1&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;When writing programs that use core Perl modules be careful, especially if you&amp;rsquo;re using any of the modules or programs found to be missing earlier. One way around this is the use &lt;a href=&#34;https://metacpan.org/pod/App::FatPacker&#34;&gt;App::FatPacker&lt;/a&gt; to compile all the modules used into a single file. Another way would be to use &lt;a href=&#34;https://metacpan.org/pod/pp&#34;&gt;pp&lt;/a&gt; to create a compiled binary. Finally for modules like Time::Piece, you could always consider wrapping Perl&amp;rsquo;s built-in functions like &lt;code&gt;gmtime&lt;/code&gt; and &lt;code&gt;localtime&lt;/code&gt; in subroutines that give the behavior you need, rather than using the module.&lt;/p&gt;
+
+&lt;p&gt;Of course it&amp;rsquo;s always easier to work with a locally-installed &lt;code&gt;perl&lt;/code&gt; than the system version. The local Perls provided by &lt;a href=&#34;http://perlbrew.pl&#34;&gt;perlbrew&lt;/a&gt; and &lt;a href=&#34;https://github.com/tokuhirom/plenv&#34;&gt;plenv&lt;/a&gt; contain all the core modules and utilities. You can always &lt;a href=&#34;http://perlmaven.com/how-to-build-perl-from-source-code&#34;&gt;compile&lt;/a&gt; your own Perl too, it&amp;rsquo;s easy. &lt;a href=&#34;http://www.strawberryperl.com&#34;&gt;Strawberry Perl&lt;/a&gt; for Windows even comes with some useful extra modules and C libraries. If you do have to rely on the system Perl, you may find a core module isn&amp;rsquo;t there at all.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Updates&lt;/strong&gt; &lt;em&gt;Added reference to perl-core Fedora package, thanks to Grant McLean. 2016-03-21&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to install any* Perl module</title>
+      <link>http://perltricks.com/article/200/2015/11/28/How-to-install-any--Perl-module/</link>
+      <pubDate>Sat, 28 Nov 2015 00:11:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/200/2015/11/28/How-to-install-any--Perl-module/</guid>
+      <description>&lt;p&gt;It&amp;rsquo;s our 200th article! Installing CPAN modules can be a pain, particularly for users not familiar with the Perl toolchain. To try something different, I&amp;rsquo;m uploading the article as an image file under creative commons. Feel free to share it, use it, whatever. If you use Perl at your office, maybe print it out for reference. You can download a copy &lt;a href=&#34;http://perltricks.com/images/200/chart.png&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/200/chart.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;[*] You can install any Perl module, but it may not be a good idea™&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>A preview of Perl 5.22</title>
+      <link>http://perltricks.com/article/165/2015/4/10/A-preview-of-Perl-5-22/</link>
+      <pubDate>Fri, 10 Apr 2015 14:29:14 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/165/2015/4/10/A-preview-of-Perl-5-22/</guid>
+      <description>
+
+&lt;p&gt;Perl v5.22 is bringing myriad new features and ways of doing things, making its &lt;em&gt;perldelta&lt;/em&gt; file much more interesting than most releases. While I normally wait until after the first stable release to go through these features over at &lt;a href=&#34;http://www.effectiveperlprogramming.com&#34;&gt;The Effective Perler&lt;/a&gt;, here&amp;rsquo;s a preview of some of the big news.&lt;/p&gt;
+
+&lt;h3 id=&#34;a-safer-argv:85ae9380e810afb42a55fa70c8155be3&#34;&gt;A safer ARGV&lt;/h3&gt;
+
+&lt;p&gt;The line input operator, &lt;code&gt;&amp;lt;&amp;gt;&lt;/code&gt; looks at the &lt;code&gt;@ARGV&lt;/code&gt; array for filenames to open and read through the &lt;code&gt;ARGV&lt;/code&gt; filehandle. It has the same meta-character problem as the two-argument &lt;code&gt;open&lt;/code&gt;. Special characters in the filename might do shell things. To get around this unintended feature (which I think might be useful if that&amp;rsquo;s what you want), there&amp;rsquo;s a new line-input operator, &lt;code&gt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&lt;/code&gt;, that doesn&amp;rsquo;t treat any character as special:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;while( &amp;lt;&amp;lt;&amp;gt;&amp;gt; ) {  # new, safe line input operator
+    ...;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;cgi-pm-and-module-build-disappear-from-core:85ae9380e810afb42a55fa70c8155be3&#34;&gt;CGI.pm and Module::Build disappear from core&lt;/h3&gt;
+
+&lt;p&gt;The Perl maintainers have been stripping modules from the Standard Library. Sometimes that&amp;rsquo;s because no one uses (or should use) that module anymore, no one wants to maintain that module, or it&amp;rsquo;s better to get it from CPAN where the maintainer can update it faster than the Perl release cycle. You can still find these modules on CPAN, though.&lt;/p&gt;
+
+&lt;p&gt;The CGI.pm module, only one of Lincoln Stein&amp;rsquo;s amazing contributions to the Perl community, is from another era. It was light years ahead of its Perl 4 predecessor, &lt;em&gt;cgi.pl&lt;/em&gt;. It did everything, including HTML generation. This was the time before robust templating systems came around, and CGI.pm was good. But, they&amp;rsquo;ve laid it to rest.&lt;/p&gt;
+
+&lt;p&gt;Somehow, Module::Build fell out of favor. Before then, building and installing Perl modules depended on a non-perl tool, &lt;em&gt;make&lt;/em&gt;. That&amp;rsquo;s a portability problem. However, we already know they have Perl, so if there were a pure Perl tool that could do the same thing we could solve the portability problem. We could also do much more fancy things. It was the wave of the future. I didn&amp;rsquo;t really buy into Module::Build although I had used it for a distributions, but I&amp;rsquo;m still a bit sad to see it go. It had some technical limitations and was unmaintained for a bit, and now it&amp;rsquo;s been cut loose. David Golden explains more about that in &lt;a href=&#34;http://www.dagolden.com/index.php/2140/paying-respect-to-modulebuild/&#34;&gt;Paying respect to Module::Build&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;This highlights a long-standing and usually undiscovered problem with modules that depend on modules in the Standard Library. For years, most authors did not bother to declare those dependencies because Perl was there and its modules must be there too. When those modules move to a CPAN-only state, they end up with an undeclared dependencies. This also shows up in some linux distributions that violate the Perl license by removing some modules or putting them in a different package. Either way, always declare a dependency on everything you use despite its provenance.&lt;/p&gt;
+
+&lt;h3 id=&#34;hexadecimal-floating-point-values:85ae9380e810afb42a55fa70c8155be3&#34;&gt;Hexadecimal floating point values&lt;/h3&gt;
+
+&lt;p&gt;Have you always felt too constrained by ten digits, but were also stuck with non-integers? Now your problems are solved with hexadecimal floating point numbers.&lt;/p&gt;
+
+&lt;p&gt;We already have the exponential notation with uses the &lt;code&gt;e&lt;/code&gt; to note the exponent, as in &lt;code&gt;1.23e4&lt;/code&gt;. But that &lt;code&gt;e&lt;/code&gt; is a hexadecimal digit, so we can&amp;rsquo;t use that to denote the exponent. Instead, we use &lt;code&gt;p&lt;/code&gt; and an exponent that&amp;rsquo;s a power of two:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.22;
+
+my $num = 0.deadbeefp2;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;variable-aliases:85ae9380e810afb42a55fa70c8155be3&#34;&gt;Variable aliases&lt;/h3&gt;
+
+&lt;p&gt;We can now assign to the reference version of a non-reference variable. This creates an alias for the referenced value.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.22;
+use feature qw(refaliasing);
+
+\%other_hash = \%hash;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I think we&amp;rsquo;ll discover many interesting uses for this, and probably some dangerous ones, but the use case in the docs looks interesting. We can now assign to something other than a scalar for the &lt;code&gt;foreach&lt;/code&gt; control variable:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.22;
+use feature qw(refaliasing);
+
+foreach \my %hash ( @array_of_hashes ) { # named hash control variable
+    foreach my $key ( keys %hash ) { # named hash now!
+        ...;
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I don&amp;rsquo;t think I&amp;rsquo;ll use that particular pattern since I&amp;rsquo;m comfortable with references, but if you really hate the dereferencing arrow, this might be for you. Note that v5.12 allows us to write &lt;code&gt;keys $hash_ref&lt;/code&gt; without the dereferencing &lt;code&gt;%&lt;/code&gt;. See my &lt;a href=&#34;http://www.effectiveperlprogramming.com/&#34;&gt;Effective Perl&lt;/a&gt; items &lt;a href=&#34;http://www.effectiveperlprogramming.com/2010/11/use-array-references-with-the-array-operators/&#34;&gt;Use array references with the array operators&lt;/a&gt;, but also &lt;a href=&#34;http://www.effectiveperlprogramming.com/2012/03/dont-use-auto-dereferencing-with-each/&#34;&gt;Don’t use auto-dereferencing with each or keys&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;repetition-in-list-assignment:85ae9380e810afb42a55fa70c8155be3&#34;&gt;Repetition in list assignment&lt;/h3&gt;
+
+&lt;p&gt;Perl can assign one list of scalars to another. In &lt;a href=&#34;http://www.learning-perl.com&#34;&gt;Learning Perl&lt;/a&gt; we show assigning to &lt;code&gt;undef&lt;/code&gt;. I could make dummy variables:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my($name, $card_num, $addr, $home, $work, $count) = split /:/;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But if I don&amp;rsquo;t need all of those variable, I can put placeholder &lt;code&gt;undef&lt;/code&gt;s in the assignment list:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my(undef, $card_num, undef, undef, undef, $count) = split /:/;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Those consecutive &lt;code&gt;undef&lt;/code&gt;s can be a problem, as well as ugly. I don&amp;rsquo;t have to count out separate &lt;code&gt;undef&lt;/code&gt;s now:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.22;
+
+my(undef, $card_num, (undef)x3, $count) = split /:/;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;list-pipe-opens-on-win32:85ae9380e810afb42a55fa70c8155be3&#34;&gt;List pipe opens on Win32&lt;/h3&gt;
+
+&lt;p&gt;The three-argument &lt;code&gt;open&lt;/code&gt; can take a pipe mode, which didn&amp;rsquo;t previously work on Windows. Now it does, to the extent that the list form of &lt;code&gt;system&lt;/code&gt; works on Win32:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;-|&#39;, &#39;some external command&#39; or die;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I always have to check my notes to remember that the &lt;code&gt;-&lt;/code&gt; in the pipe mode goes on the side of the pipe that has the pipe. Those in the unix world know &lt;code&gt;-&lt;/code&gt; as a special filename for standard input in many commands.&lt;/p&gt;
+
+&lt;h3 id=&#34;various-small-fixes:85ae9380e810afb42a55fa70c8155be3&#34;&gt;Various small fixes&lt;/h3&gt;
+
+&lt;p&gt;We also get many smaller fixes I think are worth a shout out. Many of these are clean ups to warts and special cases:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The &lt;code&gt;/x&lt;/code&gt; regex operator flag now ignores Unicode space characters instead of just ASCII whitespace. If you tried to do that with multiple &lt;code&gt;/x&lt;/code&gt; on an operator, you can&amp;rsquo;t do that anymore either (it didn&amp;rsquo;t work before anyway but it wasn&amp;rsquo;t an error).&lt;/li&gt;
+&lt;li&gt;A literal &lt;code&gt;{&lt;/code&gt; in a pattern should now be escaped. I mostly do that anyway.&lt;/li&gt;
+&lt;li&gt;A bad &lt;code&gt;close&lt;/code&gt; now sets &lt;code&gt;$!&lt;/code&gt;. We don&amp;rsquo;t have to fiddle with &lt;code&gt;$?&lt;/code&gt; to find out what happened.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;defined(@array)&lt;/code&gt; and &lt;code&gt;defined(%hash)&lt;/code&gt; are now fatal. They&amp;rsquo;ve been deprecated for a long time, and now they are gone. This does not apply to assignments, though, such as &lt;code&gt;defined(@array = ...)&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Using a named array or hash in a place where Perl expects a reference is now fatal.&lt;/li&gt;
+&lt;li&gt;Omitting % and @ on hash and array names is no longer permitted. No more &lt;code&gt;my %hash = (...); my @keys = keys hash&lt;/code&gt; where Perl treats the bareword &lt;code&gt;hash&lt;/code&gt; as &lt;code&gt;%hash&lt;/code&gt;. This is a Perl 4 feature that is no longer.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to build Perl on Android 4.4</title>
+      <link>http://perltricks.com/article/97/2014/6/16/How-to-build-Perl-on-Android-4-4/</link>
+      <pubDate>Mon, 16 Jun 2014 12:57:21 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/97/2014/6/16/How-to-build-Perl-on-Android-4-4/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;The recent release of Perl 5.20 came with the exciting news that Perl was now installable on Android, Google&amp;rsquo;s mobile operating system. But before you get grand visions of flying phone-controlled drones via &lt;a href=&#34;https://metacpan.org/pod/UAV::Pilot&#34;&gt;UAV::Pilot&lt;/a&gt;, know that right now, how to get a working Perl binary is just about all that&amp;rsquo;s documented. This article shows you how to get that far - solving the rest is left for the pioneers!&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:914b0b08540fea0f7c86094ce2509280&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;To build Perl on Android you&amp;rsquo;ll need a unix-like environment (Cygwin may work too). This article describes installing Perl on an Android Virtual Device (AVD), so you do not need an Android phone to try Perl on Android.&lt;/p&gt;
+
+&lt;h3 id=&#34;preparation:914b0b08540fea0f7c86094ce2509280&#34;&gt;Preparation&lt;/h3&gt;
+
+&lt;p&gt;Download the Android &amp;ldquo;SDK Tools Only&amp;rdquo; &lt;a href=&#34;https://developer.android.com/sdk/index.html&#34;&gt;tarball&lt;/a&gt;, and the NDK &lt;a href=&#34;https://developer.android.com/tools/sdk/ndk/index.html&#34;&gt;tarball&lt;/a&gt;. At the command line, change to the directory where you downloaded the tarballs to and untar both tarballs:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ tar xvf android-ndk-r9d-linux-x86_64.tar.bz2
+$ tar xvf android-sdk_r22.6.2-linux.tgz
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To save typing later, add &amp;ldquo;android-sdk-*/tools&amp;rdquo; and &amp;ldquo;android-sdk-*/platform-tools&amp;rdquo; to $PATH (you&amp;rsquo;ll need to provide the absolute paths to the directories). For example if I had extracted android-sdk-tools to my user directory, on Linux I could add it to PATH with the following command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ export PATH=$PATH:$HOME/android-sdk-linux/tools:$HOME/android-sdk-linux/platform-tools
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With your PATH updated, launch the Android SDK Manager:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ android
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will open a GUI menu from where you can download and install the required Android tools and libraries. Using the menu, install Android SDK Tools, Android SDK Platform-tools, Android SDK Build-tools and Android 4.2.2.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/97/android_sdk_manager.png&#34; alt=&#34;The Android SDK Manager&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;You&amp;rsquo;ll also need a copy of the Perl 5.20.0 &lt;a href=&#34;http://www.cpan.org/src/5.0/perl-5.20.0.tar.gz&#34;&gt;tarball&lt;/a&gt;. Untar this at the command line too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ tar xvf perl-5.20.0.tar.gz
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;setup-the-android-emulator:914b0b08540fea0f7c86094ce2509280&#34;&gt;Setup the Android emulator&lt;/h3&gt;
+
+&lt;p&gt;Now we&amp;rsquo;re going to create an Android Virtual Device that can be used by the emulator to run Android on your machine. At the command line type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ android avd
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will launch the Android Virtual Device Manager:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/97/android_avd_1.png&#34; alt=&#34;The Android Virtual Device Manager&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Click &amp;ldquo;new&amp;rdquo; to create a new AVD. I created one with the following settings:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/97/android_avd_2.png&#34; alt=&#34;Create a new AVD&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Make sure you select &amp;ldquo;ARM (androideabi-v7a)&amp;rdquo; as the CPU/ABI option. Keep in mind your platform&amp;rsquo;s hardware when choosing these settings. I found higher resolution devices ran very slowly on my old MacBook. The &amp;ldquo;use snapshot&amp;rdquo; option is a timesaver that saves the virtual device&amp;rsquo;s state post-boot, so saves you from waiting for the virtual device to boot up again after the first time. Once you&amp;rsquo;ve created the AVD, you should see it listed in the AVD Manager window:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/97/android_avd_4.png&#34; alt=&#34;The AVD has been created&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Having created a new AVD, you can close the AVD Manager window.&lt;/p&gt;
+
+&lt;h3 id=&#34;installation:914b0b08540fea0f7c86094ce2509280&#34;&gt;Installation&lt;/h3&gt;
+
+&lt;p&gt;The following commands will create environment variables we&amp;rsquo;ll need for the install. Be sure to adjust the path for ANDROID_NDK to the location where you untarred the Android NDK archive earlier.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ export ANDROID_NDK=$HOME/android-ndk-r9d
+$ export TARGET_ARCH=arm-linux-androideabi
+$ export ANDROID_TOOLCHAIN=/tmp/my-toolchain-arm-linux-androideabi
+$ export SYSROOT=$ANDROID_TOOLCHAIN/sysroot
+$ export TARGETDIR=/mnt/asec/perl
+$ export PATH=$PATH:$ANDROID_NDK/toolchains/$TARGET_ARCH-4.8/prebuilt/linux-x86_64/bin
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To create the toolchain, run this command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt; $ $ANDROID_NDK/build/tools/make-standalone-toolchain.sh --platform=android-9 --install-dir=$ANDROID_TOOLCHAIN --system=`uname | tr &#39;[A-Z]&#39; &#39;[a-z]&#39;`-x86_64 --toolchain=arm-linux-androideabi-4.8
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Launch your AVD with the emulator (replace kitkat with the name of the avd you created. If you can&amp;rsquo;t remember the name, just run &amp;ldquo;android avd&amp;rdquo; again:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ emulator @kitkat&amp;amp;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You should see your emulated device start booting in a new window:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/97/android_boot.png&#34; alt=&#34;The loaded AVD&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Once it&amp;rsquo;s booted, it will look like this:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/97/android_loaded.png&#34; alt=&#34;The AVD is booting&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;With the fully booted AVD still running, return to the command line and type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ adb devices
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will print out the names of all the connected Android devices.For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;List of devices attached 
+emulator-5554   device
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we&amp;rsquo;ve got the device name, we&amp;rsquo;ll use adb to run shell commands on our emulated device. It&amp;rsquo;s important that the AVD is booted and running:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;adb -s emulator-5554 shell &amp;quot;echo sh -c &#39;\&amp;quot;mkdir $TARGETDIR\&amp;quot;&#39; | su --&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now change into the untarred perl-5.20.0 directory, and run configure (replace &amp;ldquo;emulator-5554&amp;rdquo; with your device name):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./Configure -des -Dusedevel -Dusecrosscompile -Dtargetrun=adb -Dcc=arm-linux-androideabi-gcc -Dsysroot=$SYSROOT -Dtargetdir=$TARGETDIR -Dtargethost=emulator-5554
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You can now run make and make test to build and test Perl on the device:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ make
+$ make test
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Bear in mind that the make test can take a long time - on my machine it ran for 4 hours. It will appear like the process has hung, this is because adb only prints out the results once the command has completed. Make isntall does not work, but this does not matter, as you can still run the Perl binary and use core modules. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ adb -s emulator-5554 shell &amp;quot;/mnt/asec/perl/perl -v&amp;quot;
+This is perl 5, version 20, subversion 0 (v5.20.0) built for linux-androideabi
+
+Copyright 1987-2014, Larry Wall
+
+Perl may be copied only under the terms of either the Artistic License or the
+GNU General Public License, which may be found in the Perl 5 source kit.
+
+Complete documentation for Perl, including FAQ lists, should be found on
+this system using &amp;quot;man perl&amp;quot; or &amp;quot;perldoc perl&amp;quot;.  If you have access to the
+Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Core modules are located in /mnt/asec/perl/lib. To load them, just use the -I switch. For example this one liner:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;adb -s emulator-5554 shell &#39;/mnt/asec/perl/perl -I/mnt/asec/perl/lib -MHTTP::Tiny -E &amp;quot;say  HTTP::Tiny-&amp;gt;new-&amp;gt;get(q{http://perltricks.com})-&amp;gt;{content}&amp;quot;&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or if running a script:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;adb -s emulator-5554 shell &#39;/mnt/asec/perl/perl -I/mnt/asec/perl/lib my_script.pl&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;Be warned - if you stop the AVD, Perl will be removed.&lt;/strong&gt; You can Google for solutions on how to persist changes across AVD reboots - I have not done this yet. Let me know if you find a reliable solution!&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:914b0b08540fea0f7c86094ce2509280&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;This is not the only way to get Perl running on Android. For a different approach, checkout the &lt;a href=&#34;https://github.com/damonkohler/sl4a&#34;&gt;Scripting Layer 4 Android&lt;/a&gt; project, however it is under-documented and the project may have stagnated.&lt;/p&gt;
+
+&lt;p&gt;This article would not have been possible without the excellent Android perldoc page by Brian Fraser. You can read it on &lt;a href=&#34;https://github.com/Perl/perl5/blob/blead/README.android&#34;&gt;Github&lt;/a&gt; or with Perl 5.20.0 installed you can read it with perldoc:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc android
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Thanks Brian!&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F97%2F2014%2F6%2F16%2FHow-to-build-Perl-on-Android-4-4&amp;amp;text=How+to+build+Perl+on+Android+4.4&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F97%2F2014%2F6%2F16%2FHow-to-build-Perl-on-Android-4-4&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Perl distributions, modules, packages explained</title>
+      <link>http://perltricks.com/article/96/2014/6/13/Perl-distributions--modules--packages-explained/</link>
+      <pubDate>Fri, 13 Jun 2014 12:26:00 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/96/2014/6/13/Perl-distributions--modules--packages-explained/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;It can be confusing for new Perl programmers to understand the terminology used to describe Perl distributions and their accompanying files. This article explains the core concepts.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;package-module-distribution:17113ac399bf5596ee1d46e47a6ce58b&#34;&gt;Package, Module, Distribution&lt;/h3&gt;
+
+&lt;p&gt;A Perl package is just a section of code defined in a .pm file, like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Data::Connector;
+
+sub connect {
+    # do something
+    ...
+}
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The start of the package begins with the &amp;ldquo;package&amp;rdquo; declaration. A package is a lot like a class, except that it can denote a collection of subroutines and variables, and not necessarily be instantiated as an object. Usually a .pm file will have one package declaration per file, but you can have multiple packages in a .pm file, similar to Java and C# where you can have multiple classes in a single file.&lt;/p&gt;
+
+&lt;p&gt;A module is a .pm file (&amp;ldquo;pm&amp;rdquo; means Perl Module). When you import a module with &amp;ldquo;require&amp;rdquo; or &amp;ldquo;use&amp;rdquo;, you are literally referencing the file name and not the package(s) contained in the file. For example to import the &amp;ldquo;Data::Connector&amp;rdquo; package defined above, we could save it in a file called &amp;ldquo;Whatever.pm&amp;rdquo; and later reference it in a script like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Whatever;
+
+# call connect subroutine declared in Data::Connector package
+Data::Connector::connect();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All .pm files must end with a &amp;ldquo;true&amp;rdquo; value per Perl&amp;rsquo;s requirements, so most authors either place &amp;ldquo;1;&amp;rdquo; or &amp;ldquo;__PACKAGE__;&amp;rdquo; as the last line of the .pm file. In Perl a true value is any value that is not: null, zero or a zero-length string.&lt;/p&gt;
+
+&lt;p&gt;A distribution is a collection of files that usually includes a Perl module and several other files. There is no strict standard as to which files must be included in a distribution, however for the distribution to be indexed on CPAN and install-able by the CPAN command line client, the distribution needs to include some core files. Distributions have versions - so a Perl module on CPAN will have one distribution for every version of the module. These are the main files and directories you&amp;rsquo;ll encounter in distributions:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;README - a brief description of how to install the distribution, sometimes includes a license and examples of how to use the module(s).&lt;/li&gt;
+&lt;li&gt;LICENSE - the license for the code - a non-commercial license like the GPL, artistic, BSD etc are common.&lt;/li&gt;
+&lt;li&gt;META.yml/ META.json - files that contain the metadata describing the distribution: the author, license, version, pre-requisite modules for use etc. They are auto-generated as part of the distribution build process and can be ignored.&lt;/li&gt;
+&lt;li&gt;Makefile.PL and or Build.PL - these are Perl files that are used to install the module(s) in the distribution. Worth looking at when you&amp;rsquo;re having installation issues.&lt;/li&gt;
+&lt;li&gt;MANIFEST - a list of the files included in the distribution.&lt;/li&gt;
+&lt;li&gt;lib - a directory containing Perl modules - usually the core code of the distribution.&lt;/li&gt;
+&lt;li&gt;t - the test files directory. These are run when the module is installed. If you have failing tests on installation, it can be helpful to review the test files in the t/ directory to find out the specifics of the test.&lt;/li&gt;
+&lt;li&gt;bin - if the distribution contains an app, (Perl script) it will be in here. Often the app uses modules contained in the lib directory.&lt;/li&gt;
+&lt;li&gt;Changes - a list of changes from distribution version to version.&lt;/li&gt;
+&lt;li&gt;xt - the extended test files directory, usually used for author tests that you don&amp;rsquo;t need to run.&lt;/li&gt;
+&lt;li&gt;eg - a directory of example Perl scripts, using the module(s) contained in the distribution.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;These are the typical directories and files found in a Perl distribution but as there is no fixed standard, distribution authors are free to include and exclude the files they wish. For a good example, check out the files provided by David Golden in a distribution of the the popular &lt;a href=&#34;https://metacpan.org/source/DAGOLDEN/HTTP-Tiny-0.043&#34;&gt;HTTP::Tiny&lt;/a&gt; module.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:17113ac399bf5596ee1d46e47a6ce58b&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Once you get to grips with Perl packages, modules and distributions it&amp;rsquo;s far easier to start hacking on Perl modules that don&amp;rsquo;t work the way you want them to. For example, in the case of a module that won&amp;rsquo;t install, you can download the distribution from CPAN (at the command line &amp;ldquo;cpan -g Module::Name&amp;rdquo;), untar it, and patch the failing tests, or examine the source code in the lib directory and resolve a bug or two. Before long you&amp;rsquo;ll be releasing your own distributions to CPAN!&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F96%2F2014%2F6%2F13%2FPerl-distributions-modules-packages-explained&amp;amp;text=Perl+distributions%2C+modules%2C+packages+explained&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F96%2F2014%2F6%2F13%2FPerl-distributions-modules-packages-explained&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Easy application dependency management with Stratopan</title>
+      <link>http://perltricks.com/article/71/2014/2/20/Easy-application-dependency-management-with-Stratopan/</link>
+      <pubDate>Thu, 20 Feb 2014 03:55:29 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/71/2014/2/20/Easy-application-dependency-management-with-Stratopan/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Good Perl authors write modular code and leverage CPAN as much as possible. The downside of this approach is that Perl applications accumulate hundreds of CPAN module dependencies. Fortunately for Perl, Stratopan makes it simple to manage your application dependencies and quickly deploy it to new environments.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;how-many-dependencies:959cc4bffc976d00afbb89da2cc5599f&#34;&gt;How many dependencies?!&lt;/h3&gt;
+
+&lt;p&gt;Perl application dependencies grow rapidly. This is because every time you import a module, you take on that module&amp;rsquo;s dependencies, and those of its imports and so on. The cover picture above shows the dependencies graph for the PerlTricks.com application; it&amp;rsquo;s 283 modules. That&amp;rsquo;s a lot of code to manage.&lt;/p&gt;
+
+&lt;h3 id=&#34;manage-module-dependencies-with-stratopan:959cc4bffc976d00afbb89da2cc5599f&#34;&gt;Manage module dependencies with Stratopan&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://stratopan.com&#34;&gt;Stratopan&lt;/a&gt;, the cloud-based module hosting service, let&amp;rsquo;s you upload Perl modules to a personal repository in the cloud. On our &lt;a href=&#34;https://stratopan.com/sillymoose/webstuff/perltricks&#34;&gt;PerlTricks&lt;/a&gt; stack, we&amp;rsquo;ve uploaded the exact versions of all of the modules used in our production environment. Many of the modules are not up to date, but that doesn&amp;rsquo;t matter as these are the module versions that &lt;em&gt;work&lt;/em&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;rapid-deployment:959cc4bffc976d00afbb89da2cc5599f&#34;&gt;Rapid Deployment&lt;/h3&gt;
+
+&lt;p&gt;Deploying this stack to a fresh environment couldn&amp;rsquo;t be easier. We can use &lt;a href=&#34;https://metacpan.org/pod/release/MIYAGAWA/App-cpanminus-1.7001/bin/cpanm&#34;&gt;cpanm&lt;/a&gt; to read our Makefile.PL and recursively install our application dependencies, using Stratopan as the source. In the terminal we navigate to the root application directory and enter:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpanm -n --installdeps --mirror-only --mirror https://stratopan.com/sillymoose/WebStuff/perltricks .
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s review this code: first we use cpanm&amp;rsquo;s &amp;ldquo;-n&amp;rdquo; switch to turn off module tests to install the modules super-fast. The &amp;ldquo;&amp;ndash;installdeps&amp;rdquo; switch makes cpanm look for application dependencies. The &amp;ldquo;mirror&amp;rdquo; switches instruct cpan to use our Stratopan stack as the install source. The trailing period indicates to search for dependencies in the current directory. This is the perfect marriage: Stratopan recursively pulled our module dependencies into our stack, and cpanm recursively installs all dependencies it finds. Even though our Makefile lists ~40 modules, cpanm ends up installing all 283.&lt;/p&gt;
+
+&lt;p&gt;When we want to upgrade our modules we can do it in a controlled way by making a copy of our stack upgrading the modules for testing in a development environment, before upgrading production.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:959cc4bffc976d00afbb89da2cc5599f&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Without Stratopan and cpanm, deploying the PerlTricks application to a new server would be a lot more work. We&amp;rsquo;d either have to list and source the specific module versions and deploy them manually, or else install the newest versions of all of 283 dependencies and hope they still play nice with each other. Two of our dependences are no longer even on CPAN!&lt;/p&gt;
+
+&lt;p&gt;Want to get started with Stratopan? Check out our &lt;a href=&#34;http://perltricks.com/article/48/2013/11/15/A-Stratopan-quick-start-user-guide&#34;&gt;quick start user guide&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F71%2F2014%2F2%2F20%2FEasy-application-dependency-management-with-Stratopan&amp;amp;text=Easy+application+dependency+management+with+Stratopan&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F71%2F2014%2F2%2F20%2FEasy-application-dependency-management-with-Stratopan&amp;amp;via=perltricks&#34;&gt;retweet&lt;/a&gt; it!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Shazam! Use Image::Magick with Perlbrew in minutes</title>
+      <link>http://perltricks.com/article/57/2014/1/1/Shazam--Use-Image--Magick-with-Perlbrew-in-minutes/</link>
+      <pubDate>Wed, 01 Jan 2014 23:43:09 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/57/2014/1/1/Shazam--Use-Image--Magick-with-Perlbrew-in-minutes/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;The open source ImageMagick software provides amazing tools for creating and manipulating images in over 100 formats. Unfortunately, installing ImageMagick&amp;rsquo;s Perl module under Perlbrew can be a frustrating and time-consuming task. However it doesn&amp;rsquo;t have to be this way - with the method described below you can have the module installed in minutes, no root access required!&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;update-07-01-2014:5eaf94c7ee71c974c0676a2e0c0a2bea&#34;&gt;&lt;em&gt;Update 07-01-2014&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;Zaki (&lt;a href=&#34;https://twitter.com/zmughal&#34;&gt;@zhmughal&lt;/a&gt;) has worked up a sweet &lt;a href=&#34;https://gist.github.com/zmughal/8264712/raw/8831e421393143c5b48f22dcfa12eeda51c5cfbf/install-imagemagick-perl&#34;&gt;shell script&lt;/a&gt; to automate the installation process for you, so you can save the finger work for using ImageMagick with your next Perl program:)&lt;/p&gt;
+
+&lt;h3 id=&#34;requirements:5eaf94c7ee71c974c0676a2e0c0a2bea&#34;&gt;Requirements&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need to have Perlbrew and a local Perl installation via Perlbrew on Unix-based platform. This has been tested on Perl 5.16.3 but should work on any modern Perl version.&lt;/p&gt;
+
+&lt;h3 id=&#34;preparation:5eaf94c7ee71c974c0676a2e0c0a2bea&#34;&gt;Preparation&lt;/h3&gt;
+
+&lt;p&gt;Create a local directory: we will install ImageMagick here. Open up the terminal and enter the following:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;mkdir ~/local
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;installing-image-magick-don-t-use-cpan:5eaf94c7ee71c974c0676a2e0c0a2bea&#34;&gt;Installing Image::Magick - don&amp;rsquo;t use CPAN&lt;/h3&gt;
+
+&lt;p&gt;Although the &lt;a href=&#34;https://metacpan.org/pod/Image::Magick&#34;&gt;Image::Magick&lt;/a&gt; module is available on CPAN, installing it via CPAN is usually a fruitless task as the process croaks on make. Instead download the whole &lt;a href=&#34;http://www.imagemagick.org/download/ImageMagick.tar.gz&#34;&gt;ImageMagick tarball&lt;/a&gt;. Once downloaded, navigate to the tarball&amp;rsquo;s parent directory using the terminal and un-tar the archive with the following command&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;tar xvfz ImageMagick.tar.gz
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now change into the new directory:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cd ImageMagick-6.8.8-0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Enter the following command, replacing [username], [path to CORE] and [path to Perl bin] with your system&amp;rsquo;s details. Remove the &amp;ldquo;&amp;ndash;without-threads&amp;rdquo; text if your Perl was compiled with threads (here is how to check).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;LDFLAGS=-L/home/[username]/perl5/perlbrew/perls/[path to CORE] \
+    ./configure --prefix /home/[username]/local \
+    --with-perl=/home/[username]/perl5/perlbrew/perls/[path to Perl bin] \
+    --enable-shared --without-threads
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here is a completed example for my system:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;LDFLAGS=-L/home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/lib/5.16.3/x86_64-linux/CORE \
+    ./configure --prefix /home/sillymoose/local \
+    --with-perl=/home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/bin/perl \
+    --enable-shared --without-threads
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Running this command should cause ImageMagick to run a series of configuration checks, at the end of which it will print a configuration summary, which should look something like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;ImageMagick is configured as follows. Please verify that this configuration
+matches your expectations.
+
+Host system type: x86_64-unknown-linux-gnu
+Build system type: x86_64-unknown-linux-gnu
+
+                  Option                        Value
+-------------------------------------------------------------------------------
+Shared libraries  --enable-shared=yes       yes
+Static libraries  --enable-static=yes       yes
+Module support    --with-modules=no     no
+GNU ld            --with-gnu-ld=yes     yes
+Quantum depth     --with-quantum-depth=16   16
+High Dynamic Range Imagery
+                  --enable-hdri=no      no
+
+Delegate Configuration:
+BZLIB             --with-bzlib=yes      yes
+Autotrace         --with-autotrace=no       no
+Dejavu fonts      --with-dejavu-font-dir=default    /usr/share/fonts/dejavu/
+DJVU              --with-djvu=yes       no
+DPS               --with-dps=yes        no
+FFTW              --with-fftw=yes       no
+FlashPIX          --with-fpx=yes        no
+FontConfig        --with-fontconfig=yes     no
+FreeType          --with-freetype=yes       yes
+GhostPCL          None              pcl6 (unknown)
+GhostXPS          None              gxps (unknown)
+Ghostscript       None              gs (9.10)
+Ghostscript fonts --with-gs-font-dir=default    /usr/share/fonts/default/Type1/
+Ghostscript lib   --with-gslib=no       no
+Graphviz          --with-gvc=no     
+JBIG              --with-jbig=yes       no
+JPEG v1           --with-jpeg=yes       yes
+JPEG-2000         --with-jp2=yes        yes
+LCMS v1           --with-lcms=yes       yes
+LCMS v2           --with-lcms2=yes      no
+LQR               --with-lqr=yes        no
+LTDL              --with-ltdl=yes       no
+LZMA              --with-lzma=yes       yes
+Magick++          --with-magick-plus-plus=yes   no (failed tests)
+MUPDF             --with-mupdf=no       no
+OpenEXR           --with-openexr=yes        no
+PANGO             --with-pango=yes      no
+PERL              --with-perl=/home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/bin/perl        /home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/bin/perl
+PNG               --with-png=yes        yes
+RSVG              --with-rsvg=no        no
+TIFF              --with-tiff=yes       yes
+WEBP              --with-webp=yes       no
+Windows fonts     --with-windows-font-dir=  none
+WMF               --with-wmf=no     no
+X11               --with-x=         yes
+XML               --with-xml=yes        yes
+ZLIB              --with-zlib=yes       yes
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Check that the image file formats you expect to be working with are showing as &amp;ldquo;yes&amp;rdquo;. If any are showing as &amp;ldquo;no&amp;rdquo; that you require, you&amp;rsquo;ll need to install the appropriate C library (e.g. libpng for PNG files) and re-run the previous command.&lt;/p&gt;
+
+&lt;p&gt;To install ImageMagick and the Image::Magick Perl module, run this command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;make install
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;confirm-installation:5eaf94c7ee71c974c0676a2e0c0a2bea&#34;&gt;Confirm Installation&lt;/h3&gt;
+
+&lt;p&gt;Confirming that the Image::Magick module has installed is not quite straightforward either. With version Image Magick 6.8.8, the $VERSION variable is stored in the super class Image::Magick::Q16. Hence you&amp;rsquo;ll need to type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl -MImage::Magick::Q16\ 999
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Which should yield:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Image::Magick::Q16 version 999 required--this is only version 6.88.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;sources:5eaf94c7ee71c974c0676a2e0c0a2bea&#34;&gt;Sources&lt;/h3&gt;
+
+&lt;p&gt;Thanks to Jason Galea - his invaluable &lt;a href=&#34;https://github.com/lecstor/DevNotes/wiki/Image-Magick-with-Perlbrew&#34;&gt;GitHub notes&lt;/a&gt; formed the basis of this solution.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>A Stratopan quick start user guide</title>
+      <link>http://perltricks.com/article/48/2013/11/15/A-Stratopan-quick-start-user-guide/</link>
+      <pubDate>Fri, 15 Nov 2013 04:23:53 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/48/2013/11/15/A-Stratopan-quick-start-user-guide/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;&lt;a href=&#34;https://stratopan.com/&#34;&gt;Stratopan&lt;/a&gt; is a cloud-based Perl module repository service. Users can create repositories of modules in the cloud and use them to manage their local installations of Perl modules. This makes it easy to configure a network of machines to have exactly the same modules (and versions), deploy Perl applications quickly and cleanly and host private (i.e. non CPAN) Perl software in a secure, central location. The &lt;a href=&#34;https://stratopan.com/&#34;&gt;Stratopan&lt;/a&gt; beta has officially started and so there has never been a better time to check out this amazing service. Read on for an unofficial quick start guide to Stratopan!&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;getting-started-create-a-repository:713592ed043727253fc234d9fe0e3d2b&#34;&gt;Getting started - create a repository&lt;/h3&gt;
+
+&lt;p&gt;Head over to Stratopan, sign up to create a new account and login. You should be presented with this message:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_1_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Click the create repository link and complete the information on the following screen. Be sure to select the private option if you want your repository not to be publicly visible.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_2_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;You should now have a new repository.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_19_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;add-or-pull-modules:713592ed043727253fc234d9fe0e3d2b&#34;&gt;Add or pull modules&lt;/h3&gt;
+
+&lt;p&gt;Modules reside in &amp;ldquo;stacks&amp;rdquo; which belong to a repository and helpfully Stratopan creates a default &amp;ldquo;master&amp;rdquo; stack for you. To insert modules into a stack you can &amp;ldquo;pull&amp;rdquo; them from CPAN or &amp;ldquo;add&amp;rdquo; them from a local machine. Let&amp;rsquo;s start by pulling a module onto our master stack. Click the &amp;ldquo;pulling&amp;rdquo; link to launch the pull module screen and start typing the name of the module you want to pull. Note that this must be the distribution name and not the module name. For example to pull the module &amp;ldquo;Method::Signatures&amp;rdquo;, you should type &amp;ldquo;Method-Signatures&amp;rdquo;. Helpfully Stratopan provides a case-insensitive predictive text search and lists the module version numbers available too, in case you need a specific variant. Let&amp;rsquo;s pull my wildly unpopular &lt;a href=&#34;https://metacpan.org/pod/WWW::CheckHTML&#34;&gt;WWW::CheckHTML&lt;/a&gt; module:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_3_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Decide if you want Stratopan to recursively pull all module dependencies; this is usually a good option. What&amp;rsquo;s nice about this is the &amp;ldquo;recursive&amp;rdquo; pull will grab all the modules dependent on your chosen module&amp;rsquo;s dependencies.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_4_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;It can be surprising how many dependencies there are - for example &lt;a href=&#34;https://metacpan.org/pod/WWW::CheckHTML&#34;&gt;WWW::CheckHTML&lt;/a&gt; has 5 direct dependencies and 69 indirect ones. Obviously when there are more dependent modules, Stratopan will take longer to pull them into the stack (usually a minute or two). When it&amp;rsquo;s finished, Stratopan will present the the latest view of the stack.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_5_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Stratopan provides some useful stack features. A link to &lt;a href=&#34;https://metacpan.org&#34;&gt;metapcan&lt;/a&gt; is provided for every module (except for private modules that have been added from a local machine) and it&amp;rsquo;s possible to browse the *.pm files in a module by clicking on it:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_20_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Each stack has it&amp;rsquo;s own commit history, accessed via the aptly-named &amp;ldquo;history&amp;rdquo; link:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_22_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The &amp;ldquo;graphs&amp;rdquo; link is much more interesting. It opens this cool, rotatable dependencies chart:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_21_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Finally the &amp;ldquo;settings&amp;rdquo; link let&amp;rsquo;s you update the stack name, description and target Perl version. You can also delete the stack from here.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_23_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;installing-modules-from-your-stratopan-stack:713592ed043727253fc234d9fe0e3d2b&#34;&gt;Installing modules from your Stratopan stack&lt;/h3&gt;
+
+&lt;p&gt;To install modules from Stratopan you&amp;rsquo;ll need &lt;a href=&#34;https://metacpan.org/pod/release/MIYAGAWA/App-cpanminus-1.7001/bin/cpanm&#34;&gt;cpanm&lt;/a&gt;. You can install this via cpan from the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan App::cpanminus
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once cpanm has installed, open one of your stacks on Stratopan and copy the stack URL (shown in red below).&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/Stratopan/stratopan_24_600.png&#34; alt=&#34;stratopan screenshot&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;At the terminal type &amp;ldquo;cpanm &amp;ndash;mirror-only &amp;ndash;mirror &amp;rdquo; and paste your copied stack URL and enter one or more module names that you wish to install. For example to install &lt;a href=&#34;https://metacpan.org/pod/WWW::CheckHTML&#34;&gt;WWW::CheckHTML&lt;/a&gt; from my master stack:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpanm --mirror-only --mirror 
+https://stratopan.com/sillymoose/WebStuff/master WWW::CheckHTML
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If all goes well you should see the following installation dialogue:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;--&amp;gt; Working on WWW::CheckHTML
+Fetching https://stratopan.com/sillymoose/WebStuff/master/authors/id/S/SI/SILLYMOOS/WWW-CheckHTML-0.04.tar.gz ... OK
+Configuring WWW-CheckHTML-0.04 ... OK
+Building and testing WWW-CheckHTML-0.04 ... OK
+Successfully installed WWW-CheckHTML-0.04
+1 distribution installed
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:713592ed043727253fc234d9fe0e3d2b&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://stratopan.com&#34;&gt;Stratopan&lt;/a&gt; is an awesome new service which can hugely simplify the configuration of your Perl platforms. Hopefully this guide has given you a better idea of how to get started with it!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Find CPAN mirrors and configure the local CPAN mirror list</title>
+      <link>http://perltricks.com/article/44/2013/10/20/Find-CPAN-mirrors-and-configure-the-local-CPAN-mirror-list/</link>
+      <pubDate>Sun, 20 Oct 2013 19:07:00 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/44/2013/10/20/Find-CPAN-mirrors-and-configure-the-local-CPAN-mirror-list/</guid>
+      <description>
+
+&lt;p&gt;CPAN mirrors are online repositories which host or &amp;ldquo;mirror&amp;rdquo; the Perl module distributions on CPAN. There are hundreds of CPAN mirrors dispersed throughout the World. When the CPAN program is run for the first time on a machine, it will configure the CPAN mirror list to use for checking for new versions of modules and downloading Perl distributions. All CPAN mirrors are not created equally though: the distribution list&amp;rsquo;s age, speed and the geographic location vary from mirror to mirror and so you may want to re-configure your local CPAN mirror list to suit your needs. This article describes how to find CPAN mirrors and edit the local CPAN mirror configuration.&lt;/p&gt;
+
+&lt;h3 id=&#34;finding-cpan-mirrors:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;Finding CPAN mirrors&lt;/h3&gt;
+
+&lt;p&gt;An online list of public CPAN mirrors can be found &lt;a href=&#34;http://mirrors.cpan.org/&#34;&gt;here&lt;/a&gt;. The list is frequently updated and lists mirrors by location, the scheme used (ftp, http), the age of the module list and some test results. Viewing this list you can see that some mirrors do not refresh their module list for days at a time - if you are using these mirrors you could be missing out on the latest version of your favourite module! A JSON formatted CPAN mirror list can be found &lt;a href=&#34;http://www.cpan.org/indices/mirrors.json&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;start-the-cpan-shell:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;Start the CPAN shell&lt;/h3&gt;
+
+&lt;p&gt;Once you have identified the URLs of the CPAN mirrors you want to use, fire up the terminal and load the cpan shell:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan
+
+cpan shell -- CPAN exploration and modules installation (v2.00)
+Enter &#39;h&#39; for help.
+
+cpan[1]&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;view-the-local-cpan-mirror-list:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;View the local CPAN mirror list&lt;/h3&gt;
+
+&lt;p&gt;The CPAN mirror list is stored in the &amp;ldquo;urllist&amp;rdquo; variable. To view the list of mirrors, type &amp;ldquo;o conf urllist&amp;rdquo; in the CPAN shell:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan[1]&amp;gt;o conf urllist
+    urllist           
+    0 [http://httpupdate3.cpanel.net/CPAN/]
+    1 [http://httpupdate23.cpanel.net/CPAN/]
+    2 [http://mirrors.servercentral.net/CPAN/]
+    3 [ftp://cpan.cse.msu.edu/]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;add-a-cpan-mirror:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;Add a CPAN mirror&lt;/h3&gt;
+
+&lt;p&gt;To add a CPAN mirror use the &amp;ldquo;unshift&amp;rdquo; or &amp;ldquo;push&amp;rdquo; functions to add the mirror&amp;rsquo;s url to the front or end of the mirror list. Make sure that the URL for the mirror &lt;strong&gt;includes the scheme&lt;/strong&gt; (http, ftp).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan[2]&amp;gt; o conf urllist push http://mirror.waia.asn.au/pub/cpan/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;remove-a-cpan-mirror:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;Remove a CPAN mirror&lt;/h3&gt;
+
+&lt;p&gt;To remove a CPAN mirror use the &amp;ldquo;shift&amp;rdquo; or &amp;ldquo;pop&amp;rdquo; functions to remove the mirror URL from the front or end of the mirror list:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan[3]&amp;gt; o conf urllist pop
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;completely-replace-the-existing-mirror-list:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;Completely replace the existing mirror list&lt;/h3&gt;
+
+&lt;p&gt;To overwrite the existing mirror list with a new one, just provide the URLs to the new mirrors as a space separated list:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan[4]&amp;gt; o conf urllist http://mirror.waia.asn.au/pub/cpan/ ftp://mirrors.coopvgg.com.ar/CPAN/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;saving-changes:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;Saving changes&lt;/h3&gt;
+
+&lt;p&gt;Once you have updated the CPAN mirror list, make sure you commit the changes to file so they are saved beyond the current session:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan[5]&amp;gt; o conf commit
+commit: wrote &#39;/home/sillymoose/.cpan/CPAN/MyConfig.pm&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;edit-the-cpan-configuration-file-directly:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;Edit the CPAN configuration file directly&lt;/h3&gt;
+
+&lt;p&gt;You can also edit the CPAN config file directly. For local user Perl installations this is */CPAN/MyConfig.pm and system Perl installations */CPAN/Config.pm (the parent directory will depend on the platform). When editing the file, urllist is a hash key for an array reference of mirror urls. Note the urls are quoted using Perl&amp;rsquo;s quoting operator (&amp;ldquo;q&amp;rdquo;). Simply edit and save the file.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&#39;urllist&#39; =&amp;gt; [
+    q[http://httpupdate3.cpanel.net/CPAN/], 
+    q[http://httpupdate23.cpanel.net/CPAN/], 
+    q[http://mirrors.servercentral.net/CPAN/], 
+    q[ftp://cpan.cse.msu.edu/]
+],
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Get detailed Perl version configuration information</title>
+      <link>http://perltricks.com/article/41/2013/9/27/Get-detailed-Perl-version-configuration-information/</link>
+      <pubDate>Fri, 27 Sep 2013 01:25:18 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/41/2013/9/27/Get-detailed-Perl-version-configuration-information/</guid>
+      <description>&lt;p&gt;Most Perl programmers know they can find out the current Perl version by typing &amp;ldquo;perl -v&amp;rdquo; as the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl -v
+
+This is perl 5, version 16, subversion 3 (v5.16.3) built for x86_64-linux
+
+Copyright 1987-2012, Larry Wall
+
+Perl may be copied only under the terms of either the Artistic License or the
+GNU General Public License, which may be found in the Perl 5 source kit.
+
+Complete documentation for Perl, including FAQ lists, should be found on
+this system using &amp;quot;man perl&amp;quot; or &amp;quot;perldoc perl&amp;quot;.  If you have access to the
+Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To get detailed version information type &amp;ldquo;perl -&lt;strong&gt;V&lt;/strong&gt;&amp;rdquo; (capital V) at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl -V
+
+Summary of my perl5 (revision 5 version 16 subversion 3) configuration:
+   
+  Platform:
+    osname=linux, osvers=3.8.4-102.fc17.x86_64, archname=x86_64-linux
+    uname=&#39;linux localhost.localdomain 3.8.4-102.fc17.x86_64 #1 smp sun mar 24 13:09:09 utc 2013 x86_64 x86_64 x86_64 gnulinux &#39;
+    config_args=&#39;-de -Dprefix=/home/sillymoose/perl5/perlbrew/perls/perl-5.16.3 -Aeval:scriptdir=/home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/bin&#39;
+    hint=recommended, useposix=true, d_sigaction=define
+    useithreads=undef, usemultiplicity=undef
+    useperlio=define, d_sfio=undef, uselargefiles=define, usesocks=undef
+    use64bitint=define, use64bitall=define, uselongdouble=undef
+    usemymalloc=n, bincompat5005=undef
+  Compiler:
+    cc=&#39;cc&#39;, ccflags =&#39;-fno-strict-aliasing -pipe -fstack-protector -I/usr/local/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64&#39;,
+    optimize=&#39;-O2&#39;,
+    cppflags=&#39;-fno-strict-aliasing -pipe -fstack-protector -I/usr/local/include&#39;
+    ccversion=&#39;&#39;, gccversion=&#39;4.7.2 20120921 (Red Hat 4.7.2-2)&#39;, gccosandvers=&#39;&#39;
+    intsize=4, longsize=8, ptrsize=8, doublesize=8, byteorder=12345678
+    d_longlong=define, longlongsize=8, d_longdbl=define, longdblsize=16
+    ivtype=&#39;long&#39;, ivsize=8, nvtype=&#39;double&#39;, nvsize=8, Off_t=&#39;off_t&#39;, lseeksize=8
+    alignbytes=8, prototype=define
+  Linker and Libraries:
+    ld=&#39;cc&#39;, ldflags =&#39; -fstack-protector -L/usr/local/lib&#39;
+    libpth=/usr/local/lib /lib/../lib64 /usr/lib/../lib64 /lib /usr/lib /lib64 /usr/lib64 /usr/local/lib64
+    libs=-lnsl -ldl -lm -lcrypt -lutil -lc
+    perllibs=-lnsl -ldl -lm -lcrypt -lutil -lc
+    libc=, so=so, useshrplib=false, libperl=libperl.a
+    gnulibc_version=&#39;2.15&#39;
+  Dynamic Linking:
+    dlsrc=dl_dlopen.xs, dlext=so, d_dlsymun=undef, ccdlflags=&#39;-Wl,-E&#39;
+    cccdlflags=&#39;-fPIC&#39;, lddlflags=&#39;-shared -O2 -L/usr/local/lib -fstack-protector&#39;
+
+
+Characteristics of this binary (from libperl): 
+  Compile-time options: HAS_TIMES PERLIO_LAYERS PERL_DONT_CREATE_GVSV
+                        PERL_MALLOC_WRAP PERL_PRESERVE_IVUV USE_64_BIT_ALL
+                        USE_64_BIT_INT USE_LARGE_FILES USE_LOCALE
+                        USE_LOCALE_COLLATE USE_LOCALE_CTYPE
+                        USE_LOCALE_NUMERIC USE_PERLIO USE_PERL_ATOF
+  Built under linux
+  Compiled at Apr 15 2013 14:54:57
+  %ENV:
+    PERLBREW_BASHRC_VERSION=&amp;quot;0.62&amp;quot;
+    PERLBREW_HOME=&amp;quot;/home/sillymoose/.perlbrew&amp;quot;
+    PERLBREW_MANPATH=&amp;quot;/home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/man&amp;quot;
+    PERLBREW_PATH=&amp;quot;/home/sillymoose/perl5/perlbrew/bin:/home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/bin&amp;quot;
+    PERLBREW_PERL=&amp;quot;perl-5.16.3&amp;quot;
+    PERLBREW_ROOT=&amp;quot;/home/sillymoose/perl5/perlbrew&amp;quot;
+    PERLBREW_VERSION=&amp;quot;0.62&amp;quot;
+  @INC:
+    /home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/lib/site_perl/5.16.3/x86_64-linux
+    /home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/lib/site_perl/5.16.3
+    /home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/lib/5.16.3/x86_64-linux
+    /home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/lib/5.16.3
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This prints detailed information on the installed Perl&amp;rsquo;s configuration including: the options that Perl was compiled with, whether iThreads are enabled or not and a host of directory information.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Run local Perl as root</title>
+      <link>http://perltricks.com/article/36/2013/8/10/Run-local-Perl-as-root/</link>
+      <pubDate>Sat, 10 Aug 2013 14:33:18 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/36/2013/8/10/Run-local-Perl-as-root/</guid>
+      <description>&lt;p&gt;This is a simple trick for conveniently running local Perl as a root user on UNIX-based systems.&lt;/p&gt;
+
+&lt;p&gt;Occasionally it&amp;rsquo;s necessary to run locally-installed Perl as root. However at the command line if you type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sudo perl program.pl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By default the Perl that is executed is the system Perl binary. This can be problematic as the System Perl may not have the modules required, or even be the correct version of Perl that you need to run. An easy fix for this is to use the which command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sudo $(which perl) program.pl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By nesting which between a dollar sign parentheses, the terminal will resolve the command first, which returns a string to the local Perl binary. Sudo then operates on this binary instead of the system Perl binary. You can prove this with the following terminal commands:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;which perl
+/home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/bin/perl
+
+sudo which perl
+/bin/perl
+
+sudo echo $(which perl)
+/home/sillymoose/perl5/perlbrew/perls/perl-5.16.3/bin/perl
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Use Module::Version to get the version of an installed Perl module</title>
+      <link>http://perltricks.com/article/22/2013/4/25/Use-Module--Version-to-get-the-version-of-an-installed-Perl-module/</link>
+      <pubDate>Thu, 25 Apr 2013 18:39:48 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/22/2013/4/25/Use-Module--Version-to-get-the-version-of-an-installed-Perl-module/</guid>
+      <description>&lt;p&gt;In response to our article &lt;a href=&#34;http://www.perltricks.com/article/1/2013/3/24/3-quick-ways-to-find-out-the-version-number-of-an-installed-Perl-module-from-the-terminal&#34;&gt;3 quick ways to find out the version number of an installed Perl module from the terminal&lt;/a&gt;, programmer &lt;a href=&#34;https://metacpan.org/author/RSAVAGE&#34;&gt;Ron Savage&lt;/a&gt; got in touch to point out that it&amp;rsquo;s possible to use the Perl module &lt;a href=&#34;https://metacpan.org/module/Module::Version&#34;&gt;Module::Version&lt;/a&gt; to get the version number of an installed module.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/module/Module::Version&#34;&gt;Module::Version&lt;/a&gt; comes with a useful command line program, &lt;strong&gt;mversion&lt;/strong&gt; which when passed the name of a module, will print the version out. Simply install &lt;a href=&#34;https://metacpan.org/module/Module::Version&#34;&gt;Module::Version&lt;/a&gt; via CPAN and mversion will be installed automatically.&lt;/p&gt;
+
+&lt;p&gt;Once &lt;a href=&#34;https://metacpan.org/module/Module::Version&#34;&gt;Module::Version&lt;/a&gt; is installed, to get the version number of Module::Build (for example) using mversion, go to the command line and type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;mversion Module::Build
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Installing Perl modules with C library dependencies</title>
+      <link>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</link>
+      <pubDate>Mon, 15 Apr 2013 18:37:26 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</guid>
+      <description>
+
+&lt;p&gt;Some Perl modules have specific C library dependencies that need to be met or else they won&amp;rsquo;t install. These issues can be tricky to solve as CPAN is not able to automatically install or report on non-Perl dependencies and Google isn&amp;rsquo;t good at returning useful results for these types of issues (&lt;a href=&#34;https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod&#34;&gt;Net::SSLeay&lt;/a&gt; is a common example of a tricky module to install). Usually you will only find out about missing dependencies when trying to install the module, as the install will fail. What you need to do at this point is &lt;strong&gt;identify&lt;/strong&gt; and &lt;strong&gt;install&lt;/strong&gt; the missing C libraries.&lt;/p&gt;
+
+&lt;h3 id=&#34;identifying-c-library-dependencies:12040641a686db63029ae6c41a9f1d99&#34;&gt;Identifying C Library dependencies&lt;/h3&gt;
+
+&lt;p&gt;Here are some places to check for dependencies:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Install error message&lt;/strong&gt; - scan the command line output from the failed install: often Perl developers will write specific error messages that indicate the missing C library.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Module documentation&lt;/strong&gt; - check the main POD page for the module on &lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; it may indicate which C libraries are required.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Distribution files&lt;/strong&gt; - check the README and INSTALL files that come with the distribution for the module you are trying to install. If available they will be in the root directory of the tarball. You can browse these files online at &lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; by searching for the module, then clicking the &amp;lsquo;browse&amp;rsquo; link on the module&amp;rsquo;s main page.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Search your package manager&lt;/strong&gt; - look at the technologies and keywords associated with the module. For example &lt;a href=&#34;https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod&#34;&gt;Net::SSLeay&lt;/a&gt; probably has something to do with SSL, so search for Perl-related SSL packages (example below).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;installing-c-library-dependencies:12040641a686db63029ae6c41a9f1d99&#34;&gt;Installing C library dependencies&lt;/h3&gt;
+
+&lt;p&gt;Once you have identified the missing C libraries, you need to install them. If you are on Linux, this can be done using a package manager and searching for and installing the package containing the C library:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# yum package manager
+$ sudo yum search ssl
+...
+sudo yum install openssl-perl.x86_64 perl-Net-SSLeay.x86_64 perl-Crypt-SSLeay.x86_64
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you are not on Linux, try downloading the library directly from the C library&amp;rsquo;s homepage - these are easy to find via Google and usually have specific Windows / OSX distributions.&lt;/p&gt;
+
+&lt;p&gt;Once you have installed the requisite libraries, try installing the Perl module again with CPAN.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>List all Perl modules installed via CPAN</title>
+      <link>http://perltricks.com/article/14/2013/4/7/List-all-Perl-modules-installed-via-CPAN/</link>
+      <pubDate>Sun, 07 Apr 2013 18:52:11 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/14/2013/4/7/List-all-Perl-modules-installed-via-CPAN/</guid>
+      <description>&lt;p&gt;A quick way to list all non-core modules installed via CPAN using the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perldoc perllocal
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that if you are using perlbrew and have several different versions of Perl installed, the perllocal command will only output modules installed for the active Perl version. If you execute the perllocal command and see this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;no documentation found for &amp;quot;perllocal&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This means that no non-core Perl modules have been installed via CPAN. Try installing a module via CPAN, and then retry the perllocal command.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to install a specific version of a Perl module with CPAN</title>
+      <link>http://perltricks.com/article/4/2013/3/27/How-to-install-a-specific-version-of-a-Perl-module-with-CPAN/</link>
+      <pubDate>Wed, 27 Mar 2013 23:32:57 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/4/2013/3/27/How-to-install-a-specific-version-of-a-Perl-module-with-CPAN/</guid>
+      <description>&lt;p&gt;Perl modules are usually installed via CPAN on the command line. This is invoked with the following syntax:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan My::Module
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;CPAN will always try to install the latest stable version of a module, which is a sensible default, however this may not always be the required behaviour. To have CPAN install a specific version of a module, you need to provide the full module distribution filename including the author. For example to install the module Set::Object version 1.28, at the command line type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan SAMV/Set-Object-1.28.tar.gz
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You can find the distribution filename for a module by searching for the module on &lt;a href=&#34;http://search.cpan.org/&#34;&gt;CPAN&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

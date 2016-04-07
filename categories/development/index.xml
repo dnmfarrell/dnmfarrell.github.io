@@ -1,0 +1,2273 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Development on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/categories/development/</link>
+    <description>Recent content in Development on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 16 Feb 2016 09:50:00 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/categories/development/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Magical tied scalars</title>
+      <link>http://perltricks.com/article/magical-tied-scalars/</link>
+      <pubDate>Tue, 16 Feb 2016 09:50:00 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/magical-tied-scalars/</guid>
+      <description>&lt;p&gt;Perl&amp;rsquo;s &lt;code&gt;tie&lt;/code&gt; mechanism allows me to create something that looks like a scalar but does anything I want it to do. I can change how the familiar scalar interface of simple access and assignment actually work. I&amp;rsquo;ve found this so useful at times that I devoted an entire chapter of &lt;a href=&#34;http://www.masteringperl.org/&#34;&gt;Mastering Perl&lt;/a&gt; to it.&lt;/p&gt;
+
+&lt;p&gt;I think I fell in love with this technique when it allowed me to solve a seemly intractable problem creating some HTML by hand (so you know this must have been a long time ago). Someone had created a library to create an HTML table that allowed me to set the color of the table rows by passing in a scalar value for &lt;code&gt;tr&lt;/code&gt;&amp;rsquo;s &lt;code&gt;bgcolor&lt;/code&gt; attribute. Fortunately I&amp;rsquo;ve forgotten who that was or what the code looked like, but it was something like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub print_table_and_stuff {
+    my( $color, @lots_of_other_arguments ) = @_;
+
+    ... lots of code ...
+    print &amp;quot;&amp;lt;table&amp;gt;&amp;quot;;
+
+    foreach my $item ( @items ) {
+            print qq(&amp;lt;tr bgcolor=&amp;quot;$color&amp;quot;&amp;gt;);
+            ... fill in the cells ...
+            print &amp;quot;&amp;lt;/tr&amp;gt;&amp;quot;;
+            }
+
+    ... lots of code ...
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Besides all the goofy things going on with the code, such as printing directly and not using templates, whoever wrote it wasn&amp;rsquo;t thinking that anyone would want to have tables with alternating (or even rotating) row colors. There was a time before that was a thing and the code pre-dated even that. My task was to get alternating row colors with as little disturbance as possible.&lt;/p&gt;
+
+&lt;p&gt;I could have replaced the subroutine using one of the techniques I showed in &lt;a href=&#34;http://www.masteringperl.org/&#34;&gt;Mastering Perl&lt;/a&gt;, but there was something simpler. If I could get &lt;code&gt;$color&lt;/code&gt; to change on its own, I wouldn&amp;rsquo;t have to mess with the code.&lt;/p&gt;
+
+&lt;p&gt;Thus, I invented &lt;a href=&#34;https://metacpan.org/pod/Tie::Cycle&#34;&gt;Tie::Cycle&lt;/a&gt;. The &lt;code&gt;tie&lt;/code&gt; interface allows me to decide what a scalar should do when I access it or store it. I supply code behind both of those operations by defining special subroutines. Here&amp;rsquo;s an extract of the code that shows those special methods:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Tie::Cycle;
+use strict;
+
+sub TIESCALAR {
+        my( $class, $list_ref ) = @_;
+        my $self = bless [], $class;
+
+        unless( $self-&amp;gt;STORE( $list_ref ) ) {
+                carp &amp;quot;Argument must be an array reference&amp;quot;;
+                return;
+                }
+
+        return $self;
+        }
+
+sub FETCH {
+        my( $self ) = @_;
+
+        my $index = $self-&amp;gt;[CURSOR_COL]++;
+        $self-&amp;gt;[CURSOR_COL] %= $self-&amp;gt;_count;
+
+        return $self-&amp;gt;_item( $index );
+        }
+
+sub STORE {
+        my( $self, $list_ref ) = @_;
+        return unless ref $list_ref eq ref [];
+        my @shallow_copy = map { $_ } @$list_ref;
+
+        $self-&amp;gt;[CURSOR_COL] = 0;
+        $self-&amp;gt;[COUNT_COL]  = scalar @shallow_copy;
+        $self-&amp;gt;[ITEM_COL]   = \@shallow_copy;
+        }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;tie&lt;/code&gt; interface includes the &lt;code&gt;TIESCALAR&lt;/code&gt; method that creates the &lt;code&gt;tied&lt;/code&gt; object, the &lt;code&gt;FETCH&lt;/code&gt; method that decides how to return a value, and the &lt;code&gt;STORE&lt;/code&gt; method that decides how to store a value. In this case, I want to store an array of values and cycle through them. Each time I access the scalar, Perl calls &lt;code&gt;FETCH&lt;/code&gt;. Each time it calls &lt;code&gt;FETCH&lt;/code&gt; I increment a counter so I&amp;rsquo;ll get the next value. When I get to the end, I wrap around to the beginning of the array.&lt;/p&gt;
+
+&lt;p&gt;In this short bit of code, I create the tied scalar by calling &lt;code&gt;tie&lt;/code&gt; with the target scalar, the module name that defines the interface, and the arguments to pass to &lt;code&gt;TIESCALAR&lt;/code&gt;. After that, I use &lt;code&gt;$scalar&lt;/code&gt; as a normal scalar:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+use Tie::Cycle;
+
+tie my $scalar, &#39;Tie::Cycle&#39;, [ qw(red green blue) ];
+
+my $count;
+while( $count++ &amp;lt; 10 ) {
+        say $scalar;
+        }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Each time through the &lt;code&gt;while&lt;/code&gt;, I output the value of &lt;code&gt;$scalar&lt;/code&gt;. It doesn&amp;rsquo;t look like I&amp;rsquo;m doing anything fancy, but I&amp;rsquo;m implicitly calling &lt;code&gt;Tie::Cycle::FETCH&lt;/code&gt; each time. Now the colors rotate.&lt;/p&gt;
+
+&lt;p&gt;This is a bit more fun when I cycle through colored boxes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+use open qw(:std :utf8);
+
+use Tie::Cycle;
+use Term::ANSIColor;
+
+tie my $scalar, &#39;Tie::Cycle&#39;, [
+        map { colored( [ $_ ], &amp;quot;\x{25AE}&amp;quot; ) }
+                qw(red green blue)
+        ];
+
+my $count;
+while( $count++ &amp;lt; 10 ) {
+        print $scalar;
+        }
+print &amp;quot;\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With an appropriate terminal, I see a series of Christmas lights.&lt;/p&gt;
+
+&lt;p&gt;Recently, David Farrell had a similar problem. He could pass a value to a method that gave it a delay time to retry if it failed. That&amp;rsquo;s a nice feature, but he could only pass in a scalar. He didn&amp;rsquo;t want to pass in a value for two seconds and have it retry every two seconds. Instead, he wanted to back off. Wait two seconds the first time, then 4 seconds the next time, and eight seconds the next time. If something is falling over because you&amp;rsquo;re hitting it too frequently, you want to back off the pressure.&lt;/p&gt;
+
+&lt;p&gt;However, using the same trick I used for HTML row colors, he was able to create what looks like a simple scalar variable but was really a method call that increased the value each time:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+package Tie::Scalar::Ratio;
+
+use parent &#39;Tie::Scalar&#39;;
+
+sub TIESCALAR {
+  my ($class, $ratio, $value) = @_;
+
+  die &#39;Must provide ratio argument, a number to multiply the scalar value by&#39;
+        unless $ratio &amp;amp;&amp;amp; $ratio =~ /^[\d.]+$/;
+
+  bless {
+        ratio =&amp;gt; $ratio,
+        value =&amp;gt; $value,
+  }, $class;
+}
+
+sub STORE {
+  my ($self, $value) = @_;
+  $self-&amp;gt;{value} = $value;
+}
+
+sub FETCH {
+  my ($self) = @_;
+  my $old_value = $self-&amp;gt;{value};
+  $self-&amp;gt;{value} *= $self-&amp;gt;{ratio} if $self-&amp;gt;{value};
+  return $old_value;
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;My program to demonstrate this is almost the same as my prior one. The part where I use &lt;code&gt;$scalar&lt;/code&gt; is the same.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+use Tie::Scalar::Ratio;
+
+tie my $scalar, &#39;Tie::Scalar::Ratio&#39;, 2, 37;
+
+my $count;
+while( $count++ &amp;lt; 10 ) {
+        say $scalar;
+        }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Each time I access the scalar, I get back the previous value multiplied by the ratio. In this case, I multiply the previous value by &lt;code&gt;2&lt;/code&gt; each time.&lt;/p&gt;
+
+&lt;p&gt;This is a tidy solution because it fits into the code that&amp;rsquo;s already there. The existing code that expected a single value gets a scalar that changes its value each time.&lt;/p&gt;
+
+&lt;p&gt;Instead of giving Tie::Scalar::Ratio, I&amp;rsquo;d like to give it a callback. David also created &lt;a href=&#34;https://metacpan.org/pod/Tie::Scalar::Callback&#34;&gt;Tie::Scalar::Callback&lt;/a&gt;. Each time I access the scalar, this module calls the subroutine I passed to it and give me back the result. The code looks similar to the others:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+package Tie::Scalar::Callback;
+
+use parent &#39;Tie::Scalar&#39;;
+use Carp qw(carp);
+
+sub TIESCALAR {
+  my ($class, $sub ) = @_;
+
+  die &#39;Must provide subroutine reference argument&#39;
+        unless $sub &amp;amp;&amp;amp; ref $sub eq ref sub {};
+
+  bless $sub, $class;
+}
+
+sub STORE {
+  carp &amp;quot;You can&#39;t assign to this tied scalar&amp;quot;;
+}
+
+sub FETCH {
+  my ($self) = @_;
+  return $self-&amp;gt;();
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here&amp;rsquo;s a subroutine that does the same thing as the previous example by stores the state in the subroutine rather than in the tied object:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $coderef = sub {
+        state $value  = 1/2;
+        state $factor = 2;
+        $value *= $factor;
+        }
+
+tie my $scalar, &#39;Tie::Scalar::Callback&#39;, $sub;
+
+my $count;
+while( $count++ &amp;lt; 10 ) {
+        say $scalar;
+        }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s a simple callback, but I can make something a little more exotic. How about a sine-based function?&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+use Tie::Scalar::Callback;
+
+my $coderef = sub {
+        state $pi     = 3.14152926;
+        state $eighth = $pi / 8;
+        state $value  = 0;
+
+        sprintf &#39;%.3f&#39;, abs sin( $value += $eighth );
+        };
+
+tie my $scalar, &#39;Tie::Scalar::Callback&#39;, $coderef;
+
+my $count;
+while( $count++ &amp;lt; 10 ) {
+        say $scalar;
+        }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now the output backs off and speeds up. There&amp;rsquo;s something that might be more useful. Perhaps I want to use the load average to decide the number:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Sys::LoadAvg qw(loadavg);
+use Tie::Scalar::Callback;
+
+my $coderef = sub {
+        state $factor  = 5;
+
+        my @loads = loadavg();
+
+        $factor * $loads[-1];
+        };
+
+tie my $scalar, &#39;Tie::Scalar::Callback&#39;, $coderef;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Finally, just for fun, here&amp;rsquo;s a tied scalar that creates the Fibonacci series using the inline &lt;code&gt;package NAMESPACE BLOCK&lt;/code&gt; syntax introduced in v5.14:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.14;
+
+package Tie::Scalar::Fibonacci {
+        use parent &#39;Tie::Scalar&#39;;
+        use Carp qw(croak);
+        use List::Util qw(sum);
+
+        sub TIESCALAR {
+                my( $class, $count ) = @_;
+                $count = 2 unless defined $count;
+                die &amp;quot;count must be a counting number&amp;quot; if $count =~ /[^0-9]/;
+                die &amp;quot;count must be greater than 1&amp;quot;    if $count &amp;lt;= 1;
+
+                my $array = [ ( 1 ) x ( $count ) ];
+                bless $array, $class
+                }
+        sub STORE     { croak &amp;quot;You can&#39;t assign to this scalar!&amp;quot; }
+
+        sub FETCH {
+                my ($self) = @_;
+                push @$self, sum( @$self );
+                shift @$self;
+                }
+        }
+
+tie my $scalar, &#39;Tie::Scalar::Fibonacci&#39;;
+
+my $count;
+while( $count++ &amp;lt; 10 ) {
+        print $scalar, &#39; &#39;;
+        }
+print &amp;quot;\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Every time I access it I get the next number in the Fibonacci series. Curiously, doing it this way, I&amp;rsquo;m computing a number that I&amp;rsquo;ll use in the future by pushing it onto the end and returning the oldest value by shifting it off the front. There&amp;rsquo;s no recursion here like in almost every example on the interwebs.&lt;/p&gt;
+
+&lt;p&gt;But, it can generate other series too. Instead of looking at the previous two values, I can give &lt;code&gt;TIESCALAR&lt;/code&gt; a different number to specify how many previous numbers to sum:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;tie my $scalar, &#39;Tie::Scalar::Fibonacci&#39;, 5;
+
+my $count;
+while( $count++ &amp;lt; 10 ) {
+        print $scalar, &#39; &#39;;
+        }
+print &amp;quot;\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The idea is the same, but the sums are different. If you&amp;rsquo;ve used a tied variable in an interesting way, let us know about it!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Kitchen coding nightmares: JavaScript scope</title>
+      <link>http://perltricks.com/article/204/2015/12/17/Kitchen-coding-nightmares--JavaScript-scope/</link>
+      <pubDate>Thu, 17 Dec 2015 14:13:13 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/204/2015/12/17/Kitchen-coding-nightmares--JavaScript-scope/</guid>
+      <description>
+
+&lt;p&gt;Lately at the &lt;a href=&#34;https://www.recurse.com/&#34;&gt;Recurse Center&lt;/a&gt; I&amp;rsquo;ve been developing a JavaScript client for my &lt;a href=&#34;https://github.com/dnmfarrell/Settlers-Game&#34;&gt;Settlers game&lt;/a&gt;. As a Perl developer working with JavaScript, it has been a fun experience. JavaScript feels very perly - both share a flexible syntax, first class functions and objects as hashes. And both languages have a lax interpreter which should have been put in strict mode in the first place (ha-ha!). One way in which JavaScript is very different from Perl is its scoping rules. I was burned by these more than once, and so if you&amp;rsquo;re new to JavaScript, you might find the following summary and recommendations useful.&lt;/p&gt;
+
+&lt;h3 id=&#34;functional-scoping:6e2e047097a9f672ac378602b99db31f&#34;&gt;Functional scoping&lt;/h3&gt;
+
+&lt;p&gt;Variables are declared with the &lt;code&gt;var&lt;/code&gt; keyword:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;var name = &amp;quot;David&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Variables are functionally-scoped, which means that if declared within a function, the variable is private to the function block. Variables declared outside of functions are globally scoped. And there is no other type of block scoping (such as within if-else or for loops).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;var name = &amp;quot;David&amp;quot;;
+
+function log_name (name) // private
+{
+  console.log(name);
+}
+
+var names = [&amp;quot;Jen&amp;quot;, &amp;quot;Jim&amp;quot;, &amp;quot;Jem&amp;quot;, &amp;quot;Jon&amp;quot;];
+for (var i = 0; i &amp;lt; names.length; i++)
+{
+  var name = names[i]; // overwriting the global
+}
+console.log(name); // Jon NOT David
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;functions-as-variables:6e2e047097a9f672ac378602b99db31f&#34;&gt;Functions as variables&lt;/h3&gt;
+
+&lt;p&gt;Function names are stored as variables under the same scoping rules as ordinary variables. There are two ways to declare functions:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;function log_name () { }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;var log_name = function () { }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Both of these are the same. Which means it&amp;rsquo;s possible to inadvertently overwrite a function with another variable declaration:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;function name () { return &amp;quot;David&amp;quot;; }
+var name = &amp;quot;John&amp;quot;;
+name(); // error, name is not a function anymore
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;hoisting:6e2e047097a9f672ac378602b99db31f&#34;&gt;Hoisting&lt;/h3&gt;
+
+&lt;p&gt;JavaScript interpreters have a initial-runtime phase, (similar to Perl&amp;rsquo;s &lt;code&gt;BEGIN&lt;/code&gt;), where all variable declarations are executed before other code. This is known as &amp;ldquo;hoisting&amp;rdquo;, but practically what it means is that you can use a variable before you declare it!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;console.log(name); // yep, this works
+var name = &amp;quot;David&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;bind:6e2e047097a9f672ac378602b99db31f&#34;&gt;Bind&lt;/h3&gt;
+
+&lt;p&gt;JavaScript makes heavy use of anonymous functions and callbacks.To modify the scope of a function, JavaScript&lt;sup&gt;1&lt;/sup&gt; provides &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind?redirectlocale=en-US&amp;amp;redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FFunction%2Fbind&#34;&gt;bind&lt;/a&gt;. This is easier to understand by example. If I have a point object and I want a method to draw it to the canvas, by loading an image:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Point.prototype.draw = function()
+{
+  var ctx = get_canvas_context(); // declared elsewhere
+  var img = new Image();
+  img.onload = function () {  // anonymous function
+    ctx.drawImage(img, this.x, this.y);   
+  }.bind(this);
+  img.src = &amp;quot;/point.png&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here I use &lt;code&gt;bind&lt;/code&gt; to inject the point object&amp;rsquo;s scope into the anonymous function. Otherwise I wouldn&amp;rsquo;t be able to access the &lt;code&gt;x&lt;/code&gt; and &lt;code&gt;y&lt;/code&gt; properties of the point as &lt;code&gt;this&lt;/code&gt; would be referencing something else.&lt;/p&gt;
+
+&lt;p&gt;For a more thorough explanation of JavaScript scope, I recommend Todd Motto&amp;rsquo;s article, &lt;a href=&#34;https://toddmotto.com/everything-you-wanted-to-know-about-javascript-scope/&#34;&gt;Everything you wanted to know about JavaScript scope&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;coping-with-scoping:6e2e047097a9f672ac378602b99db31f&#34;&gt;Coping with scoping&lt;/h3&gt;
+
+&lt;p&gt;OK so that was the bad news; the good news is there are plenty of techniques for handling JavaScript&amp;rsquo;s scoping rules. Depending on the context you may find some or all of these methods useful.&lt;/p&gt;
+
+&lt;h4 id=&#34;naming-conventions:6e2e047097a9f672ac378602b99db31f&#34;&gt;Naming conventions&lt;/h4&gt;
+
+&lt;p&gt;The first thing you can do to avoid clashes is adopt a naming convention. For example, name all functions with verb-noun constructs (like &amp;ldquo;get_address&amp;rdquo;) and all value variables with plain nouns (like &amp;ldquo;addresses&amp;rdquo;). This is not a complete solution, but at a minimum it will reduce the chances of a function being replaced by a value variable.&lt;/p&gt;
+
+&lt;h4 id=&#34;one-var-per-scope:6e2e047097a9f672ac378602b99db31f&#34;&gt;One var per scope&lt;/h4&gt;
+
+&lt;p&gt;Another technique for managing variable scope is to only allow one &lt;code&gt;var&lt;/code&gt; statement per scope. So a typical program might look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;// declare global scope variables
+var foo = &amp;quot;/root/assets&amp;quot;,
+    bar = 0;
+
+function execute (foo)
+{
+  var i, j, bar; // functional scope
+
+  for (i = 0; i &amp;lt; foo.length; i++)
+  {
+    for (j = 0; j &amp;lt; foo.length; j++)
+    {
+      // do something
+    }
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;use-strict:6e2e047097a9f672ac378602b99db31f&#34;&gt;Use strict&lt;/h4&gt;
+
+&lt;p&gt;This is a convention all Perl programmers should be comfortable with. Enable &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode&#34;&gt;strict mode&lt;/a&gt; in JavaScript. Just like with Perl, JavaScript&amp;rsquo;s strict mode can catch &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode#Changes_in_strict_mode&#34;&gt;several&lt;/a&gt;cases of variable-related bugs. Enable it globally with:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;quot;use strict&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Generally JavaScript experts &lt;a href=&#34;http://yuiblog.com/blog/2010/12/14/strict-mode-is-coming-to-town/&#34;&gt;recommend&lt;/a&gt; using a functionally-scoped version of strict - in this case the declaration is placed inside a function block. This is useful to prevent script concatenation errors (where an imported script does not satisfy the strict rules).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;(function () {
+   &amp;quot;use strict&amp;quot;;
+   // this function is strict...
+}());
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;objects-as-namespaces:6e2e047097a9f672ac378602b99db31f&#34;&gt;Objects as namespaces&lt;/h4&gt;
+
+&lt;p&gt;If you were thinking a simple way to solve all of the namespace clashes was with modules, allow me to be the first to tell you that JavaScript has no notion of modules (being a &lt;a href=&#34;https://en.wikipedia.org/wiki/Prototype-based_programming&#34;&gt;prototyped language&lt;/a&gt;). There is no &lt;code&gt;import&lt;/code&gt; keyword. In HTML any code that is loaded with a &lt;code&gt;script&lt;/code&gt; tag is simply concatenated to the current scope.&lt;/p&gt;
+
+&lt;p&gt;There are solutions to this limitation though. In &lt;a href=&#34;http://www.amazon.com/JavaScript-Definitive-Guide-Activate-Guides/dp/0596805527/ref=dp_ob_title_bk&#34;&gt;JavaScript the Definitive Guide&lt;/a&gt;, author David Flanagan proposes using objects as namespaces (sixth edition, section 9.9.1). Each object&amp;rsquo;s scope can be used to encapsulate the behavior and data specific to that domain. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;// everything is scoped to point.*
+var point = {};
+point.Point = function (_x, _y) {
+  this.x = _x;
+  this.y = _y
+}
+
+point.Point.prototype.coordinates = function ()
+{
+  return [this.x, this.y];
+}
+
+// now lets try it out ...
+var p = new point.Point(1,3);
+console.log(p.coordinates());
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To package code as modules, there is the &lt;a href=&#34;http://www.adequatelygood.com/JavaScript-Module-Pattern-In-Depth.html&#34;&gt;module pattern&lt;/a&gt;. Finally although JavaScript has no native import method, there are several external libraries that can provide that behavior, like &lt;a href=&#34;http://www.requirejs.org/&#34;&gt;RequireJS&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;let:6e2e047097a9f672ac378602b99db31f&#34;&gt;Let&lt;/h4&gt;
+
+&lt;p&gt;The next major version of JavaScript, ES6 provides &lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let&#34;&gt;let&lt;/a&gt;. This keyword provides block-level scoping of variables, similar to other mainstream languages. ES6 is not supported everywhere yet, but you can use a transpiler like &lt;a href=&#34;https://babeljs.io/&#34;&gt;Babel&lt;/a&gt; to convert ES6 JavaScript back to ES5.&lt;/p&gt;
+
+&lt;h4 id=&#34;use-a-code-linter:6e2e047097a9f672ac378602b99db31f&#34;&gt;Use a code linter&lt;/h4&gt;
+
+&lt;p&gt;Browsers do not throw enough exceptions when processing JavaScript. Instead they try to soldier on and do what the programmer &lt;em&gt;meant&lt;/em&gt; rather than what they typed. This is good&lt;sup&gt;2&lt;/sup&gt; for users as they get a uninterrupted browsing experience, but for us programmers this is definitely a bad thing™. Browser robustness makes JavaScript difficult to debug, and which is where a code linter steps in - it analyzes code and reports any errors or warnings they find. For JavaScript I like &lt;a href=&#34;http://jshint.com/&#34;&gt;JSHint&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;sup&gt;1&lt;/sup&gt; Introduced in ES5 JavaScript - which is supported by all modern browsers. For solutions for older JavaScript versions, use &lt;code&gt;call&lt;/code&gt; or &lt;code&gt;apply&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;sup&gt;2&lt;/sup&gt; It&amp;rsquo;s probably a bad thing for users too - the overhead in processing syntactically wrong code degrades performance and worse, encourages more incorrect code to be written.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Create GitHub files automatically with Dist::Zilla</title>
+      <link>http://perltricks.com/article/203/2015/12/9/Create-GitHub-files-automatically-with-Dist--Zilla/</link>
+      <pubDate>Wed, 09 Dec 2015 13:46:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/203/2015/12/9/Create-GitHub-files-automatically-with-Dist--Zilla/</guid>
+      <description>
+
+&lt;p&gt;I use &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla&#34;&gt;Dist::Zilla&lt;/a&gt; to release my code to CPAN. I really like it as with a single command I can build, package and ship a distribution. But most of my code lives on GitHub. In fact, a quick check shows that I have 90 &lt;a href=&#34;https://github.com/dnmfarrell&#34;&gt;repos&lt;/a&gt;, but only 13 distributions on &lt;a href=&#34;https://metacpan.org/author/DFARRELL&#34;&gt;CPAN&lt;/a&gt;. So only 14% of my code makes it to CPAN.&lt;/p&gt;
+
+&lt;p&gt;Traditionally Dist::Zilla makes a distinction between your code and the files needed for CPAN and PAUSE to work, (like package metadata, a readme etc). The basic use case goes like this: you write your class files, scripts and unit tests, and when you tell Dist::Zilla to release the distribution, it generates all of the extra files, creates a tarball and uploads it to &lt;a href=&#34;https://pause.perl.org/pause/query&#34;&gt;PAUSE&lt;/a&gt;. The problem is though, some of those additional files would be nice to have in my GitHub repos too. I don&amp;rsquo;t want to write another &lt;code&gt;readme.md&lt;/code&gt;, or spend time copying the license file into the repo if Dist::ZIlla can already generate one. To solve this issue I use two Dist::Zilla plugins from &lt;a href=&#34;https://metacpan.org/author/RTHOMPSON&#34;&gt;Ryan Thompson&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;setup:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Setup&lt;/h3&gt;
+
+&lt;p&gt;To use the code in this article, you&amp;rsquo;ll need to install Dist::Zilla and the two plugin modules described below. You can do that with &lt;code&gt;cpan&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Dist::Zilla \
+  Dist::Zilla::Plugin::ReadmeAnyFromPod  \
+  Dist::Zilla::Plugin::CopyFilesFromBuild
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you&amp;rsquo;re installing Dist::Zilla consider using &lt;a href=&#34;https://metacpan.org/pod/App::cpanminus&#34;&gt;cpanminus&lt;/a&gt; instead, with no tests for a much faster install:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpanm --notest Dist::Zilla \ 
+  Dist::Zilla::Plugin::ReadmeAnyFromPod \
+  Dist::Zilla::Plugin::CopyFilesFromBuild
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;creating-a-readme-automatically:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Creating a readme automatically&lt;/h3&gt;
+
+&lt;p&gt;Ryan&amp;rsquo;s module &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::ReadmeAnyFromPod&#34;&gt;Dist::Zilla::Plugin::ReadmeAnyFromPod&lt;/a&gt; can generate a readme automatically, in any common format. It uses the Pod text from the main modules in the distribution. I use it to create my GitHub readme files in Pod, by adding the following text to my &lt;code&gt;dist.ini&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[ReadmeAnyFromPod]
+type = pod 
+filename = README.pod
+location = root
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If I build the distribution with Dist::Zilla, it will generate a new readme for me, including the author, copyright and version information in addition to the documentation already in the main module.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ dzil build &amp;amp;&amp;amp; dzil clean
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This line instructs Dist::Zilla to build the distribution, which generates the new &lt;code&gt;README.pod&lt;/code&gt; and then clean up the build files that it generated, leaving a clean working directory.&lt;/p&gt;
+
+&lt;h3 id=&#34;adding-a-license:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Adding a license&lt;/h3&gt;
+
+&lt;p&gt;I use another module from Ryan, &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::CopyFilesFromBuild&#34;&gt;Dist::Zilla::Plugin::CopyFilesFromBuild&lt;/a&gt; to copy the software license from the Dist::Zilla build into my project directory:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[CopyFilesFromBuild]
+copy = LICENSE
+[GatherDir]
+exclude_filename = LICENSE
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will copy the license out of the build directory into the root project directory. The &lt;code&gt;exclude_filename&lt;/code&gt; clause is there so that during the &lt;em&gt;next&lt;/em&gt; build, Dist::Zilla does not include the generated license in the working directory of files. Running this in the same way as before, I can generate whatever license text I want for my distribution (the type of license is specified in the &lt;code&gt;dist.ini&lt;/code&gt;).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ dzil build &amp;amp;&amp;amp; dzil clean
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;helping-others:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Helping others&lt;/h3&gt;
+
+&lt;p&gt;Dist::Zilla is great, but if you don&amp;rsquo;t have it, installing a distribution from GitHub can really suck. Recently a friend was trying to deploy some code of mine to his Macbook with a vanilla Perl install. I didn&amp;rsquo;t want to upload the code to CPAN and wait for PAUSE to index it. Installing Dist::Zilla on the his machine was not a great option either: Dist::Zilla is a beast. According to Devel::Modlist, Dist::Zilla has &lt;strong&gt;178&lt;/strong&gt; non-core dependencies (including indirectly-used modules). That&amp;rsquo;s the price you pay for automation and modularity - Dist::Zilla is working hard so us module authors don&amp;rsquo;t have to. But for someone who barely knows Perl, installing Dist::Zilla in a virgin environment can be a nightmare.&lt;/p&gt;
+
+&lt;p&gt;To get around this issue, I used &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::CopyFilesFromBuild&#34;&gt;Dist::Zilla::Plugin::CopyFilesFromBuild&lt;/a&gt; again to copy the Makefile.PL and cpanfile into the project directory. My friend then cloned the directory with Git and used &lt;a href=&#34;https://metacpan.org/pod/App::cpanminus&#34;&gt;cpanminus&lt;/a&gt; to install it. Easy! It worked so well, I&amp;rsquo;m going to include a Makefile and cpanfile in my GitHub repos from now on.&lt;/p&gt;
+
+&lt;h3 id=&#34;a-sample-dist-zilla-config:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;A sample Dist::Zilla config&lt;/h3&gt;
+
+&lt;p&gt;Here&amp;rsquo;s a &lt;code&gt;dist.ini&lt;/code&gt; from a &lt;a href=&#34;https://github.com/dnmfarrell/Settlers-Game&#34;&gt;repo&lt;/a&gt; of mine that uses the code in this article. As certain directives are required in order, it can be useful to see the entire context:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;name    = Settlers-Game
+author  = David Farrell 
+license = FreeBSD
+copyright_holder = David Farrell
+copyright_year   = 2015
+version = 0.06
+
+[CPANFile]
+[License]
+[CopyFilesFromBuild]
+copy = cpanfile
+copy = LICENSE
+copy = Makefile.PL
+[GatherDir]
+exclude_filename = cpanfile
+exclude_filename = LICENSE
+exclude_filename = Makefile.PL
+[PkgVersion]
+[AutoPrereqs]
+[GithubMeta]
+[ChangelogFromGit]
+[MetaYAML]
+[MetaJSON]
+[MakeMaker]
+[ModuleBuild]
+[ManifestSkip]
+[Manifest]
+[PodWeaver]
+[ReadmeAnyFromPod]
+type = pod
+filename = README.pod
+location = root
+[PodSyntaxTests]
+[PodCoverageTests]
+[TestRelease]
+[Test::EOL]
+[UploadToCPAN]
+[ConfirmRelease]
+[Clean]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To use this config with Dist::Zilla you&amp;rsquo;ll need some additional plugins:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Dist::Zilla::Plugin::Clean \
+  Dist::Zilla::Plugin::GithubMeta \
+  Dist::Zilla::Plugin::ChangelogFromGit \
+  Dist::Zilla::Plugin::PodWeaver
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Ok it&amp;rsquo;s not &lt;em&gt;all&lt;/em&gt; gravy. The copy file method has one downside: it overwrites the copied files every time they&amp;rsquo;re generated. This isn&amp;rsquo;t an issue for me; the commit diff only shows the changed lines, but some people may not like it.&lt;/p&gt;
+
+&lt;p&gt;For more information on Dist::Zilla, check out the official &lt;a href=&#34;http://dzil.org/tutorial/contents.html&#34;&gt;documentation&lt;/a&gt;. For a completely different approach to releasing code to CPAN, you may like&lt;a href=&#34;https://metacpan.org/pod/%20Module::Release&#34;&gt;Module::Release&lt;/a&gt;. Oh and if you find yourself in a new development environment, needing to install dependencies for a local module, David Golden has a useful &lt;a href=&#34;http://www.dagolden.com/index.php/1528/five-ways-to-install-modules-prereqs-by-hand/&#34;&gt;post&lt;/a&gt; that includes five different ways to do it.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Professional scripts are a snap with Getopt::Long</title>
+      <link>http://perltricks.com/article/195/2015/10/21/Professional-scripts-are-a-snap-with-Getopt--Long/</link>
+      <pubDate>Wed, 21 Oct 2015 12:40:21 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/195/2015/10/21/Professional-scripts-are-a-snap-with-Getopt--Long/</guid>
+      <description>
+
+&lt;p&gt;Scripts are practically Perl&amp;rsquo;s raison d&amp;rsquo;être, and so naturally it has some great scripting tools. &lt;a href=&#34;http://perldoc.perl.org/Getopt/Long.html&#34;&gt;Getopt::Long&lt;/a&gt; is a module for parsing command line arguments (similar to Python&amp;rsquo;s &lt;a href=&#34;https://docs.python.org/dev/library/argparse.html&#34;&gt;argparse&lt;/a&gt;). Using Getopt::Long, you can quickly define a standard Unix-like interface for your program. With just a few lines of code you can parse, type-check and assign the parameters passed to your program. Sounds good? Read on to find out how.&lt;/p&gt;
+
+&lt;h3 id=&#34;building-a-basic-app:48d833634041780d6c9b1111f24de56c&#34;&gt;Building a basic app&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s imagine I wanted to create a program for creating software licenses, like &lt;a href=&#34;https://metacpan.org/pod/App::Software::License&#34;&gt;App::Software::License&lt;/a&gt;. The user will run the program and it will print the software license text, with the license text customized for the user. To do this, the program will need to process a few arguments from the user - a perfect use case for Getopt::Long! Let&amp;rsquo;s start with the license holder&amp;rsquo;s name:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Getopt::Long;
+
+GetOptions(
+  &#39;holder=s&#39; =&amp;gt; \my $holder_name,
+) or die &amp;quot;Invalid options passed to $0\n&amp;quot;;
+
+print &amp;quot;$holder_name\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I start by importing &lt;a href=&#34;https://metacpan.org/pod/Getopt::Long&#34;&gt;Getopt::Long&lt;/a&gt;, it&amp;rsquo;s part of the core Perl distribution, so if you have Perl installed, you should already have it. The &lt;code&gt;GetOptions&lt;/code&gt; function from Getopt::Long is where the magic happens. It takes a hash of parameter names and variable references which define the program&amp;rsquo;s API. The string &lt;code&gt;holder=s&lt;/code&gt; tells Getopt::Long to accept an argument like &lt;code&gt;--holder&lt;/code&gt; and assign it to &lt;code&gt;$holder_name&lt;/code&gt;. If we receive any arguments that are not defined in &lt;code&gt;GetOptions&lt;/code&gt;, the code dies and prints out an exception message (terminating the exception message with a newline stops Perl from printing the line reference of the exception). The final line just prints out the value. I&amp;rsquo;ll save the script as &lt;code&gt;license&lt;/code&gt; and test it out:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ chmod a+x license
+$ ./license --holder &amp;quot;David Farrell&amp;quot;
+David Farrell
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;On Windows, you&amp;rsquo;ll need to type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&amp;gt; perl license --holder &amp;quot;David Farrell&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By default Getopt::Long also recognizes the short form of arguments, so this works too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./license -h &amp;quot;David Farrell&amp;quot;
+David Farrell
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;type-checking:48d833634041780d6c9b1111f24de56c&#34;&gt;Type checking&lt;/h3&gt;
+
+&lt;p&gt;Getopt::Long provides basic type checking for strings, integers and floating point numbers. I&amp;rsquo;ve already added a string argument for the license holder&amp;rsquo;s name, so I&amp;rsquo;ll add an integer option for the license year:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Getopt::Long;
+
+GetOptions(
+  &#39;holder=s&#39; =&amp;gt; \my $holder_name,
+  &#39;year=i&#39;   =&amp;gt; \my $year,
+) or die &amp;quot;Invalid options passed to $0\n&amp;quot;;
+
+print &amp;quot;$holder_name $year\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Running the program again, it will now accept a &lt;code&gt;--year&lt;/code&gt; argument:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;./license -h &amp;quot;David Farrell&amp;quot; --y 2014
+David Farrell 2014
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note how I was able to pass &lt;code&gt;-y 2014&lt;/code&gt; and Getopt::Long knew to assign it to &lt;code&gt;$year&lt;/code&gt;. Getopt::Long will also do basic type checking, so if a non-integer value is passed, it will print and warning and the script will die.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;./license -h &amp;quot;David Farrell&amp;quot; --year abcd
+Value &amp;quot;abcd&amp;quot; invalid for option year (number expected)
+Invalid options passed to ./getopt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;m going to add an option for the license type, so the user can specify which license text they want such as the GPL, MIT or BSD licenses (there are many more).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Getopt::Long;
+
+GetOptions(
+  &#39;holder=s&#39; =&amp;gt; \my $holder_name,
+  &#39;year=i&#39;   =&amp;gt; \my $year,
+  &#39;type=s&#39;   =&amp;gt; \my $type,
+) or die &amp;quot;Invalid options passed to $0\n&amp;quot;;
+
+print &amp;quot;$holder_name $year $type\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;boolean-options:48d833634041780d6c9b1111f24de56c&#34;&gt;Boolean options&lt;/h3&gt;
+
+&lt;p&gt;Finally I want to add a boolean option for whether to print out the full license text or not. To use boolean options with Getopt::Long, it&amp;rsquo;s the same as with other options except that you don&amp;rsquo;t specify the type after the option name:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Getopt::Long;
+
+GetOptions(
+  &#39;holder=s&#39; =&amp;gt; \my $holder_name,
+  &#39;year=i&#39;   =&amp;gt; \my $year,
+  &#39;type=s&#39;   =&amp;gt; \my $type,
+  &#39;fulltext&#39; =&amp;gt; \my $fulltext,
+) or die &amp;quot;Invalid options passed to $0\n&amp;quot;;
+
+print &amp;quot;$holder_name $year $type $fulltext\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The fulltext option does not take a value and will be initialized as 1 if present, or &lt;code&gt;undef&lt;/code&gt; if not:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./license -h &amp;quot;David Farrell&amp;quot; -y 2012 -t FreeBSD -fulltext
+David Farrell 2012 FreeBSD 1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;default-values:48d833634041780d6c9b1111f24de56c&#34;&gt;Default values&lt;/h3&gt;
+
+&lt;p&gt;Some options I can give default values to. For example if the user doesn&amp;rsquo;t pass the year they want the license for, I&amp;rsquo;ll assume they want the current year.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Getopt::Long;
+use Time::Piece;
+
+GetOptions(
+  &#39;holder=s&#39; =&amp;gt; \ my $holder_name,
+  &#39;year=i&#39;   =&amp;gt; \(my $year = year_now()),
+  &#39;type=s&#39;   =&amp;gt; \(my $type = &#39;artistic 2.0&#39;),
+  &#39;fulltext&#39; =&amp;gt; \ my $fulltext,
+) or die &amp;quot;Invalid options passed to $0\n&amp;quot;;
+
+sub year_now
+{
+  my $localtime = localtime;
+  return $localtime-&amp;gt;year;
+}
+
+print &amp;quot;$holder_name $year $type $fulltext\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve added the &lt;a href=&#34;https://metacpan.org/pod/Time::Piece&#34;&gt;Time::Piece&lt;/a&gt; module, which is a &lt;a href=&#34;http://perltricks.com/article/59/2014/1/10/Solve-almost-any-datetime-need-with-Time--Piece&#34;&gt;useful&lt;/a&gt; module for datetime handling, and a subroutine &lt;code&gt;year_now&lt;/code&gt; which returns the current year. Meanwhile I&amp;rsquo;ve updated &lt;code&gt;GetOptions&lt;/code&gt; to assign the current year to the &lt;code&gt;$year&lt;/code&gt; variable. This will be overridden if the user passes the year argument. I&amp;rsquo;ve also given the license type the default value of &amp;ldquo;artistic 2.0&amp;rdquo; as that is the same license as Perl 5 (and the license used by many modules).&lt;/p&gt;
+
+&lt;h3 id=&#34;mandatory-parameters:48d833634041780d6c9b1111f24de56c&#34;&gt;Mandatory parameters&lt;/h3&gt;
+
+&lt;p&gt;So far so good, but what about mandatory parameters? This script will not work unless the user passes the license holder information. For mandatory parameters I have to check for their presence myself, Getopt::Long can&amp;rsquo;t help me here. Luckily it&amp;rsquo;s a simple check:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use Getopt::Long;
+use Time::Piece;
+
+GetOptions(
+  &#39;holder=s&#39; =&amp;gt; \ my $holder_name,
+  &#39;year=i&#39;   =&amp;gt; \(my $year = year_now()),
+  &#39;type=s&#39;   =&amp;gt; \(my $type = &#39;artistic 2.0&#39;),
+  &#39;fulltext&#39; =&amp;gt; \ my $fulltext,
+) or die &amp;quot;Invalid options passed to $0\n&amp;quot;;
+
+# check we got a license holder
+die &amp;quot;$0 requires the license holder argument (--holder)\n&amp;quot; unless $holder_name;
+
+sub year_now
+{
+  my $localtime = localtime;
+  return $localtime-&amp;gt;year;
+}
+
+print &amp;quot;$holder_name $year $type $fulltext\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In case you&amp;rsquo;re wondering, the variable &lt;code&gt;$0&lt;/code&gt; is a special variable that is the program&amp;rsquo;s name. It&amp;rsquo;s a handy shortcut for exception messages and cheating at writing &lt;a href=&#34;https://en.wikipedia.org/wiki/Quine_%28computing%29&#34;&gt;quines&lt;/a&gt; (like this: &lt;code&gt;open+0;print&amp;lt;0&amp;gt;&lt;/code&gt;).&lt;/p&gt;
+
+&lt;h3 id=&#34;help-text:48d833634041780d6c9b1111f24de56c&#34;&gt;Help text&lt;/h3&gt;
+
+&lt;p&gt;We&amp;rsquo;re almost done, but Getopt::Long has more tricks up its sleeve. I&amp;rsquo;ll add some basic documentation to this script, in &lt;a href=&#34;http://perldoc.perl.org/perlpod.html&#34;&gt;Pod&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use warnings;
+use strict;
+use Getopt::Long &#39;HelpMessage&#39;;
+use Time::Piece;
+
+GetOptions(
+  &#39;holder=s&#39; =&amp;gt; \ my $holder_name,
+  &#39;year=i&#39;   =&amp;gt; \(my $year = year_now()),
+  &#39;type=s&#39;   =&amp;gt; \(my $type = &#39;artistic 2.0&#39;),
+  &#39;fulltext&#39; =&amp;gt; \ my $fulltext,
+  &#39;help&#39;     =&amp;gt;   sub { HelpMessage(0) },
+) or HelpMessage(1);
+
+# die unless we got the mandatory argument
+HelpMessage(1) unless $holder_name;
+
+print_license ($holder_name, $year, $type, $fulltext);
+
+sub year_now
+{
+  my $localtime = localtime;
+  return $localtime-&amp;gt;year;
+}
+
+# tbc
+sub print_license { ... }
+
+=head1 NAME
+
+license - get license texts at the command line!
+
+=head1 SYNOPSIS
+
+  --holder,-h     Holder name (required)
+  --year,-y       License year (defaults to current year)
+  --type,-t       License type (defaults to Artistic 2.0)
+  --fulltext,-f   Print the full license text
+  --help,-h       Print this help
+
+=head1 VERSION
+
+0.01
+
+=cut
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The documentation is pretty minimal, just the program name, synopsis of its arguments and a version number. I&amp;rsquo;ve replaced the print statement with a stub function &lt;code&gt;print_license&lt;/code&gt;, which is where the main program would be implemented. I&amp;rsquo;ve replaced the &lt;code&gt;die&lt;/code&gt; calls with the Getopt::Long function &lt;code&gt;HelpMessage&lt;/code&gt;. This will print a usage help text and exit the program when called. Let&amp;rsquo;s try it out:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./license -k
+Unknown option: k
+Usage:
+      --holder, -h    Holder name (required)
+      --year, -y      License year (defaults to current year)
+      --type, -t      License type (defaults to Artistic 2.0)
+      --fulltext, -f  Print the full license text
+      --help, -h      Print this help
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Not bad! &lt;code&gt;HelpMessage&lt;/code&gt; takes an exit value to return to the OS. If the user passes the argument &lt;code&gt;--help&lt;/code&gt; the program should print the usage and exit without error (value zero). However if they don&amp;rsquo;t pass any arguments at all or if they pass any invalid arguments, the same usage text will be printed but the program will exit with 1, indicating that something went wrong.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Understanding Haskell types</title>
+      <link>http://perltricks.com/article/198/2015/10/14/Understanding-Haskell-types/</link>
+      <pubDate>Wed, 14 Oct 2015 12:47:18 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/198/2015/10/14/Understanding-Haskell-types/</guid>
+      <description>
+
+&lt;p&gt;I recently took a break from Perl work to study at the &lt;a href=&#34;http://recurse.com&#34;&gt;Recurse Center&lt;/a&gt;. I&amp;rsquo;m learning Haskell, and it&amp;rsquo;s been an interesting adventure so far. I&amp;rsquo;d heard good things about Haskell&amp;rsquo;s type system and started with an introductory book &lt;a href=&#34;http://learnyouahaskell.com/&#34;&gt;Learn You a Haskell for Great Good!&lt;/a&gt;. The book is filled with cartoonish humor - &amp;ldquo;how hard can this be?&amp;rdquo; I asked myself. The answer was &amp;ldquo;hard&amp;rdquo;. I found Haskell&amp;rsquo;s type system to be counter-intuitive, so this article lays out my understanding of Haskell types. If you&amp;rsquo;re a programmer with an imperative programming background, you might find this useful.&lt;/p&gt;
+
+&lt;h3 id=&#34;your-intuition-is-wrong:5be15c15f4a045cfb2cf059143ee7b55&#34;&gt;Your intuition is wrong&lt;/h3&gt;
+
+&lt;p&gt;For imperative-language programmers, Haskell keywords are likely to mislead. Take the &lt;code&gt;type&lt;/code&gt; keyword for instance. It&amp;rsquo;s not for creating new types per se, but &lt;em&gt;type synonyms&lt;/em&gt;, which are like aliases for existing types. I might use it like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;type FirstName = String
+type LastName = String
+type Age = Int
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;One way to declare new types is with the &lt;code&gt;data&lt;/code&gt; keyword (naturally!). If I wanted to create a person type, I could use &lt;code&gt;data&lt;/code&gt; :&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;data Person = Person String String Int
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This declares a new type called &lt;code&gt;Person&lt;/code&gt; with 2 strings and 1 integer as attributes. But I could also use our type synonyms from the earlier example, and clarify my intentions:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;data Person = Person FirstName LastName Age
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;functions-and-types:5be15c15f4a045cfb2cf059143ee7b55&#34;&gt;Functions and types&lt;/h3&gt;
+
+&lt;p&gt;In Haskell function signatures can be restricted by types. I can create a function to tell which of two people is older:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;eldest :: Person -&amp;gt; Person -&amp;gt; String
+eldest (Person x1 y1 z1) (Person x2 y2 z2)
+  | z1 &amp;gt; z2   = x1 ++ &amp;quot; &amp;quot; ++ y1 ++ &amp;quot; is older&amp;quot;
+  | z1 &amp;lt; z2   = x2 ++ &amp;quot; &amp;quot; ++ y2 ++ &amp;quot; is older&amp;quot;
+  | otherwise = &amp;quot;They&#39;re the same age!&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is a lot of new syntax, so bear with me. The first line declares a function called &lt;code&gt;eldest&lt;/code&gt; which takes two persons and returns a string. The second line assigns the attributes of each person to variables. The rest of the function tests which person is older and returns an appropriate message. I&amp;rsquo;ll save all of this code into a file called &amp;ldquo;person.hs&amp;rdquo;, so I can test the function in the Haskell REPL, &lt;code&gt;ghci&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;ghci&amp;gt; :l person.hs
+[1 of 1] Compiling Main             ( person.hs, interpreted )
+Ok, modules loaded: Main.
+ghci&amp;gt; let a = Person &amp;quot;Bart&amp;quot; &amp;quot;Simpson&amp;quot; 10
+ghci&amp;gt; let b = Person &amp;quot;Lisa&amp;quot; &amp;quot;Simpson&amp;quot; 7
+ghci&amp;gt; eldest a b
+&amp;quot;Bart Simpson is older&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Sometimes we don&amp;rsquo;t need to access all of the attributes of a type in a function. In these cases Haskell let&amp;rsquo;s you use &lt;code&gt;_&lt;/code&gt; as a placeholder, that won&amp;rsquo;t be assigned to a variable. For example to print the initials of a person, I only need to know their first and last names:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;initials :: Person -&amp;gt; String
+initials (Person x y _) = [head x,&#39;.&#39;,head y, &#39;.&#39;]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The second line of code assigns a person&amp;rsquo;s firstname to &lt;code&gt;x&lt;/code&gt; and lastname to &lt;code&gt;y&lt;/code&gt;. It then takes the first char of each using &lt;code&gt;head&lt;/code&gt; and returns a new list of chars with a dot after each char. I can test the function by reloading &amp;ldquo;person.hs&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;ghci&amp;gt; :l person.hs
+[1 of 1] Compiling Main             ( person.hs, interpreted )
+Ok, modules loaded: Main.
+ghci&amp;gt; let a = Person &amp;quot;Maggie&amp;quot; &amp;quot;Simpson&amp;quot; 1
+ghci&amp;gt; initials a
+&amp;quot;M.S.&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;typeclasses:5be15c15f4a045cfb2cf059143ee7b55&#34;&gt;Typeclasses&lt;/h3&gt;
+
+&lt;p&gt;Typeclasses are similar to traits (roles in Perl-speak) for types. For example, integers are instances of typeclasses like &lt;code&gt;Ord&lt;/code&gt; as they are orderable, &lt;code&gt;Num&lt;/code&gt; as they are numbers, and so on. Each typeclass defines functions for handling types in specific contexts. The &lt;code&gt;Eq&lt;/code&gt; typeclass adds the ability to compare types for equality using operators like &lt;code&gt;==&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;By generalizing the properties of types with typeclasses, Haskell can support generic functions which operate on typeclasses, instead of being restricted to one type. The signature of the &lt;code&gt;quicksort&lt;/code&gt; function from &lt;a href=&#34;http://learnyouahaskell.com/recursion&#34;&gt;Learn You a Haskell&lt;/a&gt; is a great example of this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;quicksort :: (Ord a) =&amp;gt; [a] -&amp;gt; [a]
+quicksort [] = []
+quicksort (x:xs) =·
+    let smallerSorted = quicksort [a | a &amp;lt;- xs, a &amp;lt;= x]
+        biggerSorted = quicksort [a | a &amp;lt;- xs, a &amp;gt; x]
+    in  smallerSorted ++ [x] ++ biggerSorted
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This declares a new function called quicksort which is restricted to lists of orderable types. Ignore the body and just focus on the first line of code, the function signature. The code &lt;code&gt;(Ord a)&lt;/code&gt; defines the typeclass constraint for the function. This function can be used to sort anything orderable, like lists of numbers. Aren&amp;rsquo;t strings just lists of chars? I guess we can sort them with &lt;code&gt;quicksort&lt;/code&gt; too then.&lt;/p&gt;
+
+&lt;h3 id=&#34;instance-and-class:5be15c15f4a045cfb2cf059143ee7b55&#34;&gt;Instance and Class&lt;/h3&gt;
+
+&lt;p&gt;If you saw the &lt;code&gt;instance&lt;/code&gt; keyword in some Haskell code, you might think &amp;ldquo;aha, a singleton constructor!&amp;rdquo; but actually &lt;code&gt;instance&lt;/code&gt; is used to make types instances of typeclasses. This makes sense when you consider that every type is an &lt;strong&gt;instance&lt;/strong&gt; of a typeclass. Revisiting my &lt;code&gt;Person&lt;/code&gt; type from earlier, what if I wanted to make it orderable? Typically in the English-speaking parts of the world, people are sorted by their last name, so I&amp;rsquo;m going to implement it that way:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;data Person = Person FirstName LastName Age deriving (Eq, Show)
+
+instance Ord Person where
+  compare (Person _ a _) (Person _ b _) = compare a b
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I start by updating the type declaration of Person with &lt;code&gt;deriving (Eq, Show)&lt;/code&gt;. These operate on the whole type (all of its attributes together). &lt;code&gt;Eq&lt;/code&gt; will let Haskell compare Persons for equality and &lt;code&gt;Show&lt;/code&gt; just let&amp;rsquo;s Haskell serialize the type as a string. The second line of code uses &lt;code&gt;instance&lt;/code&gt; to make persons orderable. The final line implements a comparison function using the lastname attribute of the Person. I can test the code using the &lt;code&gt;quicksort&lt;/code&gt; function declared above.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;ghci&amp;gt; :l person.hs
+[1 of 1] Compiling Main             ( person.hs, interpreted )
+Ok, modules loaded: Main.
+ghci&amp;gt; let a = Person &amp;quot;Jason&amp;quot; &amp;quot;Bourne&amp;quot; 37
+ghci&amp;gt; let b = Person &amp;quot;James&amp;quot; &amp;quot;Bond&amp;quot; 42
+ghci&amp;gt; quicksort [a,b]
+[Person &amp;quot;James&amp;quot; &amp;quot;Bond&amp;quot; 43,Person &amp;quot;Jason&amp;quot; &amp;quot;Bourne&amp;quot; 37]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This sorted our list of people by their lastname, and because &lt;code&gt;Person&lt;/code&gt; is an instance of &lt;code&gt;Show&lt;/code&gt;, Haskell was able to print out the detail to the command line. Not bad!&lt;/p&gt;
+
+&lt;p&gt;The final keyword to be aware of is &lt;code&gt;class&lt;/code&gt;. By now it shouldn&amp;rsquo;t surprise you to find out that &lt;code&gt;class&lt;/code&gt; is not for declaring classes like in imperative programming, but for creating new typeclasses. You probably won&amp;rsquo;t use this much when starting out with Haskell, but it&amp;rsquo;s useful to keep in mind for reducing repetitive code. If you have multiple sets of code doing very similar things for different types, consider creating a new typeclass and merging the functions to operate on the new type class, to keep things &lt;a href=&#34;https://en.wikipedia.org/wiki/Don&#39;t_repeat_yourself&#34;&gt;DRY&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;code-complete:5be15c15f4a045cfb2cf059143ee7b55&#34;&gt;Code complete&lt;/h3&gt;
+
+&lt;p&gt;This is the finished code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;--person.hs
+type FirstName = String
+type LastName  = String
+type Age = Int 
+
+data Person = Person FirstName LastName Age deriving (Eq, Show)
+
+eldest :: Person -&amp;gt; Person -&amp;gt; String
+eldest (Person x1 y1 z1) (Person x2 y2 z2)
+  | z1 &amp;gt; z2   = x1 ++ &amp;quot; &amp;quot; ++ y1 ++ &amp;quot; is older&amp;quot;
+  | z1 &amp;lt; z2   = x2 ++ &amp;quot; &amp;quot; ++ y2 ++ &amp;quot; is older&amp;quot;
+  | otherwise = &amp;quot;They&#39;re the same age!&amp;quot;
+
+initials :: Person -&amp;gt; String
+initials (Person x y _) = [head x,&#39;.&#39;,head y, &#39;.&#39;]
+
+quicksort [] = []
+quicksort (x:xs) =·
+    let smallerSorted = quicksort [a | a &amp;lt;- xs, a &amp;lt;= x]
+        biggerSorted = quicksort [a | a &amp;lt;- xs, a &amp;gt; x]
+    in  smallerSorted ++ [x] ++ biggerSorted
+
+instance Ord Person where
+  compare (Person _ a _) (Person _ b _) = compare a b
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;learn-haskell-the-hard-way:5be15c15f4a045cfb2cf059143ee7b55&#34;&gt;Learn Haskell the Hard Way&lt;/h3&gt;
+
+&lt;p&gt;Despite its childish demeanor, &lt;a href=&#34;http://learnyouahaskell.com/&#34;&gt;Learn You a Haskell&lt;/a&gt; goes deep into the Haskell type system and can be a bit long-winded at times. My current learning method involves reading the book, and typing out every code example, and studying Penn State&amp;rsquo;s &lt;a href=&#34;https://www.cis.upenn.edu/~cis194/spring13/lectures.html&#34;&gt;cis194 course&lt;/a&gt;. Both are free. O&amp;rsquo;Reilly&amp;rsquo;s &lt;a href=&#34;http://book.realworldhaskell.org/read/&#34;&gt;Real World Haskell&lt;/a&gt; is also available for free online, and emphasizes more immediate practical uses of Haskell. It&amp;rsquo;s good for when you&amp;rsquo;re tired of coding binary search trees and sorting algorithms. If you find yourself needing to lookup a Haskell term, DuckDuckGo has the &lt;code&gt;!h&lt;/code&gt; bang, which searches &lt;a href=&#34;https://www.haskell.org/hoogle/&#34;&gt;Hoogle&lt;/a&gt; automatically.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Stupid open() tricks</title>
+      <link>http://perltricks.com/article/182/2015/7/15/Stupid-open---tricks/</link>
+      <pubDate>Wed, 15 Jul 2015 12:19:04 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/182/2015/7/15/Stupid-open---tricks/</guid>
+      <description>
+
+&lt;p&gt;The &lt;code&gt;open&lt;/code&gt; function can do much more than you probably realize. If you read enough about Perl, you&amp;rsquo;ll start to notice the theme that everyone expects you to use the three-argument &lt;code&gt;open&lt;/code&gt;. There&amp;rsquo;s much more that the &lt;code&gt;open&lt;/code&gt; can do. Some of these &amp;ldquo;stupid open() tricks&amp;rdquo; may be useful, but they may also be dangerous. These tricks were performed on a closed course by a professional driver. Do not attempt at home. Or work. And, to focus on &lt;code&gt;open&lt;/code&gt;, I&amp;rsquo;ve left off all of the error checking.&lt;/p&gt;
+
+&lt;h3 id=&#34;no-explicit-filename:71880d4d5f641ca9776afe8033e8612a&#34;&gt;No explicit filename&lt;/h3&gt;
+
+&lt;p&gt;There&amp;rsquo;s a one-argument form of &lt;code&gt;open&lt;/code&gt; that takes only a bareword filehandle. In this example, when I open the filehandle &lt;code&gt;F&lt;/code&gt; with no other arguments, Perl uses the package scalar variable of the same name as the filename:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;our $F;
+while( $F = shift @ARGV ) {
+  open F;
+  while(  ) { print }
+  close F;
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This might seem a bit silly, but as many shortcuts like this, consider the one-liner and scripting side of Perl. Imagine I want to go through a bunch of files on the command line, but some of those I want to skip. I can&amp;rsquo;t simply use &lt;code&gt;-n&lt;/code&gt; because that opens all the files for me. I have to handle that myself:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;perl -e &#39;while($F=shift){next if$F=~/\.jpg/;open F;while(&amp;lt;F&amp;gt;){print;exit if /Perl/}}&#39; *
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Maybe you&amp;rsquo;ll need that once in life. Maybe you&amp;rsquo;ll never want to use it. Still, there it is.&lt;/p&gt;
+
+&lt;h3 id=&#34;create-an-anonymous-temporary-file:71880d4d5f641ca9776afe8033e8612a&#34;&gt;Create an anonymous temporary file&lt;/h3&gt;
+
+&lt;p&gt;If I give &lt;code&gt;open&lt;/code&gt; a filename of an explicit &lt;code&gt;undef&lt;/code&gt; and the read-write mode (&lt;code&gt;+&amp;gt;&lt;/code&gt; or &lt;code&gt;+&amp;lt;&lt;/code&gt;), Perl opens an anonymous temporary file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;+&amp;gt;&#39;, undef;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Perl actually creates a named file and opens it, but immediately unlinks the name. No one else will be able to get to that file because no one else has the name for it. If I had used &lt;a href=&#34;https://metacpan.org/pod/File::Temp&#34;&gt;File::Temp&lt;/a&gt;, I might leave the temporary file there, or something else might be able to see it while I&amp;rsquo;m working with it.&lt;/p&gt;
+
+&lt;h3 id=&#34;print-to-a-string:71880d4d5f641ca9776afe8033e8612a&#34;&gt;Print to a string&lt;/h3&gt;
+
+&lt;p&gt;If my &lt;strong&gt;perl&lt;/strong&gt; is compiled with PerlIO (it probably is), I can open a filehandle on a scalar variable if the filename argument is a reference to that variable.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;&amp;gt;&#39;, \ my $string;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is handy when I want to capture output for an interface that expects a filehandle:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;something_that_prints( $fh );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now &lt;code&gt;$string&lt;/code&gt; contains whatever was printed by the function. I can inspect it by printing it:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;say &amp;quot;I captured:\n$string&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;read-lines-from-a-string:71880d4d5f641ca9776afe8033e8612a&#34;&gt;Read lines from a string&lt;/h3&gt;
+
+&lt;p&gt;I can also read from a scalar variable by opening a filehandle on it.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;&amp;lt;&#39;, \ $string;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now I can play with the string line-by-line without messing around with regex anchors or line endings:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;while( &amp;lt;$fh&amp;gt; ) { ... }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I write about these sorts of filehandle-on-string tricks in &lt;a href=&#34;http://www.effectiveperlprogramming.com&#34;&gt;Effective Perl Programming&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;make-a-pipeline:71880d4d5f641ca9776afe8033e8612a&#34;&gt;Make a pipeline&lt;/h3&gt;
+
+&lt;p&gt;Most Unix programmers probably already know that they can read the output from a command as the input for another command. I can do that with Perl&amp;rsquo;s &lt;code&gt;open&lt;/code&gt; too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+
+open my $pipe, &#39;-|&#39;, &#39;date&#39;;
+while( &amp;lt;$pipe&amp;gt; ) {
+  say &amp;quot;$_&amp;quot;;
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This reads the output of the &lt;code&gt;date&lt;/code&gt; system command and prints it. But, I can have more than one command in that pipeline. I have to abandon the three-argument form which purposely prevents this nonsense:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $pipe, qq(cat &#39;$0&#39; | sort |);
+while( &amp;lt;$pipe&amp;gt; ) {
+  print &amp;quot;$.: $_&amp;quot;;
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This captures the text of the current program, sorts each line alphabetically and prints the output with numbered lines. I might get a &lt;a href=&#34;http://www.smallo.ruhr.de/award.html&#34;&gt;Useless Use of cat Award&lt;/a&gt; for that program that sorts the lines of the program, but it&amp;rsquo;s still a feature.&lt;/p&gt;
+
+&lt;h3 id=&#34;gzip-on-the-fly:71880d4d5f641ca9776afe8033e8612a&#34;&gt;gzip on the fly&lt;/h3&gt;
+
+&lt;p&gt;In &lt;a href=&#34;http://perltricks.com/article/162/2015/3/27/Gzipping-data-directly-from-Perl&#34;&gt;Gzipping data directly from Perl&lt;/a&gt;, I showed how I could compress data on the fly by using Perl&amp;rsquo;s gzip IO layer. This is handy when I have limited disk space:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;&amp;gt;:gzip&#39; $filename 
+  or die &amp;quot;Could not write to $filename: $!&amp;quot;;
+
+while( $_ = something_interesting() ) {
+  print { $fh } $_;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can go the other direction as well, reading directly from compressed files when I don&amp;rsquo;t have enough space to uncompress them first:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;&amp;lt;:gzip&#39; $filename 
+  or die &amp;quot;Could not read from $filename: $!&amp;quot;;
+
+while( &amp;lt;$fh&amp;gt; ) {
+  print;
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;change-stdout:71880d4d5f641ca9776afe8033e8612a&#34;&gt;Change STDOUT&lt;/h3&gt;
+
+&lt;p&gt;I can change the default output filehandle with &lt;code&gt;select&lt;/code&gt; if I don&amp;rsquo;t like standard output, but I can do that in another way. I can change &lt;code&gt;STDOUT&lt;/code&gt; for the times when the easy way isn&amp;rsquo;t fun enough. David Farrell showed some of this in &lt;a href=&#34;http://perltricks.com/article/45/2013/10/27/How-to-redirect-and-restore-STDOUT&#34;&gt;How to redirect and restore STDOUT&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;First I can say the &amp;ldquo;dupe&amp;rdquo; the standard output filehandle with the special &lt;code&gt;&amp;amp;&lt;/code&gt;mode:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+
+open my $STDOLD, &#39;&amp;gt;&amp;amp;&#39;, STDOUT;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Any of the file modes will work there as long as I append the &lt;code&gt;&amp;amp;&lt;/code&gt; to it.&lt;/p&gt;
+
+&lt;p&gt;I can then re-open &lt;code&gt;STDOUT&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open STDOUT, &#39;&amp;gt;&amp;gt;&#39;, &#39;log.txt&#39;;
+say &#39;This should be logged to log.txt.&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When I&amp;rsquo;m ready to change it back, I do the same thing:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open STDOUT, &#39;&amp;gt;&amp;amp;&#39;, $STDOLD;
+say &#39;This should show in the terminal&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If I only have the file descriptor, perhaps because I&amp;rsquo;m working with an old Unix programmer who thinks &lt;strong&gt;vi&lt;/strong&gt; is a crutch, I can use that:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &amp;quot;&amp;lt;&amp;amp;=$fd&amp;quot; 
+  or die &amp;quot;Could not open filehandle on $fd\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This file descriptor has a three-argument form too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;open my $fh, &#39;&amp;lt;&amp;amp;=&#39;, $fd
+  or die &amp;quot;Could not open filehandle on $fd\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can have multiple filehandles that go to the same place since they are different names for the same file descriptor:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+
+open my $fh, &#39;&amp;gt;&amp;gt;&amp;amp;=&#39;, fileno(STDOUT);
+
+say         &#39;Going to default&#39;;
+say $fh     &#39;Going to duped version. fileno &#39; . fileno($fh);
+say STDOUT  &#39;Going to STDOUT. fileno &#39; . fileno($fh);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All of these print to STDOUT.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Defend your code with Guard</title>
+      <link>http://perltricks.com/article/173/2015/5/19/Defend-your-code-with-Guard/</link>
+      <pubDate>Tue, 19 May 2015 12:55:00 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/173/2015/5/19/Defend-your-code-with-Guard/</guid>
+      <description>&lt;p&gt;I can&amp;rsquo;t always trust my subroutines to leave the world in the same way that they found it. Perl has some features to help with this, but the &lt;a href=&#34;https://metacpan.org/pod/Guard&#34;&gt;Guard&lt;/a&gt; module goes much further.&lt;/p&gt;
+
+&lt;p&gt;Consider the case where I want to change the current working directory temporarily in my subroutine. If I&amp;rsquo;m not careful, the rest of the ends up in an unexpected directory since &lt;code&gt;chdir&lt;/code&gt; has process-level effect:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub do_some_work {
+  state $dir = &#39;/usr/local/etc&#39;;
+  chdir $dir or die &amp;quot;Could not change to $dir! $!&amp;quot;;
+  
+  ...; # do some work
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Since I don&amp;rsquo;t change back to the starting directory, after I call &lt;code&gt;do_some_work&lt;/code&gt;, the rest of the program uses &lt;code&gt;/usr/local/etc&lt;/code&gt; as the base to resolve relative paths.&lt;/p&gt;
+
+&lt;p&gt;If I were careful, I would have done the work to save the current working directory before I changed it, and I would have changed back to that directory. The &lt;code&gt;getcw&lt;/code&gt; from the &lt;a href=&#34;https://metacpan.org/pod/Cwd&#34;&gt;Cwd&lt;/a&gt; module from the Standard Library:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Cwd qw(getcwd);
+
+sub do_some_work {
+  state $dir = &#39;/usr/local/etc&#39;;
+  
+  my $old_directory = getcwd();
+  chdir $dir or die &amp;quot;Could not change to $dir! $!&amp;quot;;
+  
+  ...; # do some work
+  
+  chdir $old_directory 
+    or die &amp;quot;Could not change back to $old_directory! $!&amp;quot;;
+    
+  return $value;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s too much work. I have long wished that the &lt;code&gt;chdir&lt;/code&gt; would return the old directory like &lt;code&gt;select&lt;/code&gt; returns the current default filehandle. Instead, I use a module with an imported subroutine.&lt;/p&gt;
+
+&lt;p&gt;I also have to call another &lt;code&gt;chdir&lt;/code&gt; when I&amp;rsquo;m done, and I probably have to add some extra code to return the right value since I can&amp;rsquo;t easily organize the code to use Perl&amp;rsquo;s nifty last-evaluated-expression idiom (although Perl 5.20 optimizes &lt;a href=&#34;http://www.effectiveperlprogramming.com/2014/06/perl-5-20-optimizes-return-at-the-end-of-a-subroutine/&#34;&gt;return at the end of a subroutine&lt;/a&gt;). It offends my sense of code style that the two &lt;code&gt;chdir&lt;/code&gt;s are apart from each other when I want to keep the logical parts close to each other. I&amp;rsquo;d like all of the code to handle the current working directory next to each other.&lt;/p&gt;
+
+&lt;p&gt;Enter the &lt;a href=&#34;https://metacpan.org/pod/Guard&#34;&gt;Guard&lt;/a&gt; module that lets me define blocks of code that run at the end of the subroutine. Somewhere in the scope I create a guard with &lt;code&gt;scope_guard&lt;/code&gt; and that guard runs at scope exit:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
+
+use Cwd qw(getcwd);
+use Guard;
+
+chdir &#39;/etc&#39; or die &amp;quot;Could not start at /etc: $!&amp;quot;;
+my $starting_dir = getcwd();
+
+do_some_work();
+
+say &amp;quot;Finally, the directory is &amp;quot;, getcwd();
+
+
+sub do_some_work {
+  state $dir = &#39;/usr/local/etc&#39;;
+  
+  my $old_directory = getcwd();
+  scope_guard { 
+    say &amp;quot;Guard thinks old directory is $old_directory&amp;quot;;
+    chdir $old_directory;
+  };
+  chdir $dir or die &amp;quot;Could not change to $dir! $!&amp;quot;;
+  
+  say &amp;quot;At the end of do_some_work(), the directory is &amp;quot;, getcwd();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The output shows which each part thinks the current working directory should be:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;At the end of do_some_work(), the directory is /usr/local/etc
+Guard thinks old directory is /etc
+Finally, the directory is /etc
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is still a little bit ugly. The &lt;code&gt;scope_guard&lt;/code&gt; only takes a block or &lt;code&gt;sub {}&lt;/code&gt; argument, so I can&amp;rsquo;t refactor its argument into a subroutine. This doesn&amp;rsquo;t work:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;scope_guard make_sub_ref();  # wrong sort of argument
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can make a guard in a variable, though, to get around this. Instead of doing its work at scope exit, the variable guard does its work when it&amp;rsquo;s cleaned up (which we might do on our own before the end of its scope). In this example, I use &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;Perl v5.20 subroutine signatures&lt;/a&gt; just because I can (they are really nice even if they are experimental):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.20;
+use feature qw(signatures);
+no warnings qw(experimental::signatures);
+
+use Cwd qw(getcwd);
+use Guard;
+
+chdir &#39;/etc&#39; or die &amp;quot;Could not start at /etc: $!&amp;quot;;
+my $starting_dir = getcwd();
+
+do_some_work();
+
+say &amp;quot;Finally, the directory is &amp;quot;, getcwd();
+
+
+sub do_some_work {
+  state $dir = &#39;/usr/local/etc&#39;;
+  
+  my $guard = make_guard( getcwd() );
+  chdir $dir or die &amp;quot;Could not change to $dir! $!&amp;quot;;
+  
+  say &amp;quot;At the end of do_some_work(), the directory is &amp;quot;, getcwd();
+}
+
+sub make_guard ( $old_directory ) {
+  return guard {
+    say &amp;quot;Guard thinks old directory is $old_directory&amp;quot;;
+    chdir $old_directory;  
+  };
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now the code in &lt;code&gt;do_some_work&lt;/code&gt; is a bit nicer and I can reuse this guard in other subroutines.&lt;/p&gt;
+
+&lt;dl&gt;
+&lt;dt&gt;Here&amp;rsquo;s a bonus trick and one of the reasons I wanted to show the subroutine signatures. I can declare a default value for a subroutine argument. If I don&amp;rsquo;t specify an argument to &lt;code&gt;make_guard&lt;/code&gt;, Perl fills it in with the value of &lt;code&gt;getcwd&lt;/code&gt;&lt;/dt&gt;
+&lt;/dl&gt;
+
+&lt;p&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub make_guard ( $old_directory = getcwd() ) {
+  return guard {
+    say &amp;quot;Guard thinks old directory is $old_directory&amp;quot;;
+    chdir $old_directory;  
+    };
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With the default value, I can simplify my call to &lt;code&gt;make_guard&lt;/code&gt; while still having the flexibility to supply an argument:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $guard = make_guard();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There are other tricks I can employ with M. I can define multiple &lt;code&gt;scope_guard&lt;/code&gt;s. In that case, they execute in reverse order of their definition (like &lt;code&gt;END&lt;/code&gt; blocks). With a guard object, I can cancel the guard if I decide I don&amp;rsquo;t want it any longer.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/kwl/4229954645/in/photolist-7rMC9v-pWeFtB-dyGDSJ-4MTKCZ-9KGfvt-2Vmh2z-isiLE-a8wfzo-a8wdRy-nP4HU4-pMmELA-ebn2Yf-fR1AiY-6pwAvQ-oZC6iQ-eiAHKH-KaYMr-7ur9cv-eex2Ee-aJRH8P-nAD84h-nB5gYR-fFiErQ-6Y7HDp-dzKZh2-7xKM96-63dow9-6YbKFs-6nwuvh-6jFGwT-gDJYEc-bvwwma-7dKehm-8s7yHZ-8s7yjr-hNorq7-66hCWL-cLiZjq-7dKeYQ-9f4UgQ-nB5fP6-c6w6dU-7VSAhE-nAkYD2-gDKEpJ-iegmK-fFiE61-dd5mRC-64joJH-64CuGq&#34;&gt;Kenny Loule&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Implementing Did You Mean in Perl</title>
+      <link>http://perltricks.com/article/122/2014/10/31/Implementing-Did-You-Mean-in-Perl/</link>
+      <pubDate>Fri, 31 Oct 2014 15:31:18 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/122/2014/10/31/Implementing-Did-You-Mean-in-Perl/</guid>
+      <description>
+
+&lt;p&gt;A couple of weeks ago Yuki Nishijima released a clever Ruby &lt;a href=&#34;http://www.yukinishijima.net/2014/10/21/did-you-mean-experience-in-ruby.html&#34;&gt;gem&lt;/a&gt; called &amp;ldquo;Did You Mean&amp;rdquo;, that intercepts failed method calls and suggests the closest matching (correct) method in the exception message. I wanted to create an equivalent module in Perl, and so armed with a limited appreciation of &lt;code&gt;AUTOLOAD&lt;/code&gt; I set about creating &lt;a href=&#34;https://metacpan.org/pod/Devel::DidYouMean&#34;&gt;Devel::DidYouMean&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;using-the-module:e822a7b7fe5af63e7890d6031c8716e6&#34;&gt;Using the module&lt;/h3&gt;
+
+&lt;p&gt;Devel::DidYouMean is available on CPAN now, you can install it at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Devel::DidYouMean
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To use the module, just import it with &lt;code&gt;use&lt;/code&gt; like any other module:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# script.pl
+use Devel::DidYouMean;
+
+print substring(&#39;have a nice day&#39;, 0, 6);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code calls a builtin function &amp;ldquo;substring&amp;rdquo;, which does not exist. Running the above code we get a more &lt;em&gt;helpful&lt;/em&gt; error message:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Undefined subroutine &#39;substring&#39; not found in main. Did you mean substr? at script.pl line 4.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;how-it-works:e822a7b7fe5af63e7890d6031c8716e6&#34;&gt;How it works&lt;/h3&gt;
+
+&lt;p&gt;As I alluded to in the introduction, DidYouMean.pm defines a subroutine using the &lt;code&gt;AUTOLOAD&lt;/code&gt; function which catches missed subroutine calls. But by default this subroutine only exists within the Devel::DidYouMean namespace so it would only fire when there was a missed method call like &lt;code&gt;Devel::DidYouMean-&amp;gt;some_method;&lt;/code&gt;. This is not very useful! So I used some symbol-table black magic to load the module into every namespace at runtime:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;CHECK {
+    # add autoload to main
+    *{ main::AUTOLOAD } = Devel::DidYouMean::AUTOLOAD;
+
+    # add to every other module in memory
+    for (keys %INC)
+    {
+        my $module = $_;
+        $module =~ s/\//::/g;
+        $module = substr($module, 0, -3);
+        $module .= &#39;::AUTOLOAD&#39;;
+        
+        # skip if the package already has an autoload
+        next if defined *{ $module };
+        
+        *{ $module } = Devel::DidYouMean::AUTOLOAD;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Walking through this code, you might be wondering what that strange &lt;code&gt;CHECK&lt;/code&gt; block is for. This ensures that the code within the block is loaded after the program compilation phase has finished, reducing the risk of the program loading another module after DidYouMean.pm has already exported it&amp;rsquo;s &lt;code&gt;AUTOLOAD&lt;/code&gt; subroutine. Perl defines several named code &lt;a href=&#34;http://perldoc.perl.org/perlmod.html#BEGIN%2c-UNITCHECK%2c-CHECK%2c-INIT-and-END&#34;&gt;blocks&lt;/a&gt; (you are probably familiar with &lt;code&gt;BEGIN&lt;/code&gt;). The downside of using a check block is if the module is loaded using &lt;code&gt;require&lt;/code&gt; instead of &lt;code&gt;use&lt;/code&gt;, this block will not be executed at all.&lt;/p&gt;
+
+&lt;p&gt;The code then adds the &lt;code&gt;AUTOLOAD&lt;/code&gt;subroutine to main (the namespace of the executing program) and every other namespace in the symbol table. I got the syntax for this from the &amp;ldquo;Dynamic Subroutines&amp;rdquo; chapter of &lt;a href=&#34;http://shop.oreilly.com/product/0636920012702.do&#34;&gt;Mastering Perl&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The code for the autoloaded &lt;a href=&#34;https://github.com/sillymoose/Devel-DidYouMean/blob/master/lib/Devel/DidYouMean.pm#L97&#34;&gt;subroutine&lt;/a&gt;is long, so I won&amp;rsquo;t reproduce it here. High level, it extracts the name of the failed subroutine called from &lt;code&gt;$AUTOLOAD&lt;/code&gt; and using the &lt;a href=&#34;https://metacpan.org/pod/Text::Levenshtein&#34;&gt;Text::Levenshtein&lt;/a&gt; module, calculates the Levenshtein distance between the name of the failed subroutine call and every available subroutine in the calling namespace. It then croaks displaying the usual undefined subroutine error message with a list of matching subroutines.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:e822a7b7fe5af63e7890d6031c8716e6&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Although the module &amp;ldquo;works&amp;rdquo;, it feels heavy-handed to export a subroutine to every namespace in memory. An alternative approach that I considered but couldn&amp;rsquo;t get to work would be to define the code in an &lt;code&gt;END&lt;/code&gt; block, and then check if the program is ending with an &amp;ldquo;unknown subroutine&amp;rdquo; error. This challenge with this is that in the end phase, Perl has already nullified the error variable &lt;code&gt;$!&lt;/code&gt; so it&amp;rsquo;s hard to know why the program is ending (tieing &lt;code&gt;$!&lt;/code&gt; might get around this). If you&amp;rsquo;re interested in tackling this challenge, the repo is hosted on &lt;a href=&#34;https://github.com/sillymoose/Devel-DidYouMean&#34;&gt;GitHub&lt;/a&gt;, pull requests are welcome :) The module &lt;a href=&#34;https://metacpan.org/pod/Devel::DidYouMean&#34;&gt;documentation&lt;/a&gt; has more examples of Devel::DidYouMean in action.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update:&lt;/strong&gt;&lt;em&gt;Devel::DidYouMean now uses a signal handling approach and avoids AUTOLOAD altogether 2014-11-09&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Perl&#39;s versatile split function</title>
+      <link>http://perltricks.com/article/121/2014/10/24/Perl-s-versatile-split-function/</link>
+      <pubDate>Fri, 24 Oct 2014 12:42:52 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/121/2014/10/24/Perl-s-versatile-split-function/</guid>
+      <description>
+
+&lt;p&gt;I love Perl&amp;rsquo;s &lt;a href=&#34;http://perldoc.perl.org/functions/split.html&#34;&gt;split&lt;/a&gt; function. Far more powerful than its feeble cousin &lt;a href=&#34;http://perldoc.perl.org/functions/join.html&#34;&gt;join&lt;/a&gt;, split has some wonderful features that should make it a regular feature of any Perl programmer&amp;rsquo;s toolbox. Let&amp;rsquo;s look at some examples.&lt;/p&gt;
+
+&lt;h3 id=&#34;split-a-sentence-into-words:98ca83694834614d84748d8e2ca4ac0f&#34;&gt;Split a sentence into words&lt;/h3&gt;
+
+&lt;p&gt;To split a sentence into words, you might think about using a whitespace regex pattern like &lt;code&gt;/\s+/&lt;/code&gt; which splits on contiguous whitespace. Split will ignore trailing whitespace, but what if the input string has &lt;em&gt;leading&lt;/em&gt; whitespace? A better option is to use a single space string: &lt;code&gt;&#39; &#39;&lt;/code&gt;. This is a special case where Perl emulates awk and will split on all contiguous whitespace, trimming any leading or trailing whitespace as well.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @words = split &#39; &#39;, $sentence;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or loop through each word and do something:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use 5.010;
+say for (split &#39; &#39;, &#39; 12 Angry Men &#39;);
+# 12
+# Angry
+# Men
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The single-space pattern is also the default pattern for &lt;code&gt;split&lt;/code&gt;, which by default operates on &lt;code&gt;$_&lt;/code&gt;. This can lead to some seriously minimalist code. For example if I needed to split every name in a list of full names and do something with them:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;for (@full_names)
+{
+    for (split)
+    {
+        # do something
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And who says Perl looks like line noise?&lt;/p&gt;
+
+&lt;h3 id=&#34;create-a-char-array:98ca83694834614d84748d8e2ca4ac0f&#34;&gt;Create a char array&lt;/h3&gt;
+
+&lt;p&gt;To split a word into separate letters, just pass an empty regex &lt;code&gt;//&lt;/code&gt; to split:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @letters = split //, $word;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;parse-a-url-or-filepath:98ca83694834614d84748d8e2ca4ac0f&#34;&gt;Parse a URL or filepath&lt;/h3&gt;
+
+&lt;p&gt;It&amp;rsquo;s tempting to reach for a regex when parsing strings, but for URLs or filepaths &lt;code&gt;split&lt;/code&gt; usually works better. For example if you wanted to get the parent directory from a filepath:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @directories = split &#39;/&#39;, &#39;/home/user/documents/business_plan.ods&#39;;
+my $parent_directory = $directories[-2];
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here I split the filepath on slash and use the negative index &lt;code&gt;-2&lt;/code&gt; to get the parent directory. The challenge with filepaths is that they can have n depth, but the parent directory of a file will always be the last but one element of a filepath, so &lt;code&gt;split&lt;/code&gt; works well.&lt;/p&gt;
+
+&lt;h3 id=&#34;extract-only-the-first-few-columns-from-a-separated-file:98ca83694834614d84748d8e2ca4ac0f&#34;&gt;Extract only the first few columns from a separated file&lt;/h3&gt;
+
+&lt;p&gt;How many times have you parsed a comma separated file, but didn&amp;rsquo;t want all of the columns in the file? Let&amp;rsquo;s say you wanted the first 3 columns from a file, you might do it like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;while &amp;lt;$read_file&amp;gt;
+{
+    my @columns = split /,/;
+    my $name    = $columns[0];
+    my $email   = $columns[1];
+    my $account = $columns[2];
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is all well and good, but &lt;code&gt;split&lt;/code&gt; can return a limited number of results if you want:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;while &amp;lt;$read_file&amp;gt;
+{
+    my ($name, $email, $account) = split /,/;
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or to revisit an earlier example, splitting on whitespace:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;for (@full_names)
+{
+    my ($firstname, $lastname) = split;
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;conclusion:98ca83694834614d84748d8e2ca4ac0f&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;These are just a few examples of Perl&amp;rsquo;s versatile &lt;code&gt;split&lt;/code&gt; function. Check out the official documentation &lt;a href=&#34;http://perldoc.perl.org/functions/split.html&#34;&gt;online&lt;/a&gt; or via the terminal with &lt;code&gt;$ perldoc -f split&lt;/code&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to test Perl roles without creating test classes</title>
+      <link>http://perltricks.com/article/120/2014/10/16/How-to-test-Perl-roles-without-creating-test-classes/</link>
+      <pubDate>Thu, 16 Oct 2014 13:16:03 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/120/2014/10/16/How-to-test-Perl-roles-without-creating-test-classes/</guid>
+      <description>
+
+&lt;p&gt;Recently I&amp;rsquo;ve been working on a &lt;a href=&#34;https://github.com/sillymoose/March&#34;&gt;game engine&lt;/a&gt; which uses a composition pattern for its actors. I&amp;rsquo;m using &lt;a href=&#34;https://metacpan.org/pod/Role::Tiny&#34;&gt;Role::Tiny&lt;/a&gt; to create the roles. Role::Tiny is really convenient as it lets you use roles with native OO Perl, without committing to a whole object system like Moose. A typical role looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package March::Attribute::Id;
+use 5.020;
+use Role::Tiny;
+use feature &#39;signatures&#39;;
+no warnings &#39;experimental&#39;;
+
+sub id ($self)
+{
+    $self-&amp;gt;{id};
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All this role does is return the id attribute of the consuming class (yes I&amp;rsquo;m using &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;signatures&lt;/a&gt; throughout). I wanted to write unit tests for this role, but I didn&amp;rsquo;t want to a create test class to test the role. So how do you construct an object from a package that has no constructor? The answer is by using &lt;code&gt;bless&lt;/code&gt; in your test file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Test::More;
+
+my $self = bless { id =&amp;gt; 5 }, &#39;March::Attribute::Id&#39;;
+
+BEGIN { use_ok &#39;March::Attribute::Id&#39; }
+
+is $self-&amp;gt;id, 5, &#39;id()&#39;;
+
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code creates an object called &lt;code&gt;$self&lt;/code&gt; by blessing a hashref with the package name of the role that I want to test. It adds a key value pair for the id attribute, and then tests that the role&amp;rsquo;s id method returns the correct id value. I can execute the tests using &lt;code&gt;prove&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -vl t/Attribute/Id.t 
+t/Attribute/Id.t .. 
+ok 1 - use March::Attribute::Id;
+ok 2 - id()
+1..2
+ok
+All tests successful.
+Files=1, Tests=2,  0 wallclock secs ( 0.02 usr  0.00 sys +  0.02 cusr  0.00 csys =  0.04 CPU)
+Result: PASS
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is another role I want to test:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package March::Attribute::Direction;
+use 5.020;
+use Role::Tiny;
+use feature &#39;signatures&#39;;
+no warnings &#39;experimental&#39;;
+use March::Game;
+use March::Msg;
+
+requires &#39;id&#39;;
+
+sub direction ($self, $new_direction = 0)
+{
+    if ($new_direction &amp;amp;&amp;amp; $new_direction-&amp;gt;isa(&#39;Math::Shape::Vector&#39;))
+    {
+        $self-&amp;gt;{direction} = $new_direction;
+
+        # publish direction to game queue
+        March::Game-&amp;gt;publish(
+            March::Msg-&amp;gt;new(__PACKAGE__, $self-&amp;gt;id, $new_direction)
+        );
+    }
+    $self-&amp;gt;{direction};
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This role gets and sets the direction vector for the consuming class. The challenge with testing this role is that it requires the consuming class to implement an &lt;code&gt;id&lt;/code&gt; method. Role::Tiny&amp;rsquo;s &lt;code&gt;requires&lt;/code&gt; function is a great way to ensure that the consuming class meets the requirements of the role. But how do we test it without creating a real class with an &lt;code&gt;id&lt;/code&gt; sub? What I do is declare the required sub in the test file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Test::More;
+use Math::Shape::Vector;
+
+# create an object
+my $self = bless { direction =&amp;gt; Math::Shape::Vector-&amp;gt;new(1, 2) 
+                  }, &#39;March::Attribute::Direction&#39;;
+
+# add required sub
+sub March::Attribute::Direction::id { 107 };
+
+BEGIN { use_ok &#39;March::Attribute::Direction&#39; }
+
+is $self-&amp;gt;direction-&amp;gt;{x}, 1, &#39;Check direction x is 1&#39;;
+is $self-&amp;gt;direction-&amp;gt;{y}, 2, &#39;Check direction y is 2&#39;;
+ok $self-&amp;gt;direction( Math::Shape::Vector-&amp;gt;new(1, 0) ),
+    &#39;Update direction to new vector&#39;;
+is $self-&amp;gt;direction-&amp;gt;{x}, 1, &#39;Check direction x is still 1&#39;;
+is $self-&amp;gt;direction-&amp;gt;{y}, 0, &#39;Check direction y is now 0&#39;;
+
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The magic line is &lt;code&gt;sub March::Attribute::Direction::id { 107 };&lt;/code&gt; which adds the sub to the role I&amp;rsquo;m testing (it just returns the value 107). Now I can test the &lt;code&gt;direction&lt;/code&gt; method, again using &lt;code&gt;prove&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -lv t/Attribute/Direction.t 
+t/Attribute/Direction.t .. 
+ok 1 - use March::Attribute::Direction;
+ok 2 - Check direction
+ok 3 - Check direction
+ok 4 - Update direction to new vector
+ok 5 - Check direction
+ok 6 - Check direction
+1..6
+ok
+All tests successful.
+Files=1, Tests=6,  0 wallclock secs ( 0.02 usr  0.00 sys +  0.08 cusr  0.00 csys =  0.10 CPU)
+Result: PASS
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;it-s-not-all-gravy:b7f53836af028eb45de42bcacd025737&#34;&gt;It&amp;rsquo;s not all gravy&lt;/h3&gt;
+
+&lt;p&gt;One drawback I&amp;rsquo;ve encountered with this approach can be seen with the following role and test file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Data::Inspector;
+use Role::Tiny;
+
+sub inspect_data
+{
+    my ($self, $data);
+    Data::Dumper-&amp;gt;Dump([&#39;Inspecting:&#39;, $data]);
+}
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This role has a method called &lt;code&gt;inspect_data&lt;/code&gt; which simply returns a dump of any data reference pass to it. This is the test file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::More;
+use Data::Dumper;
+
+my $self = bless {}, &#39;Data::Inspector&#39;;
+
+BEGIN { use_ok &#39;Data::Inspector&#39; } 
+
+ok $self-&amp;gt;inspect_data({ test =&amp;gt; &#39;data&#39; });
+
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As before I bless the role in the test file and then proceed to test the &lt;code&gt;inspect_data&lt;/code&gt; method. This test file runs and all the tests pass. Can you spot this issue here? Notice that the Data::Inspector role uses &lt;a href=&#34;https://metacpan.org/pod/Data::Dumper&#34;&gt;Data::Dumper&amp;rsquo;s&lt;/a&gt; &lt;code&gt;Dump&lt;/code&gt; method, but it doesn&amp;rsquo;t load the Data::Dumper module, the test file does! This is a problem as when the Data::Inspector role is used elsewhere in real code, it will crash and burn when it doesn&amp;rsquo;t find Data::Dumper loaded in memory.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:b7f53836af028eb45de42bcacd025737&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;With this project I intend to create a lot of simple roles, so this approach provides a lightweight way for me to test roles within the test file without creating test classes for every role.&lt;/p&gt;
+
+&lt;p&gt;I really like &lt;a href=&#34;https://metacpan.org/pod/Role::Tiny&#34;&gt;Role::Tiny&lt;/a&gt;. It&amp;rsquo;s flexible: you can create minimalist trait-like behavior or go further and create mixins (roles which modify state). It has nice features like auto-enabling strict and warnings, method modifiers and good &lt;a href=&#34;https://metacpan.org/pod/Role::Tiny&#34;&gt;documentation&lt;/a&gt;. &lt;a href=&#34;https://metacpan.org/pod/Role::Basic&#34;&gt;Role::Basic&lt;/a&gt; is another lightweight roles module that supports traits only (by &lt;a href=&#34;https://metacpan.org/pod/Role::Basic#DESIGN-GOALS-AND-LIMITATIONS&#34;&gt;design&lt;/a&gt;). I wonder if I&amp;rsquo;ll come to regret using a mixin approach as I get further into development of the game engine.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Get a weather report at the terminal with Perl</title>
+      <link>http://perltricks.com/article/114/2014/9/11/Get-a-weather-report-at-the-terminal-with-Perl/</link>
+      <pubDate>Thu, 11 Sep 2014 12:36:33 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/114/2014/9/11/Get-a-weather-report-at-the-terminal-with-Perl/</guid>
+      <description>
+
+&lt;p&gt;Getting a weather forecast can be a chore; you have to navigate to the right website, close the banner ad, type in your location, click the right link, and &lt;em&gt;maybe&lt;/em&gt; then you can see a forecast. I wanted a more convenient way and found one using &lt;a href=&#34;https://metacpan.org/pod/WWW::Wunderground::API&#34;&gt;WWW::Wunderground::API&lt;/a&gt;. As the name suggests, the module provides a Perl interface to the Wunderground.com API. In this article I&amp;rsquo;ll show you how to use it.&lt;/p&gt;
+
+&lt;h3 id=&#34;setup:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;Setup&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need an API key for Wunderground.com (sign up &lt;a href=&#34;http://www.wunderground.com/weather/api/&#34;&gt;here&lt;/a&gt; it&amp;rsquo;s free). You&amp;rsquo;ll also need to install WWW::Wunderground.::API. The CPAN Testers &lt;a href=&#34;http://matrix.cpantesters.org/?dist=WWW-Wunderground-API+0.06&#34;&gt;results&lt;/a&gt; show that it runs on most platforms, including Windows. You can install the module at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan WWW::Wunderground::API
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;the-code:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;The Code&lt;/h3&gt;
+
+&lt;p&gt;Using WWW::Wunderground::API, I created a script that would pull an hourly forecast for my local city:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use WWW::Wunderground::API;
+
+binmode STDOUT, &#39;:utf8&#39;; # for degrees symbol
+
+my $w = new WWW::Wunderground::API(
+    location =&amp;gt; &#39;New York City, NY&#39;,
+    api_key  =&amp;gt; &#39;123456789012345&#39;,
+    auto_api =&amp;gt; 1,
+);
+
+# print header
+printf &amp;quot;%-10s%-4s%-4s%-8s%-20s\n&amp;quot;,
+       &#39;Time&#39;,
+       &amp;quot;\x{2109}&amp;quot;,
+       &amp;quot;\x{2103}&amp;quot;,
+       &#39;Rain %&#39;,
+       &#39;Conditions&#39;;
+
+# print hourly
+for (@{ $w-&amp;gt;hourly })
+{
+    printf &amp;quot;%8s%4i%4i%8i  %-30s\n&amp;quot;,
+           $_-&amp;gt;{FCTTIME}{civil},
+           $_-&amp;gt;{temp}{english},
+           $_-&amp;gt;{temp}{metric},
+           $_-&amp;gt;{pop},
+           $_-&amp;gt;{condition};
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the script I use code&amp;gt;binmode to switch the standard output to UTF8 mode. This lets me print some cool degrees symbols later on. I then connect to the Wunderground API, passing my API key and location (location can be a city name or a zip code). Finally I print out the weather forecast using printf to format the output nicely. I saved the script as &lt;code&gt;weather&lt;/code&gt; and ran it at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ weather
+Time      ℉   ℃   Rain %  Conditions          
+11:00 PM  69  21       3  Partly Cloudy                 
+12:00 AM  69  21       3  Partly Cloudy                 
+ 1:00 AM  69  21       8  Partly Cloudy                 
+ 2:00 AM  69  21       9  Mostly Cloudy                 
+ 3:00 AM  69  21       8  Mostly Cloudy                 
+ 4:00 AM  69  21       5  Mostly Cloudy                 
+ 5:00 AM  69  21       5  Overcast                      
+ 6:00 AM  69  21       4  Overcast                      
+ 7:00 AM  69  21       4  Mostly Cloudy                 
+ 8:00 AM  70  21       4  Mostly Cloudy                 
+ 9:00 AM  72  22       3  Mostly Cloudy                 
+10:00 AM  74  23       2  Mostly Cloudy                 
+11:00 AM  77  25       2  Mostly Cloudy                 
+12:00 PM  80  27       2  Mostly Cloudy                 
+ 1:00 PM  82  28       1  Mostly Cloudy                 
+ 2:00 PM  84  29       7  Overcast                      
+ 3:00 PM  84  29      46  Chance of a Thunderstorm      
+ 4:00 PM  84  29      52  Chance of a Thunderstorm      
+ 5:00 PM  82  28      56  Chance of a Thunderstorm      
+ 6:00 PM  82  28      45  Chance of a Thunderstorm      
+ 7:00 PM  81  27      50  Chance of a Thunderstorm      
+ 8:00 PM  80  27      39  Chance of a Thunderstorm      
+ 9:00 PM  78  26      32  Chance of a Thunderstorm      
+10:00 PM  77  25      38  Chance of a Thunderstorm      
+11:00 PM  74  23       6  Partly Cloudy                 
+12:00 AM  71  22       3  Clear                         
+ 1:00 AM  69  21       3  Clear                         
+ 2:00 AM  67  19       2  Partly Cloudy                 
+ 3:00 AM  65  18       2  Clear                         
+ 4:00 AM  64  18       2  Clear                         
+ 5:00 AM  62  17       2  Clear                         
+ 6:00 AM  61  16       2  Clear                         
+ 7:00 AM  60  16       2  Clear                         
+ 8:00 AM  60  16       2  Clear                         
+ 9:00 AM  62  17       1  Clear                         
+10:00 AM  64  18       0  Clear  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The results show an hourly forecast with the temperature in Fahrenheit and Celsius, the probability of rain and an overall description. As I do most of my work from the terminal, this is much more convenient than using the browser and there are no ads!&lt;/p&gt;
+
+&lt;h3 id=&#34;multiple-locations:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;Multiple Locations&lt;/h3&gt;
+
+&lt;p&gt;So the script is nice, but how can we make it better? Well, I&amp;rsquo;m rarely in the same place all the time, and I expect most people mover around too, so it would good to be more flexible and let the user type in the location, rather than using the same location every time:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use WWW::Wunderground::API;
+
+my $home_location = &#39;New York City, NY&#39;;
+
+# capture location
+print &amp;quot;Enter city or zip code ($home_location): &amp;quot;;
+my $location = &amp;lt;&amp;gt;;
+chomp $location;
+
+binmode STDOUT, &#39;:utf8&#39;; # for degrees symbol
+my $w = new WWW::Wunderground::API(
+    location =&amp;gt; $location || $home_location,
+    api_key  =&amp;gt; &#39;123456789012345&#39;,
+    auto_api =&amp;gt; 1,
+);
+
+# print header
+printf &amp;quot;%-10s%-4s%-4s%-8s%-20s\n&amp;quot;,
+       &#39;Time&#39;,
+       &amp;quot;\x{2109}&amp;quot;,
+       &amp;quot;\x{2103}&amp;quot;,
+       &#39;Rain %&#39;,
+       &#39;Conditions&#39;;
+
+# print hourly
+for (@{ $w-&amp;gt;hourly })
+{
+    printf &amp;quot;%8s%4i%4i%8i  %-30s\n&amp;quot;,
+           $_-&amp;gt;{FCTTIME}{civil},
+           $_-&amp;gt;{temp}{english},
+           $_-&amp;gt;{temp}{metric},
+           $_-&amp;gt;{pop},
+           $_-&amp;gt;{condition};
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve updated the code to store a default location called &lt;code&gt;$home_location&lt;/code&gt;. I then ask the user to enter a City or zip code, making sure to &lt;a href=&#34;http://perldoc.perl.org/functions/chomp.html&#34;&gt;chomp&lt;/a&gt; the result. Later in the API call, the code: &lt;code&gt;$location || $home_location&lt;/code&gt; will submit the home location unless the user has entered a location. Running the script now, I can get the weather for London easily:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ weather
+Enter city or zip code (New York City, NY): London, UK
+Time      ℉   ℃   Rain %  Conditions          
+ 4:00 AM  50  10       4  Clear                         
+ 5:00 AM  50  10       4  Clear                         
+ 6:00 AM  49   9       4  Clear                         
+ 7:00 AM  49   9       4  Clear                         
+ 8:00 AM  52  11       4  Clear                         
+ 9:00 AM  55  13       4  Clear                         
+10:00 AM  59  15       4  Clear                         
+11:00 AM  62  17       3  Clear                         
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;caching:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;Caching&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://metacpan.org/pod/WWW::Wunderground::API&#34;&gt;WWW::Wunderground::API&lt;/a&gt; documentation shows how to use &lt;a href=&#34;https://metacpan.org/pod/Cache::FileCache&#34;&gt;Cache::FileCache&lt;/a&gt; to cache the weather results locally. When you setup the cache, you can specify an expiry parameter - until the cache expires the WWW::Wunderground::API will use the cached results instead of the Wunderground API. This prevents unnecessary API calls and makes the script faster:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use WWW::Wunderground::API;
+use Cache::FileCache;
+
+my $home_location = &#39;New York City, NY&#39;;
+
+#capture location
+print &amp;quot;Enter city or zip code ($home_location): &amp;quot;;
+my $location = &amp;lt;&amp;gt;;
+chomp $location;
+
+binmode STDOUT, &#39;:utf8&#39;; # for degrees symbol
+my $w = new WWW::Wunderground::API(
+    location =&amp;gt; $location || $home_location,
+    api_key  =&amp;gt; &#39;123456789012345&#39;,
+    auto_api =&amp;gt; 1,
+    cache    =&amp;gt; Cache::FileCache-&amp;gt;new({
+                    namespace          =&amp;gt; &#39;wundercache&#39;,
+                    default_expires_in =&amp;gt; 2400 }),
+);
+
+# print header
+printf &amp;quot;%-10s%-4s%-4s%-8s%-20s\n&amp;quot;,
+       &#39;Time&#39;,
+       &amp;quot;\x{2109}&amp;quot;,
+       &amp;quot;\x{2103}&amp;quot;,
+       &#39;Rain %&#39;,
+       &#39;Conditions&#39;;
+
+# print hourly
+for (@{ $w-&amp;gt;hourly })
+{
+    printf &amp;quot;%8s%4i%4i%8i  %-30s\n&amp;quot;,
+           $_-&amp;gt;{FCTTIME}{civil},
+           $_-&amp;gt;{temp}{english},
+           $_-&amp;gt;{temp}{metric},
+           $_-&amp;gt;{pop},
+           $_-&amp;gt;{condition};
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Not much has changed in the code. The line &lt;code&gt;use Cache::FileCache;&lt;/code&gt; imports the module and a &lt;code&gt;cache&lt;/code&gt; parameter has been added to the Wunderground API call. WWW::Wunderground::API is smart enough to not return cached results for different locations.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;That&amp;rsquo;s probably enough to get started, however there is more that could be done with this script. I could make the script more portable by using environment variables instead of the hard coded values for my API key and home location. Exception handling could better - checking for an internet connection before running the script, handling failed API calls more gracefully (for unknown locations for example). Finally, why have the user type in a location at all? We could use get the user&amp;rsquo;s IP address and then geolocate them using the &lt;a href=&#34;https://metacpan.org/pod/Geo::IP&#34;&gt;Geo::IP&lt;/a&gt; module.&lt;/p&gt;
+
+&lt;p&gt;The Wunderground API provides a lot more than just a 24 hour forecast. Check out their API &lt;a href=&#34;http://www.wunderground.com/weather/api/d/docs&#34;&gt;documentation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/gsfc/5598148465/in/photolist-9wFYv8-kYwXMt-bsoJ2F-epZCJW-51zsz5-4xqurW-dQW1WX-ntLbig-47NhYw-8ha98x-gKjXSn-iGqBL8-fkVu7f-3bs6Hv-9C5Gp9-dfRRoo-ab4NaA-5nNgKY-hkfRe6-hSmCX2-97fCju-8fqUzR-e6xj8j-943upK-CaRbr-5sSeXx-6yuU9E-4adC2H-9YWWVQ-dK9bTn-piUN9-8NP9b5-8hdo8u-8xGTYN-mG2TTk-bmH4rF-7A8s15-97GPeg-fxsEhK-a1cDq-nMWvny-7xTFh6-ow6uvp-i7yjhS-82v13J-6DmEYb-c6BXa-5eCgsS-bo1p2k-nytJYo/&#34;&gt;NASA Goddard Space Flight Center&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Rescue legacy code with modulinos</title>
+      <link>http://perltricks.com/article/107/2014/8/7/Rescue-legacy-code-with-modulinos/</link>
+      <pubDate>Thu, 07 Aug 2014 12:22:42 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/107/2014/8/7/Rescue-legacy-code-with-modulinos/</guid>
+      <description>
+
+&lt;p&gt;As businesses grow, they move into situations they didn&amp;rsquo;t anticipate and often have problems other businesses would love to have. Under rapid growth their codebase struggles to keep up. I&amp;rsquo;ve seen more bad code making money than I&amp;rsquo;ve seen good code making money, and it&amp;rsquo;s an exciting situation to fix. Modulinos have been a nice trick for me to move standalone programs toward a testable and manageable CPAN-like distribution.&lt;/p&gt;
+
+&lt;p&gt;Modulinos isn&amp;rsquo;t an idea that I invented, but it&amp;rsquo;s something I popularized. I first got the idea from a talk by &lt;a href=&#34;http://blog.plover.com&#34;&gt;Mark Jason Dominus&lt;/a&gt; and the &lt;a href=&#34;https://github.com/Perl/perl5/blob/blead/lib/diagnostics.pm&#34;&gt;diagnostics&lt;/a&gt; module, written by Tom Christiansen way back in 1995. In this article I&amp;rsquo;ll talk a little about the trick, but more about why and how I&amp;rsquo;ve used it.&lt;/p&gt;
+
+&lt;p&gt;The trick involves using &lt;a href=&#34;http://perldoc.perl.org/functions/caller.html&#34;&gt;caller&lt;/a&gt; to decide how a Perl file should act depending on how it&amp;rsquo;s loaded. When run from the command line, it acts like a program, but when loaded as a module, it doesn&amp;rsquo;t run anything while still making its subroutines and packages available. In the second edition of &lt;a href=&#34;http://www.masteringperl.org/&#34;&gt;Mastering Perl&lt;/a&gt;, I expanded this a bit to check for the presence of a test harness so it could run methods that start with &lt;code&gt;test_&lt;/code&gt;, a Python feature I&amp;rsquo;ve liked.&lt;/p&gt;
+
+&lt;p&gt;You can see the basic structure in &lt;a href=&#34;https://metacpan.org/pod/Modulino::Test&#34;&gt;Modulino::Test&lt;/a&gt;, part of the &lt;a href=&#34;https://metacpan.org/release/Modulino-Demo&#34;&gt;Modulino::Demo&lt;/a&gt; distribution:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Modulino::Test;
+use utf8;
+use strict;
+use warnings;
+
+use v5.10;
+
+our $VERSION = &#39;0.10_01&#39;;
+
+sub _running_under_tester { !! $ENV{CPANTEST} }
+
+sub _running_as_app { ! defined scalar caller(1) }
+
+sub _loaded_as_module { defined scalar caller(1); }
+
+my $method = do {
+        if( _running_under_tester()   ) { &#39;test&#39; }
+    elsif( _loaded_as_module()       ) { undef  }
+    elsif( _running_as_app()            ) { &#39;run&#39;  }
+    else                                { undef }
+    };
+
+__PACKAGE__-&amp;gt;$method(@ARGV) if defined $method;
+
+sub test { ... }
+sub run  { ... }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I originally wrote about modulinos in &lt;a href=&#34;http://www.perlmonks.org/index.pl?node_id=396759&#34;&gt;How a script becomes a module&lt;/a&gt; on Perlmonks, and that&amp;rsquo;s where I first used the term. I might have even invented in while creating that post. I expanded it a little bit for &lt;a href=&#34;http://www.drdobbs.com/scripts-as-modules/184416165&#34;&gt;Scripts as Modules&lt;/a&gt; for &lt;em&gt;The Perl Journal&lt;/em&gt; (now swallowed as &lt;em&gt;Dr. Dobbs Journal&lt;/em&gt;).&lt;/p&gt;
+
+&lt;p&gt;At the time, I was doing quite a bit of work to translate legacy codebases into something more manageable. Instead of rewriting everything, I created paths to better behavior with immediate results. Part of this path is testing the existing codebase so I could recreate it, bugs and rough edges included, in the next part. Moving standalone scripts to libraries or modules is a big part of that; I have to maintain the program behavior, but I want to unit test its innards.&lt;/p&gt;
+
+&lt;p&gt;I have quite a bit of fun organizing a messy and (previously) unmanaged codebase. A little work makes a big difference and gives quick gains. From there it&amp;rsquo;s an easy path toward adding tests. It&amp;rsquo;s part of my motivation for &lt;a href=&#34;http://search.cpan.org/dist/scriptdist/&#34;&gt;scriptdist&lt;/a&gt;, which I wrote about in &lt;a href=&#34;http://www.drdobbs.com/web-development/automating-distributions-with-scriptdist/184416112&#34;&gt;Automating Distributions with scriptdist&lt;/a&gt;. Given a stand-alone program, I used that tool to build a distribution around it and include the test files. The program file stays the same, but once wrapped in the distribution goodness, I can start the transformation. Even if this code will never make it to CPAN, I can still use all the CPAN tools by making it look like a CPAN distribution.&lt;/p&gt;
+
+&lt;h3 id=&#34;converting-a-script-to-a-modulino:f0a7da8ae6aa523fe204e85806c139f8&#34;&gt;Converting a script to a modulino&lt;/h3&gt;
+
+&lt;p&gt;Suppose I start with a script. Here&amp;rsquo;s a short one:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
+
+print &amp;quot;Hello World!\n&amp;quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Even this simple program has problems (we never have trouble finding faults with programs; it&amp;rsquo;s almost bloodsport in some parts!). I can&amp;rsquo;t change where the output goes and it&amp;rsquo;s hard-coded to use English.&lt;/p&gt;
+
+&lt;p&gt;My first step is to make this a program that behaves the same but has a different structure. Larry designed Perl to do away with the &lt;code&gt;main&lt;/code&gt; subroutine required by many other languages, but I bring it back:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
+
+__PACKAGE__-&amp;gt;run();
+
+sub run {
+    print &amp;quot;Hello World!\n&amp;quot;;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;__PACKAGE__&lt;/code&gt; token is a compiler directive that refers to the current package. It calls the &lt;code&gt;run&lt;/code&gt; subroutine, which operates the same as it introduces a new scope. Some black magic and weird idioms might break, but, for the most part, this should (a dangerous word!) run the same. At this point, I&amp;rsquo;m probably also introducing this legacy codebase to source control, so a small change with no new behavior makes for a good first patch to a new branch.&lt;/p&gt;
+
+&lt;p&gt;This program is now mostly a module and it has the distribution structure that allows me to test it. I can start to create acceptance tests (end-to-end, or some other label even) since I haven&amp;rsquo;t had a way to reach into the code itself. These form the basis of the regression tests I can use to check the new code against the original code.&lt;/p&gt;
+
+&lt;p&gt;When I&amp;rsquo;m satisfied that the new code works, I can make more changes. This is where the modulino idea comes in. I want to test the code without automatically executing the code in &lt;code&gt;run&lt;/code&gt;. I can use the &lt;code&gt;caller&lt;/code&gt; trick; I don&amp;rsquo;t execute the code if there&amp;rsquo;s a higher level in the call stack (a program would be at the top):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
+
+__PACKAGE__-&amp;gt;run() unless caller;
+
+sub run {
+    print &amp;quot;Hello World!\n&amp;quot;;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s another small change in the actual code, but a significant change in behavior. I can get to the code in a test program:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::More;
+
+subtest &#39;load program&#39; =&amp;gt; sub {
+    require_ok( &#39;scripts/program.pl&#39; );
+    };
+    
+subtest &#39;test innards&#39; =&amp;gt; sub {
+    ok( defined &amp;amp;run, &#39;Run subroutine is defined&#39; );
+    };
+
+done_testing();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;From there the path forward is more clear. I can add a package statement to the program and start to refactor the &lt;code&gt;run&lt;/code&gt;, using the test best practices I know. Soon the development morphs into module maintenance and its history as a standalone program doesn&amp;rsquo;t matter anymore. As I go through the process, I&amp;rsquo;ve also set the eventual maintainers on the right path.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/deia/321829326/in/photolist-ursDu-71wk9y-nYpsHQ-e3P2i9-e1TW4-32LHXt-e4bYT8-e4bYNV-e4hB2m-e4hB5Y-69pxDc-7YWXJX-cwAfvs-e1TUY-4zkBG7-dcyLpA-aj8HAk-ajbu5L-ajbuh7-94j7Df-94jsgo-d9QS9u-dcyJAE-dcyHcT-bavZfB-2nPfVE-52nPvi-RBuWd-4tpcsD-55P2hs-4WaC4T-7w6TC-9FUUPM-94jwv1-8ohTWP-94g9Ep-6ijaiB-94jpgQ-94jcQd-94gcw8-94jveU-94jy93-94g6v8-94j9nu-94jmud-dh1bAe-dcyJoM-dcyJNK-duC43R-dcyK6z&#34;&gt;Andréia Bohner&lt;/a&gt;, the image has been digitally altered.&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Perl v5.20 - what you need to know</title>
+      <link>http://perltricks.com/article/92/2014/5/27/Perl-v5-20---what-you-need-to-know/</link>
+      <pubDate>Tue, 27 May 2014 12:22:52 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/92/2014/5/27/Perl-v5-20---what-you-need-to-know/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;With a new version of Perl expected to land this week, we&amp;rsquo;ve pulled together a summary of the headline changes for Perl v5.20. Enjoy!&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;subroutine-signatures:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Subroutine signatures&lt;/h3&gt;
+
+&lt;p&gt;This is the big one. It&amp;rsquo;s hard to understate how great this is. No more ugly assignment code - with 5.20 you can write:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature &#39;signatures&#39;;
+
+sub echo_chamber ($sound) {
+    return $sound;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We first &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;covered&lt;/a&gt; them back in February, and Ovid &lt;a href=&#34;http://blogs.perl.org/users/ovid/2014/03/subroutine-signatures-in-perl-are-long-overdue.html&#34;&gt;blogged&lt;/a&gt; about them too. More recently we &lt;a href=&#34;http://perltricks.com/article/88/2014/5/12/Benchmarking-subroutine-signatures&#34;&gt;benchmarked&lt;/a&gt; them.&lt;/p&gt;
+
+&lt;h3 id=&#34;postfix-dereferencing:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Postfix dereferencing&lt;/h3&gt;
+
+&lt;p&gt;The next cool new feature is postfix dereferencing. Hard to describe but easy to show:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use experimental &#39;postderef&#39;;
+
+my $nested_array_ref = [[[[[1,2,3]]]]];
+
+# circumfix dereference - usual way
+push @{$nested_array_ref-&amp;gt;[0]-&amp;gt;[0]-&amp;gt;[0]-&amp;gt;[0]}, 4;
+
+# postfix dereference - new way
+push $nested_array_ref-&amp;gt;[0]-&amp;gt;[0]-&amp;gt;[0]-&amp;gt;[0]-&amp;gt;@*, 5;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We previously &lt;a href=&#34;http://perltricks.com/article/68/2014/2/13/Cool-new-Perl-feature--postfix-dereferencing&#34;&gt;detailed&lt;/a&gt; the benefits of postfix dereferencing.&lt;/p&gt;
+
+&lt;h3 id=&#34;hash-slices:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Hash slices&lt;/h3&gt;
+
+&lt;p&gt;Perl 5.20 delivers a new slice type: hash slices. These work in a similar way to the array slice, except the &amp;ldquo;sliced&amp;rdquo; data provides full key value pairs instead of just the values as with an array slice.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %raindrops = ( splish =&amp;gt; 4, splash =&amp;gt; 9, splosh =&amp;gt; 7 );
+my %hash_slice = %raindrops{ &#39;splish&#39;, &#39;splosh&#39;};
+# hash_slice is (splish =&amp;gt; 4, splosh =&amp;gt; 7)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;What&amp;rsquo;s even more cool, if you use a hash slice on an array, the resulting hash has the array index elements as the keys:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @raindrop_types = qw/splish splash splosh/;
+my %hash_slice = %raindrop_types[0, 2];
+# hash_slice is (0 =&amp;gt; &#39;splish&#39;, 2 =&amp;gt; &#39;splosh&#39;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;android:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Android&lt;/h3&gt;
+
+&lt;p&gt;Yes that&amp;rsquo;s right, Perl 5.20 compiles on Android! The current documentation is &lt;a href=&#34;https://github.com/Perl/perl5/blob/blead/README.android&#34;&gt;online&lt;/a&gt;, and will be accessible via &amp;ldquo;perldoc android&amp;rdquo; once you&amp;rsquo;ve installed 5.20.&lt;/p&gt;
+
+&lt;h3 id=&#34;performance-improvements:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Performance improvements&lt;/h3&gt;
+
+&lt;p&gt;Perl 5.20 is faster in all kinds of areas - the perldelta for 5.20 lists 17 performance improvements, covering things like faster regexes, hash key lookups and string copying. Matthew Horsfall &lt;a href=&#34;http://blogs.perl.org/users/matthew_horsfall/2014/02/perl-519x-performance-improvements.html&#34;&gt;blogged&lt;/a&gt; about some of the changes as did &lt;a href=&#34;http://blog.booking.com/more-optimizations-in-perl-5.20-to-be.html&#34;&gt;Stefan Müller&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;miscellaneous:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Miscellaneous&lt;/h3&gt;
+
+&lt;p&gt;Subroutine prototypes can now be declared as subroutine attribute with the &amp;ldquo;prototype&amp;rdquo; keyword. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# usual prototype
+sub example ($$) {}
+
+# prototype declared via attribute
+sub example :prototype($$) {}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Faster Windows installation - ~15 minutes can be saved from the installation process due to the fix of a &amp;ldquo;make test&amp;rdquo; bug. Additionally, Perl can now be built using the Visual C++ 2013 compiler.&lt;/p&gt;
+
+&lt;p&gt;Perl 5.20 uses the latest Unicode version 6.3 up from 6.2 (Unicode &lt;a href=&#34;http://www.unicode.org/versions/Unicode6.3.0/&#34;&gt;changelog&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;The rand function now uses an internal platform independent random number generator. Previously Perl would use a platform specific random number generator leading to inconsistent quality of random number generation.&lt;/p&gt;
+
+&lt;h3 id=&#34;deprecations:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Deprecations&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/CGI&#34;&gt;CGI&lt;/a&gt; and its associated modules are being removed from core (Sawyer X &lt;a href=&#34;http://www.youtube.com/watch?v=jKOqtRMT85s&#34;&gt;must&lt;/a&gt; be happy).&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/Module::Build&#34;&gt;Module::Build&lt;/a&gt; is also being removed from core. David Golden &lt;a href=&#34;http://www.dagolden.com/index.php/2140/paying-respect-to-modulebuild/&#34;&gt;blogged&lt;/a&gt; about this last year.&lt;/p&gt;
+
+&lt;p&gt;Setting a non-integer reference value to the input record separator variable (&amp;ldquo;$/&amp;rdquo;) will throw a fatal exception (but undef is still fine).&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;There is a lot more to 5.20 than the summary items mentioned above. For a list of all the changes see &lt;a href=&#34;https://github.com/Perl/perl5/blob/blead/pod/perl5200delta.pod&#34;&gt;perldelta&lt;/a&gt;. Perl 5.20 is the most exciting release in years. Thanks to the Perl 5 Porters team for doing an incredible job of delivering an exceptional new Perl!&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F92%2F2014%2F5%2F27%2FPerl-v5-20-what-you-need-to-know&amp;amp;text=Perl+v5.20+-+what+you+need+to+know&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F92%2F2014%2F5%2F27%2FPerl-v5-20-what-you-need-to-know&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Debunk Perl&#39;s magic with B::Deparse</title>
+      <link>http://perltricks.com/article/89/2014/5/15/Debunk-Perl-s-magic-with-B--Deparse/</link>
+      <pubDate>Thu, 15 May 2014 12:19:51 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/89/2014/5/15/Debunk-Perl-s-magic-with-B--Deparse/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;The &lt;a href=&#34;https://metacpan.org/pod/B::Deparse&#34;&gt;B::Deparse&lt;/a&gt; module compiles a Perl program and then deparses it, producing the internally generated source code. What&amp;rsquo;s the point of that you say? Well it let&amp;rsquo;s you look behind the curtain and inspect how Perl is structuring the program code which can help you debug it, among other things.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;example:c51e9e6cf0be3f9a1a44b085736f67c8&#34;&gt;Example&lt;/h3&gt;
+
+&lt;p&gt;Consider the slurpy parameter optimization from this week&amp;rsquo;s subroutine signatures &lt;a href=&#34;http://perltricks.com/article/88/2014/5/12/Benchmarking-subroutine-signatures&#34;&gt;article&lt;/a&gt;. We know from speed benchmarks that the signature becomes ~30% faster with a slurpy parameter, and we can reason about why that is the case, but B::Deparse can &lt;em&gt;show&lt;/em&gt; us why. Here is the code for two signatures, one normal and one using the slurpy parameter:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature &#39;signatures&#39;;
+
+sub normal_signature ($foo) {}
+
+sub slurpy_signature ($foo, @) {}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now if we save the code as signatures.pl, we can use B::Deparse to inspect it at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -MO=Deparse signatures.pl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This generates the following output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub normal_signature {
+    use feature &#39;signatures&#39;;
+    die &#39;Too many arguments for subroutine&#39; unless @_ &amp;lt;= 1;
+    die &#39;Too few arguments for subroutine&#39; unless @_ &amp;gt;= 1;
+    my $foo = $_[0];
+    ();
+}
+sub slurpy_signature {
+    use feature &#39;signatures&#39;;
+    die &#39;Too few arguments for subroutine&#39; unless @_ &amp;gt;= 1;
+    my $foo = $_[0];
+    ();
+}
+signatures.pl syntax OK
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The generated code shows how Perl structured the signatures.pl code internally. You can see how &amp;ldquo;slurpy_signature&amp;rdquo; has one fewer die statement. This explains the improved performance as the subroutine has less to do. Magic debunked!&lt;/p&gt;
+
+&lt;h3 id=&#34;more-on-b-deparse:c51e9e6cf0be3f9a1a44b085736f67c8&#34;&gt;More on B::Deparse&lt;/h3&gt;
+
+&lt;p&gt;B::Deparse comes with extensive &lt;a href=&#34;https://metacpan.org/pod/B::Deparse&#34;&gt;documentation&lt;/a&gt; and has some useful options for altering the output.&lt;/p&gt;
+
+&lt;p&gt;One of the many gems in brian d foy&amp;rsquo;s &lt;a href=&#34;http://www.amazon.com/gp/product/144939311X/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;amp;camp=1789&amp;amp;creative=9325&amp;amp;creativeASIN=144939311X&amp;amp;linkCode=as2&amp;amp;tag=perltrickscom-20&#34;&gt;Mastering Perl&lt;/a&gt; book is the B::Deparse entry in the &amp;ldquo;Cleaning up Perl&amp;rdquo; chapter (affiliate link). In the book brian shows several uses for B::Deparse including debugging one-liners and decoding obfuscated code. You can read a draft version of the chapter online &lt;a href=&#34;http://chimera.labs.oreilly.com/books/1234000001527/ch07.html&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;PerlMonks has an &lt;a href=&#34;http://www.perlmonks.org/?node_id=804232&#34;&gt;interesting&lt;/a&gt; entry for those curious as to why the command line use of B::Deparse is &amp;ldquo;-MO=Deparse&amp;rdquo; and not &amp;ldquo;-MB::Deparse&amp;rdquo;.&lt;/p&gt;
+
+&lt;h3 id=&#34;thanks:c51e9e6cf0be3f9a1a44b085736f67c8&#34;&gt;Thanks&lt;/h3&gt;
+
+&lt;p&gt;Thanks again to Perl Pumpking and &lt;a href=&#34;http://www.youtube.com/watch?v=Sp102BECq8s&#34;&gt;teflon&lt;/a&gt; man Ricardo Signes who put me on to using B::Deparse on subroutine signatures.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;https://creativecommons.org/licenses/by/2.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/barkbud/4165385634&#34;&gt;bark&lt;/a&gt; image has been digitaly altered&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Benchmarking subroutine signatures</title>
+      <link>http://perltricks.com/article/88/2014/5/12/Benchmarking-subroutine-signatures/</link>
+      <pubDate>Mon, 12 May 2014 13:19:16 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/88/2014/5/12/Benchmarking-subroutine-signatures/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Subroutine signatures will be released to the Perl core in just a few days. But how do they performance compared with traditional methods like direct variable assignment and the &lt;a href=&#34;https://metacpan.org/pod/Method::Signatures&#34;&gt;Method::Signatures&lt;/a&gt; module? I benchmarked all three with interesting results.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;background:93413df609358a1a5a975a341330277a&#34;&gt;Background&lt;/h3&gt;
+
+&lt;p&gt;I &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;covered&lt;/a&gt; the new subroutine signatures features when they first appeared in the Perl development release 5.19.9. For these benchmarks I used the latest Perl development release (5.19.11).&lt;/p&gt;
+
+&lt;h3 id=&#34;method:93413df609358a1a5a975a341330277a&#34;&gt;Method&lt;/h3&gt;
+
+&lt;p&gt;All of the benchmarks came from variations of this code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Benchmark::Forking &#39;cmpthese&#39;;
+use feature &#39;signatures&#39;;
+no warnings &#39;experimental::signatures&#39;;
+use Method::Signatures;
+
+sub native_assignment { 
+    die &amp;quot;Too few arguments for subroutine $!&amp;quot; unless @_ == 1; 
+    my ($var) = @_;
+}
+
+sub native_signature ($var) {}
+
+func method_signature ($var) {}
+
+cmpthese(-5, {
+    native_assignment=&amp;gt; sub { native_assignment(1)},
+    native_signature =&amp;gt; sub { native_signature(1) },
+    method_signature =&amp;gt; sub { method_signature(1) },
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code begins by importing the necessary libraries. The line &amp;ldquo;no warnings &amp;lsquo;experimental::signatures&amp;rsquo; stops Perl from warning about the use of subroutine signatures. The code then declares the three subroutines we want to test: one is the normal variable assignment, one native subroutine signature and one for Method::Signatures (&amp;ldquo;func&amp;rdquo;).&lt;/p&gt;
+
+&lt;p&gt;Because the benchmark module executes tests in alphabetical order, every benchmark was run three times with the tests renamed each time to change the test order (every test was run first, second and third across the three benchmarks).&lt;/p&gt;
+
+&lt;h3 id=&#34;results:93413df609358a1a5a975a341330277a&#34;&gt;Results&lt;/h3&gt;
+
+&lt;p&gt;Running this benchmark returned the following results:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;colgroup&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;native_signature&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;method_signature&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;native_assignment&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;native_signature&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;--&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-10%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-27%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;method_signature&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;12%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;--&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-19%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;native_assignment&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;38%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;23%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;--&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;The results showed native subroutine signatures to be about 12% slower than the Method::Signatures function and 38% slower than the native assignment subroutine. So is this the price of the cleaner syntax? Actually it&amp;rsquo;s not the whole story.&lt;/p&gt;
+
+&lt;h3 id=&#34;changing-the-number-of-variables:93413df609358a1a5a975a341330277a&#34;&gt;Changing the number of variables&lt;/h3&gt;
+
+&lt;p&gt;Would changing the number of variables assigned in the subroutine affect the relative performance of the three subroutine types? I re-ran the benchmarks, only this time incrementing the number of variables being assigned and plotted the results:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/88/signatures%20comparison.png&#34; alt=&#34;Comparison of signatures speed with increasing number of variables&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The results showed that increasing the number of variables improved the relative speed of native subroutine signatures against Method::Signatures. With two variable assignments their speed is about par. With three or more variables, native subroutine signatures outperforms, up to 18% faster. When I discussed these results with Ricardo Signes, he confirmed that the native subroutine signatures code had been optimized for multiple variable assignments, which correlates with the results shown above.&lt;/p&gt;
+
+&lt;h3 id=&#34;faster-subroutine-signatures:93413df609358a1a5a975a341330277a&#34;&gt;Faster subroutine signatures&lt;/h3&gt;
+
+&lt;p&gt;It could be argued that the native subroutine signatures are plenty fast as they are and offer several benefits over both variable assignments and Method::Signatures. However, Ricardo did share a trick with me to make subroutine signatures run even faster, which I can&amp;rsquo;t resist sharing.&lt;/p&gt;
+
+&lt;p&gt;Adding a nameless slurpy parameter (&amp;ldquo;@&amp;rdquo;) to the subroutine signature removes the upper limit on how many arguments can be passed to the subroutine. Let&amp;rsquo;s add the slurpy parameter to the subroutine signature in our benchmark code. I&amp;rsquo;ve also updated the code to take two parameters - the level where previously Method::Signatures and subroutine signatures exhibited similar performance:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use Benchmark::Forking &#39;cmpthese&#39;;
+use feature &#39;signatures&#39;;
+no warnings &#39;experimental::signatures&#39;;
+use Method::Signatures;
+
+sub native_assignment { 
+    die &amp;quot;Too few arguments for subroutine $!&amp;quot; unless @_ == 2; 
+    my ($var1, $var2) = @_;
+}
+
+sub native_signature ($var1, $var2, @) {}
+
+func method_signature ($var1, $var2) {}
+
+cmpthese(-5, {
+    native_assignment=&amp;gt; sub { native_assignment(1, 2)},
+    native_signature =&amp;gt; sub { native_signature(1, 2) },
+    method_signature =&amp;gt; sub { method_signature(1, 2) },
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And here are the results:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;colgroup&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;col width=&#34;25%&#34; /&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;method_signature&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;native_signature&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;native_assignment&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;method_signature&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;--&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-23%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-37%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;native_signature&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;30%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;--&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-18%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;native_assignment&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;60%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;23%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;--&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;By adding the slurpy parameter, native subroutine signatures performance improved by 30%! This is because the subroutine no longer has to run a variable count check against the upper limit of variables accepted by the signature. It&amp;rsquo;s up to you if you want to remove this check for the performance gain or not - I can&amp;rsquo;t think of a use case where this would be worth it, but you never know.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:93413df609358a1a5a975a341330277a&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Subroutine variable assignment is a relatively inexpensive operation and unlikely to be a bottleneck in your code running time. However the speed benchmarks show that by switching to subroutine signatures is unlikely to regress and in some cases will improve run time speed. So use them with confidence!&lt;/p&gt;
+
+&lt;h3 id=&#34;thanks:93413df609358a1a5a975a341330277a&#34;&gt;Thanks&lt;/h3&gt;
+
+&lt;p&gt;Thanks to Perl pumpking Ricardo Signes for providing detail on the subroutine signatures implementation and slury parameter optimization.&lt;/p&gt;
+
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F88%2F2014%2F5%2F12%2FBenchmarking-subroutine-signatures&amp;amp;text=Benchmarking+subroutine+signatures&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F88%2F2014%2F5%2F12%2FBenchmarking-subroutine-signatures&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
+
+&lt;p&gt;*&lt;strong&gt;Edit:&lt;/strong&gt; article code and benchmarks corrected for single variable assignment on 2014/05/12*&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

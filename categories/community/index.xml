@@ -1,0 +1,1523 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Community on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/categories/community/</link>
+    <description>Recent content in Community on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 01 Apr 2016 08:32:57 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/categories/community/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Perl Jam VI: The Return of the Camel</title>
+      <link>http://perltricks.com/article/perl-jam-iv-return-of-the-camel/</link>
+      <pubDate>Fri, 01 Apr 2016 08:32:57 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/perl-jam-iv-return-of-the-camel/</guid>
+      <description>
+
+&lt;p&gt;A couple of recent presentations about Perl&amp;rsquo;s security have focused on the &lt;a href=&#34;http://www.metacpan.org/module/CGI&#34;&gt;CGI module&lt;/a&gt; and &lt;a href=&#34;https://www.bugzilla.org&#34;&gt;Bugzilla&lt;/a&gt;. David Farrell responded to these in &lt;a href=&#34;http://perltricks.com/article/netanel-rubins-perljam-circus/&#34;&gt;Netanel Rubin&amp;rsquo;s Perl Jam circus&lt;/a&gt;. There are much worse problems with Perl that we should think about.&lt;/p&gt;
+
+&lt;h3 id=&#34;perl-s-rounding-problem:895dfc94e45590b36c5dd569303f6b79&#34;&gt;Perl&amp;rsquo;s rounding problem&lt;/h3&gt;
+
+&lt;p&gt;Perl&amp;rsquo;s approved way of rounding numbers goes through &lt;code&gt;(s)printf&lt;/code&gt;, but there&amp;rsquo;s a problem. In short, it does the wrong thing.&lt;/p&gt;
+
+&lt;p&gt;Most people were taught the rule that 1, 2, 3, 4 round down to 0, and that 5, 6, 7, 8, and 9 round up to the next 0. That means that more digits round up than round down, introducing a systematic bias into any computations where you might round. You shouldn&amp;rsquo;t have to watch &lt;a href=&#34;http://www.imdb.com/title/tt0086393/&#34;&gt;Superman III&lt;/a&gt; to realize the disasterous global consequences this has.&lt;/p&gt;
+
+&lt;p&gt;There&amp;rsquo;s more than one way to round a number. Most want to get to the nearest number, but if you are half way between, there are options. There are more than two ways. There are more than three. There are, well, a lot of ways:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Round half up&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Round half down&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Round half toward zero&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Round half away from zero&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Round half to even&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Round half to odd&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Round half alternately up and down&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Round half stochastically&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If you use the GNU C compiler (or something based on it), you round half to even as the default. Perl relies on this behavior.&lt;/p&gt;
+
+&lt;p&gt;$ perl -e &amp;lsquo;printf &amp;ldquo;%.0f\n&amp;rdquo;, shift&amp;rsquo; 1.5
+  2&lt;/p&gt;
+
+&lt;p&gt;$ perl -e &amp;lsquo;printf &amp;ldquo;%.0f\n&amp;rdquo;, shift&amp;rsquo; 2.5
+  2&lt;/p&gt;
+
+&lt;p&gt;Every time you try this you get the same answer (so, no stochastic or alternate rounding). The GNU C compiler can also use floor, ceiling, or truncate, but those have similar problems.&lt;/p&gt;
+
+&lt;p&gt;As you are rounding, you are going to get more even numbers than odd numbers. If you are writing banking software, &lt;a href=&#34;http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.91.8055&amp;amp;rep=rep1&amp;amp;type=pdf&#34;&gt;assymetric currency rounding&lt;/a&gt; could destabilize a currency. The Risks Digest has several entries for &lt;a href=&#34;http://catless.ncl.ac.uk/php/risks/search.php?query=rounding&#34;&gt;security problems in rounding&lt;/a&gt;. These issues are much worse than some lame &amp;ldquo;attack&amp;rdquo; on CGI.pm because a programmer can&amp;rsquo;t read.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-modulus-of-negative-numbers:895dfc94e45590b36c5dd569303f6b79&#34;&gt;The modulus of negative numbers&lt;/h3&gt;
+
+&lt;p&gt;Among the heated technical debates, such as vi or emacs, tabs or spaces, or Star Wars or Star Trek (the first answer in each is the right one), the ones that matter, such as the correct value of modulo addition with negative numbers, are overlooked.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Binary &amp;ldquo;%&amp;rdquo; is the modulo operator, which computes the division remainder of its first argument with respect to its second argument. Given integer operands $m and $n : If $n is positive, then $m % $n is $m minus the largest multiple of $n less than or equal to $m. If $n is negative, then $m % $n is $m minus the smallest multiple of $n that is not less than $m (that is, the result will be less than or equal to zero).&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash; &lt;cite&gt;The perldoc documentation for the % operators&lt;/cite&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The modulo operators take two numbers and does something to them. For &lt;code&gt;$m % $n&lt;/code&gt;, you have:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;$m&lt;/th&gt;
+&lt;th&gt;$n&lt;/th&gt;
+&lt;th&gt;%&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;undefined&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;+&lt;/td&gt;
+&lt;td&gt;+&lt;/td&gt;
+&lt;td&gt;$m - $n * $i ∈ $n * $i &amp;lt;= $m and ($m - $n * $i) &amp;lt; $n&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;+&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;$m - $n * $i ∈ $n * $i &amp;gt;= $m and ($m - $n * $i) &amp;lt; $n&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;+&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my( $m, $n ) = @ARGV;
+
+$m //= 137;
+$n //= 13;
+
+my $template = &amp;lt;&amp;lt;&#39;HERE&#39;;
+m = %d  n = %d
+
+   $m %  $n = %d
+  -$m %  $n = %d
+   $m % -$n = %d
+  -$m % -$n = %d
+HERE
+
+printf $template,
+   $m, $n,
+   $m %  $n,
+  -$m %  $n,
+   $m % -$n,
+  -$m % -$n;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Running this give different results depending on the location of the unary minus operator:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ perl modulo.pl 137 12
+m = 137  n = 12
+
+   $m %  $n = 5
+  -$m %  $n = 7
+   $m % -$n = -7
+  -$m % -$n = -5
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That unary minus operator is two precedence levels above the modulo operator. That Perl makes one operator better than another is a whole other issue, but that&amp;rsquo;s the way it is and we can&amp;rsquo;t fix it now. Try it again. Use the parentheses (a feature Perl stole from LISP, which had some extra to spare) to separate the operators:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my( $m, $n ) = @ARGV;
+
+$m //= 137;
+$n //= 13;
+
+my $template = &amp;lt;&amp;lt;&#39;HERE&#39;;
+m = %d  n = %d
+
+    $m %  $n  = %d
+  -($m %  $n) = %d
+    $m % -$n  = %d
+  -($m % -$n) = %d
+HERE
+
+printf $template,
+    $m, $n,
+    $m %  $n,
+  -($m %  $n),
+    $m % -$n,
+  -($m % -$n);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You get different numbers this time:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;m = 137  n = 12
+
+    $m %  $n  = 5
+  -($m %  $n) = -5
+    $m % -$n  = -7
+  -($m % -$n) = 7
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But it&amp;rsquo;s even worse, because those numbers aren&amp;rsquo;t what the documentation says they should be. &amp;ldquo;If &lt;code&gt;$n&lt;/code&gt; is positive, then &lt;code&gt;$m % $n&lt;/code&gt; is &lt;code&gt;$m&lt;/code&gt; minus the largest multiple of &lt;code&gt;$n&lt;/code&gt; less than or equal to &lt;code&gt;$m&lt;/code&gt;&amp;rdquo;. Let&amp;rsquo;s take the case of -137 and 12. There are a couple of ways to look at this. If a &amp;ldquo;multiple&amp;rdquo; we call &lt;code&gt;$i&lt;/code&gt; must be positive, there is no value such that &lt;code&gt;$n * $i&lt;/code&gt; will be less than or equal to any negative value. If that &lt;code&gt;$i&lt;/code&gt; can be negative, the word &amp;ldquo;largest&amp;rdquo;  is a bit troublesome. Wikipedia says &lt;a href=&#34;https://en.wikipedia.org/wiki/Large_numbers&#34;&gt;large numbers are positive&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;fake-random-numbers:895dfc94e45590b36c5dd569303f6b79&#34;&gt;Fake random numbers&lt;/h3&gt;
+
+&lt;p&gt;Perl has a &lt;a href=&#34;http://perldoc.perl.org/functions/rand.html&#34;&gt;rand&lt;/a&gt; function. It claims to return &amp;ldquo;a random fractional number greater than or equal to 0&amp;rdquo;, but it doesn&amp;rsquo;t. It&amp;rsquo;s not random. It&amp;rsquo;s fake random in a way that might work if you only want to use one of them to complete a homework assignment in a beginning programming course in middle school. Although the documentation includes a footnote saying &amp;ldquo;You should not rely on it in security-sensitive situations&amp;rdquo;, it does not say &amp;ldquo;Don&amp;rsquo;t ever use this.&amp;rdquo; like it should. Try this program:&lt;/p&gt;
+
+&lt;p&gt;$ perl -le &amp;lsquo;srand(137); print rand for 1 .. 10&amp;rsquo;&lt;/p&gt;
+
+&lt;p&gt;It outputs some numbers, which might look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;0.470744323291914
+0.278795581867115
+0.263413724062172
+0.646815254210146
+0.958771364426031
+0.3733677954733
+0.561358958619476
+0.537256242282716
+0.967152799238111
+0.846555037715689
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Run it again:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;0.470744323291914
+0.278795581867115
+0.263413724062172
+0.646815254210146
+0.958771364426031
+0.3733677954733
+0.561358958619476
+0.537256242282716
+0.967152799238111
+0.846555037715689
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Not only do you get the same numbers, but you get them in the same order. Perl tries to hide this from you by automatically calling &lt;code&gt;srand&lt;/code&gt; and giving it a &amp;ldquo;random&amp;rdquo; number to start the completely repeatable sequence.&lt;/p&gt;
+
+&lt;p&gt;That&amp;rsquo;s not the only problem with these fake random numbers (which, again, Perl&amp;rsquo;s documentation never calls &amp;ldquo;fake&amp;rdquo;). They can only represent certain discrete values. See, for instance, the thread that &lt;a href=&#34;https://www.quora.com/Why-does-perl-rand-on-Win32-never-generate-a-value-between-0-890655528357032-and-0-890685315537721&#34;&gt;Why does perl rand() on Win32 never generate a value between 0.890655528357032 and 0.890685315537721?&lt;/a&gt;. On Windows, Perl uses 15 bits to represent the range of the fake random numbers instead of the 53 bits Perl could use.&lt;/p&gt;
+
+&lt;p&gt;There are a variety of ways this can screw up if you use it in an application that keeps going and going. Eventually you come back to the beginning of the sequence, perhaps colliding with existing customer data.&lt;/p&gt;
+
+&lt;h3 id=&#34;perl-s-lets-anyone-program:895dfc94e45590b36c5dd569303f6b79&#34;&gt;Perl&amp;rsquo;s lets anyone program&lt;/h3&gt;
+
+&lt;p&gt;Perhaps the biggest problem with Perl is that anyone with a text editor can write a program and upload it to the internet. It&amp;rsquo;s a feature that Perl allows someone to get their work done, but the problem shows up when someone tries to generalize that to other people&amp;rsquo;s work. Projects such as &lt;a href=&#34;http://nms-cgi.sourceforge.net/&#34;&gt;Not Matt&amp;rsquo;s Scripts&lt;/a&gt; try to mitigate this by fixing the problem one script at a time. There are simply too many scripts to get to in the lifetime of the Universe.&lt;/p&gt;
+
+&lt;h3 id=&#34;in-conclusion:895dfc94e45590b36c5dd569303f6b79&#34;&gt;In conclusion&lt;/h3&gt;
+
+&lt;p&gt;If you&amp;rsquo;ve made it this far without complaining on Twitter, Reddit, or Hacker News, congratulations. You know what day of the year it is.&lt;/p&gt;
+
+&lt;p&gt;These are real issues, though, and if your application is senstive to small differences in numbers (such as calculating fundamental constants of the universe or pension fund allocations), you&amp;rsquo;re probably using sophisticated number libraries and have various levels of audits to verify the results.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Modern Perl 4th edition, a review</title>
+      <link>http://perltricks.com/article/205/2015/12/21/Modern-Perl-4th-edition--a-review/</link>
+      <pubDate>Mon, 21 Dec 2015 00:02:25 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/205/2015/12/21/Modern-Perl-4th-edition--a-review/</guid>
+      <description>
+
+&lt;p&gt;The 4th edition of &lt;a href=&#34;https://pragprog.com/book/swperl/modern-perl-fourth-edition&#34;&gt;Modern Perl&lt;/a&gt; by chromatic is out. I was given an advance copy to review and the book features my praise quote, so I figured it was about time I wrote my notes up into a longer review. Overall I really like the changes to the new edition; in my opinion, Modern Perl continues to provide a valuable introduction to idiomatic Perl programming.&lt;/p&gt;
+
+&lt;h3 id=&#34;learn-the-idiomatic-perl-style:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;Learn the idiomatic Perl style&lt;/h3&gt;
+
+&lt;p&gt;Modern Perl isn&amp;rsquo;t like your typical dry programming book. For one thing, it&amp;rsquo;s opinionated. Author chromatic draws on his experience to provide an insiders&amp;rsquo; guide that shows the &lt;em&gt;right&lt;/em&gt; way to program in Perl.&lt;/p&gt;
+
+&lt;p&gt;The text is fast-moving and doesn&amp;rsquo;t baby the reader. Instead of &amp;ldquo;hello World&amp;rdquo;, the book begins by teaching the reader how to use &lt;code&gt;perldoc&lt;/code&gt; and draw upon the official documentation when they get stuck. Don&amp;rsquo;t waste time with Google when the answer &lt;a href=&#34;http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster&#34;&gt;can be found in seconds&lt;/a&gt; at the command line.&lt;/p&gt;
+
+&lt;p&gt;Chapters 1 and 2 introduce the Perl philosophy and Community. The book rapidly covers the major features of Perl (chapters 3 - 7) and even more advanced topics like recursion, anonymous functions and closures. Peppered throughout are gems of wisdom explaining the rationale behind a given concept. For instance, on including parentheses on all function calls (even ones without arguments):&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;While these parentheses are not strictly necessary for these examples—even with strict enabled—they provide clarity to human readers as well as Perl’s parser. When in doubt, use them.&lt;/p&gt;
+
+&lt;p&gt;Modern Perl 4th edition, Chapter 5, Declaring Functions&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The focus here, though is on the practical and chromatic quickly moves on to advising on elements of good Perl style and how to learn it (chapter 8) and real-World programming tips (chapter 9). This is an honest, expert&amp;rsquo;s account of Perl, and chapter 11 describes what to avoid in Perl (chapter 5 also has an entry on function misfeatures).&lt;/p&gt;
+
+&lt;p&gt;Whilst this is an introductory text, chromatic does find time to touch upon several intermediate concepts like taint, schwartzian transforms and tail call optimizations. There is something for everybody: re-reading the &lt;a href=&#34;http://modernperlbooks.com/books/modern_perl_2014/05-perl-functions.html#U3RhdGV2ZXJzdXNDbG9zdXJlcw&#34;&gt;section&lt;/a&gt; State-versus-Closures (chapter 5) I learned a nuance that I hadn&amp;rsquo;t appreciated before.&lt;/p&gt;
+
+&lt;p&gt;Modern Perl does assume a lot and this could make it challenging for complete novices. For example the code snippets assume the reader can distinguish between command line and Perl programming context. Map and grep are used in examples but are not covered in the language overview chapters. But these are minor nits.&lt;/p&gt;
+
+&lt;h3 id=&#34;modern-perl:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;&amp;ldquo;Modern&amp;rdquo; Perl?&lt;/h3&gt;
+
+&lt;p&gt;About 10 years ago, Perl enjoyed something of a &lt;a href=&#34;http://www.modernperlbooks.com/mt/2009/07/milestones-in-the-perl-renaissance.html&#34;&gt;renaissance&lt;/a&gt; called &amp;ldquo;Modern Perl&amp;rdquo;. This was a movement that developed powerful new libraries, tools and applications which invigorated Perl programming and gave it a new lease-of-life. Today the phrase is almost synonymous with Perl &amp;ldquo;best practices&amp;rdquo; and its ethos continues to help Perl flourish.&lt;/p&gt;
+
+&lt;h3 id=&#34;what-s-changed:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;What&amp;rsquo;s changed&lt;/h3&gt;
+
+&lt;p&gt;The 4th edition brings a lot of changes, but it&amp;rsquo;s a case of evolution, not revolution. New Perl features like the double-diamond operator (&lt;code&gt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&lt;/code&gt;) and &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;subroutine signatures&lt;/a&gt; are covered. Almost every paragraph has been &lt;a href=&#34;https://github.com/chromatic/modern_perl_book/commits/master&#34;&gt;updated&lt;/a&gt;), but the chapter structure remains the same and many of the edits are tweaks rather than wholesale re-writes. Many of the changes improve the readability of the text, others de-jargonize it, like this:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Functions are a prime mechanism for abstraction, encapsulation, and re-use in Perl.&lt;/p&gt;
+
+&lt;p&gt;Modern Perl, 3rd Edition, Chapter 5&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;became:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Functions are a prime mechanism for organizing code into similar groups, identifying individual pieces by name, and providing reusable units of behavior.&lt;/p&gt;
+
+&lt;p&gt;Modern Perl, 3rd Edition, Chapter 5&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Which is clearly easier for beginners to understand. Code-wise, many of the examples have changed from a BSD to K&amp;amp;R style, presumably to save vertical space. Overall the book length remains about the same (205 vs 204 pages).&lt;/p&gt;
+
+&lt;p&gt;The biggest change with the new edition comes from The Pragmatic Bookshelf - their version is simply &lt;em&gt;gorgeous&lt;/em&gt;. Full color with larger fonts, icons and callouts, the book really pops. This is the layout Modern Perl needs &lt;em&gt;and&lt;/em&gt; deserves. See this comparison between the Onyx Neon and Pragmatic Bookshelf versions:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/205/comparison.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;alternatives:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;Alternatives&lt;/h3&gt;
+
+&lt;p&gt;As an opinionated introduction to Perl, Modern Perl is a compromise between a tutorial and a best-practices style cookbook. I love the direction and terse writing style, but the book might move too fast for complete beginners. So it depends on what you&amp;rsquo;re looking for - &lt;a href=&#34;http://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840&#34;&gt;Beginning Perl&lt;/a&gt; and &lt;a href=&#34;http://www.amazon.com/Learning-Perl-Randal-L-Schwartz/dp/1449303587&#34;&gt;Learning Perl&lt;/a&gt; are fine introductions to the language. &lt;a href=&#34;http://www.amazon.com/Effective-Perl-Programming-Idiomatic-Development/dp/0321496949&#34;&gt;Effective Perl Programming&lt;/a&gt; is my favorite Perl cookbook. But Modern Perl is a unique blend of both styles.&lt;/p&gt;
+
+&lt;h3 id=&#34;where-to-get-it:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;Where to get it&lt;/h3&gt;
+
+&lt;p&gt;You can read Modern Perl &lt;a href=&#34;http://modernperlbooks.com/books/modern_perl_2014/index.html&#34;&gt;online&lt;/a&gt; for free, and there are downloadable versions available from &lt;a href=&#34;http://onyxneon.com/books/modern_perl/index.html&#34;&gt;Onyx Neon&lt;/a&gt;. If you want it as an ebook, I would recommend the Pragmatic Bookshelf &lt;a href=&#34;https://pragprog.com/book/swperl/modern-perl-fourth-edition&#34;&gt;version&lt;/a&gt; - it&amp;rsquo;s beautifully styled, free, and you&amp;rsquo;ll be eligible for updates to the text as/when they appear.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Making the Larry Wall shirt</title>
+      <link>http://perltricks.com/article/201/2015/12/3/Making-the-Larry-Wall-shirt/</link>
+      <pubDate>Thu, 03 Dec 2015 12:52:01 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/201/2015/12/3/Making-the-Larry-Wall-shirt/</guid>
+      <description>
+
+&lt;p&gt;A few months ago &lt;a href=&#34;http://www.learning-perl.com/&#34;&gt;brian d foy&lt;/a&gt;and I were throwing around some t-shirt ideas and we came up with a concept for series of shirts highlighting our computer heroes. This culminated in us recently launching our first &lt;a href=&#34;https://www.kickstarter.com/projects/1422827986/heroes-of-the-revolution-t-shirts-larry-wall&#34;&gt;Kickstarter project&lt;/a&gt; for the Larry Wall shirt (shown above). If you like the design &lt;a href=&#34;https://www.kickstarter.com/projects/1422827986/heroes-of-the-revolution-t-shirts-larry-wall&#34;&gt;back it&lt;/a&gt;! - we&amp;rsquo;d love to produce more designs for other famous programmers like Ritchie, Norvig et al. This article is about how to create similar pop art style images using &lt;a href=&#34;http://www.gimp.org/&#34;&gt;GIMP&lt;/a&gt; and &lt;a href=&#34;https://inkscape.org/en/&#34;&gt;Inkscape&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;selecting-preparing-an-image:302dac8623db7aacc9a2f705893b1575&#34;&gt;Selecting &amp;amp; preparing an image&lt;/h3&gt;
+
+&lt;p&gt;First find an image you want to convert and open it in GIMP. I&amp;rsquo;m going to use my profile photo:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/201/0BwRnByTz2iUXNWNOWmlnb1lxT1E&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;To prepare the image for stenciling, I need to reduce the image contrast. The first thing I do is remove the background. I use a variety of techniques for this: if it is a single color, I use the color selection tool and delete it; else a combination of the lasso select with delete and the eraser usually do the trick:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/201/0BwRnByTz2iUXSEN5ZHBTOFRvcHM&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I use the same techniques to remove my body:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/201/0BwRnByTz2iUXd3FCS0tsZ2hRSVE&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Next I convert the image to black and white (go to Image-&amp;gt;mode-&amp;gt;grayscale) and crop it (Image-&amp;gt;Autocrop Image).&lt;/p&gt;
+
+&lt;h3 id=&#34;creating-the-stencil:302dac8623db7aacc9a2f705893b1575&#34;&gt;Creating the stencil&lt;/h3&gt;
+
+&lt;p&gt;With the image adequately prepped, I can use GIMP&amp;rsquo;s color threshold tool to convert it to a rough stencil (Colors-&amp;gt;Threshold). I adjust the default threshold until I get an appearance I like:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/201/0BwRnByTz2iUXTE9aR0F6RGNSVkk&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I export this image from GIMP as a PNG file and open it with Inkscape. Within Inkscape I left-click the image so that it is selected and then trace the bitmap (Path-&amp;gt;Trace Bitmap). This creates a new, smoother version of the image. Then I delete the original image from Inkscape. At this point the image is good but it&amp;rsquo;s too small for general use, so when I export it as a PNG (File-&amp;gt;Export PNG Image) I adjust the image dimensions to the size required. This works because an SVG will scale to any dimension (click &lt;a href=&#34;http://perltricks.com/images/201/0BwRnByTz2iUXQnJvajhCY3VWMmM&#34;&gt;here&lt;/a&gt; for a larger version).&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/201/0BwRnByTz2iUXc1l5NXlldGV4OE0&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;At this stage I could put this image on any color of t-shirt. Instead I&amp;rsquo;ll re-import the image into GIMP and add a funky background color:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/201/0BwRnByTz2iUXeUs0WGpVdDQ1Q0E&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Don&amp;rsquo;t forget to back the &lt;a href=&#34;https://www.kickstarter.com/projects/1422827986/heroes-of-the-revolution-t-shirts-larry-wall&#34;&gt;Kickstarter&lt;/a&gt; project if you want a t-shirt. Best of all, it&amp;rsquo;s Larry Wall approved ™&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to choose a DuckDuckGo cheatsheet topic</title>
+      <link>http://perltricks.com/article/191/2015/8/29/How-to-choose-a-DuckDuckGo-cheatsheet-topic/</link>
+      <pubDate>Sat, 29 Aug 2015 09:46:29 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/191/2015/8/29/How-to-choose-a-DuckDuckGo-cheatsheet-topic/</guid>
+      <description>
+
+&lt;p&gt;If you want to develop a &lt;a href=&#34;http://perltricks.com/article/189/2015/8/22/Writing-DuckDuckGo-plugins-just-got-easier&#34;&gt;DuckDuckGo cheatsheet&lt;/a&gt; and you&amp;rsquo;ve got the technicals down, the next task is to choose a cheatsheet topic. As with &lt;a href=&#34;http://martinfowler.com/bliki/TwoHardThings.html&#34;&gt;naming things&lt;/a&gt;, this can be harder than it sounds.&lt;/p&gt;
+
+&lt;p&gt;Certain topics are better suited to be cheatsheets than others; because the cheatsheet is a static file, it&amp;rsquo;s better to provide information which is unlikely to change, such as a &lt;a href=&#34;https://github.com/duckduckgo/zeroclickinfo-goodies/blob/master/share/goodie/cheat_sheets/json/wu-tang.json&#34;&gt;list of the members of the Wu-Tang Clan&lt;/a&gt;. With that in mind, here are some good sources of inspiration for your cheatsheet.&lt;/p&gt;
+
+&lt;h3 id=&#34;scan-the-cheatsheet-corpus:90f645f884ba1a250b073025e344ebe2&#34;&gt;Scan the cheatsheet corpus&lt;/h3&gt;
+
+&lt;p&gt;Get inspiration from association. The DuckDuckGo goodie repo maintains all of the static &lt;a href=&#34;https://github.com/duckduckgo/zeroclickinfo-goodies/tree/master/share/goodie/cheat_sheets/json&#34;&gt;cheatsheets&lt;/a&gt;. Have a look at them, maybe you&amp;rsquo;ll get an idea for something similar to what&amp;rsquo;s already been done. I made the GNU Screen cheatsheet after I saw the tmux one - there was a lot of copy and paste involved!&lt;/p&gt;
+
+&lt;h3 id=&#34;check-the-instant-answer-request-list:90f645f884ba1a250b073025e344ebe2&#34;&gt;Check the instant answer request list&lt;/h3&gt;
+
+&lt;p&gt;One way to get cheatsheet ideas is to think about technical and trivia subjects you&amp;rsquo;re interested in. That&amp;rsquo;s &amp;ldquo;supply&amp;rdquo;. Another way is to look at &amp;ldquo;demand&amp;rdquo; - i.e. what people have asked for. Helpfully, the DuckDuckGo community maintains an extensive &lt;a href=&#34;https://duck.co/ideas&#34;&gt;list&lt;/a&gt; of instant answer ideas. Have a browse!&lt;/p&gt;
+
+&lt;h3 id=&#34;mine-google-adwords:90f645f884ba1a250b073025e344ebe2&#34;&gt;Mine Google AdWords&lt;/h3&gt;
+
+&lt;p&gt;Another way to view demand is to check search traffic. This is an old SEO trick to find common associations with a keyword using the &lt;a href=&#34;https://adwords.google.com&#34;&gt;Google AdWords&lt;/a&gt; keywords planner tool. For example I used the tool to find the top 50 searches associated with the term &amp;ldquo;cheatsheet&amp;rdquo;:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Keyword&lt;/th&gt;
+&lt;th&gt;Avg. Monthly Searches (exact match only)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;markdown cheatsheet&lt;/td&gt;
+&lt;td&gt;1900&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;vim cheatsheet&lt;/td&gt;
+&lt;td&gt;1600&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;git cheatsheet&lt;/td&gt;
+&lt;td&gt;1600&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;regex cheatsheet&lt;/td&gt;
+&lt;td&gt;1300&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;vi cheatsheet&lt;/td&gt;
+&lt;td&gt;1000&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;jquery cheatsheet&lt;/td&gt;
+&lt;td&gt;480&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;fantasy football cheatsheet&lt;/td&gt;
+&lt;td&gt;390&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;cheatsheets&lt;/td&gt;
+&lt;td&gt;390&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;html cheatsheet&lt;/td&gt;
+&lt;td&gt;390&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;subnet cheatsheet&lt;/td&gt;
+&lt;td&gt;390&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;python cheatsheet&lt;/td&gt;
+&lt;td&gt;390&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;fantasy football cheatsheets&lt;/td&gt;
+&lt;td&gt;320&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;xss cheatsheet&lt;/td&gt;
+&lt;td&gt;320&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;sql cheatsheet&lt;/td&gt;
+&lt;td&gt;320&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;gdb cheatsheet&lt;/td&gt;
+&lt;td&gt;320&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;emacs cheatsheet&lt;/td&gt;
+&lt;td&gt;260&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;latex cheatsheet&lt;/td&gt;
+&lt;td&gt;260&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;linux cheatsheet&lt;/td&gt;
+&lt;td&gt;210&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;screen cheatsheet&lt;/td&gt;
+&lt;td&gt;210&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;r cheatsheet&lt;/td&gt;
+&lt;td&gt;210&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;svn cheatsheet&lt;/td&gt;
+&lt;td&gt;170&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;php cheatsheet&lt;/td&gt;
+&lt;td&gt;170&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;html5 cheatsheet&lt;/td&gt;
+&lt;td&gt;170&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;sql injection cheatsheet&lt;/td&gt;
+&lt;td&gt;170&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;ruby cheatsheet&lt;/td&gt;
+&lt;td&gt;170&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;regular expression cheatsheet&lt;/td&gt;
+&lt;td&gt;140&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;bash cheatsheet&lt;/td&gt;
+&lt;td&gt;140&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;uml cheatsheet&lt;/td&gt;
+&lt;td&gt;140&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;css3 cheatsheet&lt;/td&gt;
+&lt;td&gt;110&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;xpath cheatsheet&lt;/td&gt;
+&lt;td&gt;90&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;perl cheatsheet&lt;/td&gt;
+&lt;td&gt;70&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;unix cheatsheet&lt;/td&gt;
+&lt;td&gt;70&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;django cheatsheet&lt;/td&gt;
+&lt;td&gt;70&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;subnet mask cheatsheet&lt;/td&gt;
+&lt;td&gt;70&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;c# cheatsheet&lt;/td&gt;
+&lt;td&gt;70&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;powershell cheatsheet&lt;/td&gt;
+&lt;td&gt;70&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;asciidoc cheatsheet&lt;/td&gt;
+&lt;td&gt;70&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;fantasy cheatsheet&lt;/td&gt;
+&lt;td&gt;50&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;rails cheatsheet&lt;/td&gt;
+&lt;td&gt;50&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;mediawiki cheatsheet&lt;/td&gt;
+&lt;td&gt;40&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;regular expressions cheatsheet&lt;/td&gt;
+&lt;td&gt;40&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;zfs cheatsheet&lt;/td&gt;
+&lt;td&gt;40&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;free fantasy football cheatsheets&lt;/td&gt;
+&lt;td&gt;30&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;dailybeast cheatsheet&lt;/td&gt;
+&lt;td&gt;30&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;dmv cheatsheet&lt;/td&gt;
+&lt;td&gt;30&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;fantasy football draft cheatsheet&lt;/td&gt;
+&lt;td&gt;30&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;fantasy baseball cheatsheet&lt;/td&gt;
+&lt;td&gt;30&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;photobert cheatsheet&lt;/td&gt;
+&lt;td&gt;30&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;cheatsheet html&lt;/td&gt;
+&lt;td&gt;30&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;autosys cheatsheet&lt;/td&gt;
+&lt;td&gt;30&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;If nothing in this list appeals, try searching against similar terms like &amp;ldquo;cheat sheet&amp;rdquo;, &amp;ldquo;help&amp;rdquo;, &amp;ldquo;FAQ&amp;rdquo; and &amp;ldquo;usage&amp;rdquo; to find something that inspires you.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:90f645f884ba1a250b073025e344ebe2&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Developing cheatsheets should be fun. If you&amp;rsquo;re wrestling with a potential cheatsheet topic remember that there is a large developer community waiting to help you. The &lt;a href=&#34;http://duckduckhack.com/&#34;&gt;DuckDuckHack site&lt;/a&gt; is a good source of information. It has a &lt;a href=&#34;https://duck.co/duckduckhack/faq#goodie&#34;&gt;FAQ&lt;/a&gt;, a &lt;a href=&#34;https://duck.co/duckduckhack/determine_your_instant_answer_type&#34;&gt;guide&lt;/a&gt; to picking the right plugin type for your idea and information on how to join the DuckDuckGo Slack site. Useful information can also be found in the &lt;a href=&#34;https://duckduckgo.com/?q=quack+hack+help&amp;amp;ia=cheatsheet&#34;&gt;quack and hack cheatsheet&lt;/a&gt;!&lt;/p&gt;
+
+&lt;p&gt;Once you&amp;rsquo;ve drafted your cheatsheet, consider using my &lt;a href=&#34;http://perltricks.com/article/190/2015/8/28/Check-your-DuckDuckGo-cheatsheets-with-Perl&#34;&gt;cheatsheet checker tool&lt;/a&gt;. It finds common syntax and data errors which can make developing a cheatsheet easier.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Writing DuckDuckGo plugins just got easier</title>
+      <link>http://perltricks.com/article/189/2015/8/22/Writing-DuckDuckGo-plugins-just-got-easier/</link>
+      <pubDate>Sat, 22 Aug 2015 14:05:25 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/189/2015/8/22/Writing-DuckDuckGo-plugins-just-got-easier/</guid>
+      <description>
+
+&lt;p&gt;The developers behind DuckDuckGo, the search engine that doesn&amp;rsquo;t track you, have made it easier than ever to write plugins for the site. With the first global &lt;a href=&#34;https://duck.co/blog/post/196/the-first-global-quack-hack&#34;&gt;Quack &amp;amp; Hack&lt;/a&gt; event taking place later this month, there&amp;rsquo;s never been a better time to get involved.&lt;/p&gt;
+
+&lt;h3 id=&#34;instant-answers:06f8e3dfccc590daeee2c2b9ec28de7c&#34;&gt;Instant Answers&lt;/h3&gt;
+
+&lt;p&gt;The DuckDuckGo engine supports several types of plugin, but instant answers that provide a static &amp;ldquo;cheatsheet&amp;rdquo; are a simple to get started. &lt;a href=&#34;http://perltricks.com/article/169/2015/4/20/Writing-DuckDuckGo-instant-answers-is-easy&#34;&gt;Previously&lt;/a&gt; developing a new instant answer would require a Perl module, a test file and a plain text version of the response. Now all you need to provide is a JSON file of your instant answer and you&amp;rsquo;re in business.&lt;/p&gt;
+
+&lt;h3 id=&#34;setup:06f8e3dfccc590daeee2c2b9ec28de7c&#34;&gt;Setup&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;ll need to fork the DuckDuckGo &lt;a href=&#34;https://github.com/duckduckgo/zeroclickinfo-goodies&#34;&gt;repo&lt;/a&gt; and clone your forked repo to your development machine. Optionally you can install &lt;a href=&#34;https://metacpan.org/pod/App::DuckPAN&#34;&gt;App::DuckPAN&lt;/a&gt;, which can launch a local version of the DuckDuckGo site for testing your code. Another way to test the cheatsheet is via &lt;a href=&#34;https://vimeo.com/132712266&#34;&gt;Codio&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;an-instant-answer-json-file:06f8e3dfccc590daeee2c2b9ec28de7c&#34;&gt;An Instant Answer JSON file&lt;/h3&gt;
+
+&lt;p&gt;Instant answer JSON files should be created in the &lt;code&gt;share/goodie/cheat_sheets&lt;/code&gt; directory in the repo. A good way to start is to copy one of the existing files and change it to include your content.&lt;/p&gt;
+
+&lt;p&gt;This is a truncated example from my &lt;code&gt;perldoc&lt;/code&gt; instant answer:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;{
+    &amp;quot;id&amp;quot;: &amp;quot;perldoc_cheat_sheet&amp;quot;,
+    &amp;quot;name&amp;quot;: &amp;quot;perldoc&amp;quot;,
+    &amp;quot;description&amp;quot;: &amp;quot;Perl Documentation&amp;quot;,
+    &amp;quot;metadata&amp;quot;: {
+        &amp;quot;sourceName&amp;quot;: &amp;quot;perldoc Manual&amp;quot;,
+        &amp;quot;sourceUrl&amp;quot;: &amp;quot;http://perldoc.perl.org/perldoc.html&amp;quot;
+    },
+    &amp;quot;section_order&amp;quot;: [&amp;quot;Usage&amp;quot;, &amp;quot;Module Options&amp;quot;, &amp;quot;Search Options&amp;quot;, &amp;quot;Common Options&amp;quot;],
+    &amp;quot;sections&amp;quot;: {
+        &amp;quot;Usage&amp;quot;: [
+        {
+            &amp;quot;key&amp;quot;: &amp;quot;[perldoc &amp;lt;option&amp;gt;]&amp;quot;,
+            &amp;quot;val&amp;quot;: &amp;quot;start perldoc&amp;quot;
+        },
+        {
+            &amp;quot;key&amp;quot;: &amp;quot;[perldoc perldoc]&amp;quot;,
+            &amp;quot;val&amp;quot;: &amp;quot;perldoc help&amp;quot;
+        }
+        ],
+       ...
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;id&lt;/code&gt; and &lt;code&gt;name&lt;/code&gt; fields should be unique values that describe the plugin. The &lt;code&gt;metadata&lt;/code&gt; fields describe the source of the information in the instant answer. It&amp;rsquo;s good to use a canonical source - in this case I referenced the official Perl documentation.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;sections&lt;/code&gt; field is the content of the instant answer. Each entry is a key value for an array of key pairs. &lt;code&gt;section_order&lt;/code&gt; describes the order in which the sections will be displayed in the search engine results, so make sure you put the most important sections first!&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s take a closer look at a section entry, here is &lt;code&gt;Module Options&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;        &amp;quot;Module Options&amp;quot;: [
+        {
+            &amp;quot;key&amp;quot;: &amp;quot;Module::Name&amp;quot;,
+            &amp;quot;val&amp;quot;: &amp;quot;Show module documentation&amp;quot;
+        },
+        {
+            &amp;quot;key&amp;quot;: &amp;quot;[-l Module::Name]&amp;quot;,
+            &amp;quot;val&amp;quot;: &amp;quot;Module filepath&amp;quot;
+        },
+        {
+            &amp;quot;key&amp;quot;: &amp;quot;[-m Module::Name]&amp;quot;,
+            &amp;quot;val&amp;quot;: &amp;quot;Module source code&amp;quot;
+        },
+        {
+            &amp;quot;key&amp;quot;: &amp;quot;[-lm Module::Name]&amp;quot;,
+            &amp;quot;val&amp;quot;: &amp;quot;Module filepath (alt.)&amp;quot;
+        }
+        ],
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&amp;ldquo;Module Options&amp;rdquo; is the section name, this must be present exactly in the &lt;code&gt;section_order&lt;/code&gt; field, or this section will not appear at all. The section name text is the subheading used for the section, so be sure to choose something readable: &amp;ldquo;Module Options&amp;rdquo; is better than &amp;ldquo;module_options&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Each key pair entry represents the text to be displayed for the instant answer, the &lt;code&gt;key&lt;/code&gt; text should be the code and &lt;code&gt;val&lt;/code&gt; the description. If the &lt;code&gt;key&lt;/code&gt; text contains spaces, wrap the text in square brackets to ensure it&amp;rsquo;s displayed as code on the web page (see this article&amp;rsquo;s cover image for examples). You can find the complete perldoc JSON file &lt;a href=&#34;https://github.com/duckduckgo/zeroclickinfo-goodies/blob/master/share/goodie/cheat_sheets/json/perldoc.json&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;wrap-up:06f8e3dfccc590daeee2c2b9ec28de7c&#34;&gt;Wrap up&lt;/h3&gt;
+
+&lt;p&gt;You can test your instant answer using &lt;a href=&#34;https://metacpan.org/pod/App::DuckPAN&#34;&gt;App::DuckPAN&lt;/a&gt; (see my previous &lt;a href=&#34;http://perltricks.com/article/169/2015/4/20/Writing-DuckDuckGo-instant-answers-is-easy&#34;&gt;article&lt;/a&gt; for examples). If you want to discuss your instant answer with a developer, or resolve an issue, the DuckDuckGo team are on Slack, you can request access via &lt;a href=&#34;mailto:QuackSlack@duckduckgo.com?subject=AddMe&#34;&gt;email&lt;/a&gt;. The official &lt;a href=&#34;https://duck.co/duckduckhack/goodie_overview&#34;&gt;documentation&lt;/a&gt; is also useful.&lt;/p&gt;
+
+&lt;p&gt;Once you&amp;rsquo;ve finished an instant answer, create a pull request! The DuckDuckGo developers will review your code and give feedback. Once your instant answer is approved, it will go live within a few days.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Updated:&lt;/strong&gt; Changed chat details for DDG slack 2015-08-26&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Miniconf NYC - a free Perl conference</title>
+      <link>http://perltricks.com/article/175/2015/5/14/Miniconf-NYC---a-free-Perl-conference/</link>
+      <pubDate>Thu, 14 May 2015 12:26:37 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/175/2015/5/14/Miniconf-NYC---a-free-Perl-conference/</guid>
+      <description>
+
+&lt;p&gt;Just when you thought there couldn&amp;rsquo;t be more NYC based Perl events, another comes along! I&amp;rsquo;m one of the organizers for &lt;a href=&#34;http://mini-conf.com&#34;&gt;Miniconf&lt;/a&gt; a free Perl conference that&amp;rsquo;s running here in New York on Saturday June 6th, two days day before YAPC::NA. There&amp;rsquo;s also a pre-conference social event, and you can sign up for both events on &lt;a href=&#34;http://www.meetup.com/The-New-York-Perl-Meetup-Group/http://www.meetup.com/The-New-York-Perl-Meetup-Group/&#34;&gt;meetup&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;what-to-expect:415b3af018660e6f37a6b2438056b75d&#34;&gt;What to expect&lt;/h3&gt;
+
+&lt;p&gt;We have two large rooms for the day, one for training and the other for the hackathon. Taking our cue from the recent NYC Perl hackathon, for our hackathon we&amp;rsquo;re going to cluster attendees around projects they&amp;rsquo;re interested in working on, and each project team will have a leader responsible for helping attendees get up to speed. I like this approach because it&amp;rsquo;s newbie friendly, and encourages a productive use of the time. We&amp;rsquo;ve got a few teams already:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Do you know Perl 5 and are interested in Perl 6? Then you might be interested joining my team which is converting Perl 5 modules to Perl 6.&lt;/li&gt;
+&lt;li&gt;Want to contribute to core Perl 5 development? Join the &amp;ldquo;Show core modules some love&amp;rdquo; team led by Richard Elberger and help close a few tickets.&lt;/li&gt;
+&lt;li&gt;Interested in Mojolicious web development? Help Curtis Brandt hack on &lt;a href=&#34;https://github.com/aggrolite/Mojo-Snoo&#34;&gt;Mojo::Snoo&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If you have a hackathon project you&amp;rsquo;d like to work on, &lt;a href=&#34;mailto:admin@mini-conf.com&#34;&gt;email us&lt;/a&gt; and we&amp;rsquo;ll add it to the &lt;a href=&#34;http://mini-conf.com&#34;&gt;website&lt;/a&gt;. Of course, solo hackers are welcome too :)&lt;/p&gt;
+
+&lt;p&gt;For training, in the morning we have brian d foy delivering his popular &amp;ldquo;Become a CPAN author in three hours&amp;rdquo; course. This is a great introductory course for aspiring CPAN contributors - learn how to create a Perl distribution, package it up and upload it to CPAN. Contributing to CPAN is one of the most fun and rewarding things a Perl developer can learn - once your distribution is on CPAN, &lt;strong&gt;anyone&lt;/strong&gt; can use it and benefit from it - how cool is that? It&amp;rsquo;s also interesting to get to know the Perl toolchain, and how systems like CPAN and PAUSE work. We currently have an afternoon training slot available.&lt;/p&gt;
+
+&lt;p&gt;We&amp;rsquo;re going to see the day out with lightning talks - always a fun affair. At the moment we&amp;rsquo;re thinking the project teams can give a lightning talk to describe their progress for the day, but it might make sense to just have a more general lightning talk slot - if you want to give a lightning talk, &lt;a href=&#34;mailto:admin@mini-conf.com&#34;&gt;email us&lt;/a&gt;. I&amp;rsquo;ll probably give a talk on one of my dumber &lt;a href=&#34;https://metacpan.org/pod/Cache::Reddit&#34;&gt;modules&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;how-to-help:415b3af018660e6f37a6b2438056b75d&#34;&gt;How to help&lt;/h3&gt;
+
+&lt;p&gt;Spread the word! We&amp;rsquo;re promoting the event through social media and other outlets (like this website, see the banner ad). Follow the Miniconf Twitter [feed]() - we&amp;rsquo;ll use it to communicate conference updates.&lt;/p&gt;
+
+&lt;p&gt;We&amp;rsquo;re also looking for sponsors, if you work for a company interested in reaching New York based programmers, give them our email address, or even better send them introductory email cc&amp;rsquo;ing &lt;code&gt;admin@mini-conf.com&lt;/code&gt;. With sponsors we&amp;rsquo;re trying something a little bit different, we have sponsorship slots for particular aspects of the conference. So an organization can be the &amp;ldquo;pizza and soda sponsor&amp;rdquo; to make a more visible link between a sponsor&amp;rsquo;s contribution and the benefits of the conference. Every sponsor gets their logo on the conference website, on the big screens during the conference, and promotion through social media. We&amp;rsquo;re also running a &amp;ldquo;swag&amp;rdquo; table for sponsors to contribute merchandise, an obvious win-win, as the sponsor gets brand promotion and the attendees get free stuff!&lt;/p&gt;
+
+&lt;p&gt;As a programmer and tech conference regular myself, I&amp;rsquo;m trying to create the kind of conference that I&amp;rsquo;d want to go to. If you have any questions or suggestions, &lt;a href=&#34;mailto:admin@mini-conf.com&#34;&gt;email us&lt;/a&gt;. I&amp;rsquo;m looking forward to seeing everyone there!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Script-fu: how to raise 641 request tracker tickets</title>
+      <link>http://perltricks.com/article/174/2015/5/12/Script-fu--how-to-raise-641-request-tracker-tickets/</link>
+      <pubDate>Tue, 12 May 2015 12:54:26 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/174/2015/5/12/Script-fu--how-to-raise-641-request-tracker-tickets/</guid>
+      <description>
+
+&lt;p&gt;I spent most of the NYC Perl Hackathon (thanks Bloomberg!) hacking on Perl 6 stuff. Led by Will &amp;ldquo;Coke&amp;rdquo; Coleda, one of the tasks for the group was to find skip/todo directives that were missing Request Tracker (RT) ticket numbers in the Perl 6 test suite.&lt;/p&gt;
+
+&lt;p&gt;A typical skip/todo directive looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#?rakudo todo &amp;quot;doesn&#39;t work yet due to copying of arrays&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This tells Rakudo to skip the following block of tests. For each skip/todo directive, a new RT ticket had to be raised and the ticket number added to the skip directive line in the test file, like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#?rakudo todo &amp;quot;doesn&#39;t work yet due to copying of arrays RT #99999&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This makes it easier for the Rakudo team to identify the remaining bugs or missing features in Rakudo.&lt;/p&gt;
+
+&lt;p&gt;I cloned the Perl 6 test suite, roast and after working through the workflow for reporting a single ticket, I wondered how many other skip/todo directives were missing RT tickets. To find out, I used a little &lt;code&gt;grep&lt;/code&gt; magic:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ grep -rlP &#39;#?rakudo.+?(?:skip|todo)(?:(?!RT).{2})+$&#39; ./ | wc -l
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This tells grep to recursively search for files in the current directory, and for each file, print the filename if the Perl-style regex matches the text in the file. The regex matches Rakudo skip/todo directives that didn&amp;rsquo;t already have an RT reference. The output of grep is then passed to &lt;code&gt;wc&lt;/code&gt; in order to count the number of files. Turns out there were 236 files affected, and this method didn&amp;rsquo;t even count the number of occurrences &lt;em&gt;within&lt;/em&gt; a file. Even if it took 5 minutes per file to raise the ticket on RT, update the file, commit the change and issue a pull request, that&amp;rsquo;s still 20 hours of work. It gets more complicated when you have to apportion that work between several people. At this point my spidey sense was tingling &amp;hellip; can you say &amp;ldquo;automation&amp;rdquo;?&lt;/p&gt;
+
+&lt;h3 id=&#34;using-a-machine-to-raise-rt-tickets-like-a-machine:8f3a1e2bb13193f3eb6c35713b20826f&#34;&gt;Using a machine to raise RT tickets &amp;ldquo;like a machine&amp;rdquo;&lt;/h3&gt;
+
+&lt;p&gt;I wrote a quick script to find all the skip/todo directives again, only this time I would capture the filename, line number and description:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+scan_directory(&#39;.&#39;);
+
+sub scan_directory
+{
+  my ($dir) = @_; 
+
+  opendir(my $dh, &amp;quot;$dir&amp;quot;) or die $!; 
+
+  while (readdir $dh)
+  {
+    my $newpath = &amp;quot;$dir/$_&amp;quot;;
+
+    next if $newpath !~ qr/^\.\/S/ || -l $newpath;
+
+    if (-d $newpath &amp;amp;&amp;amp; $newpath !~ /\.$/)
+    {   
+      scan_directory($newpath);
+    }   
+    elsif (-f $newpath)
+    {   
+      open my $file, &#39;&amp;lt;&#39;, $newpath or die &amp;quot;failed to open $newpath $!\n&amp;quot;;
+      my $line_num = 1;· 
+      while (&amp;lt;$file&amp;gt;)
+      {   
+        chomp;
+        if (/^#\?rakudo.+?(?:skip|todo)((?:(?!RT).)+)$/)
+        {
+          my $subject = sprintf &amp;quot;Roast rakudo skip/todo test:%s line:%s reason:%s&amp;quot;,
+            $newpath, $line_num, $1; 
+
+         $subject =~ s/&amp;quot;//g;
+
+          my $response = `rt create -t ticket set subject=&amp;quot;$subject&amp;quot; queue=perl6 priority=0`;
+          if ($response =~ /([0-9]+)/)
+          {
+            printf &amp;quot;%s RT#:%s\n&amp;quot;, $subject, $1; 
+          }
+          else
+          {
+            die &amp;quot;Failed to capture ticket # for $subject response: $response&amp;quot;;
+          }
+        }
+        $line_num++;
+      }   
+      close $file;
+    }   
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The script is fairly simple: it&amp;rsquo;s a recursive directory scanner that scans files for Rakudo skip/todo blocks. The script uses the following line of code with backticks to execute the &lt;code&gt;rt&lt;/code&gt; command line program, raise a ticket in the Perl 6 queue and captures the response:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $response = `rt create -t ticket set subject=&amp;quot;$subject&amp;quot; queue=perl6 priority=0`;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The script then extracts the RT ticket number from the &lt;code&gt;$response&lt;/code&gt;, and prints out a line containing the filename, line number, description and the RT ticket number. I saved this output in a separate file&lt;/p&gt;
+
+&lt;p&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;a-quick-note-on-configuring-rt-cli:8f3a1e2bb13193f3eb6c35713b20826f&#34;&gt;A quick note on configuring RT CLI&lt;/h3&gt;
+
+&lt;p&gt;Configuring and using the RT command line client is simple, but finding out how to do it can be a hard - most of the sources I looked at were out of date, and the RT CPAN &lt;a href=&#34;https://metacpan.org/search?q=RT&amp;amp;size=20&#34;&gt;namespace&lt;/a&gt; has so many burned-out carcasses that Mad Max would be comfortable there. To use the command line client, first install RT::Client::CLI:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan RT::Client::CLI
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then login to the RT Perl &lt;a href=&#34;http://rt.perl.org/&#34;&gt;website&lt;/a&gt; and go to user &lt;a href=&#34;https://rt.perl.org/User/Prefs.html&#34;&gt;preferences&lt;/a&gt; and set a CLI password. Finally, create the file &lt;code&gt;.rtrc&lt;/code&gt; in your home directory. This file should contain:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;server https://rt.perl.org/
+user rt_username
+passwd rt_cli_password
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Replace &lt;code&gt;rt_username&lt;/code&gt; with whatever name shows as the top of the RT screen under &amp;ldquo;logged in as&amp;rdquo;. For me it&amp;rsquo;s my email address. Also replace &lt;code&gt;rt_cli_password&lt;/code&gt; with the CLI password you just set. Alternatively instead of a config file, you can use the following environment variables: RTSERVER, RTUSER and RTPASSWD.&lt;/p&gt;
+
+&lt;p&gt;That&amp;rsquo;s it, RT is now configured! Try out some &lt;a href=&#34;http://requesttracker.wikia.com/wiki/CLI&#34;&gt;commands&lt;/a&gt;. &lt;a href=&#34;https://www.safaribooksonline.com/library/view/rt-essentials/0596006683/ch04.html&#34;&gt;Chapter 4&lt;/a&gt; from the RT Essentials book was also useful.&lt;/p&gt;
+
+&lt;h3 id=&#34;updating-roast:8f3a1e2bb13193f3eb6c35713b20826f&#34;&gt;Updating roast&lt;/h3&gt;
+
+&lt;p&gt;Now that I had the RT ticket numbers I needed to go back and add them to the skip/todo directives in the unit test files in roast. I scripted that too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+
+open my $tickets, &#39;&amp;lt;&#39;, &#39;./tickets&#39;;
+
+while (my $line = &amp;lt;$tickets&amp;gt;)
+{
+  chomp $line;
+  if (my ($filename, $line_num, $reason, $ticket_num) = $line =~ /:(.+?) .+?:(.+?) .+?:(.+?) .+?:(.+?)$/)
+  {
+    open my $file, &#39;&amp;lt;&#39;, $filename or die &amp;quot;failed to open $filename $!\n&amp;quot;;
+    my $counter = 1;
+    my @lines;
+    while (my $line = &amp;lt;$file&amp;gt;)
+    {   
+      if ($counter == $line_num)
+      {   
+        chomp $line;
+        $line =~ s/(&#39;|&amp;quot;)\s*$/ RT #$ticket_num$1\n/;
+      }   
+      push @lines, $line;
+      $counter++;
+    }   
+    close $file;
+
+    open my $output_file, &#39;&amp;gt;&#39;, $filename or die &amp;quot;failed to open $filename $!\n&amp;quot;;
+    for (@lines)
+    {   
+      print $output_file $_; 
+    }   
+    close $output_file;
+  }
+  else
+  {
+    die &amp;quot;failed to match $line!\n&amp;quot;;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This took a couple of attempts to get right. At first I thought I would try using &lt;code&gt;open&lt;/code&gt; with an awesome read/write filehandle using &lt;code&gt;+&amp;lt;&lt;/code&gt; but that turned out to be more trouble than it was worth. The other challenge was inserting the RT ticket number within the quoted string on the line, rather than outside of it. So this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#?rakudo todo &amp;quot;doesn&#39;t work yet due to copying of arrays&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Would become this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#?rakudo todo &amp;quot;doesn&#39;t work yet due to copying of arrays RT #124652&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The challenge here is that different descriptions use different delimiters to capture the description, either single or double quotes. In the script, this line handles that problem:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$line =~ s/(&#39;|&amp;quot;)\s*$/ RT #$ticket_num$1\n/;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;rsquo;s a substitution regex that captures the last quoting delimiter on the line, and replaces that with the RT ticket number plus the captured delimiter (&lt;code&gt;$1&lt;/code&gt;). It worked!&lt;/p&gt;
+
+&lt;h3 id=&#34;wrap-up:8f3a1e2bb13193f3eb6c35713b20826f&#34;&gt;Wrap up&lt;/h3&gt;
+
+&lt;p&gt;In the end I raised 641 tickets across 236 test files in roast, for about 2 hours of work. And most of that was spent trying to configure the RT command line client. One thing to keep in mind with raising hundreds of tickets is email notification. Luckily for me Robert Spier intercepted the mailsend (thanks Robert!), but it would be great if there was a way to avoid creating hundreds of notifications when raising tickets. If there&amp;rsquo;s a way, I&amp;rsquo;d love to know how.&lt;/p&gt;
+
+&lt;p&gt;Thanks to Will &amp;ldquo;Coke&amp;rdquo; Coleda, Tobias Leich (FROGGS) and Christian Bartolomäus (usev6) for reviewing the pull request and doing the work of merging it. If you&amp;rsquo;re interested in supporting Perl 6, the Rakudo team have a &lt;a href=&#34;http://rakudo.org/how-to-help/&#34;&gt;page&lt;/a&gt; explaining way to contribute. I&amp;rsquo;d also recommend looking at the Perl 6 community &lt;a href=&#34;http://perl6.org/community/&#34;&gt;page&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;If you&amp;rsquo;re based in New York or in the North-East of America, I&amp;rsquo;ll be at the &lt;a href=&#34;http://mini-conf.com&#34;&gt;Miniconf&lt;/a&gt; hackathon on June 6th, leading a team to convert Perl 5 modules to Perl 6. Hope to see everyone there!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Writing DuckDuckGo instant answers is easy</title>
+      <link>http://perltricks.com/article/169/2015/4/20/Writing-DuckDuckGo-instant-answers-is-easy/</link>
+      <pubDate>Mon, 20 Apr 2015 12:33:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/169/2015/4/20/Writing-DuckDuckGo-instant-answers-is-easy/</guid>
+      <description>
+
+&lt;p&gt;&lt;strong&gt;Editor note:&lt;/strong&gt; some of the information in this article is out of date, see our new DuckDuckGo &lt;a href=&#34;http://perltricks.com/article/189/2015/8/22/Writing-DuckDuckGo-plugins-just-got-easier&#34;&gt;article&lt;/a&gt; for details.&lt;/p&gt;
+
+&lt;p&gt;A few weeks ago, I attended NYC &lt;a href=&#34;http://duckduckgo.ticketleap.com/quackhacknyc/&#34;&gt;Quack &amp;amp; Hack&lt;/a&gt;, and learned how to write DuckDuckGo instant answers. Instant answers are really cool: they are micro apps that trigger when a user searches for specific terms. For example if you search for &lt;a href=&#34;https://duckduckgo.com/?q=help+tmux&amp;amp;ia=answer&#34;&gt;help tmux&lt;/a&gt;, you&amp;rsquo;ll see a tmux cheatsheet displayed. This is a awesome - you can commit code that will go live on DuckDuckGo.com and the good news is that you don&amp;rsquo;t have to wait until the next Quack &amp;amp; Hack to learn how to write one yourself; DuckDuckGo provide great tools that make it easy.&lt;/p&gt;
+
+&lt;h3 id=&#34;setting-up-the-development-environment:5671e5b11157d2de7fcf618736bb0dd9&#34;&gt;Setting up the development environment&lt;/h3&gt;
+
+&lt;p&gt;DuckDuckGo support several different types of instant answers, but today I&amp;rsquo;m going to focus on creating a cheatsheet, which is displayed by the search engine whenever a user searches for a matching set of keywords.&lt;/p&gt;
+
+&lt;p&gt;To get going you&amp;rsquo;ll need Perl 5.18 or higher and have installed &lt;a href=&#34;https://metacpan.org/pod/App::duckpan&#34;&gt;App::DuckPAN&lt;/a&gt;, which you can do with &lt;code&gt;cpan&lt;/code&gt; or &lt;code&gt;cpanminus&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan App::DuckPAN
+# or
+$ cpanm App::DuckPAN
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You&amp;rsquo;ll also need a local copy of DuckDuckGo&amp;rsquo;s goodies instant answers repo &lt;a href=&#34;https://github.com/duckduckgo/zeroclickinfo-goodies&#34;&gt;repo&lt;/a&gt;, which you can clone with Git:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ git clone https://github.com/duckduckgo/zeroclickinfo-goodies.git
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With both App::DuckPAN and the goodies repo installed, change into the zeroclickinfo-goodies repo, and launch the duckpan server:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cd zeroclickinfo-goodies
+$ duckpan server
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When you run &lt;code&gt;duckpan server&lt;/code&gt;, there will probably be a lot of output, but you should see this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Checking asset cache...
+Starting up webserver...
+You can stop the webserver with Ctrl-C
+HTTP::Server::PSGI: Accepting connections at http://0:5000/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you open your browser and navigate to &lt;code&gt;http://localhost:5000&lt;/code&gt;, you&amp;rsquo;ll be greeted with the DuckDuckGo search page (try &lt;code&gt;http://0:5000&lt;/code&gt; if localhost doesn&amp;rsquo;t work). Search for &amp;ldquo;help tmux&amp;rdquo; and you should see the same instant answer cheatsheet appear as on the live &lt;a href=&#34;https://duckduckgo.com/?q=help+tmux&amp;amp;ia=answer&#34;&gt;website&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;creating-the-instant-answer:5671e5b11157d2de7fcf618736bb0dd9&#34;&gt;Creating the instant answer&lt;/h3&gt;
+
+&lt;p&gt;So now you&amp;rsquo;ve got the development environment setup, you&amp;rsquo;re ready to create an instant answer. I&amp;rsquo;m going to create an instant answer for &lt;code&gt;perldoc&lt;/code&gt; (taken from my perldoc &lt;a href=&#34;#&#34;&gt;article&lt;/a&gt;). I can get a headstart on this by creating the skeleton instant answer code with &lt;code&gt;duckpan new&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ duckpan new PerldocCheatSheet
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This creates the basic files required for the instant answer:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Created file: lib/DDG/Goodie/PerldocCheatSheet.pm
+Created file: t/PerldocCheatSheet.t
+Successfully created Goodie: PerldocCheatSheet
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All of the logic for the instant answer is in &lt;code&gt;PerldocCheatSheet.pm&lt;/code&gt;, and &lt;code&gt;duckpan&lt;/code&gt; has already created a good skeleton:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package DDG::Goodie::PerldocCheatSheet;
+# ABSTRACT: Write an abstract here
+# Start at https://duck.co/duckduckhack/goodie_overview if you are new
+# to instant answer development
+
+use DDG::Goodie;
+
+zci answer_type =&amp;gt; &amp;quot;perldoc_cheat_sheeet&amp;quot;;
+zci is_cached   =&amp;gt; 1;
+
+# Metadata.  See https://duck.co/duckduckhack/metadata for help in filling out this section.
+name &amp;quot;PerldocCheatSheeet&amp;quot;;
+description &amp;quot;Succinct explanation of what this instant answer does&amp;quot;;
+primary_example_queries &amp;quot;first example query&amp;quot;, &amp;quot;second example query&amp;quot;;
+secondary_example_queries &amp;quot;optional -- demonstrate any additional triggers&amp;quot;;
+# Uncomment and complete: https://duck.co/duckduckhack/metadata#category
+# category &amp;quot;&amp;quot;;
+# Uncomment and complete: https://duck.co/duckduckhack/metadata#topics
+# topics &amp;quot;&amp;quot;;
+code_url &amp;quot;https://github.com/duckduckgo/zeroclickinfo-goodies/blob/master/lib/DDG/Goodie/PerldocCheatSheet.pm&amp;quot;;
+attribution github =&amp;gt; [&amp;quot;GitHubAccount&amp;quot;, &amp;quot;Friendly Name&amp;quot;],
+            twitter =&amp;gt; &amp;quot;twitterhandle&amp;quot;;
+
+# Triggers
+triggers any =&amp;gt; &amp;quot;triggerWord&amp;quot;, &amp;quot;trigger phrase&amp;quot;;
+
+# Handle statement
+handle remainder =&amp;gt; sub {
+
+    # optional - regex guard
+    # return unless qr/^\w+/;
+
+    return unless $_; # Guard against &amp;quot;no answer&amp;quot;
+
+    return $_;
+};
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ll fill in the answers for the abstract, &lt;a href=&#34;https://duck.co/duckduckhack/metadata&#34;&gt;metadata&lt;/a&gt; and &lt;a href=&#34;https://duck.co/duckduckhack/goodie_triggers&#34;&gt;triggers&lt;/a&gt;, and the &lt;code&gt;handle&lt;/code&gt; subroutine:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package DDG::Goodie::PerldocCheatSheet;
+# ABSTRACT: A cheat sheet for perldoc, the Perl documentation program
+
+use DDG::Goodie;
+
+zci answer_type =&amp;gt; &amp;quot;perldoc_cheat_sheet&amp;quot;;
+zci is_cached   =&amp;gt; 1;
+
+# Metadata
+name &amp;quot;PerldocCheatSheet&amp;quot;;
+source &amp;quot;http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster&amp;quot;;
+description &amp;quot;A cheat sheet for perldoc, the Perl documentation program&amp;quot;;
+primary_example_queries &amp;quot;help perldoc&amp;quot;, &amp;quot;perldoc cheatsheet&amp;quot;, &amp;quot;perldoc commands&amp;quot;, &amp;quot;perldoc ref&amp;quot;;
+category &amp;quot;programming&amp;quot;;
+topics qw/computing geek programming sysadmin/;
+code_url
+  &amp;quot;https://github.com/duckduckgo/zeroclickinfo-goodies/blob/master/lib/DDG/Goodie/PerldocCheatSheet.pm&amp;quot;;
+attribution github  =&amp;gt; [&amp;quot;dnmfarrell&amp;quot;, &amp;quot;David Farrell&amp;quot;],
+            twitter =&amp;gt; &amp;quot;perltricks&amp;quot;,
+            web     =&amp;gt; &#39;http://perltricks.com&#39;;
+
+# Triggers
+triggers startend =&amp;gt; (
+        &amp;quot;perldoc&amp;quot;,
+        &amp;quot;perldoc help&amp;quot;,
+        &amp;quot;help perldoc&amp;quot;,
+        &amp;quot;perldoc cheat sheet&amp;quot;,
+        &amp;quot;perldoc cheatsheet&amp;quot;,
+        &amp;quot;perldoc commands&amp;quot;,
+        &amp;quot;perldoc ref&amp;quot;);
+
+# Handle statement
+my $HTML = share(&amp;quot;perldoc_cheat_sheet.html&amp;quot;)-&amp;gt;slurp(iomode =&amp;gt; &#39;&amp;lt;:encoding(UTF-8)&#39;);
+my $TEXT= share(&amp;quot;perldoc_cheat_sheet.txt&amp;quot;)-&amp;gt;slurp(iomode =&amp;gt; &#39;&amp;lt;:encoding(UTF-8)&#39;);
+
+handle remainder =&amp;gt; sub {
+    return
+        heading =&amp;gt; &#39;Perldoc Cheat Sheet&#39;,
+        html    =&amp;gt; $HTML,
+        answer  =&amp;gt; $TEXT,
+};
+
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The handle subroutine will return a plain text and an HTML version of the cheat sheet to the user. The &lt;code&gt;share&lt;/code&gt; function loads static files from the &lt;code&gt;share/goodie/&lt;/code&gt; directory. These files should be created in the &lt;code&gt;share/goodie/perldoc_cheat_sheet/&lt;/code&gt; directory, and it is &lt;strong&gt;essential&lt;/strong&gt; that the filenames are lowercased versions of the instant answer name, separated by underscores. So &amp;ldquo;PerldocCheatSheet&amp;rdquo; becomes &amp;ldquo;perldoc_cheat_sheet&amp;rdquo;. You can view the files on &lt;a href=&#34;https://github.com/dnmfarrell/zeroclickinfo-goodies/tree/perldoc/share/goodie/perldoc_cheat_sheet&#34;&gt;GitHub&lt;/a&gt;. Note that the CSS file is not referenced directly by any code: it is automagically loaded by DuckDuckGo (this is why the directory and filename must be correct). I copied the CSS from the tmux &lt;a href=&#34;https://github.com/duckduckgo/zeroclickinfo-goodies/tree/master/share/goodie/tmux_cheat_sheet&#34;&gt;example&lt;/a&gt;, it provides two columns of text that will display side-by-side or wrap to a single column if the screen width is too narrow.&lt;/p&gt;
+
+&lt;h3 id=&#34;testing-the-instant-answer:5671e5b11157d2de7fcf618736bb0dd9&#34;&gt;Testing the instant answer&lt;/h3&gt;
+
+&lt;p&gt;The quickest way to test that the instant answer is working, is with the &lt;code&gt;duckpan query&lt;/code&gt; command. I can run it in the terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ duckpan query
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This launches an interactive command line program. I can enter one of the triggers for my perldoc instant answer, and see if the server responds as expected:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Query: perldoc ref
+  You entered: perldoc ref
+---
+DDG::ZeroClickInfo  {
+    Parents       WWW::DuckDuckGo::ZeroClickInfo
+    public methods (4) : DOES, has_structured_answer, new, structured_answer
+    private methods (0)
+    internals: {
+        answer        &amp;quot;perldoc [option]
+
+Module Options
+--------------
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Looking good! (I&amp;rsquo;ve cut the output as it&amp;rsquo;s verbose). The next thing I can try is a browser test using &lt;code&gt;duckpan server&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ duckpan server
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then I point my browser at &lt;code&gt;http://localhost:5000&lt;/code&gt;, and enter a trigger query for the instant answer. That works as well. Finally, I need to complete a unit test script for the instant answer. I&amp;rsquo;ve already got a skeleton test script which was created by &lt;code&gt;duckpan new&lt;/code&gt; at the start:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Test::More;
+use DDG::Test::Goodie;
+
+zci answer_type =&amp;gt; &amp;quot;perldoc_cheat_sheet&amp;quot;;
+zci is_cached   =&amp;gt; 1;
+
+ddg_goodie_test(
+    [qw( DDG::Goodie::PerldocCheatSheeet )],
+    # At a minimum, be sure to include tests for all:
+    # - primary_example_queries
+    # - secondary_example_queries
+    &#39;example query&#39; =&amp;gt; test_zci(&#39;query&#39;),
+    # Try to include some examples of queries on which it might
+    # appear that your answer will trigger, but does not.
+    &#39;bad example query&#39; =&amp;gt; undef,
+);
+
+done_testing;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ll update the test file, and add some comments:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Test::More;
+use DDG::Test::Goodie;
+
+zci answer_type =&amp;gt; &amp;quot;perldoc_cheat_sheet&amp;quot;;
+zci is_cached   =&amp;gt; 1;
+
+# all responses for this goodie are the same
+my @test_zci = (
+  # regex for the plain text response
+  qr/^perldoc \[option\].*Module Options.*Search Options.*Common Options.*Help.*$/s,
+  # check the heading
+  heading =&amp;gt; &#39;Perldoc Cheat Sheet&#39;,
+  # check the html pattern
+  html    =&amp;gt; qr#$#s,
+);  
+
+ddg_goodie_test(
+    # name of goodie to test
+    [&#39;DDG::Goodie::PerldocCheatSheet&#39;],
+
+    # At a minimum, be sure to include tests for all:
+    # - primary_example_queries
+    # - secondary_example_queries
+    &#39;help perldoc&#39;        =&amp;gt; test_zci(@test_zci),
+    &#39;help perldoc&#39;        =&amp;gt; test_zci(@test_zci),
+    &amp;quot;perldoc&amp;quot;             =&amp;gt; test_zci(@test_zci),
+    &amp;quot;perldoc help&amp;quot;        =&amp;gt; test_zci(@test_zci),
+    &amp;quot;help perldoc&amp;quot;        =&amp;gt; test_zci(@test_zci),
+    &amp;quot;perldoc cheat sheet&amp;quot; =&amp;gt; test_zci(@test_zci),
+    &amp;quot;perldoc cheatsheet&amp;quot;  =&amp;gt; test_zci(@test_zci),
+    &amp;quot;perldoc commands&amp;quot;    =&amp;gt; test_zci(@test_zci),
+
+    # Try to include some examples of queries on which it might
+    # appear that your answer will trigger, but does not.
+    &#39;perl doc help&#39;     =&amp;gt; undef,
+    &#39;perl documentaton&#39; =&amp;gt; undef,
+    &#39;perl faq&#39;          =&amp;gt; undef,
+    &#39;perl help&#39;         =&amp;gt; undef,
+);
+
+done_testing;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Most of this is easy to follow; but there are a few gotchas; &lt;code&gt;@test_zci&lt;/code&gt; is a variable that stores the expected output from a successful trigger of the instant answer. It&amp;rsquo;s a bit of a hack: its passed to the &lt;code&gt;test_zci()&lt;/code&gt; function which expects a scalar which matches the plain text response, followed by 2 key/pairs, one for the heading and one for the HTML response (see the &lt;a href=&#34;https://duck.co/duckduckhack/test_files&#34;&gt;docs&lt;/a&gt; for more detail). I can run this script at the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ prove -I t/PerldocCheatSheet.t
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;t/PerldocCheatSheet.t .. ok    
+All tests successful.
+Files=1, Tests=12,  0 wallclock secs ( 0.02 usr  0.00 sys +  0.17 cusr  0.01 csys =  0.20 CPU)
+Result: PASS
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;All the tests pass, so I&amp;rsquo;m ready to issue a pull request to the DuckDuckGo community!&lt;/p&gt;
+
+&lt;h3 id=&#34;where-to-go-for-help:5671e5b11157d2de7fcf618736bb0dd9&#34;&gt;Where to go for help&lt;/h3&gt;
+
+&lt;p&gt;Whilst the DuckDuckGo tools are great, there is also good &lt;a href=&#34;http://duckduckhack.com/&#34;&gt;documentation&lt;/a&gt; available and a friendly community supporting development when you need it. I spent some time on the Gitter &lt;a href=&#34;https://gitter.im/duckduckgo/zeroclickinfo-goodies?utm_source=badge&amp;amp;utm_medium=badge&amp;amp;utm_campaign=pr-badge&amp;amp;utm_content=badge&#34;&gt;chatroom&lt;/a&gt; for the instant answers repo, and the people there were friendly and responsive (and more importantly, they have commit bits :).&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>3 Awesome Perl Events in NYC this Spring/Summer</title>
+      <link>http://perltricks.com/article/166/2015/3/31/3-Awesome-Perl-Events-in-NYC-this-Spring-Summer/</link>
+      <pubDate>Tue, 31 Mar 2015 13:25:56 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/166/2015/3/31/3-Awesome-Perl-Events-in-NYC-this-Spring-Summer/</guid>
+      <description>
+
+&lt;p&gt;Something great is happening in NYC; there are 3 special Perl events happening in the next 3 months!&lt;/p&gt;
+
+&lt;h3 id=&#34;quack-hack-nyc-april-4-sup-th-sup:cdae2c53f83b5213c5cd28d928e6c370&#34;&gt;Quack &amp;amp; Hack NYC, April 4&lt;sup&gt;th&lt;/sup&gt;&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://duckduckgo.com/&#34;&gt;DuckDuckGo&lt;/a&gt; are a privacy-focused search engine with a large Perl codebase and they&amp;rsquo;re hosting the first ever &lt;a href=&#34;http://duckduckgo.ticketleap.com/quackhacknyc/details&#34;&gt;NYC Quack &amp;amp; Hack&lt;/a&gt; at &lt;a href=&#34;https://www.google.com/maps/place/500+7th+Ave,+New+York,+NY+10018/@40.7531589,-73.9893598,17z/data=!3m1!4b1!4m2!3m1!1s0x89c259ac7b941903:0xcb0a4d6a0e42963e?hl=en&#34;&gt;AlleyNYC&lt;/a&gt;. The focus of the event is creating cheatsheets to support DuckDuckGo help, which seems like a great way to encourage first-time contributors. With free food, drinks and merchandise, and an opportunity to meet new people, this looks like a lot of fun.&lt;/p&gt;
+
+&lt;h3 id=&#34;nyc-perl-hackathon-may-2-sup-nd-sup:cdae2c53f83b5213c5cd28d928e6c370&#34;&gt;NYC Perl Hackathon, May 2&lt;sup&gt;nd&lt;/sup&gt;&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://github.com/nyperlmongers/nyperlhackathon2015/wiki&#34;&gt;NYC Perl Hackathon&lt;/a&gt; is back! It&amp;rsquo;s a day-long hackathon, hosted at &lt;a href=&#34;https://www.google.com/maps/search/Bloomberg+Tower+731+Lexington+Ave+New+York,+NY+10022/@40.7615894,-73.9676297,17z/data=!3m1!4b1?hl=en&#34;&gt;Bloomberg&lt;/a&gt;. The organizers have produced some useful guides on how to &lt;a href=&#34;https://github.com/nyperlmongers/nyperlhackathon2015/wiki/Getting-Ready-for-the-Hackathon&#34;&gt;prepare&lt;/a&gt; and what &lt;a href=&#34;https://github.com/nyperlmongers/nyperlhackathon2015/wiki/Projects&#34;&gt;projects&lt;/a&gt; are available to hack on. Details can also be found on the New York Perl Mongers&amp;rsquo; &lt;a href=&#34;http://www.meetup.com/The-New-York-Perl-Meetup-Group/events/221319780/&#34;&gt;meetup&lt;/a&gt; page. The hackathon also have several sponsorship &lt;a href=&#34;https://github.com/nyperlmongers/nyperlhackathon2015/wiki/Sponsorship-Opportunities&#34;&gt;options&lt;/a&gt; for organizations looking to support Perl and promote their brand.&lt;/p&gt;
+
+&lt;h3 id=&#34;mojoconf-june-4-sup-th-sup-6-sup-th-sup:cdae2c53f83b5213c5cd28d928e6c370&#34;&gt;Mojoconf, June 4&lt;sup&gt;th&lt;/sup&gt;-6&lt;sup&gt;th&lt;/sup&gt;&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.mojoconf.com/2015&#34;&gt;Mojoconf&lt;/a&gt; is a conference about &lt;a href=&#34;http://mojolicio.us/&#34;&gt;Mojolicious&lt;/a&gt;, the real-time web framework. Mojoconf consists of a day of training, a day of talks and a hackathon day. Almost the entire Mojo core dev &lt;a href=&#34;http://mojolicio.us/perldoc/Mojolicious#CORE-DEVELOPERS&#34;&gt;team&lt;/a&gt; will be there, including project founder Sebastian Riedel and Glen Hinkle, author of those wonderful &lt;a href=&#34;http://mojocasts.com/e1&#34;&gt;videos&lt;/a&gt;. You can still get an early-bird &lt;a href=&#34;https://www.mojoconf.com/2015/register&#34;&gt;discount&lt;/a&gt; for the talks and hackathon until April 10&lt;sup&gt;th&lt;/sup&gt;, so grab your ticket now!&lt;/p&gt;
+
+&lt;h3 id=&#34;other-stuff:cdae2c53f83b5213c5cd28d928e6c370&#34;&gt;Other stuff&lt;/h3&gt;
+
+&lt;p&gt;Not far from NYC, the &lt;a href=&#34;http://dcbpw.org/dcbpw2015/&#34;&gt;DC-Baltimore Perl workshop&lt;/a&gt; is running April 11&lt;sup&gt;th&lt;/sup&gt;-12&lt;sup&gt;th&lt;/sup&gt;, with a day of talks followed by a hackathon. For other events, a good list of global Perl events can be found on &lt;a href=&#34;http://perlweekly.com/events.html&#34;&gt;Perl Weekly&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m going to all 3 New York events, and looking forward to seeing everyone there. So come over and say hi! if you see me.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Why I Started Geekuni</title>
+      <link>http://perltricks.com/article/150/2015/2/18/Why-I-Started-Geekuni/</link>
+      <pubDate>Wed, 18 Feb 2015 13:46:33 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/150/2015/2/18/Why-I-Started-Geekuni/</guid>
+      <description>
+
+&lt;p&gt;&lt;a href=&#34;https://www.geekuni.com&#34;&gt;Geekuni&lt;/a&gt; is an online learning environment I created to help people learn Perl programming. Geekuni is different from many other online learning courses because the student&amp;rsquo;s work is evaluated by a Tutor-bot, giving them instant feedback. The focus is on learning by doing rather than theory.&lt;/p&gt;
+
+&lt;h3 id=&#34;background:49a25d35ef5a8b2e35e61e8950a03392&#34;&gt;Background&lt;/h3&gt;
+
+&lt;p&gt;Before becoming a Perl developer, I was an academic. I spent most of my time researching the &lt;a href=&#34;https://en.wikipedia.org/wiki/Travelling_salesman_problem&#34;&gt;Travelling Salesman Problem&lt;/a&gt; until one day I was assigned the job of teaching 350 first-year students the Unix command-line interface.&lt;/p&gt;
+
+&lt;p&gt;There was nothing especially difficult about the class; I provided a course sheet explaining the common Unix commands like &lt;code&gt;ls&lt;/code&gt; and &lt;code&gt;cat&lt;/code&gt;. The class had an exam at the end of the semester. The problem was that the failure rate was staggering. My students were spending most of their time writing Java on Windows so for many, my exam was their only use of Unix.&lt;/p&gt;
+
+&lt;p&gt;For the next semester I put together lots of student exercises to do and a little Perl script to automatically check the students&amp;rsquo; work. Whenever a student attempted an exercise, they&amp;rsquo;d run my script which would tell them whether they&amp;rsquo;d got it right, and if not they could try again until they passed. To my surprise, the students completed all of the exercises within the first three weeks and I had to beef-up the course material to keep them engaged. By the end of semester they were writing sophisticated shell scripts, executing processes and using programs like Sed and Awk. The course pass rate was over 90%.&lt;/p&gt;
+
+&lt;p&gt;After I left academia I worked as a Perl developer and started developing a more sophisticated Tutor-bot. My key insight was that students learn programming best by doing, and most of the evaluation and feedback process could be automated. Over time this project developed into Geekuni.&lt;/p&gt;
+
+&lt;h3 id=&#34;geekuni-s-technology-stack:49a25d35ef5a8b2e35e61e8950a03392&#34;&gt;Geekuni&amp;rsquo;s technology stack&lt;/h3&gt;
+
+&lt;p&gt;The public &lt;a href=&#34;https://geekuni.com&#34;&gt;site&lt;/a&gt; is a web application where users can view the course outlines and create an account. It&amp;rsquo;s based on &lt;a href=&#34;https://metacpan.org/pod/Starman&#34;&gt;Starman&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/Dancer2&#34;&gt;Dancer2&lt;/a&gt; . Templating is provided by the &lt;a href=&#34;https://metacpan.org/pod/Template::Toolkit&#34;&gt;Template::Toolkit&lt;/a&gt; integrated with &lt;a href=&#34;http://getbootstrap.com/&#34;&gt;Bootstrap&lt;/a&gt;. The application classes are written in &lt;a href=&#34;https://metacpan.org/pod/Moo&#34;&gt;Moo&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/DBIx::Class&#34;&gt;DBIx::Class&lt;/a&gt; provides the DB interface.&lt;/p&gt;
+
+&lt;p&gt;The course notes and exercises are hosted on &lt;a href=&#34;https://moodle.org/&#34;&gt;Moodle&lt;/a&gt;, probably the most established open source Learning Management System used in universities across the world. With help from one of Moodle&amp;rsquo;s core developers, Jamie Pratt, I put together plugins which help the student start an &lt;a href=&#34;http://aws.amazon.com/&#34;&gt;AWS&lt;/a&gt; instance to get feedback from the Tutor-bot.&lt;/p&gt;
+
+&lt;p&gt;Each student&amp;rsquo;s AWS instance is called an &amp;ldquo;eBox&amp;rdquo;. I manage them using &lt;a href=&#34;https://metacpan.org/pod/Net::Amazon::EC2&#34;&gt;Net::Amazon::EC2&lt;/a&gt;. The eBox integrates with the Moodle API to provide feedback on student submissions. It uses &lt;a href=&#34;https://metacpan.org/pod/PPI&#34;&gt;PPI&lt;/a&gt; to parse the student&amp;rsquo;s code, and then it traverses down a dependency &lt;a href=&#34;https://metacpan.org/pod/distribution/Graph/lib/Graph.pod&#34;&gt;Graph&lt;/a&gt; to identify the essence of any problem the student needs to resolve.&lt;/p&gt;
+
+&lt;h3 id=&#34;looking-forwards:49a25d35ef5a8b2e35e61e8950a03392&#34;&gt;Looking forwards&lt;/h3&gt;
+
+&lt;p&gt;My former employer NET-A-PORTER has used the course material from Geekuni for their internal Perl training courses. I&amp;rsquo;d love to help other organizations and individuals use Geekuni for their own training. Much of my current focus is on solving practical day-to-day issues - as an academic I used to study the Travelling Salesman Problem, and now I&amp;rsquo;m working the on the &amp;ldquo;Tutor-bot Scaling problem&amp;rdquo;!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Support the 2015 QA Hackathon</title>
+      <link>http://perltricks.com/article/147/2015/1/28/Support-the-2015-QA-Hackathon/</link>
+      <pubDate>Wed, 28 Jan 2015 14:23:41 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/147/2015/1/28/Support-the-2015-QA-Hackathon/</guid>
+      <description>&lt;p&gt;The Perl QA Hackathon is an annual event where the key authors of the Perl CPAN toolchain collaborate on the development of the next versions of tools. This year&amp;rsquo;s QA Hackathon is being held in Berlin, on April 16-19, and they&amp;rsquo;re looking for sponsors.&lt;/p&gt;
+
+&lt;p&gt;Neil Bowers has written a good &lt;a href=&#34;http://blogs.perl.org/users/neilb/2015/01/the-perl-qa-hackathon-2015.html&#34;&gt;summary&lt;/a&gt; of the QA Hackathon, so check it out if you haven&amp;rsquo;t already.&lt;/p&gt;
+
+&lt;p&gt;But I want to take a different tack, and focus on the tools we use everyday. For example I love &lt;a href=&#34;https://metacpan.org/&#34;&gt;MetaCPAN&lt;/a&gt;, it&amp;rsquo;s a sexier and more useful version of search.cpan.org. It&amp;rsquo;s open source, has a great API and provides &lt;a href=&#34;http://blogs.perl.org/users/olaf_alders/2014/03/metacpan-is-hiring.html&#34;&gt;Summer jobs&lt;/a&gt; for students. It also integrates &lt;a href=&#34;cpantesters.org&#34;&gt;CPAN Testers&lt;/a&gt; and the CPANTS kwalitee &lt;a href=&#34;cpants.cpanauthors.org/&#34;&gt;service&lt;/a&gt;, which improve the quality of CPAN modules. MetaCPAN was founded by &lt;a href=&#34;https://metacpan.org/author/OALDERS/&#34;&gt;Olaf Alders&lt;/a&gt; and he manages it to this day. But MetaCPAN wouldn&amp;rsquo;t work without PAUSE, which was &lt;a href=&#34;http://cpan.io/ref/history.html&#34;&gt;built&lt;/a&gt; by &lt;a href=&#34;https://metacpan.org/author/ANDK/&#34;&gt;Andreas König&lt;/a&gt;. Andreas also maintains the &lt;a href=&#34;https://metacpan.org/pod/CPAN&#34;&gt;CPAN&lt;/a&gt; client, so we can install modules from the command line. Guess what? Olaf and Andreas both go to the QA Hackathon.&lt;/p&gt;
+
+&lt;p&gt;In the cover photo you’ll see Rik Signes (Perl 5 pumpking and Dist::Zilla author), Kenichi Ishigaki (maintainer of CPANTS), Barbie (CPAN Testers), Olaf Alders (MetaCPAN), Graham Knop (key contributor to Moo, MetaCPAN), Ribasushi (DBIx::Class maintainer), and Jens Rehsack (List::MoreUtils, File::ShareDir). They’re not yakking, they’re hacking! Seven well-known Perl hackers from 6 different countries. It’s rare that they get a chance to sit round a table together and work together.&lt;/p&gt;
+
+&lt;p&gt;In fact, only key toolchain contributors are invited to the event to keep the number of attendees low and productivity high. Stuff happens, big problems get solved. The attendees usually write fun reports of the event (see for example exhibits &lt;a href=&#34;http://www.dagolden.com/index.php/2341/perl-qa-hackathon-2014-report/&#34;&gt;a&lt;/a&gt;, &lt;a href=&#34;http://rjbs.manxome.org/rubric/entry/2040&#34;&gt;b&lt;/a&gt; and &lt;a href=&#34;http://neilb.org/2014/03/17/qah2014.html&#34;&gt;c&lt;/a&gt;) and always come away fired up to do more toolchain development.&lt;/p&gt;
+
+&lt;p&gt;So if you work for a company that uses Perl or sponsors Perl events, consider asking them to support this year&amp;rsquo;s &lt;a href=&#34;http://act.qa-hackathon.org/qa2015/sponsors.html&#34;&gt;QA Hackathon&lt;/a&gt;. The event itself is free; sponsorship goes towards the supporting the travel and accommodation costs of attendees. The organizers are also accepting individual &lt;a href=&#34;http://act.qa-hackathon.org/qa2015/donate.html&#34;&gt;donations&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image © &lt;a href=&#34;http://www.dagolden.com/&#34;&gt;David Golden&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Introducing 3 new Perl Glyphs</title>
+      <link>http://perltricks.com/article/146/2015/1/23/Introducing-3-new-Perl-Glyphs/</link>
+      <pubDate>Fri, 23 Jan 2015 13:55:03 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/146/2015/1/23/Introducing-3-new-Perl-Glyphs/</guid>
+      <description>
+
+&lt;p&gt;Recently I changed our site&amp;rsquo;s menu links from bitmap images to glyphs. A glyph (or &amp;ldquo;font icon&amp;rdquo;) is an svg file which can be packaged in a font file. Glyphs hold several advantages over bitmaps as icons: they look smooth at any resolution, can be colored and aligned just like text, and usually occupy less disk space than a regular bitmap.&lt;/p&gt;
+
+&lt;p&gt;PerlTricks.com uses bootstrap, which comes with &lt;a href=&#34;http://getbootstrap.com/components/&#34;&gt;many&lt;/a&gt; stock glyphs, but alas! no Perl ones. Seeing as Perl culture has some pretty powerful iconography, it seemed high time the community had some ready-made glyphs to use. So over the holidays, I learned how to make svgs, and have created 3 new Perl glyphs to share.&lt;/p&gt;
+
+&lt;p&gt;First a couple of Perl 5 classics, colored:&lt;/p&gt;
+
+&lt;p&gt;image/svg+xml&lt;/p&gt;
+
+&lt;p&gt;image/svg+xml&lt;/p&gt;
+
+&lt;p&gt;And a black-and-white Camelia for Perl 6:&lt;/p&gt;
+
+&lt;p&gt;image/svg+xml&lt;/p&gt;
+
+&lt;p&gt;Of course, being svg you can color them however you like.&lt;/p&gt;
+
+&lt;h3 id=&#34;creating-font-icon-sets:365f506fd2ded6f68e2b691499a8484b&#34;&gt;Creating font icon sets&lt;/h3&gt;
+
+&lt;p&gt;These svg files are nice, but they&amp;rsquo;re easier to use in a font file. I like to use IcoMoon.io&amp;rsquo;s app for compiling font files. It&amp;rsquo;s free, simple and fast. To create your own font Perl icon set, first download the svg &lt;a href=&#34;https://github.com/dnmfarrell/Perl-Icons/tree/master/Icons&#34;&gt;files&lt;/a&gt; or clone the &lt;a href=&#34;https://github.com/dnmfarrell/Perl-Icons&#34;&gt;repo&lt;/a&gt;. Now point your browser at the IcoMoon.io app &lt;a href=&#34;http://icomoon.io/app&#34;&gt;page&lt;/a&gt;. Click the &amp;ldquo;import&amp;rdquo; button, and select the Perl svg files you downloaded.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://farm8.staticflickr.com/7543/16158980357_1b37c2a633.jpg&#34; alt=&#34;icomoon\_app&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;You should see the icons appear as an &amp;ldquo;untitled set&amp;rdquo;. Click each icon so that it is selected for inclusion in the font file.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://farm8.staticflickr.com/7567/15724931783_ff9a3cbf19.jpg&#34; alt=&#34;icomoon\_import&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Click the &amp;ldquo;Generate Font&amp;rdquo; button in the bottom-right corner of the screen. This will load the download font window. The window should show the 3 Perl glyph, and a unicode identifier for each glyph (like &amp;ldquo;e600&amp;rdquo; etc). Remember these unicode ids as you&amp;rsquo;ll need them to use the font icons.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://farm9.staticflickr.com/8660/16318921836_8ce352635b.jpg&#34; alt=&#34;icomoon\_download&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Finally, click the &amp;ldquo;download&amp;rdquo; button to download the fonts archive. Inside the archive you&amp;rsquo;ll find the font files in eot, ttf, woff and svg formats, along with examples of how to use them. The easiest way to test the icons is by opening &lt;code&gt;demo.html&lt;/code&gt; that comes with the IcoMoon fonts archive. Test out the glyphs by typing into the &amp;ldquo;Font Test Drive&amp;rdquo; editor. To type a glyph in HTML just type: &lt;code&gt;&lt;/code&gt; replacing &amp;ldquo;e600&amp;rdquo; with the unicode id of the glyph, for example:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://farm8.staticflickr.com/7494/16161405249_fc513e7389.jpg&#34; alt=&#34;icomoon\_demo\_html&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;When you go to use the fonts on the web, make sure you use the bulletproof @font-face &lt;a href=&#34;http://www.paulirish.com/2009/bulletproof-font-face-implementation-syntax/&#34;&gt;syntax&lt;/a&gt;. Another benefit of using IcoMoon.io&amp;rsquo;s app: the &lt;code&gt;style.css&lt;/code&gt; file in the archive includes the bulletproof syntax.&lt;/p&gt;
+
+&lt;p&gt;If you want lower-level access to font files, check out &lt;a href=&#34;http://sourceforge.net/projects/fontforge/&#34;&gt;FontForge&lt;/a&gt;. Using FontForge you can create or edit font files in a variety of formats. You can set the font metadata (creator, name etc), and specify the alignment of individual glyphs more precisely than with IcoMoon.io&amp;rsquo;s free app.&lt;/p&gt;
+
+&lt;h3 id=&#34;licensing:365f506fd2ded6f68e2b691499a8484b&#34;&gt;Licensing&lt;/h3&gt;
+
+&lt;p&gt;I&amp;rsquo;ve released these files under the FreeBSD license, but keep in mind that there may be additional restrictions on use, which is out of my hands. Check out the repo &lt;a href=&#34;https://github.com/dnmfarrell/Perl-Icons/blob/master/README.pod&#34;&gt;README&lt;/a&gt; for the specifics.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update&lt;/strong&gt; &lt;em&gt;I&amp;rsquo;ve added a fourth glyph to the repo, the Perl 5 Raptor! Thanks to Marcus Smith for the suggestion. 2015-01-23&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>The Whitespace in the Perl community</title>
+      <link>http://perltricks.com/article/141/2014/12/15/The-Whitespace-in-the-Perl-community/</link>
+      <pubDate>Mon, 15 Dec 2014 14:00:45 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/141/2014/12/15/The-Whitespace-in-the-Perl-community/</guid>
+      <description>
+
+&lt;p&gt;One night over pastrami sandwiches, David Farrell and I came up with the idea of &lt;em&gt;the whitespace in the Perl community&lt;/em&gt;. Between all the code, projects, user groups, and events we already enjoy, there&amp;rsquo;s much more that people who want to make names for themselves can do. The trick is picking what to do.&lt;/p&gt;
+
+&lt;p&gt;David started this website and wants to give people a place to publish their stories about Perl. He can promote it, readers can discover it once instead of finding new blogs, and authors don&amp;rsquo;t have to maintain their own site. Perl.com used to be such a site, and while it&amp;rsquo;s still around, it&amp;rsquo;s not active.&lt;/p&gt;
+
+&lt;p&gt;You probably know my own projects. I and a few others started Perl mongers when there were no Perl user groups. After &lt;em&gt;The Perl Journal&lt;/em&gt; finally gave up, I started &lt;em&gt;The Perl Review&lt;/em&gt; to take its place (and the print magazine lasted just as long). I&amp;rsquo;ve done many other things as well.&lt;/p&gt;
+
+&lt;p&gt;Both David and I looked for things that other people weren&amp;rsquo;t doing, and we both asked around to see who&amp;rsquo;s toes we might step on and to build support for our new thing.&lt;/p&gt;
+
+&lt;p&gt;We wanted to list things which other people might do if they were looking to make a name for themselves in the community. That&amp;rsquo;s different than mere participation. They need to make something that&amp;rsquo;s virtually synonymous with their names. That&amp;rsquo;s how they can build their résumés. Every project needs a spiritual center and chief motivator to keep things going.&lt;/p&gt;
+
+&lt;p&gt;I still remember Graham Barr demonstrating &lt;a href=&#34;http://search.cpan.org&#34;&gt;CPAN Search&lt;/a&gt; for me at a long ago Perl conference. It was groundbreaking; we didn&amp;rsquo;t have anything like that yet. Younger Perl programmers probably have never been without it and didn&amp;rsquo;t realize how big a leap it was from browsing directories.&lt;/p&gt;
+
+&lt;p&gt;Before JJ Allen set up &lt;a href=&#34;http://perldoc.perl.org&#34;&gt;perldoc.perl.org&lt;/a&gt;, Carlos Ramirez had &lt;a href=&#34;http://www.perldoc.com&#34;&gt;Perldoc.com&lt;/a&gt;. Before those sites, there were isolated ways to get the Perl docs in HTML, but Carlos somehow leapt ahead of all of them to create an integrated solution. Fortunately, JJ Allen took the idea further when Carlos disappeared.&lt;/p&gt;
+
+&lt;p&gt;Not every successful project is a completely new idea. Sometimes it&amp;rsquo;s an older idea done better. Gabor Szabo started &lt;a href=&#34;http://perlweekly.com&#34;&gt;Perl Weekly&lt;/a&gt; to curate the internet activity of the Perl community. He discovers what&amp;rsquo;s worth reading so the rest of the community doesn&amp;rsquo;t need to spend too much time away from &lt;a href=&#34;https://www.youtube.com/results?search_query=kitten+videos&#34;&gt;kitten videos&lt;/a&gt; and coding. Other people have tried the same thing, but Gabor&amp;rsquo;s advantage is his perseverance.&lt;/p&gt;
+
+&lt;p&gt;We did come up with a list of opportunities, but we&amp;rsquo;re not going to present it here. We thought of things that we&amp;rsquo;d like to do, but in my experience that&amp;rsquo;s not that helpful. Not only that, but the most successful ideas seem to be something that nobody had ever considered, including us. The next big ideas will be things that most people never imagined.&lt;/p&gt;
+
+&lt;p&gt;Instead, we talked about the process to come up with those ideas, which is the advice either of us tend to give out anyway. Along with that, we put together some advice on how you might make it work.&lt;/p&gt;
+
+&lt;h3 id=&#34;finding-opportunity:8518d03148399efeae5968329e94e564&#34;&gt;Finding opportunity&lt;/h3&gt;
+
+&lt;p&gt;Whitespace is any opportunity to add value. In that sense, there are two categories of whitespace:&lt;/p&gt;
+
+&lt;p&gt;The first is discovered through innovation; truly original ideas whose time has come. No one is doing it because no one has thought of it. These &amp;ldquo;gladwellian&amp;rdquo; opportunities can be highly valuable and often come from deep insight. They&amp;rsquo;re also exceedingly rare, such as the creation of CPAN. Every language has their own version of CPAN now.&lt;/p&gt;
+
+&lt;p&gt;The second kind is less appealing. These are the opportunities that exist because no one wants to do them. Typically the work required to exploit the opportunity will involve repetitive and manual tasks, such as maintaining documentation or shepherding modules that you didn&amp;rsquo;t write and don&amp;rsquo;t use. In Perl we hack through inconveniences all the time. Inconvenience is an annoyance or an afterthought. We &lt;code&gt;chomp&lt;/code&gt; it, &lt;code&gt;split&lt;/code&gt; on it, trim it and move on. But those inconveniences are opportunities, where (usually) no one is working. These kinds of opportunities can be just as valuable to the community and even so, are easy to find. Just look for the jobs that would benefit the community that no one is doing, and start doing them.&lt;/p&gt;
+
+&lt;p&gt;If you want big results, you can do either the boring or the hard work that no one else is doing.&lt;/p&gt;
+
+&lt;h3 id=&#34;just-do-it:8518d03148399efeae5968329e94e564&#34;&gt;Just do it&lt;/h3&gt;
+
+&lt;p&gt;We had a much easier time back in the day because we didn&amp;rsquo;t think anyone was in charge and there were fewer toes to step on. Now there are various organizations, such as &lt;a href=&#34;http://www.perlfoundation.org&#34;&gt;The Perl Foundation&lt;/a&gt;. People often ask me how to get TPF approval, but they don&amp;rsquo;t need it. They don&amp;rsquo;t need a grant, or a subhost on a particular domain, or many of the other things any organization might control.&lt;/p&gt;
+
+&lt;p&gt;This isn&amp;rsquo;t to say that you should ignore those who can help you; just don&amp;rsquo;t let them stop or delay you. Remember that they are all volunteers and are probably already giving the time that they have available.&lt;/p&gt;
+
+&lt;h3 id=&#34;planning-ahead:8518d03148399efeae5968329e94e564&#34;&gt;Planning ahead&lt;/h3&gt;
+
+&lt;p&gt;Your first step is to ensure that you&amp;rsquo;re doing something you&amp;rsquo;re going to want to do. It&amp;rsquo;s one thing to come up with an idea, but it&amp;rsquo;s another to want to work on it for months (or longer), most likely on your own until the community gets behind you.&lt;/p&gt;
+
+&lt;p&gt;To do this, you should talk to as many people as you can. Start with private or limited conversations with people you trust. Some people may tell you to just put it out there, but do a little research first. Don&amp;rsquo;t get discouraged by irrelevant details from people who weren&amp;rsquo;t going to use it and weren&amp;rsquo;t going to help.&lt;/p&gt;
+
+&lt;p&gt;Specifically, don&amp;rsquo;t design a database schema right away. I&amp;rsquo;ve long had a rule that lets me figure out which conference fever projects will fail within the month; they are the ones who start picking the technologies right away.&lt;/p&gt;
+
+&lt;p&gt;Figure out how you want it to work, and keep a particular audience in mind. Instead of pleasing everyone, which drags out your design and creates much more work, start simply so you can get something out there quickly.&lt;/p&gt;
+
+&lt;h3 id=&#34;sticking-to-it:8518d03148399efeae5968329e94e564&#34;&gt;Sticking to it&lt;/h3&gt;
+
+&lt;p&gt;Most ideas fail because their originators think that the idea is enough. People will see the merits instantly and volunteers will step in to do all the work. Fall into that trap and you may find yourself unmotivated and overworked because you are doing everything. For awhile, embrace the idea that you&amp;rsquo;re doing most of the work and look at help as gravy instead of the meat.&lt;/p&gt;
+
+&lt;h3 id=&#34;be-ready-to-give-it-up:8518d03148399efeae5968329e94e564&#34;&gt;Be ready to give it up&lt;/h3&gt;
+
+&lt;p&gt;Our last bit of advice seems contradictory to the rest. After you develop your great idea, be prepared to lose it. The idea may change from underneath you, or more motivated and enthusiastic volunteers may take it in another direction. Trying to stick to the original plan might drive everyone away.&lt;/p&gt;
+
+&lt;p&gt;Also be prepared to hand off major responsibilities to other people and to trust what they do with it even if it&amp;rsquo;s not the same thing that you would have done.&lt;/p&gt;
+
+&lt;h3 id=&#34;some-ideas-we-had:8518d03148399efeae5968329e94e564&#34;&gt;Some ideas we had&lt;/h3&gt;
+
+&lt;p&gt;You didn&amp;rsquo;t think we weren&amp;rsquo;t going to suggest anything, did you? We had a few ideas of things that we&amp;rsquo;d like to do but don&amp;rsquo;t have the time to do ourselves.&lt;/p&gt;
+
+&lt;p&gt;Perl is under-represented on Reddit, Twitter, and Facebook. There&amp;rsquo;s no person we can point to as the energy behind these efforts. Some of the same names that you see everywhere are present, but no one has planted their flag here. If you&amp;rsquo;re social media savvy, you could be the person to tend to Perl wherever you spend your time. The different sites have different purposes, each of which could highlight Perl in a different way and for a different purpose. You can create content or highlight the work of others.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://farm8.staticflickr.com/7159/6847365223_4b5bdabf97.jpg&#34; alt=&#34;Social Media Explained (with Donuts)&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.cpantesters.org&#34;&gt;CPAN Testers&lt;/a&gt; is a fantastic service, but have you ever wanted to re-create a bug report from CPAN Testers? Unless you have access to the specific operating system and Perl version, you may not be able to. Even once you get hold of a virtual machine, it may take several hours to install the Perl modules and C library dependencies required. We should have a collection of virtual machine images within easy reach that any Perl programmer can startup to launch, pre-loaded with every major Perl version and most stuff installed.&lt;/p&gt;
+
+&lt;p&gt;There could be a a &amp;ldquo;PDL Perl&amp;rdquo; distribution that would have all of the main &lt;a href=&#34;http://pdl.perl.org&#34;&gt;Perl Data Language&lt;/a&gt; libraries installed and the same for our major web frameworks and our OO frameworks. A Perl developer could then quickly spin up an instance of OpenBSD and run their Perl code against every installed Perl version using &lt;em&gt;perlbrew&lt;/em&gt;. This might happen with something like &lt;a href=&#34;https://www.virtualbox.org&#34;&gt;Virtual Box&lt;/a&gt; or &lt;a href=&#34;https://www.vagrantup.com&#34;&gt;Vagrant&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;This doesn&amp;rsquo;t be something you distribute. Free service hosting services like &lt;a href=&#34;https://www.digitalocean.com&#34;&gt;Digital Ocean&lt;/a&gt; allow users to share snapshots of virtual machines, but the end user would still have to pay a few cents to lease the virtual machine for a couple of hours. What this requires is someone to regularly maintain and refresh the snapshots, installing the latest Perl versions and keeping everything up to date. Similarly, someone could create and maintain a &lt;a href=&#34;http://blogs.perl.org/users/brian_d_foy/2012/02/the-perl-learning-environment.html&#34;&gt;Perl Learning Environment&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;final-thoughts:8518d03148399efeae5968329e94e564&#34;&gt;Final thoughts&lt;/h3&gt;
+
+&lt;p&gt;Our advice is simple. Find something that you want to spend time working on, get advice before you start, and plan on doing most of the work yourself. Once you get going, settle in for the long term. You don&amp;rsquo;t need anyone&amp;rsquo;s permission for any of this.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Celebrate CPAN day on August 16th</title>
+      <link>http://perltricks.com/article/109/2014/8/13/Celebrate-CPAN-day-on-August-16th/</link>
+      <pubDate>Wed, 13 Aug 2014 12:43:17 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/109/2014/8/13/Celebrate-CPAN-day-on-August-16th/</guid>
+      <description>
+
+&lt;p&gt;Back in 1995 CPAN was a visionary concept that propelled Perl to the height of its popularity during the dotcom boom. For the first time there was a single, integrated online system for Perl programmers to distribute software. Today CPAN continues to go from &lt;a href=&#34;http://neilb.org/cpan-report/&#34;&gt;strength to strength&lt;/a&gt; as Perl&amp;rsquo;s &amp;ldquo;killer feature&amp;rdquo;. CPAN Day is August the 16th - the day of the first ever upload to CPAN, and a fantastic opportunity to celebrate our wonderful tool and give back to the Perl community.&lt;/p&gt;
+
+&lt;h3 id=&#34;ways-to-celebrate:37fcf7f7809608d85d3fba77ced9a502&#34;&gt;Ways to celebrate&lt;/h3&gt;
+
+&lt;p&gt;The idea of CPAN Day was conceived by Philippe Bruhat from an IRC conversation with Neil Bowers. Since then, Neil has blogged daily about different ways to celebrate CPAN Day. Most of these ideas are Neil&amp;rsquo;s:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Help make history by releasing a new &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/07/the-ghost-of-cpan-days-past.html&#34;&gt;distribution&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Give your module good &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/07/give-your-modules-a-good-abstract.html&#34;&gt;extract&lt;/a&gt;, &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/craft-the-first-paragraph-of-your-description.html&#34;&gt;description&lt;/a&gt;, &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/07/give-your-modules-a-good-synopsis.html&#34;&gt;synopsis&lt;/a&gt; []() or &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/07/give-your-module-a-good-see-also-section.html&#34;&gt;see also&lt;/a&gt; section&lt;/li&gt;
+&lt;li&gt;Thank a &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/thank-a-cpan-author-on-cpan-day.html&#34;&gt;CPAN author&lt;/a&gt; or acknowledge a &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/acknowledge-your-contributors-on-cpan-day.html&#34;&gt;contributor&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Help keep Perl strong and donate to the &lt;a href=&#34;https://secure.donor.com/pf012/give&#34;&gt;Perl Foundation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Put your module on &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/put-your-cpan-distributions-on-github.html&#34;&gt;Github&lt;/a&gt; so other programmers can easily contribute&lt;/li&gt;
+&lt;li&gt;Classify your &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/classify-your-rt-tickets-on-cpan-day.html&#34;&gt;RT tickets&lt;/a&gt; or fix a &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/fix-a-bug-on-cpan-day.html&#34;&gt;bug&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;If you have a stable module, let others know and update the distribution version to 1.0&lt;/li&gt;
+&lt;li&gt;Check your &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/check-your-test-coverage-with-develcover.html&#34;&gt;test coverage&lt;/a&gt; with Devel::Cover&lt;/li&gt;
+&lt;li&gt;Make your module more portable by fixing your CPAN Testers &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/fix-your-cpan-testers-failures.html&#34;&gt;failures&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Increase your module&amp;rsquo;s &amp;ldquo;kwalitee&amp;rdquo; by improving your &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/get-cpants-clean-on-cpan-day.html&#34;&gt;CPANTS rating&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Maybe improve your module &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/dont-be-afraid-to-rename-your-module-dist.html&#34;&gt;name&lt;/a&gt; or remove the &lt;a href=&#34;http://blogs.perl.org/users/book/2014/08/curating-cpan-sometimes-mean-deleting-stuff.html&#34;&gt;module&lt;/a&gt; entirely&lt;/li&gt;
+&lt;li&gt;Write an article about your favourite CPAN module&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So there are loads of different ways to contribute! Earlier today I caught up with Neil Bowers and asked him if he had to pick one, which was the most important contribution. Neil said:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I would pick the see also section - it outlines other relevant modules, the pros and cons of each one and saves people time when first approaching a problem.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;For you self-interested module authors out there, Neil also explained that a good SEE ALSO section can make your own module more popular. This is because &lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; is built on elastic search and by listing other modules in the SEE ALSO, you ensure that your modules appear in the search results for those other modules.&lt;/p&gt;
+
+&lt;p&gt;So how will you celebrate CPAN Day? Even if you did just one of the above suggestions, you&amp;rsquo;d be supporting the community in some way. Apparently some of CPAN&amp;rsquo;s most prolific authors are planning large releases to CPAN. Diff records will be broken, commit history will be made. I&amp;rsquo;m planning to move my modules to GitHub and to thank an author. I can&amp;rsquo;t wait to see what everyone else does. The inaugural CPAN Day is August 16th 2014, let&amp;rsquo;s make it &lt;em&gt;our&lt;/em&gt; day!&lt;/p&gt;
+
+&lt;h3 id=&#34;thanks:37fcf7f7809608d85d3fba77ced9a502&#34;&gt;Thanks&lt;/h3&gt;
+
+&lt;p&gt;Thanks to Neil Bowers for contributing additional detail in support of this article.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Your users deserve better than Disqus</title>
+      <link>http://perltricks.com/article/104/2014/7/29/Your-users-deserve-better-than-Disqus/</link>
+      <pubDate>Tue, 29 Jul 2014 11:46:55 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/104/2014/7/29/Your-users-deserve-better-than-Disqus/</guid>
+      <description>
+
+&lt;p&gt;&lt;em&gt;Occasionally readers of this site will contact us to lament our lack of a commenting system. The message usually goes like this: &amp;ldquo;I love the site but I wish you had a comments section&amp;rdquo;. Some readers even recommend a solution: &amp;ldquo;you should get Disqus&amp;rdquo; they say. We are considering adding a comments system to PerlTricks.com, but it probably won&amp;rsquo;t be Disqus. This article explains why.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;what-is-disqus:bdbff862cb31afc7751485c089b5990f&#34;&gt;What is Disqus?&lt;/h3&gt;
+
+&lt;p&gt;Disqus is a third-party commenting system; you add some JavaScript code to your page and when a visitor&amp;rsquo;s browser loads the page, it runs the code which fetches the Disqus interface, and any existing comments from Disqus&amp;rsquo; servers. This makes Disqus easy to install and as such, Disqus is a popular commenting system (&amp;ldquo;used by over 3 million websites&amp;rdquo;).&lt;/p&gt;
+
+&lt;p&gt;Disqus solves a lot of problems for the site owner: it has a good spam filter, provides notifications, authentication, a management interface and it looks good. Some users like it too: Disqus notifies users when their comment is replied to for example. For these reasons, when many site owners are facing the prospect of developing their own solution, the ease of installing Disqus makes it a natural choice. Disqus developers seem to have anticipated the typical doubts; concerned about your comments being stored by a third party? No problem, you can download them at any time. For site owners with time or cost pressures, Disqus is a compelling pitch.&lt;/p&gt;
+
+&lt;h3 id=&#34;disqus-drawbacks:bdbff862cb31afc7751485c089b5990f&#34;&gt;Disqus&amp;rsquo; drawbacks&lt;/h3&gt;
+
+&lt;p&gt;Security is a concern. Disqus&amp;rsquo; popularity makes it an inviting target for hackers as a repeatable exploit will be effective against potentially millions of websites. Exploits for Disqus are regularly discovered, just last &lt;a href=&#34;http://thehackernews.com/2014/06/Disqus-wordpress-plugin-flaw-leaves.html&#34;&gt;month&lt;/a&gt; a remote code execution exploit was found in the Wordpress Disqus plugin that left an estimated 1.4 million sites vulnerable. In December 2013, a &lt;a href=&#34;http://cornucopia-en.cornubot.se/2013/12/flash-disqus-cracked-security-flaw.html&#34;&gt;hack&lt;/a&gt; was published that allows a malicious user to obtain the email address of any Disqus user. As a site owner, you have a responsibility to treat your users well; yet a security hole in Disqus could lead to a hacker posting malicious code on your website, that attacks users as they visit the site (&lt;a href=&#34;https://en.wikipedia.org/wiki/Cross-site_scripting&#34;&gt;XSS attacks&lt;/a&gt;). Morality aside, who knows what the legal costs for the site owner could be if an attack was successful?&lt;/p&gt;
+
+&lt;p&gt;Disqus is basically a marketing company; they collect vast amounts of user data and sell advertising to third parties. Disqus tracks users across different websites - whether they are entering comments &lt;a href=&#34;http://en.wikipedia.org/wiki/Disqus#Criticism_.26_Privacy_Concerns&#34;&gt;or not&lt;/a&gt;. Once a user has entered a comment with Disqus, they can be tracked (&amp;ldquo;followed&amp;rdquo;) by any other Disqus user, and are not able to opt out. If this is starting to sound creepy to you, it&amp;rsquo;s because it is creepy. Disqus&amp;rsquo; &lt;a href=&#34;https://help.disqus.com/customer/portal/articles/466259-privacy-policy&#34;&gt;privacy policy&lt;/a&gt; for Personally Identifiable Information (PII) makes it clear that Disqus will disclose PII to third parties &amp;ldquo;for the purpose of providing the service to you&amp;rdquo; which sounds reasonable until you stop to question why Disqus would ever need to share PII with a third party. Meanwhile the non-PII that Disqus openly shares with third parties includes: browser cookie data, ip addresses, location and device identifiers. The issue here is that some third parties are so ubiquitous they are a third party to Disqus, but a first party to your users and as such non-PII quickly &lt;a href=&#34;http://cyberlaw.stanford.edu/node/6701&#34;&gt;becomes&lt;/a&gt; PII. You could argue that users of the site are free to block Disqus with tools like NoScript and Ghostery, which is true, but it also prevents the comments section from appearing for those users. What if they want to read the comments without being tracked?&lt;/p&gt;
+
+&lt;p&gt;Most of the features that Disqus provides are easily obtainable elsewhere; need to prevent XSS content? Use &lt;a href=&#34;https://metacpan.org/pod/HTML::Entities&#34;&gt;HTML::Entities&lt;/a&gt; to HTML encode all outgoing comment text. Want to prevent spam? Add a CAPTCHA for new users posting comments. Want a decent-looking comments section? Copy the Disqus style (ha-ha). The problem is that these features are not tied up in one neat package - a developer will have to assemble the disparate components into a solution. That&amp;rsquo;s called software development.&lt;/p&gt;
+
+&lt;p&gt;As a technologist, I see many parallels between Disqus and PHP; they&amp;rsquo;re both so easy to set up but deep-down you know that using them will cost you later. History &lt;a href=&#34;http://www.psychologytoday.com/blog/the-inertia-trap/201302/why-are-people-bad-evaluating-risks&#34;&gt;shows&lt;/a&gt; that humans consistently underestimate risk and in that regard, Disqus is no different. Site owners, don&amp;rsquo;t let the short-term convenience of Disqus get the better of you, your users deserve better. But what do you think? Let us know in the comments section below*.&lt;/p&gt;
+
+&lt;p&gt;*J/k let us know on &lt;a href=&#34;http://www.reddit.com/r/programming/comments/2c19of/your_users_deserve_better_than_disqus/&#34;&gt;Reddit&lt;/a&gt; or &lt;a href=&#34;https://twitter.com/PerlTricks&#34;&gt;Twitter&lt;/a&gt; instead.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+
