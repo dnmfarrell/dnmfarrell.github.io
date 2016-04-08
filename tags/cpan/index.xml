@@ -6,87 +6,8 @@
     <description>Recent content in Cpan on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 06 Apr 2016 09:12:09 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 09 Mar 2016 10:04:57 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/tags/cpan/index.xml" rel="self" type="application/rss+xml" />
-    
-    <item>
-      <title>What&#39;s new on CPAN - March 2016</title>
-      <link>http://perltricks.com/article/what-s-new-on-cpan---march-2016/</link>
-      <pubDate>Wed, 06 Apr 2016 09:12:09 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/what-s-new-on-cpan---march-2016/</guid>
-      <description>
-
-&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Everything old was new again in March. Apart from smatterings of cool new toys, CPAN got several new loggers, plugin loaders, templates, and configuration management tools.&lt;/p&gt;
-
-&lt;h3 id=&#34;apis-apps:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::Pushover&#34;&gt;Net::Pushover&lt;/a&gt; provides a Perly interface to Pushover, the message delivery service&lt;/li&gt;
-&lt;li&gt;Get a client for the TeamCity, the CI service with &lt;a href=&#34;https://metacpan.org/pod/WebService::TeamCity&#34;&gt;WebService::TeamCity&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Finance::Robinhood&#34;&gt;Finance::Robinhood&lt;/a&gt; allows you to trade stocks and ETFs with RobinHood, the free brokerage startup&lt;/li&gt;
-&lt;li&gt;Use the Let&amp;rsquo;s Encrypt certificate service with &lt;a href=&#34;https://metacpan.org/pod/WWW::LetsEncrypt&#34;&gt;WWW::LetsEncrypt&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WWW::PubNub&#34;&gt;WWW::PubNub&lt;/a&gt; provides an interface to PubNub, the streaming network service&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;config-devops:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Footprintless&#34;&gt;Footprintless&lt;/a&gt; is a configuration management program with minimal installations&lt;/li&gt;
-&lt;li&gt;Log to date/time-stamped files with &lt;a href=&#34;https://metacpan.org/pod/Log::File::Rolling&#34;&gt;Log::File::Rolling&lt;/a&gt;, a fork of Log::Dispatch::File::Rolling&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Logging::Simple&#34;&gt;Logging::Simple&lt;/a&gt; aims to be a minimalist but useful logging system&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Task::Viral&#34;&gt;Task::Viral&lt;/a&gt; is a Perl configuration and installation system, like Pinto, CPAN::Mini et al.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;data:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Data&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/AtteanX::Endpoint&#34;&gt;AtteanX::Endpoint&lt;/a&gt; is a SPARQL 1.1 endpoint for &lt;a href=&#34;https://metacpan.org/pod/Attean&#34;&gt;Attean&lt;/a&gt;, the semantic web framework&lt;/li&gt;
-&lt;li&gt;Print nice calendars at the terminal using &lt;a href=&#34;https://metacpan.org/pod/Calendar::Gregorian&#34;&gt;Calendar::Gregorian&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Data::Tubes&#34;&gt;Data::Tubes&lt;/a&gt; is a cute data transformation module; needs iterators!&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/JSON::Typist&#34;&gt;JSON::Typist&lt;/a&gt; aims to &amp;ldquo;replace mushy strings and numbers&amp;rdquo; with proper typed classes. Useful&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Template::Pure&#34;&gt;Template::Pure&lt;/a&gt; is a port of &lt;a href=&#34;http://beebole.com/pure/&#34;&gt;pure.js&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;development-version-control:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Extract a stack trace from an exception object with &lt;a href=&#34;https://metacpan.org/pod/Devel::StackTrace::Extract&#34;&gt;Devel::StackTrace::Extract&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::SmokeTests&#34;&gt;Dist::Zilla::Plugin::SmokeTests&lt;/a&gt; makes it easy to run smoke tests run automated environments only&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/MCE::Shared&#34;&gt;MCE::Shared&lt;/a&gt; is an extension for sharing threads and processes, also &lt;a href=&#34;https://metacpan.org/pod/MCE&#34;&gt;MCE&lt;/a&gt; is great&lt;/li&gt;
-&lt;li&gt;Load plugins from files or modules with &lt;a href=&#34;https://metacpan.org/pod/Plugin::Simple&#34;&gt;Plugin::Simple&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Test::Doctest&#34;&gt;Test::Doctest&lt;/a&gt; can extract and evaluate tests from pod fragments - curious&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;hardware:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Hardware&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Linux::IRPulses&#34;&gt;Linux::IRPulses&lt;/a&gt; Parse infra-red pulse data - also see Timm&amp;rsquo;s recent &lt;a href=&#34;http://localhost:1313/article/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/&#34;&gt;article&lt;/a&gt; on the subject&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;language-international:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Language &amp;amp; International&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Guess language from text using a word list with &lt;a href=&#34;https://metacpan.org/pod/Text::Guess::Language&#34;&gt;Text::Guess::Language&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Check if text is UTF8 compatible with &lt;a href=&#34;https://metacpan.org/pod/Unicode::CheckUTF8::PP&#34;&gt;Unicode::CheckUTF8::PP&lt;/a&gt; a pure Perl module&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/ecl&#34;&gt;ecl&lt;/a&gt; executes Embedded Common Lisp code within Perl&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;science-mathematics:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/EMDIS::ECS&#34;&gt;EMDIS::ECS&lt;/a&gt; provides useful subroutines for the European Marrow Donor Information System standard&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;web:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Web&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Get a simple local search engine for your Dancer app with &lt;a href=&#34;https://metacpan.org/pod/Dancer::SearchApp&#34;&gt;Dancer::SearchApp&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mojo::ACME&#34;&gt;Mojo::ACME&lt;/a&gt; use the Let&amp;rsquo;s Encrypt ACME API with your Mojo app&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Plack::Middleware::Pod&#34;&gt;Plack::Middleware::Pod&lt;/a&gt; can render POD files as HTML&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
     
     <item>
       <title>What is the Perl Core?</title>
@@ -449,248 +370,6 @@ $ perl -ne &#39;chomp;system &amp;quot;./find_binary $_&amp;quot;&#39; perl522_p
     </item>
     
     <item>
-      <title>What&#39;s new on CPAN - February 2016</title>
-      <link>http://perltricks.com/article/what-s-new-on-cpan---february-2016/</link>
-      <pubDate>Fri, 04 Mar 2016 09:21:32 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/what-s-new-on-cpan---february-2016/</guid>
-      <description>
-
-&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!&lt;/p&gt;
-
-&lt;h3 id=&#34;apis-apps:9cdca6c2ebff6e87c5498bacb548c29d&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/wp_tools&#34;&gt;App::WordPressTools&lt;/a&gt; provides tools to backup and upgrade WordPress installations.&lt;/li&gt;
-&lt;li&gt;Manage AMQP connections with &lt;a href=&#34;https://metacpan.org/pod/Net::AMQP::ConnectionMgr&#34;&gt;Net::AMQP::ConnectionMgr&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WebService::Walmart&#34;&gt;WebService::Walmart&lt;/a&gt; Interface to Walmart&amp;rsquo;s open API.&lt;/li&gt;
-&lt;li&gt;Get a Perly interface to the Microsoft Translator with &lt;a href=&#34;https://metacpan.org/pod/Lingua::Translator::Microsoft&#34;&gt;Lingua::Translator::Microsoft&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;Start interacting with Ticketmaster&amp;rsquo;s APIs using &lt;a href=&#34;https://metacpan.org/pod/Ticketmaster::API&#34;&gt;Ticketmaster::API&lt;/a&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;config-devops:9cdca6c2ebff6e87c5498bacb548c29d&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/CPAN::Mirror::Tiny&#34;&gt;CPAN::Mirror::Tiny&lt;/a&gt; can create local CPAN mirrors, with no XS dependencies.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Log::GELF::Util&#34;&gt;Log::GELF::Util&lt;/a&gt; provides utility functions for Graylog&amp;rsquo;s GELF format.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;data:9cdca6c2ebff6e87c5498bacb548c29d&#34;&gt;Data&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Stream data scattered across files by datetime using &lt;a href=&#34;https://metacpan.org/pod/CSV::HistoryPlayer&#34;&gt;CSV::HistoryPlayer&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/DBIx::Class::BatchUpdate&#34;&gt;DBIx::Class::BatchUpdate&lt;/a&gt; can update DBIx results in batches, minimizing the number of queries executed.&lt;/li&gt;
-&lt;li&gt;Run asynchronous queries on Postgres with AnyEvent and Promises with &lt;a href=&#34;https://metacpan.org/pod/DBIx::Poggy&#34;&gt;DBIx::Poggy&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/HTML::MyHTML&#34;&gt;HTML::MyHTML&lt;/a&gt; is a superfast, threaded, C based HTML parser.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Image::Similar&#34;&gt;Image::Similar&lt;/a&gt; measures how similar two images are.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Regexp::Parsertron&#34;&gt;Regexp::Parsertron&lt;/a&gt; parses Perl regular expressions into trees.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;development-version-control:9cdca6c2ebff6e87c5498bacb548c29d&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Export::Attrs&#34;&gt;Export::Attrs&lt;/a&gt; provides Perl 6&amp;rsquo;s &lt;code&gt;is export(...)&lt;/code&gt; trait as a Perl 5 attribute.&lt;/li&gt;
-&lt;li&gt;Get functions to compare Git::Version objects using &lt;a href=&#34;https://metacpan.org/pod/Git::Version::Compare&#34;&gt;Git::Version::Compare&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Parse::Diagnostics&#34;&gt;Parse::Diagnostics&lt;/a&gt; can extract diagnostic messages from Perl source code.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Perlmazing&#34;&gt;Perlmazing&lt;/a&gt; - a bundle of lazily-loaded helper functions based on Perlmazing::Engine.&lt;/li&gt;
-&lt;li&gt;GitHub inspired Perl module, run experiments with &lt;a href=&#34;https://metacpan.org/pod/Scientist&#34;&gt;Scientist&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;Want to test a module against every installed version of Perl? &lt;a href=&#34;https://metacpan.org/pod/Test::BrewBuild&#34;&gt;Test::BrewBuild&lt;/a&gt; builds on perlbrew/berrybrew to do that for Windows Unix-based systems.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Test::Mock::Time&#34;&gt;Test::Mock::Time&lt;/a&gt; create deterministic time &amp;amp; timers for testing. Particularly apt as February 29&lt;sup&gt;th&lt;/sup&gt; just passed.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Test2::AsyncSubtest&#34;&gt;Test2::AsyncSubtest&lt;/a&gt; execute subtests asynchronously.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;science-mathematics:9cdca6c2ebff6e87c5498bacb548c29d&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Astro::Constants&#34;&gt;Astro::Constants&lt;/a&gt; a collection of Astronomy constants.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Compress::Huffman&#34;&gt;Compress::Huffman&lt;/a&gt; can huffman-encode a symbol table.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Music::Voss&#34;&gt;Music::Voss&lt;/a&gt; provides functions for fractal noise generation.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;web:9cdca6c2ebff6e87c5498bacb548c29d&#34;&gt;Web&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Remotely control Google Chrome from Perl with &lt;a href=&#34;https://metacpan.org/pod/AnyEvent::Chromi&#34;&gt;AnyEvent::Chromi&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;Get an alternative syntax for describing Catalyst routes with &lt;a href=&#34;https://metacpan.org/pod/Catalyst::ControllerRole::At&#34;&gt;Catalyst::ControllerRole::At&lt;/a&gt;. This is big.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Getopt::Long::CGI&#34;&gt;Getopt::Long::CGI&lt;/a&gt; is a cool idea: execute CGI scripts just like passing arguments to a command line program.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Time::Progress::Stored&#34;&gt;Time::Progress::Stored&lt;/a&gt; is a progress bar implementation with an web apps.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>What&#39;s new on CPAN - January 2016</title>
-      <link>http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/</link>
-      <pubDate>Wed, 10 Feb 2016 15:02:35 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/213/2016/2/10/What-s-new-on-CPAN---January-2015/</guid>
-      <description>
-
-&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;N.B.&lt;/strong&gt; Last year&amp;rsquo;s &amp;ldquo;module of the month&amp;rdquo; experiment has come to an end. I think there are better ways to promote Perl modules and developers (see &lt;a href=&#34;http://cpan-weekly.org/&#34;&gt;CPAN Weekly&lt;/a&gt; for example).&lt;/p&gt;
-
-&lt;h3 id=&#34;apis-apps:fde3d04cece11f5529378539b125e845&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Convert CPAN distributions into RPM packages with the newly-repackaged &lt;a href=&#34;https://metacpan.org/pod/App::CPANtoRPM&#34;&gt;App::CPANtoRPM&lt;/a&gt;!&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::Inspect&#34;&gt;App::Inspect&lt;/a&gt; helps you easily find the versions and locations of installed modules&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::tt&#34;&gt;App::tt&lt;/a&gt; is a command line time tracking app&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::Duo&#34;&gt;Net::Duo&lt;/a&gt; provides a Perl API for the popular multifactor authentication service&lt;/li&gt;
-&lt;li&gt;Read articles from two popular sources at the command line: &lt;a href=&#34;https://metacpan.org/pod/App::tldr&#34;&gt;App::tldr&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/WebService::TDWTF&#34;&gt;WebService::TDWTF&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;config-devops:fde3d04cece11f5529378539b125e845&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Conveniently find local outdated modules and for CPAN:&lt;a href=&#34;https://metacpan.org/pod/CPAN::Diff&#34;&gt;CPAN::Diff&lt;/a&gt; and Pinto: &lt;a href=&#34;https://metacpan.org/pod/DarkPAN::Compare&#34;&gt;DarkPAN::Compare&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Dispatch log events to Slack with log4perl and &lt;a href=&#34;https://metacpan.org/pod/Log::Dispatch::Slack&#34;&gt;Log::Dispatch::Slack&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;data:fde3d04cece11f5529378539b125e845&#34;&gt;Data&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Useful for low-level network tasks, &lt;a href=&#34;https://metacpan.org/pod/Net::Frame::Layer::VRRP&#34;&gt;Net::Frame::Layer::VRRP&lt;/a&gt; provides a Virtual Router Redundancy Protocol class&lt;/li&gt;
-&lt;li&gt;A simple way to get a high-resolution Unix epoch: &lt;a href=&#34;https://metacpan.org/pod/Time::TAI::Simple&#34;&gt;Time::TAI::Simple&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Types::SQL&#34;&gt;Types::SQL&lt;/a&gt; is library of SQL types; useful for Moo/Moose/Mouse classes&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;development-version-control:fde3d04cece11f5529378539b125e845&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Interesting; call functions / methods from a different caller with &lt;a href=&#34;https://metacpan.org/pod/Call::From&#34;&gt;Call::From&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Export::Declare&#34;&gt;Export::Declare&lt;/a&gt; provides simple and clean ways to export code and variables.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Importer&#34;&gt;Importer&lt;/a&gt; provides convenient routines for importing (and renaming!) code from modules&lt;/li&gt;
-&lt;li&gt;Easily test non-blocking Perl scripts (like Mojo apps) with &lt;a href=&#34;https://metacpan.org/pod/Test::Script::Async&#34;&gt;Test::Script::Async&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Test2::Workflow&#34;&gt;Test2::Workflow&lt;/a&gt; is a framework for building testing workflows (e.g. &lt;a href=&#34;https://metacpan.org/pod/Test2::Tools::Spec&#34;&gt;Test2::Tools::Spec&lt;/a&gt;)&lt;/li&gt;
-&lt;li&gt;Make scalars which execute a subroutine every time they&amp;rsquo;re accessed using &lt;a href=&#34;https://metacpan.org/pod/Tie::Scalar::Callback&#34;&gt;Tie::Scalar::Callback&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Run Visual Basic and JavaScript code via OLE with &lt;a href=&#34;https://metacpan.org/pod/Win32::VBScript&#34;&gt;Win32::VBScript&lt;/a&gt;. Fun!&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;hardware:fde3d04cece11f5529378539b125e845&#34;&gt;Hardware&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Paul Evans continues to deliver new hardware tools via &lt;a href=&#34;https://metacpan.org/pod/Device::Chip&#34;&gt;Device::Chip&lt;/a&gt;! Get a driver for the PCF8563 chip (&lt;a href=&#34;https://metacpan.org/pod/Device::Chip::PCF8563&#34;&gt;Device::Chip::PCF8563&lt;/a&gt;), and a driver for SD and MMC cards (&lt;a href=&#34;https://metacpan.org/pod/Device::Chip::SDCard&#34;&gt;Device::Chip::SDCard&lt;/a&gt;)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;other:fde3d04cece11f5529378539b125e845&#34;&gt;Other&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Poker::Eval&#34;&gt;Poker::Eval&lt;/a&gt; is a base class providing routines for Poker games including dealing, scoring and calculating expected win rates.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/URI::redis&#34;&gt;URI::redis&lt;/a&gt; provides a URI class specific to Redis URIs&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;science-mathematics:fde3d04cece11f5529378539b125e845&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Bio::HTS&#34;&gt;Bio::HTS&lt;/a&gt; is an early-stage Perl interface for htslib&lt;/li&gt;
-&lt;li&gt;Get cryptographically-secure and fast pseudo random number generators using &lt;a href=&#34;https://metacpan.org/pod/Crypt::DRBG&#34;&gt;Crypt::DRBG&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;web:fde3d04cece11f5529378539b125e845&#34;&gt;Web&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Create CGI (yes!) GitHub webhooks with&lt;a href=&#34;https://metacpan.org/pod/CGI::Github::Webhook&#34;&gt;CGI::Github::Webhook&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Curious: &lt;a href=&#34;https://metacpan.org/pod/Lemplate&#34;&gt;Lemplate&lt;/a&gt; compiles TT templates to standalone Lua modules for OpenResty&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>What&#39;s new on CPAN - December 2015</title>
-      <link>http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/</link>
-      <pubDate>Wed, 13 Jan 2016 15:31:05 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/209/2016/1/13/What-s-new-on-CPAN---December-2015/</guid>
-      <description>
-
-&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. December was a bumper month, full of exciting new stuff. Enjoy!&lt;/p&gt;
-
-&lt;h3 id=&#34;module-of-the-month:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Module of the month&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/Protocol::ACME&#34;&gt;Protocol::ACME&lt;/a&gt; is an alpha-stage implementation providing a perly interface to the &lt;a href=&#34;https://letsencrypt.readthedocs.org/en/latest/intro.html&#34;&gt;Let&amp;rsquo;s Encrypt&lt;/a&gt; ACME API. This lets you automate the business of fetching and validating Let&amp;rsquo;s Encrypt certificates, and any other certificate which is provided via the ACME protocol. If you build web applications with Mojolicious, you may also like &lt;a href=&#34;https://metacpan.org/pod/Toadfarm::Plugin::Letsencrypt&#34;&gt;Toadfarm::Plugin::Letsencrypt&lt;/a&gt;, a less ambitious module that provides Lets Encrypt domain verification.&lt;/p&gt;
-
-&lt;h3 id=&#34;apis-apps:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::Procapult&#34;&gt;App::Procapult&lt;/a&gt; is a process launcher / wrapper with a simple interface&lt;/li&gt;
-&lt;li&gt;Another process manager, &lt;a href=&#34;https://metacpan.org/pod/Schedule::LongSteps&#34;&gt;Schedule::LongSteps&lt;/a&gt; aims to manage long term processes over long periods of time.&lt;/li&gt;
-&lt;li&gt;Do you want to convert colored terminal output to HTML? Check out &lt;a href=&#34;https://metacpan.org/pod/App::Term2HTML&#34;&gt;App::Term2HTML&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Barracuda::Api&#34;&gt;Barracuda::Api&lt;/a&gt; provides a perly interface to Barracuda business IT services&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Google::reCAPTCHA&#34;&gt;Google::reCAPTCHA&lt;/a&gt; a lightweight implementation of Google&amp;rsquo;s reCAPTCHA service, also see (Captcha::reCAPTCHA::V2)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;config-devops:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Config::MethodProxy&#34;&gt;Config::MethodProxy&lt;/a&gt; integrates dynamic logic with static configuration.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Minion::Notifier&#34;&gt;Minion::Notifier&lt;/a&gt; notifies queue listeners when a Minion task has completed&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Queue::Priority&#34;&gt;Queue::Priority&lt;/a&gt; orders messages according to their priority, so the important stuff gets processed first&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/RBAC::Tiny&#34;&gt;RBAC::Tiny&lt;/a&gt; is a miniscule Role-Based Access Control implementation&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;data:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Data&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Get an Attean SPARQL store using &lt;a href=&#34;https://metacpan.org/pod/AtteanX::Store::SPARQL&#34;&gt;AtteanX::Store::SPARQL&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/DBIx::Class::ParameterizedJoinHack&#34;&gt;DBIx::Class::ParameterizedJoinHack&lt;/a&gt; provides relationship joins with dynamic logic&lt;/li&gt;
-&lt;li&gt;Cleanly get a locale-specific datetime duration string with &lt;a href=&#34;https://metacpan.org/pod/DateTime::Format::Human::Duration::Simple&#34;&gt;DateTime::Format::Human::Duration::Simple&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/JSON::Schema::AsType&#34;&gt;JSON::Schema::AsType&lt;/a&gt; generates Type::Tiny types out of JSON schemas, very nice! (I&amp;rsquo;m already using it).&lt;/li&gt;
-&lt;li&gt;Add cropmarks to existing PDFs for better printing using &lt;a href=&#34;https://metacpan.org/pod/PDF::Cropmarks&#34;&gt;PDF::Cropmarks&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;A Redis-like store implemented on Postgresql. Not &amp;ldquo;redisql&amp;rdquo; but &lt;a href=&#34;https://metacpan.org/pod/Postgredis&#34;&gt;Postgredis&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;development-version-control:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::CPAN::Search&#34;&gt;App::CPAN::Search&lt;/a&gt; provides a base class for and script for searching CPAN&lt;/li&gt;
-&lt;li&gt;Oooh look! A new Perl DBGp debugger: &lt;a href=&#34;https://metacpan.org/pod/Devel::Debug::DBGp&#34;&gt;Devel::Debug::DBGp&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Get a &amp;ldquo;quick and dirty&amp;rdquo; code coverage measurement with &lt;a href=&#34;https://metacpan.org/pod/Devel::QuickCover&#34;&gt;Devel::QuickCover&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Devel::SimpleProfiler&#34;&gt;Devel::SimpleProfiler&lt;/a&gt; makes it easy to profile subroutines.&lt;/li&gt;
-&lt;li&gt;Useful; include roles in serialization using &lt;a href=&#34;https://metacpan.org/pod/MooseX::Storage::Traits::WithRoles&#34;&gt;MooseX::Storage::Traits::WithRoles&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Readonly::Tiny&#34;&gt;Readonly::Tiny&lt;/a&gt; aims to provide &amp;ldquo;simple, correct, read only values&amp;rdquo;&lt;/li&gt;
-&lt;li&gt;Test UNIX sockets with &lt;a href=&#34;https://metacpan.org/pod/Test::UNIXSock&#34;&gt;Test::UNIXSock&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Test::Alien&#34;&gt;Test::Alien&lt;/a&gt; provides testing tools for Alien modules&lt;/li&gt;
-&lt;li&gt;Reliably test if some code uses &lt;code&gt;exec&lt;/code&gt; with &lt;a href=&#34;https://metacpan.org/pod/Test::Exec&#34;&gt;Test::Exec&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Dump anything into a single line of 80 characters or fewer with &lt;a href=&#34;https://metacpan.org/pod/Test::Stream::Plugin::Explain::Terse&#34;&gt;Test::Stream::Plugin::Explain::Terse&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;hardware:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Hardware&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;An implementation of the Modbus communications protocol, &lt;a href=&#34;https://metacpan.org/pod/Device::Modbus&#34;&gt;Device::Modbus&lt;/a&gt; provides a base for developing Modbus clients and servers&lt;/li&gt;
-&lt;li&gt;Similarly, &lt;a href=&#34;https://metacpan.org/pod/ZWave::Protocol&#34;&gt;ZWave::Protocol&lt;/a&gt; provides helpers for the Z-Wave communication protocol&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;language-international:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Language &amp;amp; International&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Split identifiers into words with &lt;a href=&#34;https://metacpan.org/pod/Lingua::IdSplitter&#34;&gt;Lingua::IdSplitter&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Protocol::IRC&#34;&gt;Protocol::IRC&lt;/a&gt; a base class for IRC protocol handling&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Text::Frundis&#34;&gt;Text::Frundis&lt;/a&gt; an object oriented interface for the &lt;a href=&#34;http://bardinflor.perso.aquilenet.fr/frundis/intro-en&#34;&gt;frundis&lt;/a&gt; markup language&lt;/li&gt;
-&lt;li&gt;Get a Perl FFI interface to the Hunspell library using &lt;a href=&#34;https://metacpan.org/pod/Text::Hunspell::FFI&#34;&gt;Text::Hunspell::FFI&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Text::Table::Any&#34;&gt;Text::Table::Any&lt;/a&gt; generates beautiful text tables using many different backends/li&amp;gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Ufal::Parsito&#34;&gt;Ufal::Parsito&lt;/a&gt; provides bindings to the &lt;a href=&#34;http://ufal.mff.cuni.cz/parsito&#34;&gt;Parsito&lt;/a&gt; library&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;science-mathematics:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Get a perly interface to the HTS library for DNA sequencing using &lt;a href=&#34;https://metacpan.org/pod/Bio::DB::HTS&#34;&gt;Bio::DB::HTS&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Graph::Dijkstra&#34;&gt;Graph::Dijkstra&lt;/a&gt; provides Dijkstra&amp;rsquo;s shortest path algorithm and additional helper methods&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;web:5fb0546749a7edbf85b72c1cf934a2cd&#34;&gt;Web&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Great idea: use the popular HTTP::Tiny user agent with limited download/upload speed using &lt;a href=&#34;https://metacpan.org/pod/HTTP::Tiny::Bandwidth&#34;&gt;HTTP::Tiny::Bandwidth&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Dancer::Plugin::Swagger&#34;&gt;Dancer::Plugin::Swagger&lt;/a&gt; creates Swagger documentation of the Dancer app&amp;rsquo;s REST interface. Nice!&lt;/li&gt;
-&lt;li&gt;Another wrapper for wget / curl: &lt;a href=&#34;https://metacpan.org/pod/HTTP::Command::Wrapper&#34;&gt;HTTP::Command::Wrapper&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Modern Perl 4th edition, a review</title>
       <link>http://perltricks.com/article/205/2015/12/21/Modern-Perl-4th-edition--a-review/</link>
       <pubDate>Mon, 21 Dec 2015 00:02:25 +0000</pubDate>
@@ -886,97 +565,6 @@ location = root
     </item>
     
     <item>
-      <title>What&#39;s new on CPAN - November 2015</title>
-      <link>http://perltricks.com/article/202/2015/12/8/What-s-new-on-CPAN---November-2015/</link>
-      <pubDate>Tue, 08 Dec 2015 04:34:15 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/202/2015/12/8/What-s-new-on-CPAN---November-2015/</guid>
-      <description>
-
-&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!&lt;/p&gt;
-
-&lt;h3 id=&#34;apis-apps:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::Highlander&#34;&gt;App::Highlander&lt;/a&gt; can provides simple named locks. Useful!&lt;/li&gt;
-&lt;li&gt;Pick one or more random lines from input using &lt;a href=&#34;https://metacpan.org/pod/App::PickRandomLines&#34;&gt;App::PickRandomLines&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;A &amp;ldquo;Random Access Machine&amp;rdquo; Emulator: &lt;a href=&#34;https://metacpan.org/pod/Language::RAM&#34;&gt;Language::RAM&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Sync data across multiple regions with &lt;a href=&#34;https://metacpan.org/pod/Net::Amazon::DynamoDB::HighlyAvailable&#34;&gt;Net::Amazon::DynamoDB::HighlyAvailable&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::Amazon::DynamoDB::Table&#34;&gt;Net::Amazon::DynamoDB::Table&lt;/a&gt; provides a high-level interface to Net::Amazon::DyamoDB::Lite&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WWW::KeenIO&#34;&gt;WWW::KeenIO&lt;/a&gt; provides a Perl API for the event storage and analytics service&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WWW::Saucelabs&#34;&gt;WWW::Saucelabs&lt;/a&gt; is a &amp;ldquo;perilously incomplete&amp;rdquo;, yet useful, Perly interface to the Saucelabs REST API&lt;/li&gt;
-&lt;li&gt;Find out what&amp;rsquo;s on TV using the TVMaze API and &lt;a href=&#34;https://metacpan.org/pod/WWW::TVMaze&#34;&gt;WWW::TVMaze&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WebService::Zendesk&#34;&gt;WebService::Zendesk&lt;/a&gt; is another work-in-progress but useful API, this time for Zendesk&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;config-devops:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::FTPTLS&#34;&gt;Net::FTPTLS&lt;/a&gt; is a super-simple Perl FTP client with TLS support. Cool!&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::SSH2::Cisco&#34;&gt;Net::SSH2::Cisco&lt;/a&gt; let&amp;rsquo;s you talk to Cisco routers via SSH!&lt;/li&gt;
-&lt;li&gt;Configure, control and monitor rate limits for services with &lt;a href=&#34;https://metacpan.org/pod/RateLimitations&#34;&gt;RateLimitations&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;data:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Data&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Compress data at &lt;em&gt;outrageous&lt;/em&gt; speeds with &lt;a href=&#34;https://metacpan.org/pod/Compress::LZ4Frame&#34;&gt;Compress::LZ4Frame&lt;/a&gt;, which ships with the &lt;a href=&#34;https://github.com/Cyan4973/lz4&#34;&gt;LZ4 compression library&lt;/a&gt; written in C.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/DBIx::BulkUtil&#34;&gt;DBIx::BulkUtil&lt;/a&gt; provides bulk load and other features for relational databases&lt;/li&gt;
-&lt;li&gt;Wow, &lt;a href=&#34;https://metacpan.org/pod/DOM::Tiny&#34;&gt;DOM::Tiny&lt;/a&gt; is a minimalist but feature-rich DOM parser using CSS selectors&lt;/li&gt;
-&lt;li&gt;Interesting, play with a virtual file system using &lt;a href=&#34;https://metacpan.org/pod/Filesys::Virtual::Chroot&#34;&gt;Filesys::Virtual::Chroot&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/IMAP::Query&#34;&gt;IMAP::Query&lt;/a&gt; can generateIMAP search queries&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mail::DKIM::Iterator&#34;&gt;Mail::DKIM::Iterator&lt;/a&gt; validates DKIM signatures and signs asynchronously&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;development-version-control:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Devel::Trepan::Deparse&#34;&gt;Devel::Trepan::Deparse&lt;/a&gt; adds deparse support to Devel::Trepan&lt;/li&gt;
-&lt;li&gt;Call the JavaScript Handlebars template library from Perl, with &lt;a href=&#34;https://metacpan.org/pod/JavaScript::V8::Handlebars&#34;&gt;JavaScript::V8::Handlebars&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Test &lt;em&gt;some&lt;/em&gt;? Only execute a subset of your test suite using &lt;a href=&#34;https://metacpan.org/pod/Test::Some&#34;&gt;Test::Some&lt;/a&gt;, author Yanick &lt;a href=&#34;http://techblog.babyl.ca/entry/test-some&#34;&gt;blogged&lt;/a&gt; about why this might be useful&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Unix::Pledge&#34;&gt;Unix::Pledge&lt;/a&gt; restrict system operations on BSD using &lt;code&gt;pledge&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Talk to Windows machines over the network using &lt;a href=&#34;https://metacpan.org/pod/Win32::Netsh&#34;&gt;Win32::Netsh&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;hardware:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Hardware&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://metacpan.org/author/PEVANS&#34;&gt;Paul Evans&lt;/a&gt; has been hard at work releasing several new chip driver modules, way to go Paul!&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;BV4243 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::BV4243&#34;&gt;Device::Chip::BV4243&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;DS1307 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::DS1307&#34;&gt;Device::Chip::DS1307&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;INA219 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::INA219&#34;&gt;Device::Chip::INA219&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;MAX7219 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::MAX7219&#34;&gt;Device::Chip::MAX7219&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;MCP23x17 family &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::MCP23x17&#34;&gt;Device::Chip::MCP23x17&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;MPL3115A2 &lt;a href=&#34;https://metacpan.org/pod/Device::Chip::MPL3115A2&#34;&gt;Device::Chip::MPL3115A2&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;other:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Other&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Generate CSS sprites from a series of images using &lt;a href=&#34;https://metacpan.org/pod/CSS::SpriteMaker::Simple&#34;&gt;CSS::SpriteMaker::Simple&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Look up zodiac sign for a given date with &lt;a href=&#34;https://metacpan.org/pod/Zodiac::Tiny&#34;&gt;Zodiac::Tiny&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;science-mathematics:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/LCS::Similar&#34;&gt;LCS::Similar&lt;/a&gt; allows differences in the compared elements of Longest Common Subsequence (LCS) Algorithm&lt;/li&gt;
-&lt;li&gt;Simulate genomic restriction digests with &lt;a href=&#34;https://metacpan.org/pod/RestrictionDigest&#34;&gt;RestrictionDigest&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;web:88dbf448071c68b6dbea2a21a0e58ef4&#34;&gt;Web&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Catalyst::Plugin::URI&#34;&gt;Catalyst::Plugin::URI&lt;/a&gt; provides nicer and &lt;em&gt;safer&lt;/em&gt; way to get Controller action methods as URIs&lt;/li&gt;
-&lt;li&gt;Read and write PhantomJS cookies file using &lt;a href=&#34;https://metacpan.org/pod/HTTP::Cookies::PhantomJS&#34;&gt;HTTP::Cookies::PhantomJS&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mojolicious::Plugin::ErrorsAndWarnings&#34;&gt;Mojolicious::Plugin::ErrorsAndWarnings&lt;/a&gt; stores errors and warnings during a request for powerful introspection&lt;/li&gt;
-&lt;li&gt;Run a consul server for testing using &lt;a href=&#34;https://metacpan.org/pod/Test::Consul&#34;&gt;Test::Consul&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
       <title>How to install any* Perl module</title>
       <link>http://perltricks.com/article/200/2015/11/28/How-to-install-any--Perl-module/</link>
       <pubDate>Sat, 28 Nov 2015 00:11:17 +0000</pubDate>
@@ -991,588 +579,1082 @@ location = root
     </item>
     
     <item>
-      <title>What&#39;s new on CPAN - October 2015</title>
-      <link>http://perltricks.com/article/199/2015/11/3/What-s-new-on-CPAN---October-2015/</link>
-      <pubDate>Tue, 03 Nov 2015 15:24:04 +0000</pubDate>
+      <title>Hello perldoc, productivity booster</title>
+      <link>http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/</link>
+      <pubDate>Thu, 26 Feb 2015 13:42:57 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/199/2015/11/3/What-s-new-on-CPAN---October-2015/</guid>
+      <guid>http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster/</guid>
       <description>
 
-&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!&lt;/p&gt;
+&lt;p&gt;Imagine this scenario: you&amp;rsquo;re using the DateTime module but you can&amp;rsquo;t remember the exact name of a function it provides. What do you do? You could open your browser, go to &lt;a href=&#34;https://metacpan.org/&#34;&gt;MetaCPAN&lt;/a&gt;, search for DateTime and look up the answer in the module&amp;rsquo;s documentation. A faster way would be to switch to the command line, and type &lt;code&gt;perldoc DateTime&lt;/code&gt; to display the module&amp;rsquo;s documentation right there in the terminal.&lt;/p&gt;
 
-&lt;h3 id=&#34;module-of-the-month:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Module of the month&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;perldoc&lt;/code&gt; is a command line program for reading Perl documentation. It comes with Perl, so if you&amp;rsquo;ve got Perl installed, perldoc should be available too. Using perldoc is easy: as you&amp;rsquo;ve already seen, to view the documentation of a module you&amp;rsquo;ve installed, at the command line type:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/App::Skeletor&#34;&gt;App::Skeletor&lt;/a&gt; bootstraps new Perl projects based on customizable templates. Similar to Dist::Zilla (&lt;em&gt;why do all these builder tools have such great names?&lt;/em&gt;) but intentionally less ambitious, App::Skeletor looks more useful as a component of a Perl app or a starter kit for module developers. You can run it from the terminal:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ skeletor --template Skeletor::Template::Example \
-  --as My::App \
-  --directory ~/Projects \ 
-  --author &#39;John Doe&#39; \
-  --year 2015
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc Module::Name
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;It&amp;rsquo;s early days but module author John Napiorkowski has already written enough &lt;a href=&#34;https://metacpan.org/pod/App::Skeletor&#34;&gt;documentation&lt;/a&gt; to get you started. It would be great if we could develop a set of community templates for Perl modules. Take a look today!&lt;/p&gt;
+&lt;p&gt;perldoc will search for the module and if it finds it, display the module&amp;rsquo;s documentation (written in Pod). Using perldoc you can learn more about any aspect of Perl almost instantly. Want to know more about Pod? Try &lt;code&gt;perldoc pod&lt;/code&gt;.&lt;/p&gt;
 
-&lt;h3 id=&#34;apis-apps:e5833c090d1cf186b0a95931b7696f03&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
+&lt;h3 id=&#34;dial-f-for-functions:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Dial -f for functions&lt;/h3&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::JIRAPrint&#34;&gt;App::JIRAPrint&lt;/a&gt; posts JIRA Tickets on Postit notes!&lt;/li&gt;
-&lt;li&gt;Send repository commit digest emails with &lt;a href=&#34;https://metacpan.org/pod/App::SCM::Digest&#34;&gt;App::SCM::Digest&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Get terminal access to the Wikidata Query Service using &lt;a href=&#34;https://metacpan.org/pod/App::wdq&#34;&gt;App::wdq&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Get Airbrake notifications with &lt;a href=&#34;https://metacpan.org/pod/Net::Airbrake::V2&#34;&gt;Net::Airbrake::V2&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WebService::ConstructorIO&#34;&gt;WebService::ConstructorIO&lt;/a&gt; provides a Perly interface to the predictive search service&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WebService::Pingboard&#34;&gt;WebService::Pingboard&lt;/a&gt; is an API for the employee directory service&lt;/li&gt;
-&lt;li&gt;Send newsletters via SendGrid using &lt;a href=&#34;https://metacpan.org/pod/WebService::SendGrid::Newsletter&#34;&gt;WebService::SendGrid::Newsletter&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;Perl has a huge number of built-in functions, about 224 depending on the Perl version. Who can remember exactly how they all work? I know I can&amp;rsquo;t. To lookup a Perl function, use perldoc with the &lt;code&gt;-f&lt;/code&gt; switch. For instance to look up the documentation on the &lt;code&gt;rindex&lt;/code&gt; function:&lt;/p&gt;
 
-&lt;h3 id=&#34;config-devops:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -f rindex
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;ul&gt;
-&lt;li&gt;Authenticate users via LinkedIn with &lt;a href=&#34;https://metacpan.org/pod/Linkedin::OAuth2&#34;&gt;Linkedin::OAuth2&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/IPC::Lockfile&#34;&gt;IPC::Lockfile&lt;/a&gt; - run only one instance of a program at a time using flock (disclosure - I am the module author)&lt;/li&gt;
-&lt;li&gt;Instead of a file, &lt;a href=&#34;https://metacpan.org/pod/Lock::Server&#34;&gt;Lock::Server&lt;/a&gt; provides a light-weight socket based resource locking manager&lt;/li&gt;
-&lt;li&gt;Asynchronously wait for a port to open using &lt;a href=&#34;https://metacpan.org/pod/Net::Async::EmptyPort&#34;&gt;Net::Async::EmptyPort&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;Which will display:&lt;/p&gt;
 
-&lt;h3 id=&#34;data:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Data&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;rindex STR,SUBSTR,POSITION
+rindex STR,SUBSTR
+      Works just like index() except that it returns the position of the
+      last occurrence of SUBSTR in STR. If POSITION is specified,
+      returns the last occurrence beginning at or before that position.
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;ul&gt;
-&lt;li&gt;Get a fast, integer-based memory cache with &lt;a href=&#34;https://metacpan.org/pod/Cache::Memory::Simple::ID&#34;&gt;Cache::Memory::Simple::ID&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/DB::DataStore&#34;&gt;DB::DataStore&lt;/a&gt; A simple record-based data store with no non-core dependencies&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Digest::FNV::XS&#34;&gt;Digest::FNV::XS&lt;/a&gt; implements the speedy FNV hash algorithm, with support for binary data&lt;/li&gt;
-&lt;li&gt;Exchange contact data with CardDAV servers using &lt;a href=&#34;https://metacpan.org/pod/Net::CardDAVTalk&#34;&gt;Net::CardDAVTalk&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;Aha! This is all well and good, but what do you do if you can&amp;rsquo;t remember the function name? Well you could use &lt;a href=&#34;https://metacpan.org/pod/B::Keywords&#34;&gt;B::Keywords&lt;/a&gt;, but another way would be to check out &lt;code&gt;perlfunc&lt;/code&gt; the Perl documentation on built-in functions. To read it, with perldoc just type:&lt;/p&gt;
 
-&lt;h3 id=&#34;development-version-control:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc perlfunc
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;ul&gt;
-&lt;li&gt;Get All Tests Passing™ with &lt;a href=&#34;https://metacpan.org/pod/Acme::Test::VW&#34;&gt;Acme::Test::VW&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Bootstrap a new project from a shared template with &lt;a href=&#34;https://metacpan.org/pod/App::Skeletor&#34;&gt;App::Skeletor&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Attribute::Universal&#34;&gt;Attribute::Universal&lt;/a&gt; makes working with subroutine attributes far less painful - woohoo!&lt;/li&gt;
-&lt;li&gt;Create enum-like classes using &lt;a href=&#34;https://metacpan.org/pod/Class::Type::Enum&#34;&gt;Class::Type::Enum&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Disable the &lt;code&gt;state&lt;/code&gt; keyword with &lt;a href=&#34;https://metacpan.org/pod/Devel::Unstate&#34;&gt;Devel::Unstate&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Export symbols by attributes with &lt;a href=&#34;https://metacpan.org/pod/Exporter::Attributes&#34;&gt;Exporter::Attributes&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;h3 id=&#34;predefined-variables:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Predefined Variables&lt;/h3&gt;
 
-&lt;h3 id=&#34;hardware:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Hardware&lt;/h3&gt;
+&lt;p&gt;As with functions, Perl has a large number of predefined variables that do everything from storing the program name to tracking the state of the regex engine. They&amp;rsquo;re really useful, but often have obscure names like &lt;code&gt;$^O&lt;/code&gt; (the OS name). So if you find yourself needing to check whether you&amp;rsquo;re looking at a list separator (&lt;code&gt;$&amp;quot;&lt;/code&gt;) or an output separator (&lt;code&gt;$/&lt;/code&gt;), just use perldoc with the &lt;code&gt;-v&lt;/code&gt; switch:&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;Send packets compatible with the Spektrum RC protoocol with &lt;a href=&#34;https://metacpan.org/pod/Device::Spektrum&#34;&gt;Device::Spektrum&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Not *strictly* hardware but &amp;hellip; get Software-Defined Radio with &lt;a href=&#34;https://metacpan.org/pod/SDR&#34;&gt;SDR&lt;/a&gt; - nice!&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WebService::FritzBox&#34;&gt;WebService::FritzBox&lt;/a&gt; - communicate with &lt;a href=&#34;https://en.wikipedia.org/wiki/FRITZ!Box&#34;&gt;FritzBox&lt;/a&gt; devices&lt;/li&gt;
-&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -v $/
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;language-international:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Language &amp;amp; International&lt;/h3&gt;
+&lt;p&gt;Because some predefined variables have weird names, you may need to quote them on the command line for perldoc to work:&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;Map Slack &lt;code&gt;:emoji_strings:&lt;/code&gt; to Unicode text using &lt;a href=&#34;https://metacpan.org/pod/Text::SlackEmoji&#34;&gt;Text::SlackEmoji&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WWW::YahooJapan::Baseball&#34;&gt;WWW::YahooJapan::Baseball&lt;/a&gt; provides an interface to Yahoo Japan&amp;rsquo;s baseball stats service&lt;/li&gt;
-&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -v &#39;$&amp;quot;&#39;
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;other:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Other&lt;/h3&gt;
+&lt;p&gt;The predefined variables documentation is known as &lt;code&gt;perlvar&lt;/code&gt;. It&amp;rsquo;s well worth a read through at least once (&lt;code&gt;perldoc perlvar&lt;/code&gt;).&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;Hilarious - &lt;a href=&#34;https://metacpan.org/pod/Acme::Excuse&#34;&gt;Acme::Excuse&lt;/a&gt; provides excuses when your code fails&lt;/li&gt;
-&lt;/ul&gt;
+&lt;h3 id=&#34;searching-the-documentation:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Searching the documentation&lt;/h3&gt;
 
-&lt;h3 id=&#34;science-mathematics:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
+&lt;p&gt;Perl has a lot of great documentation, but it can be hard to remember the names of all of the entries. If you ever want to browse the table of contents, use &lt;code&gt;perl&lt;/code&gt;:&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/MarpaX::RFC::RFC3629&#34;&gt;MarpaX::RFC::RFC3629&lt;/a&gt; Marpa parsing of UTF-8 byte sequences as per RFC3629&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Math::HexGrid&#34;&gt;Math::HexGrid&lt;/a&gt; - create hex coordinate grids (disclosure - I am the module author)&lt;/li&gt;
-&lt;li&gt;Apply a function to data in different ways using &lt;a href=&#34;https://metacpan.org/pod/PDL::Apply&#34;&gt;PDL::Apply&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/PDL::DateTime&#34;&gt;PDL::DateTime&lt;/a&gt; stores high precision timestamps&lt;/li&gt;
-&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc perl
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;web:e5833c090d1cf186b0a95931b7696f03&#34;&gt;Web&lt;/h3&gt;
+&lt;p&gt;Many people recommend perltoc for this, but for finding relevant entries, I think the perl entry is easier to browse than perltoc.&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;Interesting, &lt;a href=&#34;https://metacpan.org/pod/Dancer2::Plugin::ProbabilityRoute&#34;&gt;Dancer2::Plugin::ProbabilityRoute&lt;/a&gt; is a plugin to define behavior with probability matching rules&lt;/li&gt;
-&lt;li&gt;Gracefully shutdown your Dancer2 application using &lt;a href=&#34;https://metacpan.org/pod/Dancer2::Plugin::Shutdown&#34;&gt;Dancer2::Plugin::Shutdown&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Use SQLite as a backend for a Minion job queue with &lt;a href=&#34;https://metacpan.org/pod/Minion::Backend::SQLite&#34;&gt;Minion::Backend::SQLite&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;Perl also has an extensive FAQ, (another entry that&amp;rsquo;s worth a read through). It has loads of answers to common queries. As usual you can read it with &lt;code&gt;perldoc faq&lt;/code&gt;, but you can also search it using the &lt;code&gt;-q&lt;/code&gt; switch. Want to know if there are any good IDEs for Perl? (a common newbie question):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -q ide
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;Is there an IDE or Windows Perl Editor?
+ Perl programs are just plain text, so any editor will do.
+
+ If you&#39;re on Unix, you already have an IDE--Unix itself. The Unix
+ philosophy is the philosophy of several small tools that each do one thing
+ and do it well. It&#39;s like a carpenter&#39;s toolbox.
+
+ If you want an IDE, check the following (in alphabetical order, not order
+ of preference):
+
+ Eclipse
+
+
+     The Eclipse Perl Integration Project integrates Perl editing/debugging
+     with Eclipse.
+
+ Komodo
+
+
+     ActiveState&#39;s cross-platform (as of October 2004, that&#39;s Windows,
+     Linux, and Solaris), multi-language IDE has Perl support, including a
+     regular expression debugger and remote debugging.
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;finding-module-install-locations:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Finding module install locations&lt;/h3&gt;
+
+&lt;p&gt;perldoc isn&amp;rsquo;t just about documentation. If you need to find out where a module is installed, using the &lt;code&gt;-l&lt;/code&gt; switch, perldoc will return the filepath of the module:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -l Test::More
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you get the path, you can open it in an editor directly:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ vi $(perldoc -l Test::More)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;One trick here: some modules don&amp;rsquo;t have any POD in them, for those modules, use &lt;code&gt;-lm&lt;/code&gt; to still return the path.&lt;/p&gt;
+
+&lt;h3 id=&#34;read-module-source-code-in-perldoc:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Read module source code in perldoc&lt;/h3&gt;
+
+&lt;p&gt;Finally, perldoc can also display module source code. Just use the &lt;code&gt;-m&lt;/code&gt; switch:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc -m Test::More
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;wrap-up:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;Wrap up&lt;/h3&gt;
+
+&lt;p&gt;This article has covered the most common features, but perldoc has a bunch of other capabilities that you can read about at the command line with &lt;code&gt;man perldoc&lt;/code&gt;. The Perl documentation is also &lt;a href=&#34;http://perldoc.perl.org/&#34;&gt;online&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Keep in mind that as you get more proficient with perldoc, you&amp;rsquo;ll need the online resources less and less. Get in the habit of switching to the command line, looking up something in perldoc and flipping right back to programming - it&amp;rsquo;s a productivity win.&lt;/p&gt;
+
+&lt;h3 id=&#34;perldoc-cheatsheet:950e91211886bd6e410eb5c07d6bf43a&#34;&gt;perldoc cheatsheet&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;perldoc [option]
+
+Module Options                               
+--------------                               
+         Module documentation     
+-l       Module filepath          
+-lm      Module filepath (alt.)   
+-m       Module source
+
+
+Search Options
+--------------
+-f     Get a built-in function definition
+-v     Get a variable definition
+-q      Search the faq for a keyword
+
+
+Commonly Used Entries
+---------------------
+perl         Language overview, list of all other entries
+perltoc      Table of contents
+perlfunc     Built-in functions documentation
+perlvar      Predefined variables documentation
+perlref      References documentation
+perlre       Regex documentation
+faq          The Perl FAQ
+
+Help
+----
+man perldoc     List of all perldoc options
+&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
     <item>
-      <title>What&#39;s new on CPAN - September 2015</title>
-      <link>http://perltricks.com/article/196/2015/10/1/What-s-new-on-CPAN---September-2015/</link>
-      <pubDate>Thu, 01 Oct 2015 13:49:32 +0000</pubDate>
+      <title>Who has the best package manager? Part one</title>
+      <link>http://perltricks.com/article/110/2014/8/21/Who-has-the-best-package-manager--Part-one/</link>
+      <pubDate>Thu, 21 Aug 2014 13:03:03 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/196/2015/10/1/What-s-new-on-CPAN---September-2015/</guid>
+      <guid>http://perltricks.com/article/110/2014/8/21/Who-has-the-best-package-manager--Part-one/</guid>
       <description>
 
-&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!&lt;/p&gt;
+&lt;p&gt;Every major language has thousands of libraries which enable programmers to reach higher, further and faster than before. Package managers (the online systems for sharing code) are key to a language&amp;rsquo;s success; Perl, PHP, Python, Ruby and Node.js all have strong offerings. But which one is the best and what can we learn from each of them? This article is the first in a two-part series where I review each package manager. Part one focuses on searching and using packages and part two will look at how easy it is to upload and share packages.&lt;/p&gt;
 
-&lt;h3 id=&#34;module-of-the-month:9d36872dc3dcca82f0a59354eccd9216&#34;&gt;Module of the month&lt;/h3&gt;
+&lt;h3 id=&#34;terminology:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Terminology&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/MsgPack::RPC&#34;&gt;MsgPack::RPC&lt;/a&gt; is a client for the &lt;a href=&#34;https://github.com/msgpack-rpc/msgpack-rpc/blob/master/spec.md&#34;&gt;MessagePack-RPC&lt;/a&gt; standard. It&amp;rsquo;s fully featured, providing send, notify, event subscription and logging.&lt;/p&gt;
+&lt;p&gt;The term &amp;ldquo;package manager&amp;rdquo; isn&amp;rsquo;t strictly accurate when referring to the online code sharing systems. &lt;a href=&#34;http://rubygems.org/&#34;&gt;RubyGems&lt;/a&gt; and &lt;a href=&#34;https://www.npmjs.org/&#34;&gt;npm&lt;/a&gt; are described as package managers but for Python &lt;a href=&#34;https://pypi.python.org/pypi&#34;&gt;PyPI&lt;/a&gt; is a package index and &lt;code&gt;pip&lt;/code&gt; is the package manager. Similarly, &lt;a href=&#34;https://metacpan.org&#34;&gt;metacpan&lt;/a&gt; is a search engine for &lt;a href=&#34;http://www.cpan.org/%20&#34;&gt;CPAN&lt;/a&gt;. I use the term &amp;ldquo;package manager&amp;rdquo; to refer to the commonly-used collection of tools used for searching, reviewing, installing and sharing code.&lt;/p&gt;
 
-&lt;p&gt;Module author Yanick Champoux has &lt;a href=&#34;http://techblog.babyl.ca/entry/neovim-part-1&#34;&gt;blogged&lt;/a&gt; about his motivations for developing MsgPack::RPC to use it with &lt;a href=&#34;https://github.com/neovim/neovim&#34;&gt;Neovim&lt;/a&gt;. His entertaining &lt;a href=&#34;http://techblog.babyl.ca/entry/neovim-way-to-go&#34;&gt;musings&lt;/a&gt; are a good read. Now you can get an API to Neovim using his other new module, &lt;a href=&#34;https://metacpan.org/pod/Neovim::RPC&#34;&gt;Neovim::RPC&lt;/a&gt;. Awesome work!&lt;/p&gt;
+&lt;h3 id=&#34;inputs-and-scoring-criteria:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Inputs and Scoring Criteria&lt;/h3&gt;
 
-&lt;h3 id=&#34;apis-apps:9d36872dc3dcca82f0a59354eccd9216&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/API::Client&#34;&gt;API::Client&lt;/a&gt; is a general-purpose API client class&lt;/li&gt;
-&lt;li&gt;Get simple OATH authentication with &lt;a href=&#34;https://metacpan.org/pod/App::OATH&#34;&gt;App::OATH&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::p5stack&#34;&gt;App::p5stack&lt;/a&gt; manages your dependencies and Perl requirements in a local directory. Looks useful for standalone projects, packaging etc&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::PhotoBackup::Server&#34;&gt;Net::PhotoBackup::Server&lt;/a&gt; - everyone backs up their photos right?&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Rarbg::torrentapi&#34;&gt;Rarbg::torrentapi&lt;/a&gt; is a Wrapper around Rarbg torrentapi&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WWW::Zotero&#34;&gt;WWW::Zotero&lt;/a&gt; provides a Perl interface to the Zotero API&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WebService::Scaleway&#34;&gt;WebService::Scaleway&lt;/a&gt; is a Perl interface to Scaleway, the cloud VPN provider&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;config-devops:9d36872dc3dcca82f0a59354eccd9216&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
+&lt;p&gt;The following package managers were reviewed:&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Config::Station&#34;&gt;Config::Station&lt;/a&gt; looks interesting: class-based; it can load configurations from files and the environment&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://packagist.org&#34;&gt;Packagist&lt;/a&gt; for PHP&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://pypi.python.org/pypi&#34;&gt;PyPi&lt;/a&gt; for Python&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org&#34;&gt;metacpan&lt;/a&gt; for Perl&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.npmjs.org/&#34;&gt;npm&lt;/a&gt; for Node.js&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://rubygems.org/&#34;&gt;RubyGems&lt;/a&gt; for Ruby&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&#34;data:9d36872dc3dcca82f0a59354eccd9216&#34;&gt;Data&lt;/h3&gt;
+&lt;p&gt;Every package manager was scored against 5 criteria:&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;Log all DBI queries with &lt;a href=&#34;https://metacpan.org/pod/DBI::Log&#34;&gt;DBI::Log&lt;/a&gt;. Awesome!&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/DBIx::TempDB&#34;&gt;DBIx::TempDB&lt;/a&gt; creates temporary databases for testing - supports Postgres, MySQL, SQLite&lt;/li&gt;
-&lt;li&gt;Render data structures for easy grepping using &lt;a href=&#34;https://metacpan.org/pod/Data::Crumbr&#34;&gt;Data::Crumbr&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Diachronic collocation index using &lt;a href=&#34;https://metacpan.org/pod/DiaColloDB&#34;&gt;DiaColloDB&lt;/a&gt;. Don&amp;rsquo;t know what this is, but it looks interesting.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Image::JpegMinimal&#34;&gt;Image::JpegMinimal&lt;/a&gt; creates JPEG previews without headers.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/MarpaX::RFC::RFC3987&#34;&gt;MarpaX::RFC::RFC3987&lt;/a&gt; parse and validate IRIs with this Marpa module&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Message::String&#34;&gt;Message::String&lt;/a&gt; a &amp;ldquo;pragma&amp;rdquo; to declare and organise messaging.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Brat::Handler&#34;&gt;Brat::Handler&lt;/a&gt; is a Perl module for managing Brat files.&lt;/li&gt;
+&lt;li&gt;Search - how easy is it to find what you&amp;rsquo;re looking for. An ideal search function would return the most relevant packages first, and provide information to help users differentiate packages.&lt;/li&gt;
+&lt;li&gt;Metadata - what supporting data is provided to give context and enable the user understand the package better: name, description, number of downloads, unit test coverage, portability, dependencies, user reviews etc/&lt;/li&gt;
+&lt;li&gt;Documentation - accessibility and usability of the package documentation. Easy-to-use documentation is clear and consistent in layout and provides useful information for would-be package consumers.&lt;/li&gt;
+&lt;li&gt;Source - accessibility and usability of the source code. The source code should be easily inspect-able which means providing an easily navigable directory tree and presenting the code in a readable, helpful way.&lt;/li&gt;
+&lt;li&gt;Installation - how easy is it to install a package: are instructions provided and does the installation work.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&#34;development-version-control:9d36872dc3dcca82f0a59354eccd9216&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
+&lt;p&gt;I scored each criterion between 1 and 5, with 5 being best. Clearly this is a subjective approach both in the criteria chosen and strength of the rating given. Whether the results are &lt;em&gt;useful&lt;/em&gt; or not I leave for you, the reader to decide.&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Class::Anonymous&#34;&gt;Class::Anonymous&lt;/a&gt; get private classes with private data &amp;ldquo;for realz&amp;rdquo;.&lt;/li&gt;
-&lt;li&gt;This looks like a useful analysis tool; &lt;a href=&#34;https://metacpan.org/pod/Devel::Trace::Subs&#34;&gt;Devel::Trace::Subs&lt;/a&gt; tracks code flow and stack traces.&lt;/li&gt;
-&lt;li&gt;Do acceptance testing for JSON-Schema based validators with &lt;a href=&#34;https://metacpan.org/pod/Test::JSON::Schema::Acceptance&#34;&gt;Test::JSON::Schema::Acceptance&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Yes!! Retry test functions on failure using &lt;a href=&#34;https://metacpan.org/pod/Test::Retry&#34;&gt;Test::Retry&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;h3 id=&#34;method:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Method&lt;/h3&gt;
 
-&lt;h3 id=&#34;hardware:9d36872dc3dcca82f0a59354eccd9216&#34;&gt;Hardware&lt;/h3&gt;
+&lt;p&gt;3 search terms were used: &amp;ldquo;selenium&amp;rdquo;, &amp;ldquo;sqlite3&amp;rdquo; and &amp;ldquo;web framework&amp;rdquo;. The search term was unquoted when entered. Selenium should be an easy search term as it&amp;rsquo;s a unique name and common library (bindings to &lt;a href=&#34;http://docs.seleniumhq.org/projects/webdriver/&#34;&gt;Selenium WebDriver&lt;/a&gt;). SQLite3 is slightly more difficult as it includes a version number and many packages named &amp;ldquo;sqlite&amp;rdquo; are intended for SQLite3. Web framework is the most difficult as it is a description rather than a name and yet we wanted the search to return relevant results like Sinatra, Django, and express. For each language I used a recommended list of web frameworks as my target packages. In all searches I considered the sorting of relevant results and the usefulness of information provided in the search results.&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;Perl extension for &lt;a href=&#34;https://metacpan.org/pod/Device::Modem::SMSModem&#34;&gt;Device::Modem::SMSModem&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;A driver for the Pertelian X2040 USB LCD with &lt;a href=&#34;https://metacpan.org/pod/Device::Pertelian&#34;&gt;Device::Pertelian&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;Upon locating a target result in each search, I opened the package page and scored the other criteria. Only the packages returned by the 3 search terms were considered.&lt;/p&gt;
 
-&lt;h3 id=&#34;other:9d36872dc3dcca82f0a59354eccd9216&#34;&gt;Other&lt;/h3&gt;
+&lt;h3 id=&#34;php-packagist:e4033a7178e3036bc1983cb5214477f8&#34;&gt;PHP: Packagist&lt;/h3&gt;
 
-&lt;ul&gt;
-&lt;li&gt;Easily tie database data to Gtk2 / Wx based apps using &lt;a href=&#34;https://metacpan.org/pod/Gtk2::Ex::DbLinker::DbTools&#34;&gt;Gtk2::Ex::DbLinker::DbTools&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Eliminate an entire email thread with &lt;a href=&#34;https://metacpan.org/pod/Mail::ThreadKiller&#34;&gt;Mail::ThreadKiller&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_packagist.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
-&lt;h3 id=&#34;science-mathematics:9d36872dc3dcca82f0a59354eccd9216&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
+&lt;p&gt;First up is &lt;a href=&#34;https://packagist.org/statistics&#34;&gt;Packagist&lt;/a&gt;, the largest PHP package search engine, with over 36,000 &lt;a href=&#34;https://packagist.org/statistics&#34;&gt;packages&lt;/a&gt; indexed. Packagist integrates with &lt;a href=&#34;https://getcomposer.org/&#34;&gt;Composer&lt;/a&gt;, a PHP dependency management system.&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Image::Libpuzzle&#34;&gt;Image::Libpuzzle&lt;/a&gt; provides a Perl interface to libpuzzle - the image similarity library&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Bio::Tradis&#34;&gt;Bio::Tradis&lt;/a&gt; can Bio-Tradis contains a set of tools to analyze the output from TraDIS analyses&lt;/li&gt;
-&lt;li&gt;Manipulate RGB tuples with &lt;a href=&#34;https://metacpan.org/pod/Number::RGB&#34;&gt;Number::RGB&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Time::Date&#34;&gt;Time::Date&lt;/a&gt; appears to be the simplest date time implementation in Perl yet. I wonder what the limitations are?&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;Packagist auto-focused to the text search box and provided live search results as I entered the search terms. For every search result Packagist return the package name, description, number of downloads and star count. Search results were paginated and no facility for sorting or filtering the search results was provided.&lt;/p&gt;
 
-&lt;h3 id=&#34;web:9d36872dc3dcca82f0a59354eccd9216&#34;&gt;Web&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_packagist_search_selenium.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;Create a JSON View that owns its own data with &lt;a href=&#34;https://metacpan.org/pod/Catalyst::View::JSON::PerRequest&#34;&gt;Catalyst::View::JSON::PerRequest&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Add templates to the Data Section of Catalyst views using &lt;a href=&#34;https://metacpan.org/pod/Catalyst::View::MicroTemplate::DataSection&#34;&gt;Catalyst::View::MicroTemplate::DataSection&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Replay terminal captures in your Dancer app using &lt;a href=&#34;https://metacpan.org/pod/Dancer::Plugin::Showterm&#34;&gt;Dancer::Plugin::Showterm&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Future::Mojo&#34;&gt;Future::Mojo&lt;/a&gt; let&amp;rsquo;s you use futures with Mojo::IOLoop. Very cool!&lt;/li&gt;
-&lt;li&gt;The arms-race for faster continues! Replace HTTP::Headers and HTTP::Headers::Fast with &lt;a href=&#34;https://metacpan.org/pod/HTTP::XSHeaders&#34;&gt;HTTP::XSHeaders&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mercury&#34;&gt;Mercury&lt;/a&gt; is an application broker class&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;The search results were mixed: the target &lt;a href=&#34;https://packagist.org/packages/alexandresalome/php-selenium&#34;&gt;selenium package&lt;/a&gt; was returned 3rd on the list of results. The SQLite3 search did not return any useful packages (bindings to SQLite3), but this is perhaps because PHP 5.3 ships with a built in &lt;a href=&#34;http://php.net/manual/en/book.sqlite3.php&#34;&gt;SQLite class&lt;/a&gt;. The Web Framework &lt;a href=&#34;https://packagist.org/search/?q=web%20framework&#34;&gt;search&lt;/a&gt; did not return any &lt;a href=&#34;http://mashable.com/2014/04/04/php-frameworks-build-applications/&#34;&gt;target packages&lt;/a&gt; in the top 20 results, with &lt;a href=&#34;https://packagist.org/packages/laravel/framework&#34;&gt;Laravel&lt;/a&gt; being returned 21&lt;sup&gt;st&lt;/sup&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;search-3-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Search: &lt;sup&gt;3&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;Packagist provided a basic set of metadata including: name, description, version number, download statistics, version history and dependencies. No package had license information, unit test coverage, platform compatibility or continuous integration results. There was no facility to &amp;ldquo;star&amp;rdquo; or review a module (presumably the star count on the search results came from GitHub).&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_packagist_laravel.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;metadata-2-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Metadata: &lt;sup&gt;2&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;Documentation was sparse - a link was provided to the GitHub repo, which displays the repo readme by default. There seemed to be little consistency across packages in terms of headings or content.&lt;/p&gt;
+
+&lt;h4 id=&#34;documentation-2-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Documentation: &lt;sup&gt;2&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;Packagist linked to the source repos on GitHub. The code was easy to navigate although the directory tree structures were inconsistent.&lt;/p&gt;
+
+&lt;h4 id=&#34;source-3-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Source: &lt;sup&gt;3&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;Installation with PHP Composer is done by marking the target package as &amp;ldquo;required&amp;rdquo; in a json file. packages can be installed directly using Composer on the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ composer.phar require &amp;quot;laravel/framework&amp;quot;: &amp;quot;4.2.8&amp;quot; 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Helpfully, Packagist listed the required text on every package page.&lt;/p&gt;
+
+&lt;h4 id=&#34;installation-5-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Installation: &lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;h5 id=&#34;packagist-overall-3-0:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Packagist overall: 3.0&lt;/h5&gt;
+
+&lt;h3 id=&#34;python-pypi:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Python: PyPI&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_pypi.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Next up is Python&amp;rsquo;s &lt;a href=&#34;https://pypi.python.org/pypi&#34;&gt;PyPi&lt;/a&gt;, which has over 47,500 packages.&lt;/p&gt;
+
+&lt;p&gt;PyPI&amp;rsquo;s search results returned the package name, a match-strength indicator called &amp;ldquo;weight&amp;rdquo; and a description. The search results for &lt;a href=&#34;https://pypi.python.org/pypi/selenium/2.42.1&#34;&gt;Selenium&lt;/a&gt; and &lt;a href=&#34;https://pypi.python.org/pypi/db-sqlite3/0.0.1&#34;&gt;SQLite3&lt;/a&gt; were good with the target libraries in the top 2 results each time.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_pypi_search_selenium.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The search results for &amp;ldquo;web framework&amp;rdquo; were mixed: I was looking for common Python &lt;a href=&#34;https://wiki.python.org/moin/WebFrameworks&#34;&gt;web frameworks&lt;/a&gt; and only one, &lt;a href=&#34;https://pypi.python.org/pypi/watson-framework/2.2.7&#34;&gt;Watson&lt;/a&gt; was listed in the top 20 results. Django was 280&lt;sup&gt;th&lt;/sup&gt; with Flask arriving 574&lt;sup&gt;th&lt;/sup&gt; in the list. PyPI was the only package manager to not paginate search results, which made it easy to traverse search results results and export them. There was no function to filter or sort the results under different criteria.&lt;/p&gt;
+
+&lt;h4 id=&#34;search-3-5-1:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Search: &lt;sup&gt;3&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;The metadata provided varied from package to package, but PyPI usually provided: the last upload date, number of downloads, author name, package owner and maintainers, package homepage link and a DOAP.xml record. The &lt;a href=&#34;https://pypi.python.org/pypi/watson-framework/2.2.7&#34;&gt;Watson&lt;/a&gt; package included a build status with unit test coverage. Only 1 of the three packages provided a license. There didn&amp;rsquo;t seem to be a facility to provide user reviews or &amp;ldquo;stars&amp;rdquo; which would indicate whether a package was any good or not.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_pypi_selenium.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;metadata-3-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Metadata: &lt;sup&gt;3&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;Documentation was mixed with either no documentation or just a high level synopsis provided. In most cases an external link to another site provided more documentation, but it&amp;rsquo;s not consistent (it could be Google code, GitHub or a project-specific website).&lt;/p&gt;
+
+&lt;h4 id=&#34;documentation-2-5-1:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Documentation: &lt;sup&gt;2&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;All of the packages source code was hosted externally by GitHub or Google code and a link is provided by PyPI. This is fine, but it can take several hops to find the actual source code, and the structure of the source code tree varies from package to package; it might just be a collection of *.py files in a root folder for example.&lt;/p&gt;
+
+&lt;h4 id=&#34;source-2-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Source: &lt;sup&gt;2&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;PyPI provides installation guidance on it&amp;rsquo;s homepage. Additionally most of the reviewed packages&amp;rsquo; documentation contained command line code instructions for installing the packages. All three packages installed without a hitch using &lt;code&gt;pip&lt;/code&gt;, although it appeared that no unit tests were run on install, so whether the packages work or not is an open question.&lt;/p&gt;
+
+&lt;h4 id=&#34;installation-5-5-1:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Installation: &lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;h5 id=&#34;pypi-overall-3-0:e4033a7178e3036bc1983cb5214477f8&#34;&gt;PyPI overall: 3.0&lt;/h5&gt;
+
+&lt;h3 id=&#34;perl-metacpan:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Perl: metacpan&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_metacpan.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; is described as a CPAN &lt;a href=&#34;https://metacpan.org/about&#34;&gt;search engine&lt;/a&gt; and provides nearly all of the features of CPAN, plus many features that CPAN doesn&amp;rsquo;t offer. It has been around since 2013, and indexes over 30,000 packages.&lt;/p&gt;
+
+&lt;p&gt;metacpan&amp;rsquo;s search page autofocused on the text input search box and provide predictive text search. The search results contained the package name, description, an average review score (if there are any reviews), a count of &amp;ldquo;++&amp;ldquo;s (which are like GitHub stars) and the author name. Helpfully, sub-packages in the same namespace were indented below higher-level packages.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_cpan_selenium_search.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The Selenium search returned the target package (&lt;a href=&#34;https://metacpan.org/pod/WWW::Selenium&#34;&gt;WWW:Selenium&lt;/a&gt;) first, however SQLite3&amp;rsquo;s target package (&lt;a href=&#34;https://metacpan.org/pod/DBD::SQLite&#34;&gt;DBD::SQLite&lt;/a&gt;) was returned 17th in the search results. The Web Framework search results were not great: the first 20 results were for old frameworks or irrelevant packages. However the target packages (e.g. Catalyst, Dancer, Mojolicious and Kelp) were found in top 40 results. metacpan paginated the search results, 20 per page, which meant the target packages were actually on &lt;a href=&#34;https://metacpan.org/search?p=2&amp;amp;q=web+framework&#34;&gt;page 2&lt;/a&gt; . No method to filter or sort the search results was provided.&lt;/p&gt;
+
+&lt;h4 id=&#34;search-3-5-2:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Search: &lt;sup&gt;3&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_cpan_sqlite.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;metacpan provided a wealth of package metadata: the package name, description, version number, activity histogram, issues list, CPAN Testers &lt;a href=&#34;http://www.cpantesters.org/distro/D/DBD-SQLite.html?oncpan=1&amp;amp;distmat=1&amp;amp;version=1.42&#34;&gt;results&lt;/a&gt; (an external CI platform that runs the package against many different operating systems and Perl versions to detect portability issues), &lt;a href=&#34;http://cpants.cpanauthors.org/kwalitee&#34;&gt;kwalitee&lt;/a&gt; rating, reviews and &amp;ldquo;++&amp;rdquo; counts. It also provides a dependencies list, a dependent packages list and a nifty dependencies chart. This example is for &lt;a href=&#34;https://metacpan.org/pod/WWW::Selenium&#34;&gt;WWW::Selenium&lt;/a&gt;:&lt;/p&gt;
+
+&lt;p&gt;Curiously metacpan did not provide download statistics for any package. This would seem like a useful quality indicator for users. metacpan may suffer a little from &amp;ldquo;information overload&amp;rdquo; - there were so many links and metrics it could be hard for a user to disseminate the important metrics from the noise. Although metacpan listed the license name, it didn&amp;rsquo;t provide a link to the underlying license text which would be useful. Unit test coverage was not reported.&lt;/p&gt;
+
+&lt;h4 id=&#34;metadata-5-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Metadata: &lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;Documentation was extensive, except in the case of the web framework package (Dancer) which includes high-level examples and then links for documentation contained in other packages. What was especially nice was that the documentation was easily accessible and consistently styled across all three packages as it was all presented though metacpan.&lt;/p&gt;
+
+&lt;h4 id=&#34;documentation-5-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Documentation: &lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;A direct link to the source code was provided on every package page. The source code is also hosted on metacpan and consistently styled. Some useful measures were provided: the number of lines of code, the number of lines of documentation and the file size in kilobytes. I was also able to toggle on and off the inline documentation (called &amp;ldquo;Pod&amp;rdquo;) and view the code raw. Another useful feature: every package reference in the source code is a hyperlink to the source code of that package.&lt;/p&gt;
+
+&lt;p&gt;However it was not clear how to navigate the package tree (the links are in the name of the package itself). One package was hosted on GitHub and a direct link to the repo was provided on the package page - so the user has the option of viewing the source on GitHub if they prefer it to metacpan.&lt;/p&gt;
+
+&lt;h4 id=&#34;source-5-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Source: &lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;No information was provided by metacpan on how to install a module.&lt;/p&gt;
+
+&lt;h4 id=&#34;installation-1-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Installation: &lt;sup&gt;1&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;h5 id=&#34;metacpan-overall-3-8:e4033a7178e3036bc1983cb5214477f8&#34;&gt;metacpan overall: 3.8&lt;/h5&gt;
+
+&lt;p&gt;Node.js: npm&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_npm.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.npmjs.org/&#34;&gt;npm&lt;/a&gt; is the Node.js package manager. It boasts over 89,500 packages, which is the most of any package manager in this review.&lt;/p&gt;
+
+&lt;p&gt;The npm search results were good: although the target Selenium &lt;a href=&#34;https://www.npmjs.org/package/selenium-webdriver&#34;&gt;package&lt;/a&gt; was 7th in the list of results, both the SQLite3 and Web Framework searches returned the target packages (&lt;a href=&#34;https://www.npmjs.org/package/sqlite3&#34;&gt;sqlite3&lt;/a&gt;, [](&lt;a href=&#34;https://www.npmjs.org/package/express)express&#34;&gt;https://www.npmjs.org/package/express)express&lt;/a&gt;) first in the results list. npm displayed the package name, description, download statistics, a &amp;ldquo;star&amp;rdquo; count and a keyword list. The search results were paginated and no filtering or sorting function was provided.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_npm_search_webf.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;search-5-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Search: &lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;npm provided a useful set of metadata including: download statistics, license, issues link, version, dependencies and dependant packages When available it also pulled the Travis CI status from GitHub. No information was provided regarding unit test coverage or platform availability. There didn&amp;rsquo;t seem to be a function for adding user reviews of packages to npm.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_npm_express.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;metadata-4-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Metadata: &lt;sup&gt;4&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;Documentation was poor - npm just displayed the package readme. Although the documentation was consistently styled, it was not consistent in layout or content. Every package used different headings and different content.&lt;/p&gt;
+
+&lt;h4 id=&#34;documentation-2-5-2:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Documentation: &lt;sup&gt;2&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;npm just provided links to the source repo. The Selenium &lt;a href=&#34;https://code.google.com/p/selenium/&#34;&gt;repo&lt;/a&gt; was on Google Code and npm provided the URL but did not link to it. The Selenium source code link did not even direct to the Node.js package - it went to the main Selenium source code. The other two packages (SQLite3, express) were better: they were GitHub hosted with consistent package trees (lib and test directories) and it was easy to browse the source.&lt;/p&gt;
+
+&lt;h4 id=&#34;source-3-5-1:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Source: &lt;sup&gt;3&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;The npm homepage explained how to install a package, and linked to a more detailed page of examples. Every package page included installation instructions. All three packages installed without issue. It wasn&amp;rsquo;t clear if any unit tests were run as part of installation.&lt;/p&gt;
+
+&lt;h4 id=&#34;installation-5-5-2:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Installation: &lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;h5 id=&#34;npm-overall-3-8:e4033a7178e3036bc1983cb5214477f8&#34;&gt;npm overall: 3.8&lt;/h5&gt;
+
+&lt;h3 id=&#34;ruby-rubygems:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Ruby: RubyGems&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_gem.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://rubygems.org&#34;&gt;RubyGems&lt;/a&gt; is the Ruby package manager and has over 87,000 packages.&lt;/p&gt;
+
+&lt;p&gt;RubyGems search was mixed, for the SQLite3 and Selenium searches the target package was returned in the top 2 results. However RubyGems returned no results for the Web Framework search, which given the popularity of Ruby on Rails is astonishing. For each search result RubyGems displayed the package name, description and number of downloads. Results were paginated and no facility was provided for sorting or filtering the results returned.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_gem_search_webf.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;search-2-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Search: &lt;sup&gt;2&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;A basic set of metadata was provided: package name, description, author(s), version number, download statistics, license name, dependencies and a version history time line. There was no facility to &amp;ldquo;star&amp;rdquo; or review a module. No information was provided regarding cross platform support or unit test coverage.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_gem_sqlite.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;metadata-2-5-1:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Metadata: &lt;sup&gt;2&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;RubyGems&amp;rsquo; documentation consisted of a link to an external site. The SQLite3 package used &lt;a href=&#34;http://rubydoc.info/&#34;&gt;RubyDoc&lt;/a&gt; which is like a nicer-looking JavaDoc. Selenium-Webdriver used Google code and in the case of Sinatra, their own &lt;a href=&#34;http://www.sinatrarb.com/&#34;&gt;website&lt;/a&gt;. The documentation was inconsistent in style, layout, content and quality.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/110/pm_gem_sqlite_doc.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;documentation-2-5-3:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Documentation: &lt;sup&gt;2&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;RubyGems provided a link to the externally hosted repo for 2 packages (&lt;a href=&#34;http://rubygems.org/gems/sinatra&#34;&gt;Sinatra&lt;/a&gt;, &lt;a href=&#34;http://rubygems.org/gems/selenium-webdriver&#34;&gt;Selenium-Webdriver&lt;/a&gt;). The Selenium source code &lt;a href=&#34;https://code.google.com/p/selenium/source/list&#34;&gt;link&lt;/a&gt; was to the base Selenium package, not the Ruby package. For the SQLite3 package no link to the source code was provided.&lt;/p&gt;
+
+&lt;h4 id=&#34;source-2-5-1:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Source: &lt;sup&gt;2&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;p&gt;Every package page provided command line installation instructions. However on my machine (Fedora 19), 2 of the packages failed to install with the same error: &lt;code&gt;mkmf.rb can&#39;t find header files for ruby&lt;/code&gt;. I was able to install the packages using the Fedora package manager instead.&lt;/p&gt;
+
+&lt;h4 id=&#34;installation-2-5:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Installation: &lt;sup&gt;2&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt;&lt;/h4&gt;
+
+&lt;h5 id=&#34;rubygems-overall-2-0:e4033a7178e3036bc1983cb5214477f8&#34;&gt;RubyGems overall: 2.0&lt;/h5&gt;
+
+&lt;h3 id=&#34;conclusion:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.npmjs.org/&#34;&gt;npm&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; both scored 3.8 and tied for first place. npm has a great search feature, but needs better documentation. No package manager provided a means for sorting or further filtering the search results, which seems like a missed opportunity - it would be very helpful to be able to sort search results by the date of last upload - this would help the user eliminate stale packages from the results.&lt;/p&gt;
+
+&lt;p&gt;metacpan&amp;rsquo;s search could have been better but it&amp;rsquo;s documentation was excellent. It&amp;rsquo;s interesting that CPAN enforces almost zero requirements on documentation, yet overall it scored the highest. This might be because the underlying CPAN toolchain is 19 years old and has well-established conventions. metacpan also presented the source code nicely with several enhancements to make it easier, such as being able to toggle the display of inline documentation. metacpan should provide installation instructions for every package, which would be easy boilerplate using the &lt;code&gt;cpan&lt;/code&gt; command line tool. The distributed network of CPAN mirrors may mean that download statistics are not easily available to metacpan, but it could be a useful addition to the rich set of package metadata that metacpan provides.&lt;/p&gt;
+
+&lt;p&gt;PyPI and Packagist were all-rounders, with each scoring 3.0. In both cases better documentation and more package metadata would make them more usable.&lt;/p&gt;
+
+&lt;p&gt;RubyGems score of just 2.0 leaves room for improvement in all areas. I&amp;rsquo;m guessing but I think the strange search results could be improved by searching the package description as well as the package name, so that searches for &amp;ldquo;web framework&amp;rdquo; returns results.&lt;/p&gt;
+
+&lt;p&gt;In part two I&amp;rsquo;ll consider how well each of these package managers enables users to upload and share packages.&lt;/p&gt;
+
+&lt;h3 id=&#34;evaluation:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Evaluation&lt;/h3&gt;
+
+&lt;p&gt;The results are subjective but I hope they&amp;rsquo;re approximately representative. Choosing different search terms could have changed the results significantly - perhaps different packages are better documented than others for example. Also the uniform weighting given to each of the criteria could be changed to reflect the relative importance of each criterion (is search is more important than source code accessibility?). Also don&amp;rsquo;t rule out author ignorance :). The list of package managers could also be expanded. I&amp;rsquo;ve focused here on scripting language package managers, but there are &lt;a href=&#34;http://www.modulecounts.com/&#34;&gt;many&lt;/a&gt; to choose from.&lt;/p&gt;
+
+&lt;h3 id=&#34;thanks:e4033a7178e3036bc1983cb5214477f8&#34;&gt;Thanks&lt;/h3&gt;
+
+&lt;p&gt;Thanks to Neil Bowers for providing the initial idea and feedback on this article. All errors are my own.&lt;/p&gt;
 </description>
     </item>
     
     <item>
-      <title>What&#39;s new on CPAN - August 2015</title>
-      <link>http://perltricks.com/article/192/2015/9/3/What-s-new-on-CPAN---August-2015/</link>
-      <pubDate>Thu, 03 Sep 2015 13:19:15 +0000</pubDate>
+      <title>Celebrate CPAN day on August 16th</title>
+      <link>http://perltricks.com/article/109/2014/8/13/Celebrate-CPAN-day-on-August-16th/</link>
+      <pubDate>Wed, 13 Aug 2014 12:43:17 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/192/2015/9/3/What-s-new-on-CPAN---August-2015/</guid>
+      <guid>http://perltricks.com/article/109/2014/8/13/Celebrate-CPAN-day-on-August-16th/</guid>
       <description>
 
-&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!&lt;/p&gt;
+&lt;p&gt;Back in 1995 CPAN was a visionary concept that propelled Perl to the height of its popularity during the dotcom boom. For the first time there was a single, integrated online system for Perl programmers to distribute software. Today CPAN continues to go from &lt;a href=&#34;http://neilb.org/cpan-report/&#34;&gt;strength to strength&lt;/a&gt; as Perl&amp;rsquo;s &amp;ldquo;killer feature&amp;rdquo;. CPAN Day is August the 16th - the day of the first ever upload to CPAN, and a fantastic opportunity to celebrate our wonderful tool and give back to the Perl community.&lt;/p&gt;
 
-&lt;h3 id=&#34;module-of-the-month:a2fa62f2f32e0514896046b0a9426c85&#34;&gt;Module of the month&lt;/h3&gt;
+&lt;h3 id=&#34;ways-to-celebrate:37fcf7f7809608d85d3fba77ced9a502&#34;&gt;Ways to celebrate&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/Crypt::HSXKPasswd&#34;&gt;Crypt::HSXKPasswd&lt;/a&gt; is a new module for generating secure, memorable passwords inspired by &lt;a href=&#34;https://xkcd.com/936/&#34;&gt;XKCD&lt;/a&gt;. The module is highly configurable, supporting different word dictionaries, generation and padding rules.&lt;/p&gt;
-
-&lt;p&gt;Module author Bart Busschots has provided rich documentation which includes the theory behind secure passwords and the methods supported by Crypt::HSXKPasswd. Start using securer passwords today!&lt;/p&gt;
-
-&lt;h3 id=&#34;apis-apps:a2fa62f2f32e0514896046b0a9426c85&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
+&lt;p&gt;The idea of CPAN Day was conceived by Philippe Bruhat from an IRC conversation with Neil Bowers. Since then, Neil has blogged daily about different ways to celebrate CPAN Day. Most of these ideas are Neil&amp;rsquo;s:&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Amazon::CloudFront::Thin&#34;&gt;Amazon::CloudFront::Thin&lt;/a&gt; aims to be a lightweight, request-level Amazon CloudFront&lt;/li&gt;
-&lt;li&gt;A non-blocking API for Amazon&amp;rsquo;s SQS: &lt;a href=&#34;https://metacpan.org/pod/Amazon::SQS::Simple::AnyEvent&#34;&gt;Amazon::SQS::Simple::AnyEvent&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::Gre&#34;&gt;App::Gre&lt;/a&gt; is a grep clone with better file filtering&lt;/li&gt;
-&lt;li&gt;Use the latest version of Google&amp;rsquo;s reCAPTCHA API with &lt;a href=&#34;https://metacpan.org/pod/Captcha::reCAPTCHA::V2&#34;&gt;Captcha::reCAPTCHA::V2&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Menlo&#34;&gt;Menlo&lt;/a&gt; is an early release of the next version of &lt;code&gt;cpanm&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::Google::WebmasterTools&#34;&gt;Net::Google::WebmasterTools&lt;/a&gt; is a Perly interface to the Google WebmasterTools Reporting API&lt;/li&gt;
+&lt;li&gt;Help make history by releasing a new &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/07/the-ghost-of-cpan-days-past.html&#34;&gt;distribution&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Give your module good &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/07/give-your-modules-a-good-abstract.html&#34;&gt;extract&lt;/a&gt;, &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/craft-the-first-paragraph-of-your-description.html&#34;&gt;description&lt;/a&gt;, &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/07/give-your-modules-a-good-synopsis.html&#34;&gt;synopsis&lt;/a&gt; []() or &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/07/give-your-module-a-good-see-also-section.html&#34;&gt;see also&lt;/a&gt; section&lt;/li&gt;
+&lt;li&gt;Thank a &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/thank-a-cpan-author-on-cpan-day.html&#34;&gt;CPAN author&lt;/a&gt; or acknowledge a &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/acknowledge-your-contributors-on-cpan-day.html&#34;&gt;contributor&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Help keep Perl strong and donate to the &lt;a href=&#34;https://secure.donor.com/pf012/give&#34;&gt;Perl Foundation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Put your module on &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/put-your-cpan-distributions-on-github.html&#34;&gt;Github&lt;/a&gt; so other programmers can easily contribute&lt;/li&gt;
+&lt;li&gt;Classify your &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/classify-your-rt-tickets-on-cpan-day.html&#34;&gt;RT tickets&lt;/a&gt; or fix a &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/fix-a-bug-on-cpan-day.html&#34;&gt;bug&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;If you have a stable module, let others know and update the distribution version to 1.0&lt;/li&gt;
+&lt;li&gt;Check your &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/check-your-test-coverage-with-develcover.html&#34;&gt;test coverage&lt;/a&gt; with Devel::Cover&lt;/li&gt;
+&lt;li&gt;Make your module more portable by fixing your CPAN Testers &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/fix-your-cpan-testers-failures.html&#34;&gt;failures&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Increase your module&amp;rsquo;s &amp;ldquo;kwalitee&amp;rdquo; by improving your &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/get-cpants-clean-on-cpan-day.html&#34;&gt;CPANTS rating&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Maybe improve your module &lt;a href=&#34;http://blogs.perl.org/users/neilb/2014/08/dont-be-afraid-to-rename-your-module-dist.html&#34;&gt;name&lt;/a&gt; or remove the &lt;a href=&#34;http://blogs.perl.org/users/book/2014/08/curating-cpan-sometimes-mean-deleting-stuff.html&#34;&gt;module&lt;/a&gt; entirely&lt;/li&gt;
+&lt;li&gt;Write an article about your favourite CPAN module&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&#34;config-devops:a2fa62f2f32e0514896046b0a9426c85&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
+&lt;p&gt;So there are loads of different ways to contribute! Earlier today I caught up with Neil Bowers and asked him if he had to pick one, which was the most important contribution. Neil said:&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Log::Emitter&#34;&gt;Log::Emitter&lt;/a&gt; is a simple logger based on Mojo::Log&lt;/li&gt;
-&lt;li&gt;A Perl mail authentication milter: &lt;a href=&#34;https://metacpan.org/pod/Mail::Milter::Authentication&#34;&gt;Mail::Milter::Authentication&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::NSCAng::Client&#34;&gt;Net::NSCAng::Client&lt;/a&gt; can submit host and service monitoring Nagios data&lt;/li&gt;
-&lt;li&gt;Find out your public IP address with &lt;a href=&#34;https://metacpan.org/pod/OpenDNS::MyIP&#34;&gt;OpenDNS::MyIP&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Svsh&#34;&gt;Svsh&lt;/a&gt; is a process supervision shell for daemontools, perp, s6 and runit&lt;/li&gt;
-&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;I would pick the see also section - it outlines other relevant modules, the pros and cons of each one and saves people time when first approaching a problem.&lt;/p&gt;
+&lt;/blockquote&gt;
 
-&lt;h3 id=&#34;data:a2fa62f2f32e0514896046b0a9426c85&#34;&gt;Data&lt;/h3&gt;
+&lt;p&gt;For you self-interested module authors out there, Neil also explained that a good SEE ALSO section can make your own module more popular. This is because &lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; is built on elastic search and by listing other modules in the SEE ALSO, you ensure that your modules appear in the search results for those other modules.&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Apache::Hadoop::Config&#34;&gt;Apache::Hadoop::Config&lt;/a&gt; is a Perl extension for Hadoop node configuration&lt;/li&gt;
-&lt;li&gt;Get flexible parameter binding and record fetching with &lt;a href=&#34;https://metacpan.org/pod/DBIx::FlexibleBinding&#34;&gt;DBIx::FlexibleBinding&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Generate EPUB documents from Pod using &lt;a href=&#34;https://metacpan.org/pod/EBook::EPUB::Lite&#34;&gt;EBook::EPUB::Lite&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Validate data against a JSON schema with &lt;a href=&#34;https://metacpan.org/pod/JSON::Validator&#34;&gt;JSON::Validator&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::SMTP::Verify&#34;&gt;Net::SMTP::Verify&lt;/a&gt; validates SMTP recipient addresses&lt;/li&gt;
-&lt;li&gt;Truncate your large strings using &lt;a href=&#34;https://metacpan.org/pod/String::Snip&#34;&gt;String::Snip&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Swagger2::Markdown&#34;&gt;Swagger2::Markdown&lt;/a&gt; can convert a Swagger2 spec to various markdown formats&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/XMLRPC::Fast&#34;&gt;XMLRPC::Fast&lt;/a&gt; is a high performance XML-RPC encoder/decoder&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;So how will you celebrate CPAN Day? Even if you did just one of the above suggestions, you&amp;rsquo;d be supporting the community in some way. Apparently some of CPAN&amp;rsquo;s most prolific authors are planning large releases to CPAN. Diff records will be broken, commit history will be made. I&amp;rsquo;m planning to move my modules to GitHub and to thank an author. I can&amp;rsquo;t wait to see what everyone else does. The inaugural CPAN Day is August 16th 2014, let&amp;rsquo;s make it &lt;em&gt;our&lt;/em&gt; day!&lt;/p&gt;
 
-&lt;h3 id=&#34;development-version-control:a2fa62f2f32e0514896046b0a9426c85&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
+&lt;h3 id=&#34;thanks:37fcf7f7809608d85d3fba77ced9a502&#34;&gt;Thanks&lt;/h3&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Backbone::Events&#34;&gt;Backbone::Events&lt;/a&gt; is a port of the Backbone.js event API&lt;/li&gt;
-&lt;li&gt;Detect the caller level of compiling code with &lt;a href=&#34;https://metacpan.org/pod/Devel::CompileLevel&#34;&gt;Devel::CompileLevel&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/MooX::TypeTiny&#34;&gt;MooX::TypeTiny&lt;/a&gt; provides optimized type checks for Moo with Type::Tiny&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/PPIx::Refactor&#34;&gt;PPIx::Refactor&lt;/a&gt; creates hooks for refactoring Perl, based on PPI&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Role::EventEmitter&#34;&gt;Role::EventEmitter&lt;/a&gt; Event emitter role for Moo(se) classes&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Test::Deep::Filter&#34;&gt;Test::Deep::Filter&lt;/a&gt; filter matched elements before doing deep data comparisons&lt;/li&gt;
-&lt;li&gt;Specify the time for unit tests &lt;a href=&#34;https://metacpan.org/pod/Test::Time::At&#34;&gt;Test::Time::At&lt;/a&gt; - looks great for testing tricky date times&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Tk::FormUI&#34;&gt;Tk::FormUI&lt;/a&gt; is a Moo-based object oriented interface for creating Tk forms&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;hardware:a2fa62f2f32e0514896046b0a9426c85&#34;&gt;Hardware&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/AppleII::LibA2&#34;&gt;AppleII::LibA2&lt;/a&gt; is an Apple II emulator&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Device::PiFace&#34;&gt;Device::PiFace&lt;/a&gt; provides a Perly interface to manage PiFace boards&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Device::ProXR&#34;&gt;Device::ProXR&lt;/a&gt; is a Moo-based object oriented interface for creating controllers using the National Control Devices ProXR command set&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;language-international:a2fa62f2f32e0514896046b0a9426c85&#34;&gt;Language &amp;amp; International&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Hyphenate French words with &lt;a href=&#34;https://metacpan.org/pod/Lingua::FR::Hyphen&#34;&gt;Lingua::FR::Hyphen&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Lingua::NO::Syllable&#34;&gt;Lingua::NO::Syllable&lt;/a&gt; can count the number of syllables in Norwegian words&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Locale::India&#34;&gt;Locale::India&lt;/a&gt; can be used for state and union territory identification in India&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;other:a2fa62f2f32e0514896046b0a9426c85&#34;&gt;Other&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::Randf&#34;&gt;App::Randf&lt;/a&gt; is a random filter for STDIN&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Acme::this&#34;&gt;Acme::this&lt;/a&gt; prints the Zen of Perl&lt;/li&gt;
-&lt;li&gt;Looking for secure, memorable password generator inspired &lt;a href=&#34;https://xkcd.com/936/&#34;&gt;XKCD&lt;/a&gt;? You might like &lt;a href=&#34;https://metacpan.org/pod/Crypt::HSXKPasswd&#34;&gt;Crypt::HSXKPasswd&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Get PHP&amp;rsquo;s &lt;code&gt;parse_str&lt;/code&gt; function using &lt;a href=&#34;https://metacpan.org/pod/PHP::ParseStr&#34;&gt;PHP::ParseStr&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Disable &lt;code&gt;state&lt;/code&gt; keyword for testing with &lt;a href=&#34;https://metacpan.org/pod/Test::NoState&#34;&gt;Test::NoState&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;science-mathematics:a2fa62f2f32e0514896046b0a9426c85&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Crypt::ECDH_ES&#34;&gt;Crypt::ECDH_ES&lt;/a&gt; aims to be a fast and small hybrid crypto system&lt;/li&gt;
-&lt;li&gt;Get dependency resolution with &lt;a href=&#34;https://metacpan.org/pod/Dependency::Resolver&#34;&gt;Dependency::Resolver&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Math::Groups&#34;&gt;Math::Groups&lt;/a&gt; finds &amp;ldquo;automorphisms of groups and isomorphisms between groups&amp;rdquo;&lt;/li&gt;
-&lt;li&gt;Get some useful Math functions with &lt;a href=&#34;https://metacpan.org/pod/Math::Utils&#34;&gt;Math::Utils&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/PDLA&#34;&gt;PDLA&lt;/a&gt; the Perl Data Language - seems familiar &amp;hellip;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Path::Hilbert::XS&#34;&gt;Path::Hilbert::XS&lt;/a&gt; is a fast implementation of a Hilbert Path algorithm&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;web:a2fa62f2f32e0514896046b0a9426c85&#34;&gt;Web&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Catalyst::TraitFor::Request::QueryFromJSONY&#34;&gt;Catalyst::TraitFor::Request::QueryFromJSONY&lt;/a&gt; supports JSONY query parameters&lt;/li&gt;
-&lt;li&gt;Get even faster HTTP headers using &lt;a href=&#34;https://metacpan.org/pod/HTTP::Headers::Fast::XS&#34;&gt;HTTP::Headers::Fast::XS&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Build swat tests from Mojo routes with &lt;a href=&#34;https://metacpan.org/pod/Mojolicious::Command::swat&#34;&gt;Mojolicious::Command::swat&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;Thanks to Neil Bowers for contributing additional detail in support of this article.&lt;/p&gt;
 </description>
     </item>
     
     <item>
-      <title>What&#39;s new on CPAN - July 2015</title>
-      <link>http://perltricks.com/article/184/2015/8/4/What-s-new-on-CPAN---July-2015/</link>
-      <pubDate>Tue, 04 Aug 2015 12:55:33 +0000</pubDate>
+      <title>Parse Excel with ease using Perl</title>
+      <link>http://perltricks.com/article/108/2014/8/5/Parse-Excel-with-ease-using-Perl/</link>
+      <pubDate>Tue, 05 Aug 2014 13:41:48 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/184/2015/8/4/What-s-new-on-CPAN---July-2015/</guid>
+      <guid>http://perltricks.com/article/108/2014/8/5/Parse-Excel-with-ease-using-Perl/</guid>
       <description>
 
-&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!&lt;/p&gt;
+&lt;p&gt;In the business world, it seems like Excel spreadsheets are everywhere. Recently I had to parse several hundred spreadsheets under a tight deadline for a client. To make matters worse, the spreadsheets were in a mix of Excel 2003 (xls) and 2007 (xlsx) formats. Fortunately I know Perl, and using the Spreadsheet::Read module, it was easy. This article will show you how to use Spreadsheet::Read to parse Excel spreadsheets.&lt;/p&gt;
 
-&lt;h3 id=&#34;module-of-the-month:30fbdbf2558374330f77ce846b6202af&#34;&gt;Module of the month&lt;/h3&gt;
+&lt;h3 id=&#34;requirements:0b46a0650427715cdfe7d0a01e84588d&#34;&gt;Requirements&lt;/h3&gt;
 
-&lt;p&gt;There have been many inside-out object implementations, but none like this. &lt;a href=&#34;https://metacpan.org/pod/Dios&#34;&gt;Dios&lt;/a&gt; is a &amp;ldquo;Declarative Inside-Out Syntax&amp;rdquo; object system by Damian Conway. It&amp;rsquo;s a Perl 6-style object system that supports functions, methods, signatures, public/private/readonly attributes, types and structured exceptions.&lt;/p&gt;
+&lt;p&gt;You&amp;rsquo;ll need to install &lt;a href=&#34;https://metacpan.org/pod/Spreadsheet::Read&#34;&gt;Spreadsheet::Read&lt;/a&gt; and a couple of interface modules. &lt;a href=&#34;https://metacpan.org/pod/Spreadsheet::ParseExcel&#34;&gt;Spreadsheet::ParseExcel&lt;/a&gt; is an interface for Excel 2003 spreadsheets and &lt;a href=&#34;https://metacpan.org/pod/Spreadsheet::XLSX&#34;&gt;Spreadsheet::XLSX&lt;/a&gt; is for reading the modern Excel format. You can install all three modules from the terminal using cpan:&lt;/p&gt;
 
-&lt;p&gt;Dios comes with comprehensive documentation and a decent test suite. Implemented using Keyword::Declare (another new module from Damian), it even garnered &lt;a href=&#34;http://cpanratings.perl.org/dist/Dios&#34;&gt;praise&lt;/a&gt; from Reini Urban who identified one thing you may miss - no support for roles. Time will tell if they&amp;rsquo;re added, but for now I can only say &amp;ldquo;WOW!&amp;rdquo;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Spreadsheet::ParseExcel Spreadsheet::XLSX Spreadsheet::Read
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;apis:30fbdbf2558374330f77ce846b6202af&#34;&gt;APIs&lt;/h3&gt;
+&lt;h3 id=&#34;using-spreadsheet-read:0b46a0650427715cdfe7d0a01e84588d&#34;&gt;Using Spreadsheet::Read&lt;/h3&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/CMS::Drupal&#34;&gt;CMS::Drupal&lt;/a&gt; provides a Perl interface to Drupal, the CMS&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Marketplace::Ebay&#34;&gt;Marketplace::Ebay&lt;/a&gt; make API calls to eBay (with XSD validation)&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Protocol::Matrix&#34;&gt;Protocol::Matrix&lt;/a&gt; helper functions for the Matrix protocol&lt;/li&gt;
-&lt;li&gt;Al Newkirk released APIs for &lt;a href=&#34;https://metacpan.org/pod/API::Twitter&#34;&gt;Twitter&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/API::Facebook&#34;&gt;Facebook&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WebService::PayPal::PaymentsAdvanced&#34;&gt;WebService::PayPal::PaymentsAdvanced&lt;/a&gt; is a simple wrapper around the PayPal Payments Advanced web service&lt;/li&gt;
-&lt;li&gt;Shorten links using OneShortLink with &lt;a href=&#34;https://metacpan.org/pod/WWW::Shorten::OneShortLink&#34;&gt;WWW::Shorten::OneShortLink&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Interface with Amazon Marketplace Web Services using &lt;a href=&#34;https://metacpan.org/pod/Amazon::MWS&#34;&gt;Amazon::MWS&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Analyze the configuration of any SSL web server on the using ssllabs.com with &lt;a href=&#34;https://metacpan.org/pod/WebService::SSLLabs&#34;&gt;WebService::SSLLabs&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;Let&amp;rsquo;s parse the spreadsheet shown in the cover image, which contains an income statement. Spreadsheet::Read provides a simple, unified interface for reading spreadsheets. It exports the &lt;code&gt;ReadData&lt;/code&gt; function which requires a filepath to the spreadsheet:&lt;/p&gt;
 
-&lt;h3 id=&#34;apps:30fbdbf2558374330f77ce846b6202af&#34;&gt;Apps&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Spreadsheet::Read;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::podispell&#34;&gt;App::podispell&lt;/a&gt; is an interactive Pod spell checker&lt;/li&gt;
-&lt;li&gt;Prefix linedata with their arrival timestamp using &lt;a href=&#34;https://metacpan.org/pod/App::Timestamper&#34;&gt;App::Timestamper&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/App::perlsh&#34;&gt;App::perlsh&lt;/a&gt; is a tiny Perl REPL, nice!&lt;/li&gt;
-&lt;li&gt;Keep an eye on network port changes with &lt;a href=&#34;https://metacpan.org/pod/App::Monport&#34;&gt;App::Monport&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+my $workbook = ReadData(&#39;income_statement.xlsx&#39;);
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;config-devops:30fbdbf2558374330f77ce846b6202af&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
+&lt;p&gt;Now &lt;code&gt;$workbook&lt;/code&gt; contains the data structure representing the spreadsheet. We can inspect this structure by printing it with &lt;a href=&#34;https://metacpan.org/pod/Data::Printer&#34;&gt;Data::Printer&lt;/a&gt;:&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/NetHack::NAOdash&#34;&gt;NetHack::NAOdash&lt;/a&gt; extracts statistics from NetHack xlogfiles&lt;/li&gt;
-&lt;li&gt;Two C library installers: &lt;a href=&#34;https://metacpan.org/pod/Alien::Libbz2&#34;&gt;Alien::Libbz2&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/Alien::TinyCCx&#34;&gt;Alien::TinyCCx&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Run an SNTP Server with &lt;a href=&#34;https://metacpan.org/pod/Net::SNTP::Server&#34;&gt;Net::SNTP::Server&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/File::Dedup&#34;&gt;File::Dedup&lt;/a&gt; can dedupe files across directories&lt;/li&gt;
-&lt;li&gt;Run the same command via SSH on many remote servers at the same time using &lt;a href=&#34;https://metacpan.org/pod/App::SSH::Cluster&#34;&gt;App::SSH::Cluster&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ [
+    [0] {
+        error     undef,
+        parser    &amp;quot;Spreadsheet::XLSX&amp;quot;,
+        sheet     {
+            Sheet1   1
+        },
+        sheets    1,
+        type      &amp;quot;xlsx&amp;quot;,
+        version   0.13
+    },
+    [1] {
+        attr     [],
+        B1       &amp;quot;Income Statement 2014&amp;quot;,
+        B2       &amp;quot;Revenue&amp;quot;,
+        B3       &amp;quot;Cost of goods sold&amp;quot;,
+        B4       &amp;quot;Gross profit&amp;quot;,
+        B5       &amp;quot;Financing costs&amp;quot;,
+        B6       &amp;quot;Tax&amp;quot;,
+        B7       &amp;quot;Net profit&amp;quot;,
+        cell     [
+            [0] [],
+            [1] [],
+            [2] [
+                [0] undef,
+                [1] &amp;quot;Income Statement 2014&amp;quot;,
+                [2] &amp;quot;Revenue&amp;quot;,
+                [3] &amp;quot;Cost of goods sold&amp;quot;,
+                [4] &amp;quot;Gross profit&amp;quot;,
+                [5] &amp;quot;Financing costs&amp;quot;,
+                [6] &amp;quot;Tax&amp;quot;,
+                [7] &amp;quot;Net profit&amp;quot;
+            ],
+            [3] [
+                [0] undef,
+                [1] undef,
+                [2] 50000,
+                [3] 2500,
+                [4] 47500,
+                [5] 7150,
+                [6] 10087.5,
+                [7] 30262.5
+            ]
+        ],
+        C2       &amp;quot; $ 50,000.00 &amp;quot;,
+        C3       &amp;quot; $ 2,500.00 &amp;quot;,
+        C4       &amp;quot; $ 47,500.00 &amp;quot;,
+        C5       &amp;quot; $ 7,150.00 &amp;quot;,
+        C6       &amp;quot; $ 10,087.50 &amp;quot;,
+        C7       &amp;quot; $ 30,262.50 &amp;quot;,
+        label    &amp;quot;Sheet1&amp;quot;,
+        maxcol   3,
+        maxrow   7
+    }
+]
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;data:30fbdbf2558374330f77ce846b6202af&#34;&gt;Data&lt;/h3&gt;
+&lt;p&gt;This shows that &lt;code&gt;$workbook&lt;/code&gt; is an arrayref, whose first element describes the file, and subsequent elements represent the individual worksheets. The &lt;code&gt;label&lt;/code&gt; key pair contains the worksheet name, access it like this:&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Starch&#34;&gt;Starch&lt;/a&gt; is an implementation-independent persistent state class with interfaces for CHI, DBI and DBIx::Class&lt;/li&gt;
-&lt;li&gt;A JSON Merge Patch implementation: &lt;a href=&#34;https://metacpan.org/pod/JSON::MergePatch&#34;&gt;JSON::MergePatch&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Asset::Pack&#34;&gt;Asset::Pack&lt;/a&gt; packs assets into Perl modules that can be fat-packed&lt;/li&gt;
-&lt;li&gt;Interface with the InfluxDB time series database using &lt;a href=&#34;https://metacpan.org/pod/InfluxDB::LineProtocol&#34;&gt;InfluxDB::LineProtocol&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/AnyEvent::InfluxDB&#34;&gt;AnyEvent::InfluxDB&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/DBD::Crate&#34;&gt;DBD::Crate&lt;/a&gt; is a new DBI driver for the Crate database&lt;/li&gt;
-&lt;li&gt;A data selection parser and applicator with simple DSL, take a look at &lt;a href=&#34;https://metacpan.org/pod/Data::Selector&#34;&gt;Data::Selector&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;A Simple Financial Information eXchange (FIX) protocol implementation: &lt;a href=&#34;https://metacpan.org/pod/FIX::Lite&#34;&gt;FIX::Lite&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$workbook-&amp;gt;[1]{label}; #Sheet1
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;development-version-control:30fbdbf2558374330f77ce846b6202af&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
+&lt;p&gt;Cells can be referenced using Excel&amp;rsquo;s grid notation (&amp;ldquo;A3&amp;rdquo;) or via standard Perl array access. The different between these is formatting:&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;Wield lexical control of warnings with &lt;a href=&#34;https://metacpan.org/pod/warnings::lock&#34;&gt;warnings::lock&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;An early release, &lt;a href=&#34;https://metacpan.org/pod/Meta::Grapher::Moose&#34;&gt;Meta::Grapher::Moose&lt;/a&gt; can produce a GraphViz graph showing meta-information about classes and roles&lt;/li&gt;
-&lt;li&gt;Manage Perl&amp;rsquo;s experimental features more easily using &lt;a href=&#34;https://metacpan.org/pod/experimentals&#34;&gt;experimentals&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Keyword::Declare&#34;&gt;Keyword::Declare&lt;/a&gt; let&amp;rsquo;s you declare new keywords, comprehensively documented. Wow!&lt;/li&gt;
-&lt;li&gt;Simple-but-useful &lt;a href=&#34;https://metacpan.org/pod/Devel::Caller::Util&#34;&gt;Devel::Caller::Util&lt;/a&gt; can return the entire caller stack on demand. Useful for printing deep stack traces.&lt;/li&gt;
-&lt;li&gt;Declare exception classes in a single file and import them with &lt;a href=&#34;https://metacpan.org/pod/Throwable::SugarFactory&#34;&gt;Throwable::SugarFactory&lt;/a&gt;. Very nice!&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Test::Core&#34;&gt;Test::Core&lt;/a&gt; is a Perl testing bundle&lt;/li&gt;
-&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$workbook-&amp;gt;[1]{C2}; #$ 50,000.00
 
-&lt;h3 id=&#34;language-international:30fbdbf2558374330f77ce846b6202af&#34;&gt;Language &amp;amp; International&lt;/h3&gt;
+$workbook-&amp;gt;[1]{cell}[3][2]; #50000
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Perl::Tokenizer&#34;&gt;Perl::Tokenizer&lt;/a&gt; is a tiny Perl code tokenizer built from regexes. But is it any good &amp;hellip;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;So if you need to perform additional processing on the data you&amp;rsquo;re extracting (such as saving to a database), you probably want to use the &lt;code&gt;{cell}&lt;/code&gt; notation, to obtain clean data. With Spreadsheet::Read array indexes begin at 1, so cell &amp;ldquo;C2&amp;rdquo; is [3][2].&lt;/p&gt;
 
-&lt;h3 id=&#34;science-mathematics:30fbdbf2558374330f77ce846b6202af&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
+&lt;p&gt;Perhaps you want to loop through two columns at once and print them? No problem:&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;A wrapper for the &amp;lsquo;tsort&amp;rsquo; (topological sort) command line utility &lt;a href=&#34;https://metacpan.org/pod/Sort::TSort&#34;&gt;Sort::TSort&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/PDLDM::Rank&#34;&gt;PDLDM::Rank&lt;/a&gt; calculates and finds tied ranks of a PDL data matrix&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/PDLDM::Common&#34;&gt;PDLDM::Common&lt;/a&gt; provides a few PDL utilities for data mining&lt;/li&gt;
-&lt;li&gt;See the differences of a file as a HTML table with &lt;a href=&#34;https://metacpan.org/pod/Algorithm::Diff::HTMLTable&#34;&gt;Algorithm::Diff::HTMLTable&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;for (2..7) {
+    print &amp;quot;$workbook-&amp;gt;[1]{cell}[2][$_]: $workbook-&amp;gt;[1]{cell}[3][$_]\n&amp;quot;; 
+}
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;web:30fbdbf2558374330f77ce846b6202af&#34;&gt;Web&lt;/h3&gt;
+&lt;p&gt;There are some data points which Spreadsheet::Read does not provide: you cannot access the underlying formula of a cell and the styling data is also not available.&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;Use Google&amp;rsquo;s v2 CAPTCHA service in Mojolicious apps with &lt;a href=&#34;https://metacpan.org/pod/Mojolicious::Plugin::ReCAPTCHAv2&#34;&gt;Mojolicious::Plugin::ReCAPTCHAv2&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mojo::SQLite&#34;&gt;Mojo::SQLite&lt;/a&gt; is a tiny Mojo wrapper for SQLite&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mojolicious::Plugin::Pingen&#34;&gt;Mojolicious::Plugin::Pingen&lt;/a&gt; makes it easy to integrate your Mojo app with the cool Pingen service.&lt;/li&gt;
-&lt;/ul&gt;
+&lt;h3 id=&#34;conclusion:0b46a0650427715cdfe7d0a01e84588d&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Spreadsheet::Read isn&amp;rsquo;t just great for command line apps, it has many uses. Unlike the Microsoft .Net interop library, Perl&amp;rsquo;s Excel interfaces are not single threaded and do not require Excel to be installed to work. Instead Spreadsheet::Read directly parses the Excel file. That makes it possible to process large computing tasks in parallel. Another possible use case is for a spreadsheet upload interface on a web application; Spreadsheet::Read also supports the Libre / Open Office formats as well as CSV text files.&lt;/p&gt;
 </description>
     </item>
     
     <item>
-      <title>What&#39;s new on CPAN - June 2015</title>
-      <link>http://perltricks.com/article/181/2015/7/9/What-s-new-on-CPAN---June-2015/</link>
-      <pubDate>Thu, 09 Jul 2015 13:17:10 +0000</pubDate>
+      <title>Perl distributions, modules, packages explained</title>
+      <link>http://perltricks.com/article/96/2014/6/13/Perl-distributions--modules--packages-explained/</link>
+      <pubDate>Fri, 13 Jun 2014 12:26:00 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/181/2015/7/9/What-s-new-on-CPAN---June-2015/</guid>
+      <guid>http://perltricks.com/article/96/2014/6/13/Perl-distributions--modules--packages-explained/</guid>
       <description>
 
-&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;It can be confusing for new Perl programmers to understand the terminology used to describe Perl distributions and their accompanying files. This article explains the core concepts.&lt;/em&gt;&lt;/p&gt;
 
-&lt;h3 id=&#34;module-of-the-month:27f3983cc5996563eb8c9442d6c1bef6&#34;&gt;Module of the month&lt;/h3&gt;
+&lt;h3 id=&#34;package-module-distribution:17113ac399bf5596ee1d46e47a6ce58b&#34;&gt;Package, Module, Distribution&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/Class::Storage&#34;&gt;Class::Storage&lt;/a&gt; is a module for serializing blessed references (objects). Once serialized, an object can be transmitted via JSON, XML, YAML or saved in a data store. Serializing objects can also make IPC easier: coroutines, threads and other processes can pass text but blessed references are often an issue.&lt;/p&gt;
+&lt;p&gt;A Perl package is just a section of code defined in a .pm file, like this:&lt;/p&gt;
 
-&lt;p&gt;Module author Peter Valdemar Mørch has pulled together excellent documentation. A welcome addition to CPAN, check out the acknowledgements &lt;a href=&#34;https://metacpan.org/pod/Class::Storage#ACKNOWLEDGEMENTS&#34;&gt;section&lt;/a&gt; for some interesting background on the module. For an alternative approach, you might be interested in &lt;a href=&#34;https://metacpan.org/pod/Object::Serializer&#34;&gt;Object::Serializer&lt;/a&gt;. For non-readable serializers, checkout &lt;a href=&#34;https://metacpan.org/pod/Storable&#34;&gt;Storable&lt;/a&gt; and the newer and faster &lt;a href=&#34;https://metacpan.org/pod/Sereal&#34;&gt;Sereal&lt;/a&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Data::Connector;
 
-&lt;p&gt;&lt;strong&gt;Important&lt;/strong&gt; - when working with object serializers like Class::Storage, only deserialize trusted data, as malicious code can be injected into the data, and when the data is deserialized, the code will be executed automatically. See for example this bug &lt;a href=&#34;https://rt.cpan.org/Public/Bug/Display.html?id=105772&#34;&gt;report&lt;/a&gt; (&lt;em&gt;Thanks to Reini Urban for the reminder&lt;/em&gt;).&lt;/p&gt;
+sub connect {
+    # do something
+    ...
+}
+1;
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;apis-apps:27f3983cc5996563eb8c9442d6c1bef6&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
+&lt;p&gt;The start of the package begins with the &amp;ldquo;package&amp;rdquo; declaration. A package is a lot like a class, except that it can denote a collection of subroutines and variables, and not necessarily be instantiated as an object. Usually a .pm file will have one package declaration per file, but you can have multiple packages in a .pm file, similar to Java and C# where you can have multiple classes in a single file.&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/API::Zendesk&#34;&gt;API::Zendesk&lt;/a&gt; provides a Perl interface for the customer support app&lt;/li&gt;
-&lt;li&gt;Painlessly install libsvm, the support vector machine library using &lt;a href=&#34;https://metacpan.org/pod/Alien::LIBSVM&#34;&gt;Alien::LIBSVM&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Use Slack? Of course you do. Check out &lt;a href=&#34;https://metacpan.org/pod/AnyEvent::SlackRTM&#34;&gt;AnyEvent::SlackRTM&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Develop your first Slack bot with &lt;a href=&#34;https://metacpan.org/pod/Bot::Backbone::Service::SlackChat&#34;&gt;Bot::Backbone::Service::SlackChat&lt;/a&gt;!&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Interchange::Search::Solr&#34;&gt;Interchange::Search::Solr&lt;/a&gt; let&amp;rsquo;s you use Solr search with Perl&lt;/li&gt;
-&lt;li&gt;Be popular, send your co-workers Bonusly with &lt;a href=&#34;https://metacpan.org/pod/WebService::Bonusly&#34;&gt;WebService::Bonusly&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WebDriver::Tiny&#34;&gt;WebDriver::Tiny&lt;/a&gt; is an all-new implementation of a Selenium webdriver API for Perl&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;A module is a .pm file (&amp;ldquo;pm&amp;rdquo; means Perl Module). When you import a module with &amp;ldquo;require&amp;rdquo; or &amp;ldquo;use&amp;rdquo;, you are literally referencing the file name and not the package(s) contained in the file. For example to import the &amp;ldquo;Data::Connector&amp;rdquo; package defined above, we could save it in a file called &amp;ldquo;Whatever.pm&amp;rdquo; and later reference it in a script like this:&lt;/p&gt;
 
-&lt;h3 id=&#34;config-devops:27f3983cc5996563eb8c9442d6c1bef6&#34;&gt;Config &amp;amp; DevOps&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Whatever;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Config::App&#34;&gt;Config::App&lt;/a&gt; implements &amp;ldquo;cascading configurations&amp;rdquo; - looks like a convenient way to have context-specific configurations without resorting to Perl code&lt;/li&gt;
-&lt;li&gt;Quickly rind files on your Mac using &lt;a href=&#34;https://metacpan.org/pod/Mac::FindFile&#34;&gt;Mac::FindFile&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Perl::Critic::Freenode&#34;&gt;Perl::Critic::Freenode&lt;/a&gt; is a compilation of policies recommended by the folks on the #perl channel on freenode IRC&lt;/li&gt;
-&lt;li&gt;Include ditaa diagrams in pod with &lt;a href=&#34;https://metacpan.org/pod/Pod::Weaver::Plugin::Ditaa&#34;&gt;Pod::Weaver::Plugin::Ditaa&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+# call connect subroutine declared in Data::Connector package
+Data::Connector::connect();
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;data:27f3983cc5996563eb8c9442d6c1bef6&#34;&gt;Data&lt;/h3&gt;
+&lt;p&gt;All .pm files must end with a &amp;ldquo;true&amp;rdquo; value per Perl&amp;rsquo;s requirements, so most authors either place &amp;ldquo;1;&amp;rdquo; or &amp;ldquo;__PACKAGE__;&amp;rdquo; as the last line of the .pm file. In Perl a true value is any value that is not: null, zero or a zero-length string.&lt;/p&gt;
+
+&lt;p&gt;A distribution is a collection of files that usually includes a Perl module and several other files. There is no strict standard as to which files must be included in a distribution, however for the distribution to be indexed on CPAN and install-able by the CPAN command line client, the distribution needs to include some core files. Distributions have versions - so a Perl module on CPAN will have one distribution for every version of the module. These are the main files and directories you&amp;rsquo;ll encounter in distributions:&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;Extract data from your Zoom 5341J cable modem with &lt;a href=&#34;https://metacpan.org/pod/Device::CableModem::Zoom5341J&#34;&gt;Device::CableModem::Zoom5341J&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Log::Dispatch::HipChat&#34;&gt;Log::Dispatch::HipChat&lt;/a&gt; will send your log messages to HipChat&lt;/li&gt;
-&lt;li&gt;Moving averages are easy to implement, and easy to get wrong. The next time you need one, consider &lt;a href=&#34;https://metacpan.org/pod/Math::SMA&#34;&gt;Math::SMA&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;If you&amp;rsquo;re working with 35mm film and DX codes, you might like &lt;a href=&#34;https://metacpan.org/pod/Photography::DX&#34;&gt;Photography::DX&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;README - a brief description of how to install the distribution, sometimes includes a license and examples of how to use the module(s).&lt;/li&gt;
+&lt;li&gt;LICENSE - the license for the code - a non-commercial license like the GPL, artistic, BSD etc are common.&lt;/li&gt;
+&lt;li&gt;META.yml/ META.json - files that contain the metadata describing the distribution: the author, license, version, pre-requisite modules for use etc. They are auto-generated as part of the distribution build process and can be ignored.&lt;/li&gt;
+&lt;li&gt;Makefile.PL and or Build.PL - these are Perl files that are used to install the module(s) in the distribution. Worth looking at when you&amp;rsquo;re having installation issues.&lt;/li&gt;
+&lt;li&gt;MANIFEST - a list of the files included in the distribution.&lt;/li&gt;
+&lt;li&gt;lib - a directory containing Perl modules - usually the core code of the distribution.&lt;/li&gt;
+&lt;li&gt;t - the test files directory. These are run when the module is installed. If you have failing tests on installation, it can be helpful to review the test files in the t/ directory to find out the specifics of the test.&lt;/li&gt;
+&lt;li&gt;bin - if the distribution contains an app, (Perl script) it will be in here. Often the app uses modules contained in the lib directory.&lt;/li&gt;
+&lt;li&gt;Changes - a list of changes from distribution version to version.&lt;/li&gt;
+&lt;li&gt;xt - the extended test files directory, usually used for author tests that you don&amp;rsquo;t need to run.&lt;/li&gt;
+&lt;li&gt;eg - a directory of example Perl scripts, using the module(s) contained in the distribution.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&#34;development-and-version-control:27f3983cc5996563eb8c9442d6c1bef6&#34;&gt;Development and Version Control&lt;/h3&gt;
+&lt;p&gt;These are the typical directories and files found in a Perl distribution but as there is no fixed standard, distribution authors are free to include and exclude the files they wish. For a good example, check out the files provided by David Golden in a distribution of the the popular &lt;a href=&#34;https://metacpan.org/source/DAGOLDEN/HTTP-Tiny-0.043&#34;&gt;HTTP::Tiny&lt;/a&gt; module.&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;When stuck in Git merge conflict hell, sometimes it&amp;rsquo;s easier to say &amp;ldquo;I&amp;rsquo;m right&amp;rdquo;. &lt;a href=&#34;https://metacpan.org/pod/App::Git::Workflow::Command::Take&#34;&gt;App::Git::Workflow::Command::Take&lt;/a&gt; let&amp;rsquo;s you tell Git to merge your changes. You win!&lt;/li&gt;
-&lt;li&gt;If you have a load of Git repos that you&amp;rsquo;d like to execute a command against, you might like &lt;a href=&#34;https://metacpan.org/pod/App::Multigit&#34;&gt;App::Multigit&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Assert::Conditional&#34;&gt;Assert::Conditional&lt;/a&gt; from Tom Christiansen let&amp;rsquo;s you conditionally compile assertions into your Perl programs, ala C&amp;rsquo;s assert.h. Wow&lt;/li&gt;
-&lt;li&gt;Daemonize &lt;em&gt;anything&lt;/em&gt; with &lt;a href=&#34;https://metacpan.org/pod/JIP::Daemon&#34;&gt;JIP::Daemon&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;h3 id=&#34;conclusion:17113ac399bf5596ee1d46e47a6ce58b&#34;&gt;Conclusion&lt;/h3&gt;
 
-&lt;h3 id=&#34;text-language:27f3983cc5996563eb8c9442d6c1bef6&#34;&gt;Text &amp;amp; Language&lt;/h3&gt;
+&lt;p&gt;Once you get to grips with Perl packages, modules and distributions it&amp;rsquo;s far easier to start hacking on Perl modules that don&amp;rsquo;t work the way you want them to. For example, in the case of a module that won&amp;rsquo;t install, you can download the distribution from CPAN (at the command line &amp;ldquo;cpan -g Module::Name&amp;rdquo;), untar it, and patch the failing tests, or examine the source code in the lib directory and resolve a bug or two. Before long you&amp;rsquo;ll be releasing your own distributions to CPAN!&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Acme::Unicodify&#34;&gt;Acme::Unicodify&lt;/a&gt; can convert ASCII text into Unicode-esque characters&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Crypt::RS14_PP&#34;&gt;Crypt::RS14_PP&lt;/a&gt; is a pure Perl implementation of the RS14 encryption algorithm&lt;/li&gt;
-&lt;li&gt;Convert HTML into FreeStyleWiki markup using &lt;a href=&#34;https://metacpan.org/pod/HTML::WikiConverter::FreeStyleWiki&#34;&gt;HTML::WikiConverter::FreeStyleWiki&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Awesome! detect the language with &lt;a href=&#34;https://metacpan.org/pod/Lingua::Identify::CLD2&#34;&gt;Lingua::Identify::CLD2&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Text::Hogan&#34;&gt;Text::Hogan&lt;/a&gt; is a Perl clone of hogan.js, the JavaScript template engine. Supports pre-compilation!&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;science-and-mathematics:27f3983cc5996563eb8c9442d6c1bef6&#34;&gt;Science and Mathematics&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Algorithm::BloomFilter&#34;&gt;Algorithm::BloomFilter&lt;/a&gt; is a simple, superfast bloom filter implementation written in XS&lt;/li&gt;
-&lt;li&gt;Not a new module, but it is new to CPAN, &lt;a href=&#34;https://metacpan.org/pod/App::Chart&#34;&gt;App::Chart&lt;/a&gt; the visual charting library is useful&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/BioX::Workflow&#34;&gt;BioX::Workflow&lt;/a&gt; is an &amp;ldquo;opinionated template based workflow writer&amp;rdquo;, hailing from the Bioinformatics World, but not just for BioX&lt;/li&gt;
-&lt;li&gt;The Longest Common Subsequence algorithm is used for diffing text, among other uses. &lt;a href=&#34;https://metacpan.org/pod/LCS::XS&#34;&gt;LCS::XS&lt;/a&gt; is a supercharged version, written in XS&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;web:27f3983cc5996563eb8c9442d6c1bef6&#34;&gt;Web&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Extract all of the supported URLs from your Catalyst app using &lt;a href=&#34;https://metacpan.org/pod/Catalyst::Plugin::ActionPaths&#34;&gt;Catalyst::Plugin::ActionPaths&lt;/a&gt; (disclosure, I&amp;rsquo;m the module author)&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Dancer::Plugin::Piwik&#34;&gt;Dancer::Plugin::Piwik&lt;/a&gt; helps you integrate Pwik analytics with a Dancer app&lt;/li&gt;
-&lt;li&gt;Use MongoDB with Minion, the job queue application using &lt;a href=&#34;https://metacpan.org/pod/Minion::Backend::MongoDB&#34;&gt;Minion::Backend::MongoDB&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mojo::Reactor::UV&#34;&gt;Mojo::Reactor::UV&lt;/a&gt; let&amp;rsquo;s you use the C library, libuv as the backend event loop for your Mojo application&lt;/li&gt;
-&lt;li&gt;Rapidly expand shortened URLs with &lt;a href=&#34;https://metacpan.org/pod/WWW::Expand::More&#34;&gt;WWW::Expand::More&lt;/a&gt;. Cool!&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Updated to include other example serializer modules and deserialization warning - 2015-07-09&lt;/p&gt;
+&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F96%2F2014%2F6%2F13%2FPerl-distributions-modules-packages-explained&amp;amp;text=Perl+distributions%2C+modules%2C+packages+explained&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F96%2F2014%2F6%2F13%2FPerl-distributions-modules-packages-explained&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
 </description>
     </item>
     
     <item>
-      <title>What&#39;s new on CPAN - May 2015</title>
-      <link>http://perltricks.com/article/176/2015/6/4/What-s-new-on-CPAN---May-2015/</link>
-      <pubDate>Thu, 04 Jun 2015 15:35:56 +0000</pubDate>
+      <title>Parsing data couldn&#39;t be easier with XML::Dataset</title>
+      <link>http://perltricks.com/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</link>
+      <pubDate>Fri, 09 May 2014 03:14:01 +0000</pubDate>
       
-      <guid>http://perltricks.com/article/176/2015/6/4/What-s-new-on-CPAN---May-2015/</guid>
+      <guid>http://perltricks.com/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</guid>
       <description>
 
-&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;It&amp;rsquo;s hard to believe that when it comes to XML parsing CPAN hasn&amp;rsquo;t already got you covered, but &lt;a href=&#34;https://metacpan.org/pod/XML::Dataset&#34;&gt;XML::Dataset&lt;/a&gt; is a new module that fills a useful void. XML::Dataset let&amp;rsquo;s you declare a plaintext data collection schema, and then goes and extracts the data for you, super fast. Read on to see how it works.&lt;/em&gt;&lt;/p&gt;
 
-&lt;h3 id=&#34;module-of-the-month:2afd27a972d8c2c6e60eb0b4d321004b&#34;&gt;Module of the month&lt;/h3&gt;
+&lt;h3 id=&#34;requirements:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;Requirements&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/App::GitHooks::Plugin::ForceBranchNamePattern&#34;&gt;App::GitHooks::Plugin::ForceBranchNamePattern&lt;/a&gt; will enforce a branch naming pattern using a regex. Author Guillaume Aubert gives the use case of building a Puppet environment from Git branches (Puppet environment names must be alphanumeric). Another example is when you want all Git branch names to map to an issue tracker id.&lt;/p&gt;
+&lt;p&gt;The CPAN Testers results &lt;a href=&#34;http://matrix.cpantesters.org/?dist=XML-Dataset+0.006&#34;&gt;show&lt;/a&gt; that XML::Dataset v0.06 will run on any platform with Perl (down to 5.8.9). To install the module with CPAN, open up the terminal and type:&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&#34;https://metacpan.org/author/AUBERTG&#34;&gt;Guillaume Aubert&lt;/a&gt; has developed many other useful Git hook plugins, such as emitting release messages into Slack and checking Perl code passes a Perl Critic review. Check them out!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan XML::Dataset
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;apis-apps:2afd27a972d8c2c6e60eb0b4d321004b&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
+&lt;h3 id=&#34;your-data-extracted:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;Your data, extracted&lt;/h3&gt;
+
+&lt;p&gt;To use XML::Dataset you&amp;rsquo;ll need some stringified XML source data and a data profile. A profile is just a plaintext schema which specifies the data you&amp;rsquo;d like to extract. Let&amp;rsquo;s look at an example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use XML::Dataset;
+use Data::Printer;
+
+my $sample_data = q(&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;
+&amp;lt;colleagues&amp;gt;
+    &amp;lt;colleague&amp;gt;
+        &amp;lt;title&amp;gt;The Boss&amp;lt;/title&amp;gt;
+        &amp;lt;phone&amp;gt;+1 202-663-9108&amp;lt;/phone&amp;gt;
+    &amp;lt;/colleague&amp;gt;
+    &amp;lt;colleague&amp;gt;
+        &amp;lt;title&amp;gt;Admin Assistant&amp;lt;/title&amp;gt;
+        &amp;lt;phone&amp;gt;+1 347-999-5454&amp;lt;/phone&amp;gt;
+        &amp;lt;email&amp;gt;inbox@the_company.com&amp;lt;/email&amp;gt;
+    &amp;lt;/colleague&amp;gt;
+    &amp;lt;colleague&amp;gt;
+        &amp;lt;title&amp;gt;Minion&amp;lt;/title&amp;gt;
+        &amp;lt;phone&amp;gt;+1 792-123-4109&amp;lt;/phone&amp;gt;
+    &amp;lt;/colleague&amp;gt;
+&amp;lt;/colleagues&amp;gt;);
+
+my $sample_data_profile
+    = q(colleagues
+            colleague
+                title   = dataset:colleagues
+                email   = dataset:colleagues
+                phone   = dataset:colleagues);
+
+p parse_using_profile($sample_data, $sample_data_profile);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above declares a simple XML dataset ($sample_data) and a data profile to extract the required data ($sample_data_profile). XML::Dataset requires every indented newline in the data profile to map to another nested level of the data set. Once we reach the data attributes we want to extract, we simply assign a dataset to them (dataset:colleagues).&lt;/p&gt;
+
+&lt;p&gt;XML::Dataset exports the &amp;ldquo;parse_using_profile&amp;rdquo; function which extracts the data using our data profile and returns a Perl data structure. We use &lt;a href=&#34;https://metacpan.org/pod/Data::Printer&#34;&gt;Data::Printer&lt;/a&gt; to print out the results. Running this code we get this output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ {
+    colleagues   [
+        [0] {
+            phone   &amp;quot;+1 202-663-9108&amp;quot;,
+            title   &amp;quot;The Boss&amp;quot;
+        },
+        [1] {
+            email   &amp;quot;inbox@the_company.com&amp;quot;,
+            phone   &amp;quot;+1 347-999-5454&amp;quot;,
+            title   &amp;quot;Admin Assistant&amp;quot;
+        },
+        [2] {
+            phone   &amp;quot;+1 792-123-4109&amp;quot;,
+            title   &amp;quot;Minion&amp;quot;
+        },
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that XML::Dataset had no problem extracting the one email address that was present in the data, even though the other colleagues did not have that attribute. What if we wanted to collect emails and phone numbers, but in separate datasets? All we need to do is update $sample_data_profile with two datasets:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $sample_data_profile
+    = q(colleagues
+            colleague
+                title   = dataset:emails dataset:phones
+                email   = dataset:emails
+                phone   = dataset:phones);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Re-running the code, XML::Dataset now produces two datasets for us:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ {
+    emails   [
+        [0] {
+            title   &amp;quot;The Boss&amp;quot;
+        },
+        [1] {
+            email   &amp;quot;inbox@the_company.com&amp;quot;,
+            title   &amp;quot;Admin Assistant&amp;quot;
+        },
+        [2] {
+            title   &amp;quot;Minion&amp;quot;
+        }
+    ],
+    phones   [
+        [0] {
+            phone   &amp;quot;+1 202-663-9108&amp;quot;,
+            title   &amp;quot;The Boss&amp;quot;
+        },
+        [1] {
+            phone   &amp;quot;+1 347-999-5454&amp;quot;,
+            title   &amp;quot;Admin Assistant&amp;quot;
+        },
+        [2] {
+            phone   &amp;quot;+1 792-123-4109&amp;quot;,
+            title   &amp;quot;Minion&amp;quot;
+        }
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;a-real-example:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;A real example&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s write a program to parse a a more realistic data set. Many websites provide a sitemap that lists all of the content on the website, and when it was last updated. This information is used by search engines to optimize their crawling routines. The sitemap has a defined xml format, so it&amp;rsquo;s a cinch to parse it with XML::Dataset:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+use warnings;
+use XML::Dataset;
+use Data::Printer;
+use HTTP::Tiny;
+
+my $url = &#39;http://perltricks.com/sitemap.xml&#39;;
+
+my $sitemap_data 
+    = HTTP::Tiny-&amp;gt;new-&amp;gt;get($url)-&amp;gt;{content};
+
+my $sitemap_data_profile
+    = q(urlset
+            url
+                loc     = dataset:sitemap_locations_modified
+                lastmod = dataset:sitemap_locations_modified);
+
+p parse_using_profile($sitemap_data, $sitemap_data_profile);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code above downloads the PerlTricks.com sitemap using &lt;a href=&#34;https://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt; and extracts every URL and last modified timestamp from the sitemap. Running the code, we get this output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ {
+    sitemap_locations_modified   [
+        [0]  {
+            lastmod   &amp;quot;2014-05-09&amp;quot;,
+            loc       &amp;quot;http://perltricks.com/&amp;quot;
+        },
+        [1]  {
+            lastmod   &amp;quot;2013-03-24&amp;quot;,
+            loc       &amp;quot;http://perltricks.com/article/1/2013/3/24/3-quick-ways-to-find-out-the-version-number-of-an-installed-Perl-module-from-the-terminal&amp;quot;
+        },
+        [2]  {
+            lastmod   &amp;quot;2013-03-27&amp;quot;,
+            loc       &amp;quot;http://perltricks.com/article/3/2013/3/27/How-to-cleanly-uninstall-a-Perl-module&amp;quot;
+        },
+        ...
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;No problem! We could re-use that same program to download and parse any sitemap on the Internet.&lt;/p&gt;
+
+&lt;h3 id=&#34;conclusion:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;XML::Dataset is fantastic for extracting fixed data schemas from XML. The plaintext data profiles are so easy to use, a non-programmer could write them. XML::Dataset is also fast: under the hood it uses XML::LibXML (and a few optimizations) and could be adapted for well-formatted HTML. It has great &lt;a href=&#34;https://metacpan.org/pod/XML::Dataset&#34;&gt;documentation&lt;/a&gt; and offers some advanced features like partial dataset parse dispatching. Module author James Spurin deserves credit for producing a quality module and a welcome addition to CPAN&amp;rsquo;s XML namespace.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Do you have a much-loved CPAN module that you&amp;rsquo;d like us to cover? Drop us an &lt;a href=&#34;mailto:perltricks.com@gmail.com&#34;&gt;email&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;https://creativecommons.org/licenses/by/2.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/dullhunk/3948166814/in/photolist-71TorC-5RcLVC-5RcLk1-5R8vpe-5RcMC9-5R8w7D-5R8v7e-5RcM9Q-5RcLeL-5R8upk-5RcMso-5RcL7J-72QCEU-7KoKym-72QCsE-6FtTJ-6m6pyB-5AJCpY-6FvjN-6FuLy-6FtQL-6Fv4J-5BHeXd-6FuUe-6FtXH-6Fu9t-6FuAs-5AJCs3-5AJCsd-5AJCro-tS2dS-6kzkkD-6kDvjQ-6kDAtY-6kDvzS-6kD45L-6kzqYM-6kDvsE-6kDuys-6kDvcE-6m6prT-6kDupU-6kDuWw-6kDv6j-6kzkd2-6kDALo-5AJCsA-CJhVy-5AJCrN-5MzAkw&#34;&gt;Duncun Hull&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>An interview with Steven Haryanto</title>
+      <link>http://perltricks.com/article/62/2014/1/24/An-interview-with-Steven-Haryanto/</link>
+      <pubDate>Fri, 24 Jan 2014 03:17:09 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/62/2014/1/24/An-interview-with-Steven-Haryanto/</guid>
+      <description>&lt;p&gt;&lt;em&gt;Steven Haryanto is a Perl programmer and &lt;a href=&#34;https://metacpan.org/author/SHARYANTO&#34;&gt;prolific CPAN author&lt;/a&gt;. We recently caught up with him to discuss his development approach and the tools he uses to be be so productive. (Steven tells us that the photo above is representative of his hometown, Bandung).&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;According the recent &lt;a href=&#34;http://neilb.org/cpan-report/&#34;&gt;CPAN report&lt;/a&gt;, you made 769 releases to CPAN last year. How did you become so productive!?&lt;/strong&gt;
+ For what it&amp;rsquo;s worth, I made over 900 releases in 2012, so 2013 is not *that* productive by comparison. Two things made it possible really: a dist build/release tool (I happen to use &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla&#34;&gt;Dist::Zilla&lt;/a&gt;) and the fact that I produce lots of mistakes/bugs :-)&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Of those releases, is there any one in particular that stands out as a significant milestone for you?&lt;/strong&gt;
+ To be honest, no. Things are going mostly incrementally nowadays, which I&amp;rsquo;m happy with. This means I haven&amp;rsquo;t needed to rewrite or redesign a module from scratch so far (well there are a couple of partial rewrites, but not very major).&lt;/p&gt;
+
+&lt;p&gt;The overwhelming majority of modules which I publish on CPAN are those which I use by myself or for work. Currently only a few of those have been confirmed to be used by at least one other person. This includes &lt;a href=&#34;https://metacpan.org/pod/Org::Parser&#34;&gt;Org::Parser&lt;/a&gt;, &lt;a href=&#34;https://metacpan.org/pod/Data:Sah&#34;&gt;Data::Sah&lt;/a&gt;, &lt;a href=&#34;https://metacpan.org/pod/Gepok&#34;&gt;Gepok&lt;/a&gt;,&lt;a href=&#34;https://metacpan.org/pod/Data::Dump::Color&#34;&gt;Data::Dump::Color&lt;/a&gt;, &lt;a href=&#34;https://metacpan.org/pod/Progress::Any&#34;&gt;Progress::Any&lt;/a&gt;, &lt;a href=&#34;https://metacpan.org/pod/Log::Any::App&#34;&gt;Log::Any::App&lt;/a&gt;, and &lt;a href=&#34;https://metacpan.org/pod/Text::ANSITable&#34;&gt;Text::ANSITable&lt;/a&gt; (only the last one was created in 2013). In 2012 I released 166 new distributions and in 2013 only 71. So 2013 was more about updates and improvements instead of creating new things.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;You&amp;rsquo;ve talked in the past about &amp;ldquo;distribution oriented development&amp;rdquo;, do you still follow that approach, and why?&lt;/strong&gt;
+ Yup, because making software modular keeps me from going insane, and modules and distributions are the units of modularity in Perl.&lt;/p&gt;
+
+&lt;p&gt;Do you find developing as if you&amp;rsquo;re going to release the module forces you to follow better coding practices? (Like writing tests, documentation, error checking).&lt;/p&gt;
+
+&lt;p&gt;Definitely. The coding practices for a Perl module and distribution are relatively established, so following them is a no-brainer. The already existing tools help too, relieving me from having to reinvent wheels.&lt;/p&gt;
+
+&lt;p&gt;What text editor / IDE do you use to code in Perl? Why do you use that tool, have you tried others and prefer it?&lt;/p&gt;
+
+&lt;p&gt;As some of you might know, I&amp;rsquo;m a fan of org-mode, so I&amp;rsquo;m stuck with Emacs for the time being. Not a very advanced user of both, though. I&amp;rsquo;ve also used Komodo IDE in the past, its regex debugger tool is neat. I&amp;rsquo;ve tried Padre too a while back, but due to installation issues I haven&amp;rsquo;t tried it again.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Org-mode looks cool! - as a Perl developer which feature(s) of org-mode do you use the most?&lt;/strong&gt;
+ Nothing Perl-specific, actually. I use org-mode like most other people (non-Perl-programmers and non-programmers alike): to organize my todo lists and to take notes. I also happen to write &lt;a href=&#34;https://metacpan.org/pod/Org::Parser&#34;&gt;Org::Parser&lt;/a&gt;, because no such module exists at the time, and this helps me create some scripts to process and summarize the Org documents which I write. For example I keep a daily statistics of the number of done/undone todo items, to record my progress. I do my time bookkeeping on an Org document using a simple, homegrown format. The todo reminder which I run from a shell startup file is also written in Perl.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m also starting to use Org to write software product documentation, and later export to HTML (and then to PDF). There will probably be another CPAN module or two once the workflow is more defined.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I keep a daily statistics of the number of done/undone todo items, to record my progress&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;You&amp;rsquo;ve also mentioned use of tmux / screen. Could you explain how those terminal tools help your development?&lt;/strong&gt;
+ I rarely use them these days, except when on slow and unreliable connections, which fortunately is occurring less frequently where I live. Normally Konsole suffices. But I do maintain screen sessions on servers I&amp;rsquo;m monitoring.&lt;/p&gt;
+
+&lt;p&gt;Terminals is where I work most of the time though, so a lot of my CPAN modules are related to command-line application and terminals.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;In your blog post (&amp;rdquo;&lt;a href=&#34;http://blogs.perl.org/users/steven_haryanto/2013/10/how-i-manage-my-perl-distributions.html&#34;&gt;How I manage my distributions&lt;/a&gt;&amp;rdquo;) you said you use Dist::Zilla to manage your distributions. Could you elaborate on how Dist::Zilla helps you be more productive?&lt;/strong&gt;
+ &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla&#34;&gt;Dist::Zilla&lt;/a&gt; (or an equivalent tool) frees us from doing the boring and tedious parts of distribution building/releasing, allowing us to focus on writing code and encourages us to do more releases. Doing a new release can be done in a few seconds instead of a few minutes. With dozens or hundreds of distributions, it&amp;rsquo;s simply impossible to do things manually.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What are your favourite Dist::Zilla plugins?&lt;/strong&gt;
+ No one plugin in particular, perhaps &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::OurPkgVersion&#34;&gt;OurPkgVersion&lt;/a&gt; (simply because its big brother, &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::PkgVersion&#34;&gt;PkgVersion,&lt;/a&gt; modifies line numbers). &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::Run&#34;&gt;Run&lt;/a&gt; is also nifty too. But the great thing about Dist::Zilla is that when the existing plugins don&amp;rsquo;t cut it, you can simply create your own plugins to do the specific things you need. I&amp;rsquo;ve written a few myself.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;the great thing about Dist::Zilla is that when the existing plugins don&amp;rsquo;t cut it, you can simply create your own plugins to do the specific things you need.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;Does your framework, Rinci help you with your development process?&lt;/strong&gt;
+ Most certainly. Without the &lt;a href=&#34;https://metacpan.org/pod/Perinci&#34;&gt;Perinci&lt;/a&gt; tools I wouldn&amp;rsquo;t have written and released as many stuffs. They allow me to avoid or minimize doing boring and repetitive things which I hate doing, like writing POD, &lt;a href=&#34;https://metacpan.org/pod/Getopt::Long::Spec&#34;&gt;Getopt::Long spec&lt;/a&gt;, command-line usage message, and so on. Like Dist::Zilla they let me focus on writing actual code instead.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Do you use any static code analysis tools like Perl::Critic?&lt;/strong&gt;
+ Currently, no. I should though. Maybe the thought of having to do lots of initial configuration and tweaking makes me put it off.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;You&amp;rsquo;re previously &lt;a href=&#34;http://blogs.perl.org/users/steven_haryanto/2012/11/the-sad-state-of-syntax-highlighting-libraries-on-cpan.html&#34;&gt;noted&lt;/a&gt; Perl&amp;rsquo;s lack of a good syntax highlighting library. Do you think that&amp;rsquo;s still the case today ?&lt;/strong&gt;
+ Haven&amp;rsquo;t checked back; I even forget why I need a syntax highlighting library in the first place. I think it&amp;rsquo;s still the case and I&amp;rsquo;ve come to accept it. At least there are other tools available, not everything needs to be done in Perl. &lt;a href=&#34;https://metacpan.org/pod/PPI::HTML&#34;&gt;PPI::HTML&lt;/a&gt; is for highlighting Perl code and not other languages, right?&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Any other thought about the Perl community or development that you think people should be aware of?&lt;/strong&gt;
+ Since Perl is a swiss-army knife tool, including as a shell script replacement and for writing command-line programs, I wish authors would pay more attention to startup overhead. It seems lots of prominent CPAN authors are mostly concerned only with writing pretty OO code or PSGI webapps or long-running daemons, but the truth is Perl is more than that. So I will certainly encourage and promote good lightweight alternatives of popular libraries like &lt;a href=&#34;https://metacpan.org/pod/Moose&#34;&gt;Moose,&lt;/a&gt; &lt;a href=&#34;https://metacpan.org/pod/DateTime&#34;&gt;DateTime,&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/Log::Log4perl&#34;&gt;Log::Log4perl&lt;/a&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I wish authors would pay more attention to startup overhead.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;What&amp;rsquo;s next for you in terms of your development process, what are you looking forward to trying?&lt;/strong&gt;
+ I will keep churning out CPAN modules to do my part in giving back to the Perl community. My current focus areas are: Indonesian-related (language/locale) modules , making bad-ass command-line programs with Perl, as well as other tools/libraries to cut back the boilerplate and emphasize the DRY principle.&lt;/p&gt;
+
+&lt;p&gt;One project in the works is &lt;a href=&#34;http://cpanlists.org/&#34;&gt;cpanlists.org&lt;/a&gt; (not up yet), which will be a simple website and service to manage lists of authors and CPAN modules, along with comment and rating for each author/module. It&amp;rsquo;s much like an Amazon Listmania list, and I&amp;rsquo;ve blogged in the past about wanting to create something like it. I put it up mainly to publish my own notes as well as a proof-of-concept for Riap::HTTP, a protocol for a developer-friendly API service.&lt;/p&gt;
+
+&lt;p&gt;People will be able to maintain a list of their favorite modules. This is already possible with ++ in MetaCPAN, but with MetaCPAN I can&amp;rsquo;t add notes for each module or rate each module. To rate modules one must use a separate service (&lt;a href=&#34;http://cpanratings.perl.org/&#34;&gt;CPAN Ratings&lt;/a&gt;). Also I want to create multiple lists aside from a single favorites list, for example: list of recommended modules to do X (e.g. logging or convert Markdown to POD), list of modules to avoid because of X (e.g. heavy startup overhead, high number of bugs), and so on.&lt;/p&gt;
+
+&lt;p&gt;When lots of people create their lists, this will help users evaluate and choose the right CPAN modules for their needs.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Find CPAN mirrors and configure the local CPAN mirror list</title>
+      <link>http://perltricks.com/article/44/2013/10/20/Find-CPAN-mirrors-and-configure-the-local-CPAN-mirror-list/</link>
+      <pubDate>Sun, 20 Oct 2013 19:07:00 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/44/2013/10/20/Find-CPAN-mirrors-and-configure-the-local-CPAN-mirror-list/</guid>
+      <description>
+
+&lt;p&gt;CPAN mirrors are online repositories which host or &amp;ldquo;mirror&amp;rdquo; the Perl module distributions on CPAN. There are hundreds of CPAN mirrors dispersed throughout the World. When the CPAN program is run for the first time on a machine, it will configure the CPAN mirror list to use for checking for new versions of modules and downloading Perl distributions. All CPAN mirrors are not created equally though: the distribution list&amp;rsquo;s age, speed and the geographic location vary from mirror to mirror and so you may want to re-configure your local CPAN mirror list to suit your needs. This article describes how to find CPAN mirrors and edit the local CPAN mirror configuration.&lt;/p&gt;
+
+&lt;h3 id=&#34;finding-cpan-mirrors:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;Finding CPAN mirrors&lt;/h3&gt;
+
+&lt;p&gt;An online list of public CPAN mirrors can be found &lt;a href=&#34;http://mirrors.cpan.org/&#34;&gt;here&lt;/a&gt;. The list is frequently updated and lists mirrors by location, the scheme used (ftp, http), the age of the module list and some test results. Viewing this list you can see that some mirrors do not refresh their module list for days at a time - if you are using these mirrors you could be missing out on the latest version of your favourite module! A JSON formatted CPAN mirror list can be found &lt;a href=&#34;http://www.cpan.org/indices/mirrors.json&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;start-the-cpan-shell:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;Start the CPAN shell&lt;/h3&gt;
+
+&lt;p&gt;Once you have identified the URLs of the CPAN mirrors you want to use, fire up the terminal and load the cpan shell:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan
+
+cpan shell -- CPAN exploration and modules installation (v2.00)
+Enter &#39;h&#39; for help.
+
+cpan[1]&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;view-the-local-cpan-mirror-list:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;View the local CPAN mirror list&lt;/h3&gt;
+
+&lt;p&gt;The CPAN mirror list is stored in the &amp;ldquo;urllist&amp;rdquo; variable. To view the list of mirrors, type &amp;ldquo;o conf urllist&amp;rdquo; in the CPAN shell:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan[1]&amp;gt;o conf urllist
+    urllist           
+    0 [http://httpupdate3.cpanel.net/CPAN/]
+    1 [http://httpupdate23.cpanel.net/CPAN/]
+    2 [http://mirrors.servercentral.net/CPAN/]
+    3 [ftp://cpan.cse.msu.edu/]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;add-a-cpan-mirror:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;Add a CPAN mirror&lt;/h3&gt;
+
+&lt;p&gt;To add a CPAN mirror use the &amp;ldquo;unshift&amp;rdquo; or &amp;ldquo;push&amp;rdquo; functions to add the mirror&amp;rsquo;s url to the front or end of the mirror list. Make sure that the URL for the mirror &lt;strong&gt;includes the scheme&lt;/strong&gt; (http, ftp).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan[2]&amp;gt; o conf urllist push http://mirror.waia.asn.au/pub/cpan/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;remove-a-cpan-mirror:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;Remove a CPAN mirror&lt;/h3&gt;
+
+&lt;p&gt;To remove a CPAN mirror use the &amp;ldquo;shift&amp;rdquo; or &amp;ldquo;pop&amp;rdquo; functions to remove the mirror URL from the front or end of the mirror list:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan[3]&amp;gt; o conf urllist pop
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;completely-replace-the-existing-mirror-list:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;Completely replace the existing mirror list&lt;/h3&gt;
+
+&lt;p&gt;To overwrite the existing mirror list with a new one, just provide the URLs to the new mirrors as a space separated list:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan[4]&amp;gt; o conf urllist http://mirror.waia.asn.au/pub/cpan/ ftp://mirrors.coopvgg.com.ar/CPAN/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;saving-changes:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;Saving changes&lt;/h3&gt;
+
+&lt;p&gt;Once you have updated the CPAN mirror list, make sure you commit the changes to file so they are saved beyond the current session:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan[5]&amp;gt; o conf commit
+commit: wrote &#39;/home/sillymoose/.cpan/CPAN/MyConfig.pm&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;edit-the-cpan-configuration-file-directly:6b39c76ec4be1267597fa5bb07945eee&#34;&gt;Edit the CPAN configuration file directly&lt;/h3&gt;
+
+&lt;p&gt;You can also edit the CPAN config file directly. For local user Perl installations this is */CPAN/MyConfig.pm and system Perl installations */CPAN/Config.pm (the parent directory will depend on the platform). When editing the file, urllist is a hash key for an array reference of mirror urls. Note the urls are quoted using Perl&amp;rsquo;s quoting operator (&amp;ldquo;q&amp;rdquo;). Simply edit and save the file.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;&#39;urllist&#39; =&amp;gt; [
+    q[http://httpupdate3.cpanel.net/CPAN/], 
+    q[http://httpupdate23.cpanel.net/CPAN/], 
+    q[http://mirrors.servercentral.net/CPAN/], 
+    q[ftp://cpan.cse.msu.edu/]
+],
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How to track new CPAN releases</title>
+      <link>http://perltricks.com/article/33/2013/7/29/How-to-track-new-CPAN-releases/</link>
+      <pubDate>Mon, 29 Jul 2013 01:11:31 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/33/2013/7/29/How-to-track-new-CPAN-releases/</guid>
+      <description>
+
+&lt;p&gt;CPAN is a fantastic Perl resource with thousands of modules and new ones being added all the time. But how do you keep track of what&amp;rsquo;s being released? This article describes three techniques for keeping tabs on the latest CPAN releases.&lt;/p&gt;
+
+&lt;h3 id=&#34;cpan-org:1bfc29f171e882ce9b1eb00fa28d0101&#34;&gt;CPAN.org&lt;/h3&gt;
+
+&lt;p&gt;The CPAN website&amp;rsquo;s &lt;a href=&#34;http://search.cpan.org/recent&#34;&gt;recent uploads&lt;/a&gt; page maintains a list of the latest CPAN releases, with links to the module documentation. Additionally it&amp;rsquo;s possible to search the release history using the navigating arrow links at the top of the page.&lt;/p&gt;
+
+&lt;h3 id=&#34;cpan-recent-uploads:1bfc29f171e882ce9b1eb00fa28d0101&#34;&gt;CPAN::Recent::Uploads&lt;/h3&gt;
+
+&lt;p&gt;Chris Williams&amp;rsquo; &lt;a href=&#34;https://metacpan.org/module/CPAN::Recent::Uploads&#34;&gt;CPAN::Recent::Uploads&lt;/a&gt; module offers a programmatic interface to track recent CPAN uploads. It provides a &amp;ldquo;recent&amp;rdquo; function that accepts two optional arguments: the time from which to view uploads since and the URL of the CPAN mirror to use. By default it will return a list of modules released in the past week on the CPAN mirror &amp;ldquo;&lt;a href=&#34;ftp://ftp.funet.fi/pub/CPAN/&amp;quot;&#34;&gt;ftp://ftp.funet.fi/pub/CPAN/&amp;quot;&lt;/a&gt;. The module&amp;rsquo;s &lt;a href=&#34;https://metacpan.org/module/CPAN::Recent::Uploads&#34;&gt;documentation&lt;/a&gt; also has an example Perl one liner. To see CPAN::Recent::Uploads in action, enter this at the command-line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# print a list of this week&#39;s CPAN releases
+perl -MCPAN::Recent::Uploads -le &amp;quot;print for CPAN::Recent::Uploads-&amp;gt;recent;&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;twitter:1bfc29f171e882ce9b1eb00fa28d0101&#34;&gt;Twitter&lt;/h3&gt;
+
+&lt;p&gt;The Twitter account &lt;a href=&#34;https://twitter.com/cpan_new&#34;&gt;CPAN New Modules&lt;/a&gt; tweets every new CPAN release. The author Punytan has also released the source code on &lt;a href=&#34;https://t.co/K7KnELaYzk&#34;&gt;github&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;You can subscribe to the stream by clicking this button: &lt;a href=&#34;https://twitter.com/cpan_new&#34;&gt;Follow @cpan_new&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Upload to CPAN from the command line</title>
+      <link>http://perltricks.com/article/31/2013/6/30/Upload-to-CPAN-from-the-command-line/</link>
+      <pubDate>Sun, 30 Jun 2013 03:44:12 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/31/2013/6/30/Upload-to-CPAN-from-the-command-line/</guid>
+      <description>
+
+&lt;p&gt;The Perl module &lt;a href=&#34;https://metacpan.org/module/CPAN::Uploader&#34;&gt;CPAN::Uploader&lt;/a&gt; comes with a neat command line application called &lt;a href=&#34;https://metacpan.org/module/RJBS/CPAN-Uploader-0.103004/bin/cpan-upload&#34;&gt;cpan-upload&lt;/a&gt; which allows Perl module authors to upload to CPAN from the command line. This article describes how to install cpan-upload and use it.&lt;/p&gt;
+
+&lt;p&gt;To upload modules to CPAN you must have a registered &lt;a href=&#34;http://pause.perl.org/pause/query&#34;&gt;PAUSE&lt;/a&gt; account. Registration is free and an account is usually activated within 24 hours. Once you have a registered PAUSE account, install CPAN::Uploader via the command line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan CPAN::Uploader
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once CPAN::Uploader has installed (it has a bunch of dependencies, including C libraries for NetSSLeay) at the command line type:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan-upload
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You should see the cpan-upload help output displayed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Please provide at least one file name.
+usage: cpan-upload [options] file-to-upload
+    -v --verbose       enable verbose logging
+    -h --help          display this help message
+    --dry-run          do not actually upload anything
+                     
+    -u --user          your PAUSE username
+    -p --password      the password to your PAUSE account
+    -d --directory     a dir in your CPAN space in which to put the files
+    --http-proxy       URL of the http proxy to use in uploading
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;1-step-method:9253a99b6a8c2591d3b7e3b70155f9ec&#34;&gt;1 Step method&lt;/h3&gt;
+
+&lt;p&gt;To upload a file to PAUSE, the syntax is like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan-upload -u username -p password My-App-0.01.tar.gz
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Where username and password are your PAUSE account credentials followed by the filepath(s) to the files you want to upload. On a successful load, cpan-upload will display the following output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;registering upload with PAUSE web server
+POSTing upload for My-App-0.01.tar.gz to https://pause.perl.org/pause/authenquery
+PAUSE add message sent ok [200]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;2-step-method-recommended:9253a99b6a8c2591d3b7e3b70155f9ec&#34;&gt;2 step method (recommended)&lt;/h3&gt;
+
+&lt;p&gt;The 2 step method involves calling cpan-upload with just your username and the filepath to the files to be uploaded. cpan-upload will then prompt for your password, which is entered directly into Perl, in a hidden format:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cpan-upload -u sillymoos My-App-0.01.tar.gz 
+PAUSE Password:
+POSTing upload for My-App-0.01.tar.gz to https://pause.perl.org/pause/authenquery
+PAUSE add message sent ok [200]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;Warning:&lt;/strong&gt; cpan-upload transmits your credentials via HTTPS (encrypted) to the PAUSE server, but with the 1 step method you do have to type your password in plaintext. which is a security risk as many operating systems will store them in logs, and/or process details. Simply searching through the Terminal history will reveal your PAUSE password. Additionally, someone could read your password as it&amp;rsquo;s typed in. The 2 step method reduces this risk as the password is not logged in the terminal, but goes directly into the Perl program, and the password is not visible on the screen when typed. That said, the password can still be extracted from the computer by a stack trace or system call search. cpan-upload does have the ability to read the credentials from a .pause file in your home directory, which is a slightly more secure method than the 1 step method (although storing passwords in plaintext files raises its own security vulnerabilities). Of these three options the 2 step method seems to be the most secure.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Installing Perl modules with C library dependencies</title>
+      <link>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</link>
+      <pubDate>Mon, 15 Apr 2013 18:37:26 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/19/2013/4/15/Installing-Perl-modules-with-C-library-dependencies/</guid>
+      <description>
+
+&lt;p&gt;Some Perl modules have specific C library dependencies that need to be met or else they won&amp;rsquo;t install. These issues can be tricky to solve as CPAN is not able to automatically install or report on non-Perl dependencies and Google isn&amp;rsquo;t good at returning useful results for these types of issues (&lt;a href=&#34;https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod&#34;&gt;Net::SSLeay&lt;/a&gt; is a common example of a tricky module to install). Usually you will only find out about missing dependencies when trying to install the module, as the install will fail. What you need to do at this point is &lt;strong&gt;identify&lt;/strong&gt; and &lt;strong&gt;install&lt;/strong&gt; the missing C libraries.&lt;/p&gt;
+
+&lt;h3 id=&#34;identifying-c-library-dependencies:12040641a686db63029ae6c41a9f1d99&#34;&gt;Identifying C Library dependencies&lt;/h3&gt;
+
+&lt;p&gt;Here are some places to check for dependencies:&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Disque&#34;&gt;Disque&lt;/a&gt; is a distributed job queue built on top of Redis&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/HPCI&#34;&gt;HPCI&lt;/a&gt; is an application for performing distributed computing&lt;/li&gt;
-&lt;li&gt;Use the watcher plugin with Elasticsearch using &lt;a href=&#34;https://metacpan.org/pod/Search::Elasticsearch::Plugin::Watcher&#34;&gt;Search::Elasticsearch::Plugin::Watcher&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WWW::Pocket&#34;&gt;WWW::Pocket&lt;/a&gt; provides an interface for the Pocket v3 API&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WWW::Marvel&#34;&gt;WWW::Marvel&lt;/a&gt; is an alpha-release interface for the Marvel comics API&lt;/li&gt;
-&lt;li&gt;Looking for a faster XML library? TurboXSLT provides an interface to libturboxsl&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/release/Net-Hadoop-YARN&#34;&gt;Net::Hadoop::YARN&lt;/a&gt; is an API for Apache Hadoop Next Generation&lt;/li&gt;
-&lt;li&gt;Send Google Analytics user metrics from Perl using &lt;a href=&#34;https://metacpan.org/pod/Net::Google::Analytics::MeasurementProtocol&#34;&gt;Net::Google::Analytics::MeasurementProtocol&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::Amazon::DirectConnect&#34;&gt;Net::Amazon::DirectConnect&lt;/a&gt; lets you interact with Amazon&amp;rsquo;s DirectConnect service&lt;/li&gt;
-&lt;li&gt;Use the Airbrake Notifier API V3 Client with &lt;a href=&#34;https://metacpan.org/pod/Net::Airbrake&#34;&gt;Net::Airbrake&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Install error message&lt;/strong&gt; - scan the command line output from the failed install: often Perl developers will write specific error messages that indicate the missing C library.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Module documentation&lt;/strong&gt; - check the main POD page for the module on &lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; it may indicate which C libraries are required.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Distribution files&lt;/strong&gt; - check the README and INSTALL files that come with the distribution for the module you are trying to install. If available they will be in the root directory of the tarball. You can browse these files online at &lt;a href=&#34;https://metacpan.org/&#34;&gt;metacpan&lt;/a&gt; by searching for the module, then clicking the &amp;lsquo;browse&amp;rsquo; link on the module&amp;rsquo;s main page.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Search your package manager&lt;/strong&gt; - look at the technologies and keywords associated with the module. For example &lt;a href=&#34;https://metacpan.org/module/MIKEM/Net-SSLeay-1.54/lib/Net/SSLeay.pod&#34;&gt;Net::SSLeay&lt;/a&gt; probably has something to do with SSL, so search for Perl-related SSL packages (example below).&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&#34;config-devops:2afd27a972d8c2c6e60eb0b4d321004b&#34;&gt;Config &amp;amp; DevOps&lt;/h3&gt;
+&lt;h3 id=&#34;installing-c-library-dependencies:12040641a686db63029ae6c41a9f1d99&#34;&gt;Installing C library dependencies&lt;/h3&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Config::Perl&#34;&gt;Config::Perl&lt;/a&gt; aims to be a safer alternative to loading Perl data structures than with &lt;code&gt;eval&lt;/code&gt; by using PPI. Interesting approach, blackhat hackers start your engines&amp;hellip;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Group::Git::Taggers::Perl&#34;&gt;Group::Git::Taggers::Perl&lt;/a&gt; provides a way to detect Perl git repos. Could be a useful complement to GitHub&amp;rsquo;s API language detection&lt;/li&gt;
-&lt;li&gt;Store SpamAssassin rules performance data in Redis using &lt;a href=&#34;https://metacpan.org/pod/Mail::SpamAssassin::Plugin::RuleTimingRedis&#34;&gt;Mail::SpamAssassin::Plugin::RuleTimingRedis&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;Once you have identified the missing C libraries, you need to install them. If you are on Linux, this can be done using a package manager and searching for and installing the package containing the C library:&lt;/p&gt;
 
-&lt;h3 id=&#34;data:2afd27a972d8c2c6e60eb0b4d321004b&#34;&gt;Data&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# yum package manager
+$ sudo yum search ssl
+...
+sudo yum install openssl-perl.x86_64 perl-Net-SSLeay.x86_64 perl-Crypt-SSLeay.x86_64
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;ul&gt;
-&lt;li&gt;Looking for a fast priority queue implementation? Check out &lt;a href=&#34;https://metacpan.org/pod/Array::Heap::ModifiablePriorityQueue&#34;&gt;Array::Heap::ModifiablePriorityQueue&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/DBIx::Class::AuditAny&#34;&gt;DBIx::Class::AuditAny&lt;/a&gt; is a configurable change tracking tool for DBIx::Class schemas. For example it could be used to track the changes of values in a table over time (insert, update, delete etc)&lt;/li&gt;
-&lt;li&gt;Manage database relationships in DBIx::Class when the traditional route fails with &lt;a href=&#34;https://metacpan.org/pod/DBIx::Class::Schema::Loader::DBI::RelPatterns&#34;&gt;DBIx::Class::Schema::Loader::DBI::RelPatterns&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/DBIx::Class::InflateColumn::TimeMoment&#34;&gt;DBIx::Class::InflateColumn::TimeMoment&lt;/a&gt; provides a DBIx::Class column handler for the super fast date time implementation&lt;/li&gt;
-&lt;li&gt;Generate HTML from data using &lt;a href=&#34;https://metacpan.org/pod/HTML::AutoTag&#34;&gt;HTML::AutoTag&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;With &lt;a href=&#34;https://metacpan.org/pod/Sereal::Path&#34;&gt;Sereal::Path&lt;/a&gt; you can use XPATH and JSONPath with Sereal-encoded data. Nice!&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;If you are not on Linux, try downloading the library directly from the C library&amp;rsquo;s homepage - these are easy to find via Google and usually have specific Windows / OSX distributions.&lt;/p&gt;
 
-&lt;h3 id=&#34;development-and-version-control:2afd27a972d8c2c6e60eb0b4d321004b&#34;&gt;Development and Version Control&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Find out the reverse dependencies of a module with &lt;a href=&#34;https://metacpan.org/pod/App::CPAN::Dependents&#34;&gt;App::CPAN::Dependents&lt;/a&gt;. Has a neat command line option too&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Acme::AutoloadAll&#34;&gt;Acme::AutoloadAll&lt;/a&gt; exports all subroutines from every loaded module by injecting an autoload function into them. Crazy!&lt;/li&gt;
-&lt;li&gt;Keep your Dzil GitHub credentials in one place with &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Stash::GitHub&#34;&gt;Dist::Zilla::Stash::GitHub&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Data::Object::Prototype&#34;&gt;Data::Object::Prototype&lt;/a&gt; makes prototype-style programming easy. Interesting approach&lt;/li&gt;
-&lt;li&gt;Create application locks based on files or sockets with&lt;a href=&#34;https://metacpan.org/pod/%20JIP::LockFile&#34;&gt;JIP::LockFile&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/JIP::LockSocket&#34;&gt;JIP::LockSocket&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/List::Slice&#34;&gt;List::Slice&lt;/a&gt; provides head and tail functions for lists, plays nicely with functions that output lists like &lt;code&gt;map&lt;/code&gt; and &lt;code&gt;grep&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Declare compile-time and class-safe constants with &lt;a href=&#34;https://metacpan.org/pod/pluskeys&#34;&gt;pluskeys&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;hardware:2afd27a972d8c2c6e60eb0b4d321004b&#34;&gt;Hardware&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Device::GPS can read GSP NMEA data via serial port&lt;/li&gt;
-&lt;li&gt;Device::GPIB::Prologix provides a Perly interface for the Prologix GPIB-USB Controller&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;science-and-mathematics:2afd27a972d8c2c6e60eb0b4d321004b&#34;&gt;Science and Mathematics&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Bio::CUA&#34;&gt;Bio::CUA&lt;/a&gt; provides &amp;ldquo;comprehensive and flexible tools to analyze codon usage bias&amp;rdquo;. Looks impressive&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Bio::LITE::Taxonomy::NCBI&#34;&gt;Bio::LITE::Taxonomy::NCBI&lt;/a&gt; aims to be a Lightweight and efficient NCBI taxonomic manager&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Dallycot::Manual::Intro&#34;&gt;Dallycot&lt;/a&gt; is &amp;ldquo;an engine for running linked open code (algorithms expressed as linked open data) and exploring linked open data&amp;rdquo;&lt;/li&gt;
-&lt;li&gt;Read and write Graph6 / sparse6 graph formats with &lt;a href=&#34;https://metacpan.org/pod/Graph::Graph6&#34;&gt;Graph::Graph6&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/HEP::MCNS&#34;&gt;HEP::MCNS&lt;/a&gt; can convert Monte Carlo numbers into particle names&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/LCS::BV&#34;&gt;LCS::BV&lt;/a&gt; is a bit vector implementation (read: faster) of the LCS algorithm (used for diff among other things)&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Math::EWMA&#34;&gt;Math::EWMA&lt;/a&gt; provides an exponential weighted moving average object&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;web:2afd27a972d8c2c6e60eb0b4d321004b&#34;&gt;Web&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Catalyst::ActionSignatures&#34;&gt;Catalyst::ActionSignatures&lt;/a&gt; allows declaration of variables in Controller signatures&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Dancer2::Plugin::Auth::HTTP::Basic::DWIW&#34;&gt;Dancer2::Plugin::Auth::HTTP::Basic::DWIW&lt;/a&gt; provides HTTP basic authentication for Dancer2 apps&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/HTTP::Tinyish&#34;&gt;HTTP::Tinyish&lt;/a&gt; is a wrapper for the popular Perl HTTP modules (HTTP::Tiny, LWP etc) and will fallback to using the appropriate module for the request made&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/IO::All::Securftp&#34;&gt;IO::All::Securftp&lt;/a&gt; implements a secure FTP handler for IO::All&lt;/li&gt;
-&lt;li&gt;Interact with the JavaScript in your Mojo applications using &lt;a href=&#34;https://metacpan.org/pod/Mojo::Phantom&#34;&gt;Mojo::Phantom&lt;/a&gt;. Cool!&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;Once you have installed the requisite libraries, try installing the Perl module again with CPAN.&lt;/p&gt;
 </description>
     </item>
     
