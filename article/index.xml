@@ -54,7 +54,7 @@ die &#39;Got $bytes_read but expected 44&#39; unless $bytes_read == 44;
 &lt;p&gt;&lt;cite&gt;Tzfile manual&lt;/cite&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;The &lt;code&gt;unpack&lt;/code&gt; function takes a template of the binary data to read (this is defined in the pack &lt;a href=&#34;http://perldoc.perl.org/functions/pack.html&#34;&gt;documentation&lt;/a&gt; and returns Perl variables. I&amp;rsquo;m going to match up the header description with the template codes to design the template.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;unpack&lt;/code&gt; function takes a template of the binary data to read (this is defined in the pack &lt;a href=&#34;http://perldoc.perl.org/functions/pack.html&#34;&gt;documentation&lt;/a&gt;) and returns Perl variables. I&amp;rsquo;m going to match up the header description with the template codes to design the template.&lt;/p&gt;
 
 &lt;table&gt;
 &lt;thead&gt;
