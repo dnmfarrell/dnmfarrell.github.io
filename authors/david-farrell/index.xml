@@ -6,8 +6,103 @@
     <description>Recent content in David Farrell on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 18 Apr 2016 19:56:47 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 26 Apr 2016 20:42:41 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/authors/david-farrell/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Fixing a sluggish Linux after suspend-resume</title>
+      <link>http://perltricks.com/article/fixing-a-sluggish-linux-after-suspend-resume/</link>
+      <pubDate>Tue, 26 Apr 2016 20:42:41 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/fixing-a-sluggish-linux-after-suspend-resume/</guid>
+      <description>
+
+&lt;p&gt;Occasionally when I suspend my Linux laptop (sleep mode) and later resume working the machine is sluggish. Perceptible pauses occur every time I change applications, scrolling is fractured and text edits are delayed. Monitoring tools like &lt;a href=&#34;http://hisham.hm/htop/&#34;&gt;htop&lt;/a&gt; and &lt;a href=&#34;http://guichaz.free.fr/iotop/&#34;&gt;iotop&lt;/a&gt; give no indication of system resources being under heavy load. I can close all applications and the sluggishness persists.&lt;/p&gt;
+
+&lt;p&gt;Apparently this is a bug where the CPU frequency has been pinned to a very low level. Linux uses CPU frequency scaling to save power; when the machine is resumed, it should start increasing the CPU frequency to meet the demands of the system, but it doesn&amp;rsquo;t always do that. A reboot fixes the problem, but who has time for that? The good news is that it&amp;rsquo;s an easy fix with the &lt;code&gt;cpupower&lt;/code&gt; utility.&lt;/p&gt;
+
+&lt;h3 id=&#34;get-the-cpupower-utility:19d2d70d512c1beb1a7d378bc4e289d3&#34;&gt;Get the cpupower utility&lt;/h3&gt;
+
+&lt;p&gt;You may have &lt;code&gt;cpupower&lt;/code&gt; already installed, but if not it&amp;rsquo;s easy to get with via a package manager. On Ubuntu &lt;a href=&#34;http://manpages.ubuntu.com/manpages/trusty/man1/cpupower.1.html&#34;&gt;cpupower&lt;/a&gt; is part of the &lt;code&gt;linux-tools-common&lt;/code&gt; package. You can install it at the terminal with this command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo apt-get install linux-tools-common
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;On RHEL based distributions like Fedora and CentOS, &lt;code&gt;cpupower&lt;/code&gt; is bundled with the &lt;code&gt;kernel-tools&lt;/code&gt; package. On CentOS and older Fedoras you can install it with:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo yum install kernel-tools
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;On newer Fedoras you can use &lt;code&gt;dnf&lt;/code&gt; to install it:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo dnf install kernel-tools
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;switch-back-to-performance-mode:19d2d70d512c1beb1a7d378bc4e289d3&#34;&gt;Switch back to performance mode&lt;/h3&gt;
+
+&lt;p&gt;CPU frequency scaling for modern Intel CPUs is provided by the &lt;a href=&#34;https://www.kernel.org/doc/Documentation/cpu-freq/intel-pstate.txt&#34;&gt;intel_pstate driver&lt;/a&gt;. It supports two modes (called &amp;ldquo;governors&amp;rdquo;) of operation: performance and powersave. Performance mode is not necessarily &amp;ldquo;all guns blazing&amp;rdquo; performance. Likewise, powersave doesn&amp;rsquo;t cripple your system either. Both are intelligent governors that responds to system loads by scaling the CPU frequency. I&amp;rsquo;ve found that switching governors immediately resolves my sluggish system issue.&lt;/p&gt;
+
+&lt;p&gt;To confirm which governors are available, I use &lt;code&gt;cpupower&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ cpupower frequency-info --governors
+analyzing CPU 0:
+performance powersave
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here you can see my system printed both &amp;ldquo;performance&amp;rdquo; and &amp;ldquo;powersave&amp;rdquo; as expected. To switch to the performance governor, I can use the following command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo cpupower frequency-set --governor performance
+Setting cpu: 0
+Setting cpu: 1
+Setting cpu: 2
+Setting cpu: 3
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;frequency-info&lt;/code&gt; subcommand will show me which governor is active:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ cpupower frequency-info
+analyzing CPU 0:
+  driver: intel_pstate
+  CPUs which run at the same hardware frequency: 0
+  CPUs which need to have their frequency coordinated by software: 0
+  maximum transition latency: 0.97 ms.
+  hardware limits: 500 MHz - 2.70 GHz
+  available cpufreq governors: performance, powersave
+  current policy: frequency should be within 500 MHz and 2.70 GHz.
+                  The governor &amp;quot;performance&amp;quot; may decide which speed to use
+                  within this range.
+  current CPU frequency is 2.28 GHz.
+  boost state support:
+    Supported: yes
+    Active: yes
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &amp;ldquo;current policy&amp;rdquo; section describes the active governor, which in my case is showing the performance governor as active.&lt;/p&gt;
+
+&lt;h3 id=&#34;cpupower-resources:19d2d70d512c1beb1a7d378bc4e289d3&#34;&gt;cpupower resources&lt;/h3&gt;
+
+&lt;p&gt;The Redhat Linux documentation includes an CPU frequency setup &lt;a href=&#34;https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Power_Management_Guide/cpufreq_setup.html#enabling_a_cpufreq_governor&#34;&gt;guide&lt;/a&gt; with instruction on how to load additional drivers. The Arch Linux CPU frequency scaling &lt;a href=&#34;https://wiki.archlinux.org/index.php/CPU_Frequency_Scaling&#34;&gt;documentation&lt;/a&gt; contains lots of useful information including which files control frequency settings.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;cpupower&lt;/code&gt; manpage is pretty sparse. Once you have installed &lt;code&gt;cpupower&lt;/code&gt; try running the &lt;code&gt;help&lt;/code&gt; command to get started:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ cpupower help
+Usage:  cpupower [-d|--debug] [-c|--cpu cpulist ] &amp;lt;command&amp;gt; [&amp;lt;args&amp;gt;]
+Supported commands are:
+        frequency-info
+        frequency-set
+        idle-info
+        idle-set
+        set
+        info
+        monitor
+        help
+
+Not all commands can make use of the -c cpulist option.
+
+Use &#39;cpupower help &amp;lt;command&amp;gt;&#39; for getting help for above commands.
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>How to parse binary data with Perl</title>
@@ -1683,133 +1778,6 @@ console.log(p.coordinates());
 &lt;p&gt;&lt;sup&gt;1&lt;/sup&gt; Introduced in ES5 JavaScript - which is supported by all modern browsers. For solutions for older JavaScript versions, use &lt;code&gt;call&lt;/code&gt; or &lt;code&gt;apply&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;sup&gt;2&lt;/sup&gt; It&amp;rsquo;s probably a bad thing for users too - the overhead in processing syntactically wrong code degrades performance and worse, encourages more incorrect code to be written.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Create GitHub files automatically with Dist::Zilla</title>
-      <link>http://perltricks.com/article/203/2015/12/9/Create-GitHub-files-automatically-with-Dist--Zilla/</link>
-      <pubDate>Wed, 09 Dec 2015 13:46:17 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/203/2015/12/9/Create-GitHub-files-automatically-with-Dist--Zilla/</guid>
-      <description>
-
-&lt;p&gt;I use &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla&#34;&gt;Dist::Zilla&lt;/a&gt; to release my code to CPAN. I really like it as with a single command I can build, package and ship a distribution. But most of my code lives on GitHub. In fact, a quick check shows that I have 90 &lt;a href=&#34;https://github.com/dnmfarrell&#34;&gt;repos&lt;/a&gt;, but only 13 distributions on &lt;a href=&#34;https://metacpan.org/author/DFARRELL&#34;&gt;CPAN&lt;/a&gt;. So only 14% of my code makes it to CPAN.&lt;/p&gt;
-
-&lt;p&gt;Traditionally Dist::Zilla makes a distinction between your code and the files needed for CPAN and PAUSE to work, (like package metadata, a readme etc). The basic use case goes like this: you write your class files, scripts and unit tests, and when you tell Dist::Zilla to release the distribution, it generates all of the extra files, creates a tarball and uploads it to &lt;a href=&#34;https://pause.perl.org/pause/query&#34;&gt;PAUSE&lt;/a&gt;. The problem is though, some of those additional files would be nice to have in my GitHub repos too. I don&amp;rsquo;t want to write another &lt;code&gt;readme.md&lt;/code&gt;, or spend time copying the license file into the repo if Dist::ZIlla can already generate one. To solve this issue I use two Dist::Zilla plugins from &lt;a href=&#34;https://metacpan.org/author/RTHOMPSON&#34;&gt;Ryan Thompson&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;setup:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Setup&lt;/h3&gt;
-
-&lt;p&gt;To use the code in this article, you&amp;rsquo;ll need to install Dist::Zilla and the two plugin modules described below. You can do that with &lt;code&gt;cpan&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Dist::Zilla \
-  Dist::Zilla::Plugin::ReadmeAnyFromPod  \
-  Dist::Zilla::Plugin::CopyFilesFromBuild
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If you&amp;rsquo;re installing Dist::Zilla consider using &lt;a href=&#34;https://metacpan.org/pod/App::cpanminus&#34;&gt;cpanminus&lt;/a&gt; instead, with no tests for a much faster install:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpanm --notest Dist::Zilla \ 
-  Dist::Zilla::Plugin::ReadmeAnyFromPod \
-  Dist::Zilla::Plugin::CopyFilesFromBuild
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;creating-a-readme-automatically:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Creating a readme automatically&lt;/h3&gt;
-
-&lt;p&gt;Ryan&amp;rsquo;s module &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::ReadmeAnyFromPod&#34;&gt;Dist::Zilla::Plugin::ReadmeAnyFromPod&lt;/a&gt; can generate a readme automatically, in any common format. It uses the Pod text from the main modules in the distribution. I use it to create my GitHub readme files in Pod, by adding the following text to my &lt;code&gt;dist.ini&lt;/code&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;[ReadmeAnyFromPod]
-type = pod 
-filename = README.pod
-location = root
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If I build the distribution with Dist::Zilla, it will generate a new readme for me, including the author, copyright and version information in addition to the documentation already in the main module.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ dzil build &amp;amp;&amp;amp; dzil clean
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This line instructs Dist::Zilla to build the distribution, which generates the new &lt;code&gt;README.pod&lt;/code&gt; and then clean up the build files that it generated, leaving a clean working directory.&lt;/p&gt;
-
-&lt;h3 id=&#34;adding-a-license:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Adding a license&lt;/h3&gt;
-
-&lt;p&gt;I use another module from Ryan, &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::CopyFilesFromBuild&#34;&gt;Dist::Zilla::Plugin::CopyFilesFromBuild&lt;/a&gt; to copy the software license from the Dist::Zilla build into my project directory:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;[CopyFilesFromBuild]
-copy = LICENSE
-[GatherDir]
-exclude_filename = LICENSE
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This will copy the license out of the build directory into the root project directory. The &lt;code&gt;exclude_filename&lt;/code&gt; clause is there so that during the &lt;em&gt;next&lt;/em&gt; build, Dist::Zilla does not include the generated license in the working directory of files. Running this in the same way as before, I can generate whatever license text I want for my distribution (the type of license is specified in the &lt;code&gt;dist.ini&lt;/code&gt;).&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ dzil build &amp;amp;&amp;amp; dzil clean
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;helping-others:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Helping others&lt;/h3&gt;
-
-&lt;p&gt;Dist::Zilla is great, but if you don&amp;rsquo;t have it, installing a distribution from GitHub can really suck. Recently a friend was trying to deploy some code of mine to his Macbook with a vanilla Perl install. I didn&amp;rsquo;t want to upload the code to CPAN and wait for PAUSE to index it. Installing Dist::Zilla on the his machine was not a great option either: Dist::Zilla is a beast. According to Devel::Modlist, Dist::Zilla has &lt;strong&gt;178&lt;/strong&gt; non-core dependencies (including indirectly-used modules). That&amp;rsquo;s the price you pay for automation and modularity - Dist::Zilla is working hard so us module authors don&amp;rsquo;t have to. But for someone who barely knows Perl, installing Dist::Zilla in a virgin environment can be a nightmare.&lt;/p&gt;
-
-&lt;p&gt;To get around this issue, I used &lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::CopyFilesFromBuild&#34;&gt;Dist::Zilla::Plugin::CopyFilesFromBuild&lt;/a&gt; again to copy the Makefile.PL and cpanfile into the project directory. My friend then cloned the directory with Git and used &lt;a href=&#34;https://metacpan.org/pod/App::cpanminus&#34;&gt;cpanminus&lt;/a&gt; to install it. Easy! It worked so well, I&amp;rsquo;m going to include a Makefile and cpanfile in my GitHub repos from now on.&lt;/p&gt;
-
-&lt;h3 id=&#34;a-sample-dist-zilla-config:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;A sample Dist::Zilla config&lt;/h3&gt;
-
-&lt;p&gt;Here&amp;rsquo;s a &lt;code&gt;dist.ini&lt;/code&gt; from a &lt;a href=&#34;https://github.com/dnmfarrell/Settlers-Game&#34;&gt;repo&lt;/a&gt; of mine that uses the code in this article. As certain directives are required in order, it can be useful to see the entire context:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;name    = Settlers-Game
-author  = David Farrell 
-license = FreeBSD
-copyright_holder = David Farrell
-copyright_year   = 2015
-version = 0.06
-
-[CPANFile]
-[License]
-[CopyFilesFromBuild]
-copy = cpanfile
-copy = LICENSE
-copy = Makefile.PL
-[GatherDir]
-exclude_filename = cpanfile
-exclude_filename = LICENSE
-exclude_filename = Makefile.PL
-[PkgVersion]
-[AutoPrereqs]
-[GithubMeta]
-[ChangelogFromGit]
-[MetaYAML]
-[MetaJSON]
-[MakeMaker]
-[ModuleBuild]
-[ManifestSkip]
-[Manifest]
-[PodWeaver]
-[ReadmeAnyFromPod]
-type = pod
-filename = README.pod
-location = root
-[PodSyntaxTests]
-[PodCoverageTests]
-[TestRelease]
-[Test::EOL]
-[UploadToCPAN]
-[ConfirmRelease]
-[Clean]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;To use this config with Dist::Zilla you&amp;rsquo;ll need some additional plugins:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Dist::Zilla::Plugin::Clean \
-  Dist::Zilla::Plugin::GithubMeta \
-  Dist::Zilla::Plugin::ChangelogFromGit \
-  Dist::Zilla::Plugin::PodWeaver
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;conclusion:3e7badd427fe2f7b2dcf3dadf6e1d80b&#34;&gt;Conclusion&lt;/h3&gt;
-
-&lt;p&gt;Ok it&amp;rsquo;s not &lt;em&gt;all&lt;/em&gt; gravy. The copy file method has one downside: it overwrites the copied files every time they&amp;rsquo;re generated. This isn&amp;rsquo;t an issue for me; the commit diff only shows the changed lines, but some people may not like it.&lt;/p&gt;
-
-&lt;p&gt;For more information on Dist::Zilla, check out the official &lt;a href=&#34;http://dzil.org/tutorial/contents.html&#34;&gt;documentation&lt;/a&gt;. For a completely different approach to releasing code to CPAN, you may like&lt;a href=&#34;https://metacpan.org/pod/%20Module::Release&#34;&gt;Module::Release&lt;/a&gt;. Oh and if you find yourself in a new development environment, needing to install dependencies for a local module, David Golden has a useful &lt;a href=&#34;http://www.dagolden.com/index.php/1528/five-ways-to-install-modules-prereqs-by-hand/&#34;&gt;post&lt;/a&gt; that includes five different ways to do it.&lt;/p&gt;
 </description>
     </item>
     
