@@ -47,11 +47,12 @@
 
 &lt;p&gt;If you use the GNU C compiler (or something based on it), you round half to even as the default. Perl relies on this behavior.&lt;/p&gt;
 
-&lt;p&gt;$ perl -e &amp;lsquo;printf &amp;ldquo;%.0f\n&amp;rdquo;, shift&amp;rsquo; 1.5
-  2&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ perl -e &#39;printf &amp;quot;%.0f\n&amp;quot;, shift&#39; 1.5
+2
 
-&lt;p&gt;$ perl -e &amp;lsquo;printf &amp;ldquo;%.0f\n&amp;rdquo;, shift&amp;rsquo; 2.5
-  2&lt;/p&gt;
+$ perl -e &#39;printf &amp;quot;%.0f\n&amp;quot;, shift&#39; 2.5
+2
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Every time you try this you get the same answer (so, no stochastic or alternate rounding). The GNU C compiler can also use floor, ceiling, or truncate, but those have similar problems.&lt;/p&gt;
 
@@ -184,7 +185,8 @@ printf $template,
 
 &lt;p&gt;Perl has a &lt;a href=&#34;http://perldoc.perl.org/functions/rand.html&#34;&gt;rand&lt;/a&gt; function. It claims to return &amp;ldquo;a random fractional number greater than or equal to 0&amp;rdquo;, but it doesn&amp;rsquo;t. It&amp;rsquo;s not random. It&amp;rsquo;s fake random in a way that might work if you only want to use one of them to complete a homework assignment in a beginning programming course in middle school. Although the documentation includes a footnote saying &amp;ldquo;You should not rely on it in security-sensitive situations&amp;rdquo;, it does not say &amp;ldquo;Don&amp;rsquo;t ever use this.&amp;rdquo; like it should. Try this program:&lt;/p&gt;
 
-&lt;p&gt;$ perl -le &amp;lsquo;srand(137); print rand for 1 .. 10&amp;rsquo;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ perl -le &#39;srand(137); print rand for 1 .. 10&#39;
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;It outputs some numbers, which might look like this:&lt;/p&gt;
 
@@ -220,7 +222,7 @@ printf $template,
 
 &lt;p&gt;There are a variety of ways this can screw up if you use it in an application that keeps going and going. Eventually you come back to the beginning of the sequence, perhaps colliding with existing customer data.&lt;/p&gt;
 
-&lt;h3 id=&#34;perl-s-lets-anyone-program:895dfc94e45590b36c5dd569303f6b79&#34;&gt;Perl&amp;rsquo;s lets anyone program&lt;/h3&gt;
+&lt;h3 id=&#34;perl-lets-anyone-program:895dfc94e45590b36c5dd569303f6b79&#34;&gt;Perl lets anyone program&lt;/h3&gt;
 
 &lt;p&gt;Perhaps the biggest problem with Perl is that anyone with a text editor can write a program and upload it to the internet. It&amp;rsquo;s a feature that Perl allows someone to get their work done, but the problem shows up when someone tries to generalize that to other people&amp;rsquo;s work. Projects such as &lt;a href=&#34;http://nms-cgi.sourceforge.net/&#34;&gt;Not Matt&amp;rsquo;s Scripts&lt;/a&gt; try to mitigate this by fixing the problem one script at a time. There are simply too many scripts to get to in the lifetime of the Universe.&lt;/p&gt;
 

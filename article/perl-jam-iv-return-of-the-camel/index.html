@@ -107,11 +107,12 @@
 
 <p>If you use the GNU C compiler (or something based on it), you round half to even as the default. Perl relies on this behavior.</p>
 
-<p>$ perl -e &lsquo;printf &ldquo;%.0f\n&rdquo;, shift&rsquo; 1.5
-  2</p>
+<pre><code>$ perl -e 'printf &quot;%.0f\n&quot;, shift' 1.5
+2
 
-<p>$ perl -e &lsquo;printf &ldquo;%.0f\n&rdquo;, shift&rsquo; 2.5
-  2</p>
+$ perl -e 'printf &quot;%.0f\n&quot;, shift' 2.5
+2
+</code></pre>
 
 <p>Every time you try this you get the same answer (so, no stochastic or alternate rounding). The GNU C compiler can also use floor, ceiling, or truncate, but those have similar problems.</p>
 
@@ -244,7 +245,8 @@ printf $template,
 
 <p>Perl has a <a href="http://perldoc.perl.org/functions/rand.html">rand</a> function. It claims to return &ldquo;a random fractional number greater than or equal to 0&rdquo;, but it doesn&rsquo;t. It&rsquo;s not random. It&rsquo;s fake random in a way that might work if you only want to use one of them to complete a homework assignment in a beginning programming course in middle school. Although the documentation includes a footnote saying &ldquo;You should not rely on it in security-sensitive situations&rdquo;, it does not say &ldquo;Don&rsquo;t ever use this.&rdquo; like it should. Try this program:</p>
 
-<p>$ perl -le &lsquo;srand(137); print rand for 1 .. 10&rsquo;</p>
+<pre><code>$ perl -le 'srand(137); print rand for 1 .. 10'
+</code></pre>
 
 <p>It outputs some numbers, which might look like this:</p>
 
@@ -280,7 +282,7 @@ printf $template,
 
 <p>There are a variety of ways this can screw up if you use it in an application that keeps going and going. Eventually you come back to the beginning of the sequence, perhaps colliding with existing customer data.</p>
 
-<h3 id="perl-s-lets-anyone-program:895dfc94e45590b36c5dd569303f6b79">Perl&rsquo;s lets anyone program</h3>
+<h3 id="perl-lets-anyone-program:895dfc94e45590b36c5dd569303f6b79">Perl lets anyone program</h3>
 
 <p>Perhaps the biggest problem with Perl is that anyone with a text editor can write a program and upload it to the internet. It&rsquo;s a feature that Perl allows someone to get their work done, but the problem shows up when someone tries to generalize that to other people&rsquo;s work. Projects such as <a href="http://nms-cgi.sourceforge.net/">Not Matt&rsquo;s Scripts</a> try to mitigate this by fixing the problem one script at a time. There are simply too many scripts to get to in the lifetime of the Universe.</p>
 
@@ -293,7 +295,7 @@ printf $template,
               </article>
               <p><strong>Tags</strong></p>
               <div class="tags">
-                <div class="category"><a href="/categoriess/community">community</a></div>
+                <div class="category"><a href="/categories/community">community</a></div>
                 
                   <div class="tag"><a href="/tags/perl">perl</a></div>
                 
@@ -323,6 +325,20 @@ printf $template,
     <div class="col-sm-12 centering">
       <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
     </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/what-s-new-on-cpan---April-2016/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/168/81C6F1B4-DCE9-11E4-86D9-23646037288D.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - April 2016</h6>
+        <p style="line-height:1"><small>A curated look at April&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
   </div>
   
         
@@ -377,20 +393,6 @@ printf $template,
     <div class="col-sm-9">
         <h6>Perl Jam VI: The Return of the Camel</h6>
         <p style="line-height:1"><small>Perl&#39;s ignored security problems</small></p>
-    </div>
-      </a>
-  </div>
-  
-        
-        
-  <div class="row">
-      <a href="http://perltricks.com/article/prevent-harmful-updates-with-versionlock/">
-    <div class="col-sm-3">
-      <div class="circle-avatar" style="background-image:url(/images/prevent-harmful-updates-with-versionlock/software%20padlock.jpg)"></div>
-    </div>
-    <div class="col-sm-9">
-        <h6>Prevent harmful Linux updates with versionlock</h6>
-        <p style="line-height:1"><small>How to avoid breaking software updates</small></p>
     </div>
       </a>
   </div>
