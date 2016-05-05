@@ -6,8 +6,70 @@
     <description>Recent content in Brian D Foy on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 01 Apr 2016 08:32:57 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 04 May 2016 20:37:57 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/authors/brian-d-foy/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Perl Jam VI: April Trolls</title>
+      <link>http://perltricks.com/article/april_fools/</link>
+      <pubDate>Wed, 04 May 2016 20:37:57 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/april_fools/</guid>
+      <description>
+
+&lt;p&gt;For an April Fool&amp;rsquo;s joke, I wanted to parody the &lt;a href=&#34;http://perltricks.com/article/netanel-rubins-perljam-circus/&#34;&gt;Perl Jam circus&lt;/a&gt; where the author has an idea that something is wrong but gets the explanation half-wrong. I wrote &lt;a href=&#34;http://perltricks.com/article/perl-jam-iv-return-of-the-camel/&#34;&gt;Perl Jam VI: The Return of the Camel&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;I thought I&amp;rsquo;d catch some people out if I was clever enough with the first example and increasingly lazy. I might have been too clever, but I also think that April Fool&amp;rsquo;s is probably over. Not only that, I still felt guilty about not doing the work to explain things properly or giving you proper pointers where to look for good solutions.&lt;/p&gt;
+
+&lt;h4 id=&#34;perl-s-rounding-problem:cd86d0266dcf98a4569e4f8588591c75&#34;&gt;Perl&amp;rsquo;s rounding problem&lt;/h4&gt;
+
+&lt;p&gt;Rounding is a problem for people who really care about numbers and where slight biases in numeric functions can skew results. Most people will probably never care about this because they don&amp;rsquo;t have to care. However, I used to work with scads of data from nuclear physics experiments where it could have mattered.&lt;/p&gt;
+
+&lt;p&gt;Perl&amp;rsquo;s particular issue is its reliance on someone else making the decision. When I first starting teaching Perl, many of my students had experience with C. They knew the issues with their libc. &lt;code&gt;perl&lt;/code&gt; defers many decisions on to that libc. This means that you can get different results with a different &lt;code&gt;perl&lt;/code&gt;s. Perl may run virtually everywhere, but it doesn&amp;rsquo;t guarantee you&amp;rsquo;ll get the same answer everywhere.&lt;/p&gt;
+
+&lt;p&gt;There is plenty of literature out there on different methods, and there are more than several methods. Just that fact shows that people don&amp;rsquo;t agree on how it should work. If rounding might impact your results, you should be aware that you have many ways to deal with it. The &lt;a href=&#34;http://www.metacpan.org/module/Math::Round&#34;&gt;Math::Round&lt;/a&gt; handles most of them.&lt;/p&gt;
+
+&lt;h4 id=&#34;the-modulus-of-negative-numbers:cd86d0266dcf98a4569e4f8588591c75&#34;&gt;The modulus of negative numbers&lt;/h4&gt;
+
+&lt;p&gt;The modulus operator was a bit more interesting since it actually has some problems and undefined behavior. I presented the table of operand combinations and noted which ones are defined in Perl. Some of the situations don&amp;rsquo;t have defined behavior.&lt;/p&gt;
+
+&lt;p&gt;I didn&amp;rsquo;t think that many people would take this section seriously since the modulus operator isn&amp;rsquo;t that popular. The &lt;a href=&#34;http://perldoc.perl.org/integer.html&#34;&gt;integer pragma &lt;/a&gt; may fix the problem:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Internally, native integer arithmetic (as provided by your C compiler) is used. This means that Perl&amp;rsquo;s own semantics for arithmetic operations may not be preserved. One common source of trouble is the modulus of negative numbers, which Perl does one way, but your hardware may do another.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The StackOverflow question &lt;a href=&#34;https://stackoverflow.com/questions/20691861/perl-understanding-modulo-operation-on-negative-numbers-e-g-103/32090446#32090446&#34;&gt;Perl: understanding modulo operation on negative numbers&lt;/a&gt; goes into more detail about Perl&amp;rsquo;s behavior.&lt;/p&gt;
+
+&lt;p&gt;If this matters for your application, you can implement your own modulo operation (perhaps in &lt;a href=&#34;http://www.metacpan.org/module/Inline::C&#34;&gt;Inline::C&lt;/a&gt;?) to do it exactly how you like to get the results you expect no matter where you run your program.&lt;/p&gt;
+
+&lt;h4 id=&#34;fake-random-numbers:cd86d0266dcf98a4569e4f8588591c75&#34;&gt;Fake random numbers&lt;/h4&gt;
+
+&lt;p&gt;When we say &amp;ldquo;random numbers&amp;rdquo;, experienced programmers generally understand that they aren&amp;rsquo;t actually using numbers that are random. They are &lt;a href=&#34;https://www.random.org/randomness/&#34;&gt;pseudo-random&lt;/a&gt;, although that&amp;rsquo;s too much to say over and over again. We shorten it to &amp;ldquo;random&amp;rdquo; to keep the sentences short. If you are seeding a random number generator, you&amp;rsquo;re using the fake kind.&lt;/p&gt;
+
+&lt;p&gt;For the odd homework assignment or selecting a unique value you haven&amp;rsquo;t used yet, Perl&amp;rsquo;s &lt;a href=&#34;http://perldoc.perl.org/functions/rand.html&#34;&gt;rand&lt;/a&gt; may be fine. If you are doing something where you want real randomness, you don&amp;rsquo;t want something deterministic. You want &amp;ldquo;true&amp;rdquo; random numbers.&lt;/p&gt;
+
+&lt;p&gt;Several modules provide an interface to better sources:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.metacpan.org/module/Net::Random&#34;&gt;Net::Random&lt;/a&gt; can connect to internet services that send back random numbers. You have to trust the internet though.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;(http://www.metacpan.org/module/Crypt::Random&#34;&gt;Crypt::Random&lt;/a&gt; connects to the local &lt;a href=&#34;http://man7.org/linux/man-pages/man4/random.4.html&#34;&gt;/dev/random&lt;/a&gt;. That uses environmental noise to generate bytes. The /dev/urandom device might drop down to pseudo-randomness though. Neither is a good source for long sequences of numbers.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;An &lt;a href=&#34;http://www.entropykey.co.uk&#34;&gt;Entropy Key&lt;/a&gt; is a small USB device that helps the &lt;em&gt;/dev/random&lt;/em&gt; device fill up its entropy sink. This allows you to read from the device more frequently without dropping into pseudorandomness.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.random.org/integers/&#34;&gt;Random.org&lt;/a&gt; provides data based on atmospheric noise. In the StackOverflow question &lt;a href=&#34;http://stackoverflow.com/a/4093822/2766176&#34;&gt;How to generate an array with random values, without using a loop?&lt;/a&gt;, I presented a way to override Perl&amp;rsquo;s &lt;a href=&#34;http://perldoc.perl.org/functions/rand.html&#34;&gt;rand&lt;/a&gt; to use this source. Some other answers are illuminating as well.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;As with most everything else, there&amp;rsquo;s no answer that covers every use. That you discover other sources is a rite of passage for a programmer.&lt;/p&gt;
+
+&lt;h4 id=&#34;perl-lets-anyone-program:cd86d0266dcf98a4569e4f8588591c75&#34;&gt;Perl lets anyone program&lt;/h4&gt;
+
+&lt;p&gt;I joked that Perl&amp;rsquo;s real problem was that it existed, essentially, and that people could use it. It&amp;rsquo;s a variation on the joke about the world&amp;rsquo;s most secure computer is one that&amp;rsquo;s turned off, encased in concrete, and dropped to the bottom of the ocean. And, we&amp;rsquo;re not even sure even then.&lt;/p&gt;
+
+&lt;p&gt;But, I had a more interesting point in mind. Despite any technical limitations or gotchas, documented or not, it&amp;rsquo;s people who make programs and the decisions about what programs will do. Knowing the syntax of a language is a start, but the biggest failures come from human decisions while programming. For entertaining illustrations of this idea, you might like Paul Fenwick&amp;rsquo;s &lt;a href=&#34;https://www.youtube.com/watch?v=73vQglu-4H4&#34;&gt;An Illustrated History of Failure&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Perl Jam VI: The Return of the Camel</title>
@@ -2157,114 +2219,6 @@ sub make_subs {
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;And that was it. This left behind a couple of problems, such as messed up metadata, but I wasn&amp;rsquo;t going to be able to solve that programmatically anyway. Getting a complete set of files with no duplicates solved most of the problem and leaves me with the joy of flipping through physical albums that only us grey beards remember.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Rescue legacy code with modulinos</title>
-      <link>http://perltricks.com/article/107/2014/8/7/Rescue-legacy-code-with-modulinos/</link>
-      <pubDate>Thu, 07 Aug 2014 12:22:42 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/107/2014/8/7/Rescue-legacy-code-with-modulinos/</guid>
-      <description>
-
-&lt;p&gt;As businesses grow, they move into situations they didn&amp;rsquo;t anticipate and often have problems other businesses would love to have. Under rapid growth their codebase struggles to keep up. I&amp;rsquo;ve seen more bad code making money than I&amp;rsquo;ve seen good code making money, and it&amp;rsquo;s an exciting situation to fix. Modulinos have been a nice trick for me to move standalone programs toward a testable and manageable CPAN-like distribution.&lt;/p&gt;
-
-&lt;p&gt;Modulinos isn&amp;rsquo;t an idea that I invented, but it&amp;rsquo;s something I popularized. I first got the idea from a talk by &lt;a href=&#34;http://blog.plover.com&#34;&gt;Mark Jason Dominus&lt;/a&gt; and the &lt;a href=&#34;https://github.com/Perl/perl5/blob/blead/lib/diagnostics.pm&#34;&gt;diagnostics&lt;/a&gt; module, written by Tom Christiansen way back in 1995. In this article I&amp;rsquo;ll talk a little about the trick, but more about why and how I&amp;rsquo;ve used it.&lt;/p&gt;
-
-&lt;p&gt;The trick involves using &lt;a href=&#34;http://perldoc.perl.org/functions/caller.html&#34;&gt;caller&lt;/a&gt; to decide how a Perl file should act depending on how it&amp;rsquo;s loaded. When run from the command line, it acts like a program, but when loaded as a module, it doesn&amp;rsquo;t run anything while still making its subroutines and packages available. In the second edition of &lt;a href=&#34;http://www.masteringperl.org/&#34;&gt;Mastering Perl&lt;/a&gt;, I expanded this a bit to check for the presence of a test harness so it could run methods that start with &lt;code&gt;test_&lt;/code&gt;, a Python feature I&amp;rsquo;ve liked.&lt;/p&gt;
-
-&lt;p&gt;You can see the basic structure in &lt;a href=&#34;https://metacpan.org/pod/Modulino::Test&#34;&gt;Modulino::Test&lt;/a&gt;, part of the &lt;a href=&#34;https://metacpan.org/release/Modulino-Demo&#34;&gt;Modulino::Demo&lt;/a&gt; distribution:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Modulino::Test;
-use utf8;
-use strict;
-use warnings;
-
-use v5.10;
-
-our $VERSION = &#39;0.10_01&#39;;
-
-sub _running_under_tester { !! $ENV{CPANTEST} }
-
-sub _running_as_app { ! defined scalar caller(1) }
-
-sub _loaded_as_module { defined scalar caller(1); }
-
-my $method = do {
-        if( _running_under_tester()   ) { &#39;test&#39; }
-    elsif( _loaded_as_module()       ) { undef  }
-    elsif( _running_as_app()            ) { &#39;run&#39;  }
-    else                                { undef }
-    };
-
-__PACKAGE__-&amp;gt;$method(@ARGV) if defined $method;
-
-sub test { ... }
-sub run  { ... }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;I originally wrote about modulinos in &lt;a href=&#34;http://www.perlmonks.org/index.pl?node_id=396759&#34;&gt;How a script becomes a module&lt;/a&gt; on Perlmonks, and that&amp;rsquo;s where I first used the term. I might have even invented in while creating that post. I expanded it a little bit for &lt;a href=&#34;http://www.drdobbs.com/scripts-as-modules/184416165&#34;&gt;Scripts as Modules&lt;/a&gt; for &lt;em&gt;The Perl Journal&lt;/em&gt; (now swallowed as &lt;em&gt;Dr. Dobbs Journal&lt;/em&gt;).&lt;/p&gt;
-
-&lt;p&gt;At the time, I was doing quite a bit of work to translate legacy codebases into something more manageable. Instead of rewriting everything, I created paths to better behavior with immediate results. Part of this path is testing the existing codebase so I could recreate it, bugs and rough edges included, in the next part. Moving standalone scripts to libraries or modules is a big part of that; I have to maintain the program behavior, but I want to unit test its innards.&lt;/p&gt;
-
-&lt;p&gt;I have quite a bit of fun organizing a messy and (previously) unmanaged codebase. A little work makes a big difference and gives quick gains. From there it&amp;rsquo;s an easy path toward adding tests. It&amp;rsquo;s part of my motivation for &lt;a href=&#34;http://search.cpan.org/dist/scriptdist/&#34;&gt;scriptdist&lt;/a&gt;, which I wrote about in &lt;a href=&#34;http://www.drdobbs.com/web-development/automating-distributions-with-scriptdist/184416112&#34;&gt;Automating Distributions with scriptdist&lt;/a&gt;. Given a stand-alone program, I used that tool to build a distribution around it and include the test files. The program file stays the same, but once wrapped in the distribution goodness, I can start the transformation. Even if this code will never make it to CPAN, I can still use all the CPAN tools by making it look like a CPAN distribution.&lt;/p&gt;
-
-&lt;h3 id=&#34;converting-a-script-to-a-modulino:f0a7da8ae6aa523fe204e85806c139f8&#34;&gt;Converting a script to a modulino&lt;/h3&gt;
-
-&lt;p&gt;Suppose I start with a script. Here&amp;rsquo;s a short one:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
-
-print &amp;quot;Hello World!\n&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Even this simple program has problems (we never have trouble finding faults with programs; it&amp;rsquo;s almost bloodsport in some parts!). I can&amp;rsquo;t change where the output goes and it&amp;rsquo;s hard-coded to use English.&lt;/p&gt;
-
-&lt;p&gt;My first step is to make this a program that behaves the same but has a different structure. Larry designed Perl to do away with the &lt;code&gt;main&lt;/code&gt; subroutine required by many other languages, but I bring it back:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
-
-__PACKAGE__-&amp;gt;run();
-
-sub run {
-    print &amp;quot;Hello World!\n&amp;quot;;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The &lt;code&gt;__PACKAGE__&lt;/code&gt; token is a compiler directive that refers to the current package. It calls the &lt;code&gt;run&lt;/code&gt; subroutine, which operates the same as it introduces a new scope. Some black magic and weird idioms might break, but, for the most part, this should (a dangerous word!) run the same. At this point, I&amp;rsquo;m probably also introducing this legacy codebase to source control, so a small change with no new behavior makes for a good first patch to a new branch.&lt;/p&gt;
-
-&lt;p&gt;This program is now mostly a module and it has the distribution structure that allows me to test it. I can start to create acceptance tests (end-to-end, or some other label even) since I haven&amp;rsquo;t had a way to reach into the code itself. These form the basis of the regression tests I can use to check the new code against the original code.&lt;/p&gt;
-
-&lt;p&gt;When I&amp;rsquo;m satisfied that the new code works, I can make more changes. This is where the modulino idea comes in. I want to test the code without automatically executing the code in &lt;code&gt;run&lt;/code&gt;. I can use the &lt;code&gt;caller&lt;/code&gt; trick; I don&amp;rsquo;t execute the code if there&amp;rsquo;s a higher level in the call stack (a program would be at the top):&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
-
-__PACKAGE__-&amp;gt;run() unless caller;
-
-sub run {
-    print &amp;quot;Hello World!\n&amp;quot;;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;That&amp;rsquo;s another small change in the actual code, but a significant change in behavior. I can get to the code in a test program:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::More;
-
-subtest &#39;load program&#39; =&amp;gt; sub {
-    require_ok( &#39;scripts/program.pl&#39; );
-    };
-    
-subtest &#39;test innards&#39; =&amp;gt; sub {
-    ok( defined &amp;amp;run, &#39;Run subroutine is defined&#39; );
-    };
-
-done_testing();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;From there the path forward is more clear. I can add a package statement to the program and start to refactor the &lt;code&gt;run&lt;/code&gt;, using the test best practices I know. Soon the development morphs into module maintenance and its history as a standalone program doesn&amp;rsquo;t matter anymore. As I go through the process, I&amp;rsquo;ve also set the eventual maintainers on the right path.&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/deia/321829326/in/photolist-ursDu-71wk9y-nYpsHQ-e3P2i9-e1TW4-32LHXt-e4bYT8-e4bYNV-e4hB2m-e4hB5Y-69pxDc-7YWXJX-cwAfvs-e1TUY-4zkBG7-dcyLpA-aj8HAk-ajbu5L-ajbuh7-94j7Df-94jsgo-d9QS9u-dcyJAE-dcyHcT-bavZfB-2nPfVE-52nPvi-RBuWd-4tpcsD-55P2hs-4WaC4T-7w6TC-9FUUPM-94jwv1-8ohTWP-94g9Ep-6ijaiB-94jpgQ-94jcQd-94gcw8-94jveU-94jy93-94g6v8-94j9nu-94jmud-dh1bAe-dcyJoM-dcyJNK-duC43R-dcyK6z&#34;&gt;Andréia Bohner&lt;/a&gt;, the image has been digitally altered.&lt;/em&gt;&lt;/p&gt;
 </description>
     </item>
     

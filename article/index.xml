@@ -6,8 +6,70 @@
     <description>Recent content in Articles on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 02 May 2016 14:04:49 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 04 May 2016 20:37:57 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/article/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Perl Jam VI: April Trolls</title>
+      <link>http://perltricks.com/article/april_fools/</link>
+      <pubDate>Wed, 04 May 2016 20:37:57 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/april_fools/</guid>
+      <description>
+
+&lt;p&gt;For an April Fool&amp;rsquo;s joke, I wanted to parody the &lt;a href=&#34;http://perltricks.com/article/netanel-rubins-perljam-circus/&#34;&gt;Perl Jam circus&lt;/a&gt; where the author has an idea that something is wrong but gets the explanation half-wrong. I wrote &lt;a href=&#34;http://perltricks.com/article/perl-jam-iv-return-of-the-camel/&#34;&gt;Perl Jam VI: The Return of the Camel&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;I thought I&amp;rsquo;d catch some people out if I was clever enough with the first example and increasingly lazy. I might have been too clever, but I also think that April Fool&amp;rsquo;s is probably over. Not only that, I still felt guilty about not doing the work to explain things properly or giving you proper pointers where to look for good solutions.&lt;/p&gt;
+
+&lt;h4 id=&#34;perl-s-rounding-problem:cd86d0266dcf98a4569e4f8588591c75&#34;&gt;Perl&amp;rsquo;s rounding problem&lt;/h4&gt;
+
+&lt;p&gt;Rounding is a problem for people who really care about numbers and where slight biases in numeric functions can skew results. Most people will probably never care about this because they don&amp;rsquo;t have to care. However, I used to work with scads of data from nuclear physics experiments where it could have mattered.&lt;/p&gt;
+
+&lt;p&gt;Perl&amp;rsquo;s particular issue is its reliance on someone else making the decision. When I first starting teaching Perl, many of my students had experience with C. They knew the issues with their libc. &lt;code&gt;perl&lt;/code&gt; defers many decisions on to that libc. This means that you can get different results with a different &lt;code&gt;perl&lt;/code&gt;s. Perl may run virtually everywhere, but it doesn&amp;rsquo;t guarantee you&amp;rsquo;ll get the same answer everywhere.&lt;/p&gt;
+
+&lt;p&gt;There is plenty of literature out there on different methods, and there are more than several methods. Just that fact shows that people don&amp;rsquo;t agree on how it should work. If rounding might impact your results, you should be aware that you have many ways to deal with it. The &lt;a href=&#34;http://www.metacpan.org/module/Math::Round&#34;&gt;Math::Round&lt;/a&gt; handles most of them.&lt;/p&gt;
+
+&lt;h4 id=&#34;the-modulus-of-negative-numbers:cd86d0266dcf98a4569e4f8588591c75&#34;&gt;The modulus of negative numbers&lt;/h4&gt;
+
+&lt;p&gt;The modulus operator was a bit more interesting since it actually has some problems and undefined behavior. I presented the table of operand combinations and noted which ones are defined in Perl. Some of the situations don&amp;rsquo;t have defined behavior.&lt;/p&gt;
+
+&lt;p&gt;I didn&amp;rsquo;t think that many people would take this section seriously since the modulus operator isn&amp;rsquo;t that popular. The &lt;a href=&#34;http://perldoc.perl.org/integer.html&#34;&gt;integer pragma &lt;/a&gt; may fix the problem:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Internally, native integer arithmetic (as provided by your C compiler) is used. This means that Perl&amp;rsquo;s own semantics for arithmetic operations may not be preserved. One common source of trouble is the modulus of negative numbers, which Perl does one way, but your hardware may do another.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The StackOverflow question &lt;a href=&#34;https://stackoverflow.com/questions/20691861/perl-understanding-modulo-operation-on-negative-numbers-e-g-103/32090446#32090446&#34;&gt;Perl: understanding modulo operation on negative numbers&lt;/a&gt; goes into more detail about Perl&amp;rsquo;s behavior.&lt;/p&gt;
+
+&lt;p&gt;If this matters for your application, you can implement your own modulo operation (perhaps in &lt;a href=&#34;http://www.metacpan.org/module/Inline::C&#34;&gt;Inline::C&lt;/a&gt;?) to do it exactly how you like to get the results you expect no matter where you run your program.&lt;/p&gt;
+
+&lt;h4 id=&#34;fake-random-numbers:cd86d0266dcf98a4569e4f8588591c75&#34;&gt;Fake random numbers&lt;/h4&gt;
+
+&lt;p&gt;When we say &amp;ldquo;random numbers&amp;rdquo;, experienced programmers generally understand that they aren&amp;rsquo;t actually using numbers that are random. They are &lt;a href=&#34;https://www.random.org/randomness/&#34;&gt;pseudo-random&lt;/a&gt;, although that&amp;rsquo;s too much to say over and over again. We shorten it to &amp;ldquo;random&amp;rdquo; to keep the sentences short. If you are seeding a random number generator, you&amp;rsquo;re using the fake kind.&lt;/p&gt;
+
+&lt;p&gt;For the odd homework assignment or selecting a unique value you haven&amp;rsquo;t used yet, Perl&amp;rsquo;s &lt;a href=&#34;http://perldoc.perl.org/functions/rand.html&#34;&gt;rand&lt;/a&gt; may be fine. If you are doing something where you want real randomness, you don&amp;rsquo;t want something deterministic. You want &amp;ldquo;true&amp;rdquo; random numbers.&lt;/p&gt;
+
+&lt;p&gt;Several modules provide an interface to better sources:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.metacpan.org/module/Net::Random&#34;&gt;Net::Random&lt;/a&gt; can connect to internet services that send back random numbers. You have to trust the internet though.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;(http://www.metacpan.org/module/Crypt::Random&#34;&gt;Crypt::Random&lt;/a&gt; connects to the local &lt;a href=&#34;http://man7.org/linux/man-pages/man4/random.4.html&#34;&gt;/dev/random&lt;/a&gt;. That uses environmental noise to generate bytes. The /dev/urandom device might drop down to pseudo-randomness though. Neither is a good source for long sequences of numbers.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;An &lt;a href=&#34;http://www.entropykey.co.uk&#34;&gt;Entropy Key&lt;/a&gt; is a small USB device that helps the &lt;em&gt;/dev/random&lt;/em&gt; device fill up its entropy sink. This allows you to read from the device more frequently without dropping into pseudorandomness.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.random.org/integers/&#34;&gt;Random.org&lt;/a&gt; provides data based on atmospheric noise. In the StackOverflow question &lt;a href=&#34;http://stackoverflow.com/a/4093822/2766176&#34;&gt;How to generate an array with random values, without using a loop?&lt;/a&gt;, I presented a way to override Perl&amp;rsquo;s &lt;a href=&#34;http://perldoc.perl.org/functions/rand.html&#34;&gt;rand&lt;/a&gt; to use this source. Some other answers are illuminating as well.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;As with most everything else, there&amp;rsquo;s no answer that covers every use. That you discover other sources is a rite of passage for a programmer.&lt;/p&gt;
+
+&lt;h4 id=&#34;perl-lets-anyone-program:cd86d0266dcf98a4569e4f8588591c75&#34;&gt;Perl lets anyone program&lt;/h4&gt;
+
+&lt;p&gt;I joked that Perl&amp;rsquo;s real problem was that it existed, essentially, and that people could use it. It&amp;rsquo;s a variation on the joke about the world&amp;rsquo;s most secure computer is one that&amp;rsquo;s turned off, encased in concrete, and dropped to the bottom of the ocean. And, we&amp;rsquo;re not even sure even then.&lt;/p&gt;
+
+&lt;p&gt;But, I had a more interesting point in mind. Despite any technical limitations or gotchas, documented or not, it&amp;rsquo;s people who make programs and the decisions about what programs will do. Knowing the syntax of a language is a start, but the biggest failures come from human decisions while programming. For entertaining illustrations of this idea, you might like Paul Fenwick&amp;rsquo;s &lt;a href=&#34;https://www.youtube.com/watch?v=73vQglu-4H4&#34;&gt;An Illustrated History of Failure&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>What&#39;s new on CPAN - April 2016</title>
@@ -2135,111 +2197,6 @@ app-&amp;gt;start;
 &lt;p&gt;I&amp;rsquo;m hoping to wrap this TCP/WebSocket bridge logic up as a module called &lt;code&gt;Mojo::Websockify&lt;/code&gt; and include the noVNC client as an example. It turns out however, that the logic which is simple to show here is remarkably hard to package in a generic, extensible way. For example, you may want to check if the TCP service is already in use via some database-locking table, or to allow remote-takeover of sessions using a message broker between clients. I&amp;rsquo;ll probably just simplify things for the common case and build in some protection for the &amp;ldquo;back pressure&amp;rdquo; problem. In the meantime I hope you have enjoyed seeing how beautifully simple Mojolicious&amp;rsquo; WebSocket and TCP services are.&lt;/p&gt;
 
 &lt;p&gt;Happy Perling!&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Twitter as a datastore</title>
-      <link>http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/</link>
-      <pubDate>Thu, 21 Jan 2016 13:52:14 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/210/2016/1/21/Twitter-as-a-datastore/</guid>
-      <description>&lt;p&gt;Why doesn&amp;rsquo;t anyone talk about Twitter as a data store? It&amp;rsquo;s a free account, they mostly have uptime, and you can easily control who can see the information. If you can do it in 140 characters (and &lt;a href=&#34;http://www.theverge.com/2015/8/12/9134175/twitter-direct-message-character-limit&#34;&gt;soon to be 10,000&lt;/a&gt;), it&amp;rsquo;s an easy way to store data.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://twitter.com/excellent_nums&#34;&gt;Tweets by @excellent_nums&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;I&amp;rsquo;m doing this for my &lt;a href=&#34;http://www.excellentnums.com&#34;&gt;excellent numbers project&lt;/a&gt; that does quite a bit of computing to find numbers with a particular property. This isn&amp;rsquo;t the only way I&amp;rsquo;m storing the numbers, but I had the idea of tweeting them as soon as I found them in case every other method failed. If I accidentally deleted the output files (did that), truncated and overwrote files (did that), or somehow screwed it up in another way (did that), the numbers are still on Twitter.&lt;/p&gt;
-
-&lt;p&gt;I had another compelling reason, though. I wanted to get an alert on my phone when my program found another excellent number. Unfortunately, I&amp;rsquo;ve hitched my wagon to the iPhone. There are all sorts of complicated ways for me to get an alert but I already use Twitter and get alerts for that. So, I can have a backup store and an alert system using stuff I already have installed. I can spend more time on the math and less time on installing and managing Redis (which is easy too and deserves an article here) then coming up with a way to send new entries to my phone.&lt;/p&gt;
-
-&lt;p&gt;I wrote about my setup in nonspecific terms in &lt;a href=&#34;http://www.masteringperl.org/2015/12/ive-found-over-200-excellent-numbers/&#34;&gt;Mastering Perl&lt;/a&gt;. I didn&amp;rsquo;t show any code, although it&amp;rsquo;s all in &lt;a href=&#34;https://github.com/briandfoy/excellent_numbers&#34;&gt;the excellent_numbers GitHub repository&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Before you start, you need some Twitter credentials to use their API through the &lt;a href=&#34;https://metacpan.org/pod/Net::Twitter&#34;&gt;Net::Twitter&lt;/a&gt; module. Start at &lt;a href=&#34;http://apps.twitter.com&#34;&gt;Twitter Application Management&lt;/a&gt; to get the four special strings you&amp;rsquo;ll need (&lt;a href=&#34;http://iag.me/socialmedia/how-to-create-a-twitter-app-in-8-easy-steps/&#34;&gt;&amp;ldquo;How to Register a Twitter App in 8 Easy Steps&amp;rdquo; has a good description of the steps&lt;/a&gt;:&lt;/p&gt;
-
-&lt;p&gt;Consumer Key (API Key)&lt;/p&gt;
-
-&lt;p&gt;Consumer Secret (API Secret)&lt;/p&gt;
-
-&lt;p&gt;Access Token&lt;/p&gt;
-
-&lt;p&gt;Access Token Secret&lt;/p&gt;
-
-&lt;p&gt;The Net::Twitter module needs these strings to create its object. The module handles all of the OAuth details without me having to think about them:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Net::Twitter;
-
-my $nt = Net::Twitter-&amp;gt;new(
-   traits   =&amp;gt; [qw/OAuth API::RESTv1_1/],
-   map { $_ =&amp;gt; $ENV{&amp;quot;$_&amp;quot;} || die &amp;quot;ENV $_ not set&amp;quot; }
-           qw(     
-                consumer_secret
-                consumer_key
-                access_token
-                access_token_secret
-                )
-   );
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;In my excellent number program, I wanted to be as simple as possible. I didn&amp;rsquo;t want to re-tweet numbers I already tweeted so I fetched everything I&amp;rsquo;ve tweeted so far and stored it in a hash. Twitter pages in groups of 200 tweets maximum, and this didn&amp;rsquo;t seem like it would be a problem a couple of months ago but I&amp;rsquo;m now up to over 350 of them.&lt;/p&gt;
-
-&lt;p&gt;It&amp;rsquo;s easy to fetch a bunch of statuses with the &lt;code&gt;user_timeline&lt;/code&gt; method. I need to tell it where to start (&lt;code&gt;min_id&lt;/code&gt; or &lt;code&gt;since_id&lt;/code&gt;). Twitter returns huge JSON structures with lots of information, but Net::Twitter turns that into a Perl data structure for me. I dump what they send and pull out the parts I want:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %tweets;
-STATUSES: while( 1 ) {
-  state $min_id = 1;
-  state $fetch_size = 200;
-
-  my $max_key = $min_id == 1 ? &#39;since_id&#39; : &#39;max_id&#39;;
-
-  my $statuses = $nt-&amp;gt;user_timeline({
-          count       =&amp;gt; $fetch_size,
-          screen_name =&amp;gt; &#39;excellent_nums&#39;,
-          $max_key    =&amp;gt; $min_id,
-          });     
-
-  say { interactive } &amp;quot;Found &amp;quot; . @$statuses . &amp;quot; statuses&amp;quot;;
-  $min_id = $statuses-&amp;gt;[-1]{id} - 1 if $min_id == 1;
-
-  foreach my $status ( @$statuses ) {
-          $min_id = $status-&amp;gt;{id} - 1 if $min_id &amp;gt; $status-&amp;gt;{id};
-          my( $number ) = $status-&amp;gt;{text} =~ m/(\d+)/;
-          warn &amp;quot;[$number] has more than one tweet!\n&amp;quot; if exists $tweets{$number};
-          $tweets{$number} = undef;
-          unless( is_excellent( $number ) ) {
-                  warn &amp;quot;Tweet for [$number] is an unexcellent error\n&amp;quot;;
-                  }       
-          }       
-
-  last if @$statuses &amp;lt; $fetch_size; # must be last page
-  }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This part is complicated for another reason. At the start of the project I was generating the excellent numbers sequentially. When that&amp;rsquo;s the case I only needed to look at the previous tweet to see if it was less than the number I just discovered. When I got to the big numbers, I went wide and worked on different parts of the range in parallel and sometimes on several computers simultaneously. I started to discover the numbers out of order and tweet them out of order. Hence, the paging. I could store the list of tweeted numbers locally, but that&amp;rsquo;s a hassle to manage too since that can be out of sync. I still might do that when this method runs out of steam. I&amp;rsquo;m not likely to get far beyond 500 numbers though.&lt;/p&gt;
-
-&lt;p&gt;Notice that I also &lt;code&gt;warn&lt;/code&gt; if I run into a tweet with a number that I think is a duplicate:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;warn &amp;quot;[$number] has more than one tweet!\n&amp;quot; if exists $tweets{$number};
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If this was a bigger problem (and it&amp;rsquo;s not anymore), I could use the &lt;code&gt;destroy_status&lt;/code&gt; method to automatically get rid of it:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$nt-&amp;gt;destroy_status( $status-&amp;gt;{id} ) if exists $tweets{$number};
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;I decided not to delete automatically from the program. It&amp;rsquo;s not a problem to have duplicates. It&amp;rsquo;s a bit messy, but it&amp;rsquo;s more messy to delete stuff I want to keep and to retweet it. That risk makes it not worth it for me. I don&amp;rsquo;t want another possible automated mess to clean up.&lt;/p&gt;
-
-&lt;p&gt;Now I know everything I&amp;rsquo;ve tweeted previously and I&amp;rsquo;ve put them in &lt;code&gt;%tweets&lt;/code&gt;. The next part is to tweet what I&amp;rsquo;ve found and haven&amp;rsquo;t stored yet. I also store that in a local file (but remember I want the alerts and the backup!) that I used to populate &lt;code&gt;%numbers&lt;/code&gt;. I skip the numbers I already tweeted and use &lt;code&gt;update&lt;/code&gt; to make the new tweets. Storing new numbers is easy, and when I do it I want to tweet the new numbers in ascending order:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;NUMBER: foreach my $number ( sort { $a &amp;lt;=&amp;gt; $b } keys %numbers ) {
-  next NUMBER if exists $tweets{$number};
-
-  $nt-&amp;gt;update( &amp;quot;$number is excellent&amp;quot; );
-  }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This used to be part of the program that found the excellent numbers, but I switched to C for a huge performance bump. I still wanted to tweet from Perl, which is easy. Perl&amp;rsquo;s become the glue holding together lots of different things.&lt;/p&gt;
-
-&lt;p&gt;Once I can read from, post to, and delete from twitter, other applications (or even real people) can follow it. It can be public or private. It&amp;rsquo;s not sophisticated. It&amp;rsquo;s uptime isn&amp;rsquo;t going to win any awards. But it&amp;rsquo;s free and easy for my small task.&lt;/p&gt;
 </description>
     </item>
     
