@@ -6,8 +6,113 @@
     <description>Recent content in Articles on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 04 May 2016 20:37:57 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 13 May 2016 07:57:42 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/article/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Displaying the Git branch in the terminal prompt with and without Perl</title>
+      <link>http://perltricks.com/article/displaying-the-git-branch-in-the-terminal-prompt-with-perl/</link>
+      <pubDate>Fri, 13 May 2016 07:57:42 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/displaying-the-git-branch-in-the-terminal-prompt-with-perl/</guid>
+      <description>
+
+&lt;p&gt;One way to evolve as a programmer is to pay attention to things you do repeatedly, and replace that action with an efficient alternative. It took me a shamefully long time to realize I was typing &lt;code&gt;git branch&lt;/code&gt; many times a day to check which branch I was committing code to. A more efficient way is to display the current branch name in the terminal prompt. Ideally I&amp;rsquo;d like to see something like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;~/some/path [master]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;the-branch-command:c52c5eee374941349f46a20f31a4a0be&#34;&gt;The branch command&lt;/h3&gt;
+
+&lt;p&gt;With Git version control, code changes are committed to branches. The active branch is the context for work. For example I might be working on a new feature, so I create a new branch called &amp;ldquo;new-feature-x&amp;rdquo; and start writing code. Any changes I make to the code whilst in this branch, do not affect the master branch of code. This makes knowing the active branch really important - I don&amp;rsquo;t want to commit code to the wrong branch.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;branch&lt;/code&gt; command displays a list of all local branches and places an asterisk next to the active one. So in my fictional example, it might look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git branch
+  master
+* new-feature-x
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Git prepends an asterisk to highlight the active branch name. Sometimes I use this to remind myself which branches are available locally, but most of the time I&amp;rsquo;m checking it to see which branch I&amp;rsquo;m currently working on. The Git &lt;a href=&#34;https://git-scm.com/docs/git-branch&#34;&gt;branch documentation&lt;/a&gt; has more information on the ins and outs of &lt;code&gt;branch&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;parsing-git-branch-with-perl:c52c5eee374941349f46a20f31a4a0be&#34;&gt;Parsing git branch with Perl&lt;/h3&gt;
+
+&lt;p&gt;This is the one liner I want to use:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git branch 2&amp;gt; /dev/null | perl -ne &#39;print &amp;quot; [$_]&amp;quot; if s/^\*\s+// &amp;amp;&amp;amp; chomp&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It runs &lt;code&gt;git branch&lt;/code&gt; redirecting error messages to the netherworld. That means if the current working directory is not a git repository, the ensuing error message will be ignored. We pipe the list of git branches to Perl, which uses the &lt;code&gt;-n&lt;/code&gt; option to loop through each line of input, running the quoted code.&lt;/p&gt;
+
+&lt;p&gt;The code operates on the default variable &lt;code&gt;$_&lt;/code&gt; which is the line of output from &lt;code&gt;git branch&lt;/code&gt; being looped over. The active branch name always begins with an asterisk, So &lt;code&gt;s/^\*\s+//&lt;/code&gt; tries to substitute the leading asterisk and whitespace from the branch name. Substitute returns the number of characters it replaced, so for all lines except the active branch, that will be zero and evaluate to false. If it&amp;rsquo;s true, the code then chomps the trailing newline character from the branch name and prints it.&lt;/p&gt;
+
+&lt;p&gt;I can add this as a function to my &lt;code&gt;.bashrc&lt;/code&gt; file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;function current_git_branch {
+  git branch 2&amp;gt; /dev/null | perl -ne &#39;print &amp;quot; [$_]&amp;quot; if s/^\*\s+// &amp;amp;&amp;amp; chomp&#39;
+}
+PS1=&amp;quot;\w\$(current_git_branch) &amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;PS1&lt;/code&gt; variable defines the terminal prompt content and style. Here I&amp;rsquo;ve defined it as follows: &lt;code&gt;\w&lt;/code&gt; is the current working directory path, e.g. &lt;code&gt;~/Projects/work/&lt;/code&gt; or whatever. This is followed by the call to &lt;code&gt;current_git_branch&lt;/code&gt;. Once those edits are saved in my &lt;code&gt;.bashrc&lt;/code&gt;, I need to save the file and reload it:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ . ~/.bashrc
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now my terminal prompt looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;~/Projects/work [new-feature-x]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And if I checkout a different branch it will change:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;~/Projects/work [new-feature-x] git checkout master
+~/Projects/work [master]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;some-other-ways:c52c5eee374941349f46a20f31a4a0be&#34;&gt;Some other ways&lt;/h3&gt;
+
+&lt;p&gt;One easy alternative would be to use Perl 6:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git branch 2&amp;gt; /dev/null | perl6 -ne &#39;print &amp;quot; [$_]&amp;quot; if s/^\*\s+// &amp;amp;&amp;amp; .chomp&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code is almost the same as before, only &lt;code&gt;chomp&lt;/code&gt; has been changed to a method call. A regex capture could be used instead too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git branch 2&amp;gt; /dev/null | perl -ne &#39;print &amp;quot; [$1]&amp;quot; if /^\*\s+(\S+)/&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve also seen &lt;a href=&#34;https://askubuntu.com/questions/730754/how-do-i-show-the-git-branch-with-colours-in-bash-prompt&#34;&gt;examples&lt;/a&gt; using &lt;code&gt;sed&lt;/code&gt; to parse the output instead of Perl.&lt;/p&gt;
+
+&lt;h3 id=&#34;bash-only:c52c5eee374941349f46a20f31a4a0be&#34;&gt;Bash only&lt;/h3&gt;
+
+&lt;p&gt;Perhaps a more efficient approach is to have Git emit only the active branch name, and then we don&amp;rsquo;t need another program to parse the output at all, we can just use bash. Credit goes to &lt;a href=&#34;http://randalschwartz.com&#34;&gt;Randal Schwartz&lt;/a&gt; for showing me this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git rev-parse --abbrev-ref HEAD
+new-feature-x
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This emits the active branch only. So now the code in my &lt;code&gt;.bashrc&lt;/code&gt; becomes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;function current_git_branch {
+  local branch=$(git rev-parse --abbrev-ref HEAD 2&amp;gt;/dev/null);
+  if [[ -n $branch ]];then
+    echo &amp;quot; [$branch]&amp;quot;;
+  fi
+}
+PS1=&amp;quot;\w\$(current_git_branch) &amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code assigns the output of the git command to the variable &lt;code&gt;branch&lt;/code&gt;. It then echoes the branch name as long as it&amp;rsquo;s not a zero length string (which happens when the current working directory is not a git repository). But wait a second, what happened to that newline at the end of the branch name? Bash has some interesting behavior with nested &lt;code&gt;echo&lt;/code&gt; commands. Check this out:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ echo -n $(echo -e &amp;quot;\n\n\n\n&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you run that command at the terminal you should get no output, even though it includes 4 newline characters, plus another newline appended by the &lt;code&gt;echo&lt;/code&gt; subcommand. The outer &lt;code&gt;echo&lt;/code&gt; ignores all newlines returned by the subcommand, and the &lt;code&gt;-n&lt;/code&gt; option suppresses its own newline append (thanks to Ben Grimm for the explanation).&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m going with the bash variant, but whichever method you use, displaying the branch name in the terminal is a nice time saver.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Perl Jam VI: April Trolls</title>
@@ -2098,105 +2203,6 @@ print &amp;quot;\n&amp;quot;;
 &lt;li&gt;Create CGI (yes!) GitHub webhooks with&lt;a href=&#34;https://metacpan.org/pod/CGI::Github::Webhook&#34;&gt;CGI::Github::Webhook&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Curious: &lt;a href=&#34;https://metacpan.org/pod/Lemplate&#34;&gt;Lemplate&lt;/a&gt; compiles TT templates to standalone Lua modules for OpenResty&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Get an in-browser remote desktop with Mojolicious and noVNC</title>
-      <link>http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/</link>
-      <pubDate>Tue, 02 Feb 2016 13:41:18 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/212/2016/2/2/Get-an-in-browser-remote-desktop-with-Mojolicious-and-noVNC/</guid>
-      <description>
-
-&lt;p&gt;While SSH is a staple of remote system administration, sometimes only a GUI will do. Perhaps the remote system doesn&amp;rsquo;t have a terminal environment to connect to; perhaps the target application doesn&amp;rsquo;t present an adequate command line interface; perhaps there is an existing GUI session you need to interact with. There can be all kinds of reasons.&lt;/p&gt;
-
-&lt;p&gt;For this purpose, a generic type of remote desktop service called VNC is commonly used. The servers are easy to install, start on seemingly all platforms and lots of hardware has a VNC server embedded for remote administration. Clients are similarly easy to use, but when building a management console in the web, wouldn&amp;rsquo;t it be nice to have the console view right in your browser?&lt;/p&gt;
-
-&lt;p&gt;Luckily there is a pure JavaScript VNC client called &lt;a href=&#34;https://github.com/kanaka/noVNC&#34;&gt;noVNC&lt;/a&gt; noVNC listens for VNC traffic over WebSockets, which is convenient for browsers but isn&amp;rsquo;t supported by most VNC servers. To overcome this problem they provide a command-line application called &lt;a href=&#34;https://github.com/kanaka/websockify&#34;&gt;Websockify&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Websockify is a relay that connects to a TCP connection (the VNC server) and exposes the traffic as a WebSocket stream such that a browser client can listen on. While this does fix the problem it isn&amp;rsquo;t an elegant solution. Each VNC Server needs its own instance of Websockify requiring a separate port. Further you either need to leave these connected at all times in case of a web client or else spawn them on demand and clean them up later.&lt;/p&gt;
-
-&lt;h2 id=&#34;mojolicious-to-the-rescue:df6114835a8ce31097aba2ba4c9f0a9f&#34;&gt;Mojolicious to the Rescue&lt;/h2&gt;
-
-&lt;p&gt;Mojolicious has a built-in event-based &lt;a href=&#34;http://mojoliciou.us/perldoc/Mojo/IOLoop/Client&#34;&gt;TCP Client&lt;/a&gt; and native &lt;a href=&#34;http://mojolicious.org/perldoc/Mojolicious/Guides/Tutorial#WebSockets&#34;&gt;WebSocket&lt;/a&gt; handling. If you are already serving your site with Mojolicious, why not let it do the TCP/WebSocket relay work too? Even if you aren&amp;rsquo;t, the on-demand nature of the solution I&amp;rsquo;m going to show would be useful as a stand-alone app for this single purpose versus the websockify application.&lt;/p&gt;
-
-&lt;p&gt;Here is a &lt;a href=&#34;http://mojolicio.us/perldoc/Mojolicious/Guides/Tutorial&#34;&gt;Mojolicious::Lite&lt;/a&gt; application which serves the noVNC client when you request a url like &lt;code&gt;/192.168.0.1&lt;/code&gt;. When the page loads, the client requests the WebSocket route at &lt;code&gt;/proxy?target=192.168.0.1&lt;/code&gt; which establishes the bridge. This example is bundled with my forthcoming wrapper module with a working name of &lt;a href=&#34;https://github.com/jberger/Mojo-Websockify/blob/master/ex/client.pl&#34;&gt;Mojo::Websockify&lt;/a&gt;. The code is remarkably simple:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Mojolicious::Lite;
-
-use Mojo::IOLoop;
-
-websocket &#39;/proxy&#39; =&amp;gt; sub {
-  my $c = shift;
-  $c-&amp;gt;render_later-&amp;gt;on(finish =&amp;gt; sub { warn &#39;websocket closing&#39; });
-
-  my $tx = $c-&amp;gt;tx;
-  $tx-&amp;gt;with_protocols(&#39;binary&#39;);
-
-  my $host = $c-&amp;gt;param(&#39;target&#39;) || &#39;127.0.0.1&#39;;
-  my $port = $host =~ s{:(\d+)$}{} ? $1 : 5901;
-
-  Mojo::IOLoop-&amp;gt;client(address =&amp;gt; $host, port =&amp;gt; $port, sub {
-    my ($loop, $err, $tcp) = @_;
-
-    $tx-&amp;gt;finish(4500, &amp;quot;TCP connection error: $err&amp;quot;) if $err;
-    $tcp-&amp;gt;on(error =&amp;gt; sub { $tx-&amp;gt;finish(4500, &amp;quot;TCP error: $_[1]&amp;quot;) });
-
-    $tcp-&amp;gt;on(read =&amp;gt; sub {
-      my ($tcp, $bytes) = @_;
-      $tx-&amp;gt;send({binary =&amp;gt; $bytes});
-    });
-
-    $tx-&amp;gt;on(binary =&amp;gt; sub {
-      my ($tx, $bytes) = @_;
-      $tcp-&amp;gt;write($bytes);
-    });
-
-    $tx-&amp;gt;on(finish =&amp;gt; sub {
-      $tcp-&amp;gt;close;
-      undef $tcp;
-      undef $tx;
-    });
-  });
-};
-
-get &#39;/*target&#39; =&amp;gt; sub {
-  my $c = shift;
-  my $target = $c-&amp;gt;stash(&#39;target&#39;);
-  my $url = $c-&amp;gt;url_for(&#39;proxy&#39;)-&amp;gt;query(target =&amp;gt; $target);
-  $url-&amp;gt;path-&amp;gt;leading_slash(0); # novnc assumes no leading slash :(
-  $c-&amp;gt;render(
-    vnc  =&amp;gt;
-    base =&amp;gt; $c-&amp;gt;tx-&amp;gt;req-&amp;gt;url-&amp;gt;to_abs,
-    path =&amp;gt; $url,
-  );
-};
-
-app-&amp;gt;start;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The &lt;code&gt;get&lt;/code&gt; route shown at the bottom and isn&amp;rsquo;t very exciting. It&amp;rsquo;s the frontend route that renders the noVNC client and tells it the WebSocket url.&lt;/p&gt;
-
-&lt;p&gt;The &lt;code&gt;websocket&lt;/code&gt; route is the more interesting one, which I will explain in detail. After shifting off the controller, we tell the server not to attempt to render a template (&lt;code&gt;render_later&lt;/code&gt;), then subscribe to the finish handler. This is actually a hint to the server that we intend to initiate a WebSocket connection later. Typically this is done by either subscribing to one of the message events or else by sending data upon connection, but in this case we won&amp;rsquo;t do either until the TCP connection is established. Then after extracting the target host and port from the query argument we are ready to make the TCP connection.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://mojolicious.org/perldoc/Mojo/IOLoop#client&#34;&gt;&lt;code&gt;Mojo::IOLoop-&amp;gt;client&lt;/code&gt;&lt;/a&gt; simply takes connection arguments and a callback for what to do once connected. We use this callback to establish our relay. The WebSocket protocol reserves all closing statuses below 4000 for internal use, so I&amp;rsquo;ve taken to using the standard HTTP statuses and prepending a 4 to them. Thus when setting up the TCP error handling, either on initially connecting or for subsequent errors, the status passed to the WebSocket &lt;code&gt;finish&lt;/code&gt; method is 4500.&lt;/p&gt;
-
-&lt;p&gt;The relay itself is the next two method calls. First, when the TCP socket emits a &lt;code&gt;read&lt;/code&gt; event, we take its raw bytes and send them (as binary messages) to the WebSocket client. Then when the WebSocket emits a binary frame (i.e. when it receives a binary message) we write that back to the TCP connection. Finally when the Websocket is closed, we also close the TCP connection and cleanup our handlers.&lt;/p&gt;
-
-&lt;p&gt;Simple, isn&amp;rsquo;t it?!&lt;/p&gt;
-
-&lt;h2 id=&#34;additional-notes:df6114835a8ce31097aba2ba4c9f0a9f&#34;&gt;Additional Notes&lt;/h2&gt;
-
-&lt;p&gt;There are a few things missing. First is that I haven&amp;rsquo;t addressed security in this example. If any part of the stream is publicly available you will want to encrypt the traffic and put the servers behind authentication. Another risk is the issue of &amp;ldquo;back pressure&amp;rdquo; where a stream starts sending floods of data.&lt;/p&gt;
-
-&lt;p&gt;You may have noticed I skipped one line, which until a recent version of Chrome wasn&amp;rsquo;t necessary. When the WebSocket connection is first established it calls &lt;code&gt;with_protocols(&#39;binary&#39;)&lt;/code&gt;. Early versions of noVNC also supported sending the TCP traffic as base64 encoded text, since early implementations of WebSockets didn&amp;rsquo;t distinguish between text and binary frame types as the modern ones do. The WebSocket protocol allows the client to request an application-defined &amp;ldquo;sub-protocol&amp;rdquo; which noVNC used to request binary or base64, the latter of which has long since been deprecated and removed. The client still asks for the binary sub-protocol and recent versions of Chrome have started to refuse to connect if the server doesn&amp;rsquo;t indicate that it can handle this request.&lt;/p&gt;
-
-&lt;h2 id=&#34;shouldn-t-this-be-on-cpan:df6114835a8ce31097aba2ba4c9f0a9f&#34;&gt;Shouldn&amp;rsquo;t This Be On CPAN?&lt;/h2&gt;
-
-&lt;p&gt;I&amp;rsquo;m hoping to wrap this TCP/WebSocket bridge logic up as a module called &lt;code&gt;Mojo::Websockify&lt;/code&gt; and include the noVNC client as an example. It turns out however, that the logic which is simple to show here is remarkably hard to package in a generic, extensible way. For example, you may want to check if the TCP service is already in use via some database-locking table, or to allow remote-takeover of sessions using a message broker between clients. I&amp;rsquo;ll probably just simplify things for the common case and build in some protection for the &amp;ldquo;back pressure&amp;rdquo; problem. In the meantime I hope you have enjoyed seeing how beautifully simple Mojolicious&amp;rsquo; WebSocket and TCP services are.&lt;/p&gt;
-
-&lt;p&gt;Happy Perling!&lt;/p&gt;
 </description>
     </item>
     

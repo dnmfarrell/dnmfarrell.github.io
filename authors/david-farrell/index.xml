@@ -6,8 +6,113 @@
     <description>Recent content in David Farrell on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 02 May 2016 14:04:49 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 13 May 2016 07:57:42 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/authors/david-farrell/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Displaying the Git branch in the terminal prompt with and without Perl</title>
+      <link>http://perltricks.com/article/displaying-the-git-branch-in-the-terminal-prompt-with-perl/</link>
+      <pubDate>Fri, 13 May 2016 07:57:42 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/displaying-the-git-branch-in-the-terminal-prompt-with-perl/</guid>
+      <description>
+
+&lt;p&gt;One way to evolve as a programmer is to pay attention to things you do repeatedly, and replace that action with an efficient alternative. It took me a shamefully long time to realize I was typing &lt;code&gt;git branch&lt;/code&gt; many times a day to check which branch I was committing code to. A more efficient way is to display the current branch name in the terminal prompt. Ideally I&amp;rsquo;d like to see something like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;~/some/path [master]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;the-branch-command:c52c5eee374941349f46a20f31a4a0be&#34;&gt;The branch command&lt;/h3&gt;
+
+&lt;p&gt;With Git version control, code changes are committed to branches. The active branch is the context for work. For example I might be working on a new feature, so I create a new branch called &amp;ldquo;new-feature-x&amp;rdquo; and start writing code. Any changes I make to the code whilst in this branch, do not affect the master branch of code. This makes knowing the active branch really important - I don&amp;rsquo;t want to commit code to the wrong branch.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;branch&lt;/code&gt; command displays a list of all local branches and places an asterisk next to the active one. So in my fictional example, it might look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git branch
+  master
+* new-feature-x
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Git prepends an asterisk to highlight the active branch name. Sometimes I use this to remind myself which branches are available locally, but most of the time I&amp;rsquo;m checking it to see which branch I&amp;rsquo;m currently working on. The Git &lt;a href=&#34;https://git-scm.com/docs/git-branch&#34;&gt;branch documentation&lt;/a&gt; has more information on the ins and outs of &lt;code&gt;branch&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;parsing-git-branch-with-perl:c52c5eee374941349f46a20f31a4a0be&#34;&gt;Parsing git branch with Perl&lt;/h3&gt;
+
+&lt;p&gt;This is the one liner I want to use:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git branch 2&amp;gt; /dev/null | perl -ne &#39;print &amp;quot; [$_]&amp;quot; if s/^\*\s+// &amp;amp;&amp;amp; chomp&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It runs &lt;code&gt;git branch&lt;/code&gt; redirecting error messages to the netherworld. That means if the current working directory is not a git repository, the ensuing error message will be ignored. We pipe the list of git branches to Perl, which uses the &lt;code&gt;-n&lt;/code&gt; option to loop through each line of input, running the quoted code.&lt;/p&gt;
+
+&lt;p&gt;The code operates on the default variable &lt;code&gt;$_&lt;/code&gt; which is the line of output from &lt;code&gt;git branch&lt;/code&gt; being looped over. The active branch name always begins with an asterisk, So &lt;code&gt;s/^\*\s+//&lt;/code&gt; tries to substitute the leading asterisk and whitespace from the branch name. Substitute returns the number of characters it replaced, so for all lines except the active branch, that will be zero and evaluate to false. If it&amp;rsquo;s true, the code then chomps the trailing newline character from the branch name and prints it.&lt;/p&gt;
+
+&lt;p&gt;I can add this as a function to my &lt;code&gt;.bashrc&lt;/code&gt; file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;function current_git_branch {
+  git branch 2&amp;gt; /dev/null | perl -ne &#39;print &amp;quot; [$_]&amp;quot; if s/^\*\s+// &amp;amp;&amp;amp; chomp&#39;
+}
+PS1=&amp;quot;\w\$(current_git_branch) &amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;PS1&lt;/code&gt; variable defines the terminal prompt content and style. Here I&amp;rsquo;ve defined it as follows: &lt;code&gt;\w&lt;/code&gt; is the current working directory path, e.g. &lt;code&gt;~/Projects/work/&lt;/code&gt; or whatever. This is followed by the call to &lt;code&gt;current_git_branch&lt;/code&gt;. Once those edits are saved in my &lt;code&gt;.bashrc&lt;/code&gt;, I need to save the file and reload it:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ . ~/.bashrc
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now my terminal prompt looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;~/Projects/work [new-feature-x]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And if I checkout a different branch it will change:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;~/Projects/work [new-feature-x] git checkout master
+~/Projects/work [master]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;some-other-ways:c52c5eee374941349f46a20f31a4a0be&#34;&gt;Some other ways&lt;/h3&gt;
+
+&lt;p&gt;One easy alternative would be to use Perl 6:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git branch 2&amp;gt; /dev/null | perl6 -ne &#39;print &amp;quot; [$_]&amp;quot; if s/^\*\s+// &amp;amp;&amp;amp; .chomp&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The code is almost the same as before, only &lt;code&gt;chomp&lt;/code&gt; has been changed to a method call. A regex capture could be used instead too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git branch 2&amp;gt; /dev/null | perl -ne &#39;print &amp;quot; [$1]&amp;quot; if /^\*\s+(\S+)/&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve also seen &lt;a href=&#34;https://askubuntu.com/questions/730754/how-do-i-show-the-git-branch-with-colours-in-bash-prompt&#34;&gt;examples&lt;/a&gt; using &lt;code&gt;sed&lt;/code&gt; to parse the output instead of Perl.&lt;/p&gt;
+
+&lt;h3 id=&#34;bash-only:c52c5eee374941349f46a20f31a4a0be&#34;&gt;Bash only&lt;/h3&gt;
+
+&lt;p&gt;Perhaps a more efficient approach is to have Git emit only the active branch name, and then we don&amp;rsquo;t need another program to parse the output at all, we can just use bash. Credit goes to &lt;a href=&#34;http://randalschwartz.com&#34;&gt;Randal Schwartz&lt;/a&gt; for showing me this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git rev-parse --abbrev-ref HEAD
+new-feature-x
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This emits the active branch only. So now the code in my &lt;code&gt;.bashrc&lt;/code&gt; becomes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;function current_git_branch {
+  local branch=$(git rev-parse --abbrev-ref HEAD 2&amp;gt;/dev/null);
+  if [[ -n $branch ]];then
+    echo &amp;quot; [$branch]&amp;quot;;
+  fi
+}
+PS1=&amp;quot;\w\$(current_git_branch) &amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code assigns the output of the git command to the variable &lt;code&gt;branch&lt;/code&gt;. It then echoes the branch name as long as it&amp;rsquo;s not a zero length string (which happens when the current working directory is not a git repository). But wait a second, what happened to that newline at the end of the branch name? Bash has some interesting behavior with nested &lt;code&gt;echo&lt;/code&gt; commands. Check this out:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ echo -n $(echo -e &amp;quot;\n\n\n\n&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you run that command at the terminal you should get no output, even though it includes 4 newline characters, plus another newline appended by the &lt;code&gt;echo&lt;/code&gt; subcommand. The outer &lt;code&gt;echo&lt;/code&gt; ignores all newlines returned by the subcommand, and the &lt;code&gt;-n&lt;/code&gt; option suppresses its own newline append (thanks to Ben Grimm for the explanation).&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m going with the bash variant, but whichever method you use, displaying the branch name in the terminal is a nice time saver.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>What&#39;s new on CPAN - April 2016</title>
@@ -1636,74 +1741,6 @@ To git@github.com:user/SomeProject.git
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Because it&amp;rsquo;s a symbolic reference, anytime I mean to type &lt;code&gt;master&lt;/code&gt; but actually type &lt;code&gt;amster&lt;/code&gt;, Git will do the right thing. Try it!&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Modern Perl 4th edition, a review</title>
-      <link>http://perltricks.com/article/205/2015/12/21/Modern-Perl-4th-edition--a-review/</link>
-      <pubDate>Mon, 21 Dec 2015 00:02:25 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/205/2015/12/21/Modern-Perl-4th-edition--a-review/</guid>
-      <description>
-
-&lt;p&gt;The 4th edition of &lt;a href=&#34;https://pragprog.com/book/swperl/modern-perl-fourth-edition&#34;&gt;Modern Perl&lt;/a&gt; by chromatic is out. I was given an advance copy to review and the book features my praise quote, so I figured it was about time I wrote my notes up into a longer review. Overall I really like the changes to the new edition; in my opinion, Modern Perl continues to provide a valuable introduction to idiomatic Perl programming.&lt;/p&gt;
-
-&lt;h3 id=&#34;learn-the-idiomatic-perl-style:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;Learn the idiomatic Perl style&lt;/h3&gt;
-
-&lt;p&gt;Modern Perl isn&amp;rsquo;t like your typical dry programming book. For one thing, it&amp;rsquo;s opinionated. Author chromatic draws on his experience to provide an insiders&amp;rsquo; guide that shows the &lt;em&gt;right&lt;/em&gt; way to program in Perl.&lt;/p&gt;
-
-&lt;p&gt;The text is fast-moving and doesn&amp;rsquo;t baby the reader. Instead of &amp;ldquo;hello World&amp;rdquo;, the book begins by teaching the reader how to use &lt;code&gt;perldoc&lt;/code&gt; and draw upon the official documentation when they get stuck. Don&amp;rsquo;t waste time with Google when the answer &lt;a href=&#34;http://perltricks.com/article/155/2015/2/26/Hello-perldoc--productivity-booster&#34;&gt;can be found in seconds&lt;/a&gt; at the command line.&lt;/p&gt;
-
-&lt;p&gt;Chapters 1 and 2 introduce the Perl philosophy and Community. The book rapidly covers the major features of Perl (chapters 3 - 7) and even more advanced topics like recursion, anonymous functions and closures. Peppered throughout are gems of wisdom explaining the rationale behind a given concept. For instance, on including parentheses on all function calls (even ones without arguments):&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;While these parentheses are not strictly necessary for these examples—even with strict enabled—they provide clarity to human readers as well as Perl’s parser. When in doubt, use them.&lt;/p&gt;
-
-&lt;p&gt;Modern Perl 4th edition, Chapter 5, Declaring Functions&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;The focus here, though is on the practical and chromatic quickly moves on to advising on elements of good Perl style and how to learn it (chapter 8) and real-World programming tips (chapter 9). This is an honest, expert&amp;rsquo;s account of Perl, and chapter 11 describes what to avoid in Perl (chapter 5 also has an entry on function misfeatures).&lt;/p&gt;
-
-&lt;p&gt;Whilst this is an introductory text, chromatic does find time to touch upon several intermediate concepts like taint, schwartzian transforms and tail call optimizations. There is something for everybody: re-reading the &lt;a href=&#34;http://modernperlbooks.com/books/modern_perl_2014/05-perl-functions.html#U3RhdGV2ZXJzdXNDbG9zdXJlcw&#34;&gt;section&lt;/a&gt; State-versus-Closures (chapter 5) I learned a nuance that I hadn&amp;rsquo;t appreciated before.&lt;/p&gt;
-
-&lt;p&gt;Modern Perl does assume a lot and this could make it challenging for complete novices. For example the code snippets assume the reader can distinguish between command line and Perl programming context. Map and grep are used in examples but are not covered in the language overview chapters. But these are minor nits.&lt;/p&gt;
-
-&lt;h3 id=&#34;modern-perl:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;&amp;ldquo;Modern&amp;rdquo; Perl?&lt;/h3&gt;
-
-&lt;p&gt;About 10 years ago, Perl enjoyed something of a &lt;a href=&#34;http://www.modernperlbooks.com/mt/2009/07/milestones-in-the-perl-renaissance.html&#34;&gt;renaissance&lt;/a&gt; called &amp;ldquo;Modern Perl&amp;rdquo;. This was a movement that developed powerful new libraries, tools and applications which invigorated Perl programming and gave it a new lease-of-life. Today the phrase is almost synonymous with Perl &amp;ldquo;best practices&amp;rdquo; and its ethos continues to help Perl flourish.&lt;/p&gt;
-
-&lt;h3 id=&#34;what-s-changed:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;What&amp;rsquo;s changed&lt;/h3&gt;
-
-&lt;p&gt;The 4th edition brings a lot of changes, but it&amp;rsquo;s a case of evolution, not revolution. New Perl features like the double-diamond operator (&lt;code&gt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&lt;/code&gt;) and &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;subroutine signatures&lt;/a&gt; are covered. Almost every paragraph has been &lt;a href=&#34;https://github.com/chromatic/modern_perl_book/commits/master&#34;&gt;updated&lt;/a&gt;), but the chapter structure remains the same and many of the edits are tweaks rather than wholesale re-writes. Many of the changes improve the readability of the text, others de-jargonize it, like this:&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Functions are a prime mechanism for abstraction, encapsulation, and re-use in Perl.&lt;/p&gt;
-
-&lt;p&gt;Modern Perl, 3rd Edition, Chapter 5&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;became:&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Functions are a prime mechanism for organizing code into similar groups, identifying individual pieces by name, and providing reusable units of behavior.&lt;/p&gt;
-
-&lt;p&gt;Modern Perl, 3rd Edition, Chapter 5&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Which is clearly easier for beginners to understand. Code-wise, many of the examples have changed from a BSD to K&amp;amp;R style, presumably to save vertical space. Overall the book length remains about the same (205 vs 204 pages).&lt;/p&gt;
-
-&lt;p&gt;The biggest change with the new edition comes from The Pragmatic Bookshelf - their version is simply &lt;em&gt;gorgeous&lt;/em&gt;. Full color with larger fonts, icons and callouts, the book really pops. This is the layout Modern Perl needs &lt;em&gt;and&lt;/em&gt; deserves. See this comparison between the Onyx Neon and Pragmatic Bookshelf versions:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/205/comparison.png&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
-
-&lt;h3 id=&#34;alternatives:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;Alternatives&lt;/h3&gt;
-
-&lt;p&gt;As an opinionated introduction to Perl, Modern Perl is a compromise between a tutorial and a best-practices style cookbook. I love the direction and terse writing style, but the book might move too fast for complete beginners. So it depends on what you&amp;rsquo;re looking for - &lt;a href=&#34;http://www.amazon.com/Beginning-Perl-Curtis-Poe/dp/1118013840&#34;&gt;Beginning Perl&lt;/a&gt; and &lt;a href=&#34;http://www.amazon.com/Learning-Perl-Randal-L-Schwartz/dp/1449303587&#34;&gt;Learning Perl&lt;/a&gt; are fine introductions to the language. &lt;a href=&#34;http://www.amazon.com/Effective-Perl-Programming-Idiomatic-Development/dp/0321496949&#34;&gt;Effective Perl Programming&lt;/a&gt; is my favorite Perl cookbook. But Modern Perl is a unique blend of both styles.&lt;/p&gt;
-
-&lt;h3 id=&#34;where-to-get-it:1a23e64e513dff9cb8ce1f594e62a037&#34;&gt;Where to get it&lt;/h3&gt;
-
-&lt;p&gt;You can read Modern Perl &lt;a href=&#34;http://modernperlbooks.com/books/modern_perl_2014/index.html&#34;&gt;online&lt;/a&gt; for free, and there are downloadable versions available from &lt;a href=&#34;http://onyxneon.com/books/modern_perl/index.html&#34;&gt;Onyx Neon&lt;/a&gt;. If you want it as an ebook, I would recommend the Pragmatic Bookshelf &lt;a href=&#34;https://pragprog.com/book/swperl/modern-perl-fourth-edition&#34;&gt;version&lt;/a&gt; - it&amp;rsquo;s beautifully styled, free, and you&amp;rsquo;ll be eligible for updates to the text as/when they appear.&lt;/p&gt;
 </description>
     </item>
     
