@@ -6,8 +6,54 @@
     <description>Recent content in Perl on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 13 May 2016 07:57:42 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 26 May 2016 08:53:36 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/tags/perl/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Promoting Perl community articles</title>
+      <link>http://perltricks.com/article/promoting-perl-community-articles/</link>
+      <pubDate>Thu, 26 May 2016 08:53:36 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/promoting-perl-community-articles/</guid>
+      <description>
+
+&lt;p&gt;The last part of Justin Searls&amp;rsquo; &lt;a href=&#34;https://vimeo.com/165527044#t=28m10s&#34;&gt;talk&lt;/a&gt; has some great advice for promoting Ruby that applies to Perl too. If you haven&amp;rsquo;t seen it, I&amp;rsquo;d encourage you to watch it. Justin points out that some tech projects like Ruby on Rails are essentially, done. They&amp;rsquo;re feature complete and achieve everything they set out to accomplish. This means that they&amp;rsquo;re no longer cutting edge tech, and consequently fewer articles are written about them.&lt;/p&gt;
+
+&lt;p&gt;We see this with Perl too. Modules like &lt;a href=&#34;https://metacpan.org/pod/Moose&#34;&gt;Moose&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/Mojolicious&#34;&gt;Mojolicious&lt;/a&gt; are battle-tested, proven libraries that do a wonderful job. So we don&amp;rsquo;t see many hype articles about them either. The solution to this is to focus on evergreen story telling:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Tell stories that help people solve problems. And if you love Ruby, tell your story in Ruby.&lt;/p&gt;
+
+&lt;p&gt;Justin Searls&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;As Perl programmers we&amp;rsquo;re using the language to solve problems every day. And we&amp;rsquo;ll never run out of problems to solve: there are always new systems to integrate, new data challenges, algorithms to implement and bugs to fix. That&amp;rsquo;s why it doesn&amp;rsquo;t matter that so much has already been written about Perl - new experiences will always be around the corner. And new is good.&lt;/p&gt;
+
+&lt;p&gt;So let&amp;rsquo;s tell more stories in Perl.&lt;/p&gt;
+
+&lt;h3 id=&#34;promoting-content:80ed17a713a6abb8e6d084fd1190752e&#34;&gt;Promoting content&lt;/h3&gt;
+
+&lt;p&gt;Many Perl programmers are regularly writing about Perl, so another thing we can always improve on is promoting new Perl content. This isn&amp;rsquo;t an exhaustive list, just a few suggestions on how to help.&lt;/p&gt;
+
+&lt;p&gt;Last week I added the &amp;ldquo;Community Articles&amp;rdquo; toolbar to this website. It&amp;rsquo;s a JavaScript widget that&amp;rsquo;s powered by &lt;a href=&#34;https://github.com/dnmfarrell/Perly-Bot&#34;&gt;Perly::Bot&lt;/a&gt;. You can add this widget to your website with the following code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;script src=&amp;quot;https://perltricks.com/widgets/toplinks/toplinks.js&amp;quot; type=&amp;quot;text/javascript&amp;quot;&amp;gt;&amp;lt;/script&amp;gt;
+&amp;lt;div id=&amp;quot;toplinks&amp;quot;&amp;gt;&amp;lt;/div&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The list of links is updated hourly, served over HTTPS and hosted on GitHub pages. The widget is clever enough to skip links to articles from the host domain too (it never shows links to PerlTricks.com on this site).&lt;/p&gt;
+
+&lt;p&gt;If you&amp;rsquo;d rather not add that sidebar, consider adding a &lt;a href=&#34;https://www.reddit.com/r/perl/widget&#34;&gt;widget&lt;/a&gt; for &lt;code&gt;/r/perl&lt;/code&gt;. The Reddit widget respects Do Not Track.&lt;/p&gt;
+
+&lt;p&gt;Finally, participate on &lt;a href=&#34;https://reddit.com/r/perl&#34;&gt;/r/perl&lt;/a&gt; and Twitter! Link to Perl resources and content you like; upvote or retweet Perl-related tweets. If you have something to say, reply to tweets or add yours comments to the subreddit links. Use the &lt;code&gt;#perl&lt;/code&gt; hashtag.&lt;/p&gt;
+
+&lt;h3 id=&#34;stuff-we-re-already-good-at:80ed17a713a6abb8e6d084fd1190752e&#34;&gt;Stuff we&amp;rsquo;re already good at&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://stackoverflow.com/questions/tagged/perl&#34;&gt;StackOverflow.com&lt;/a&gt; has excellent Perl answers that are regularly updated; this is a great resource for Perl programmers. &lt;a href=&#34;http://perlweekly.com&#34;&gt;PerlWeekly&lt;/a&gt; is a fantastic newsletter that links to the best Perl content of the week, subscribe if you haven&amp;rsquo;t already. &lt;a href=&#34;http://perlmonks.org&#34;&gt;PerlMonks&lt;/a&gt; has tonnes of in-depth Perl guides and resources.&lt;/p&gt;
+
+&lt;p&gt;&lt;br/&gt;&lt;em&gt;Cover image by &lt;a href=&#34;http://newspaper.jaguarpaw.co.uk/&#34;&gt;jaguarpaw&lt;/a&gt;&lt;/em&gt;&lt;br/&gt;&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Displaying the Git branch in the terminal prompt with and without Perl</title>
@@ -2184,106 +2230,6 @@ SHELLSHOCK
 &lt;p&gt;&lt;strong&gt;Correction:&lt;/strong&gt; &lt;em&gt;removed erroneous description of $SHELL as it is the current user&amp;rsquo;s default login shell, not the default shell. Removed reference to .bashrc as Bash will only process .bashrc during interactive shell startup. 2014-09-27&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;Cover image Ebola virus particles &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/niaid/8425030684/in/photolist-dQuu6J-o15Y5n-oq5wzY-oD1uxC-oq68Cn-8r1Hp8-oDe3A2-oDe3za-dPiDp3-ossh3B-2j1bum-jQvxq9-oq59Z4-oq5muj-omJEd1-omJzrD-4JZtfw-aronSf-8GSyC4-68Zxqv-9y7vkf-dPzNiw-5WLSVq-6hZDW8-nds12g-5Wtkeh-6hNQv2-6irCWw-6iQKwC-bS1gap-Jx5bZ-bjfWK2-bjfWiv-dQSzhC-6iUKSo-6ik4Ki-6i3YrM-cXXqXy-64vTm8-cCwK63-8LVkQh-sxxGP-dTpMUd-Dj4uW-6mhvwX-6iGBED-9rwqiP-8R5WMy-9yXaMc-6isfVm&#34;&gt;NIAID&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Create static web apps with Wget</title>
-      <link>http://perltricks.com/article/103/2014/7/22/Create-static-web-apps-with-Wget/</link>
-      <pubDate>Tue, 22 Jul 2014 12:44:13 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/103/2014/7/22/Create-static-web-apps-with-Wget/</guid>
-      <description>
-
-&lt;p&gt;&lt;em&gt;Last week we covered &lt;a href=&#34;https://metacpan.org/pod/distribution/App-Wallflower/bin/wallflower&#34;&gt;Wallflower&lt;/a&gt; an awesome utility for generating static websites from Perl web applications. This week we&amp;rsquo;re covering an alternative method, that uses &lt;a href=&#34;https://en.wikipedia.org/wiki/Wget&#34;&gt;Wget&lt;/a&gt;. One benefit of this method is it can be used on any dynamic web application, not just Perl ones.&lt;/em&gt;&lt;/p&gt;
-
-&lt;h3 id=&#34;requirements:11eb354f02100c5b1eef8d7dfa4efa33&#34;&gt;Requirements&lt;/h3&gt;
-
-&lt;p&gt;You&amp;rsquo;ll need Wget installed - if you&amp;rsquo;re using Linux it should already be installed. OSX users can install it with &lt;a href=&#34;http://brew.sh/&#34;&gt;Homebrew&lt;/a&gt; and there is a Windows &lt;a href=&#34;http://gnuwin32.sourceforge.net/packages/wget.htm&#34;&gt;version&lt;/a&gt; available. To follow this example you&amp;rsquo;ll also need Dancer2 installed, which you can get via cpan:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Dancer2
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;create-the-application:11eb354f02100c5b1eef8d7dfa4efa33&#34;&gt;Create the application&lt;/h3&gt;
-
-&lt;p&gt;We&amp;rsquo;ll use Dancer2 to create a basic skeleton app:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ dancer2 -a MyApp
-+ MyApp
-+ MyApp/config.yml
-+ MyApp/MANIFEST.SKIP
-+ MyApp/Makefile.PL
-+ MyApp/views
-+ MyApp/views/index.tt
-+ MyApp/views/layouts
-+ MyApp/views/layouts/main.tt
-+ MyApp/t
-+ MyApp/t/002_index_route.t
-+ MyApp/t/001_base.t
-+ MyApp/bin
-+ MyApp/bin/app.pl
-+ MyApp/lib
-+ MyApp/lib/MyApp.pm
-+ MyApp/environments
-+ MyApp/environments/production.yml
-+ MyApp/environments/development.yml
-+ MyApp/public
-+ MyApp/public/500.html
-+ MyApp/public/404.html
-+ MyApp/public/favicon.ico
-+ MyApp/public/dispatch.cgi
-+ MyApp/public/dispatch.fcgi
-+ MyApp/public/css
-+ MyApp/public/css/error.css
-+ MyApp/public/css/style.css
-+ MyApp/public/javascripts
-+ MyApp/public/javascripts/jquery.js
-+ MyApp/public/images
-+ MyApp/public/images/perldancer.jpg
-+ MyApp/public/images/perldancer-bg.jpg
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Lets start the app:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./MyApp/bin/app.pl
-&amp;gt;&amp;gt; Dancer2 v0.143000 server 435 listening on http://0.0.0.0:3000
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;create-the-static-site:11eb354f02100c5b1eef8d7dfa4efa33&#34;&gt;Create the static site&lt;/h3&gt;
-
-&lt;p&gt;We&amp;rsquo;ll point Wget at the site in recursive mode, so that it pulls all the files we need (up to a depth of 5 by default).&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ wget -r 0:3000 -d 0:3000 --page-requisites
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Here we pass Wget the following options:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&amp;rdquo;-r 0:3000&amp;rdquo; to recursively follow links from 0:3000&lt;/li&gt;
-&lt;li&gt;-&amp;ldquo;d 0:3000&amp;rdquo; to only save static files from the local domain&lt;/li&gt;
-&lt;li&gt;&amp;rdquo;&amp;ndash;page-requisites&amp;rdquo; to pull all required files for a page, even if beyond our depth limit&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;By default Wget will create a directory named after the domain (&amp;ldquo;0:3000&amp;rdquo;) and place all static files there. And that&amp;rsquo;s it, all the files for our static site have been generated.&lt;/p&gt;
-
-&lt;h3 id=&#34;wget-vs-wallflower:11eb354f02100c5b1eef8d7dfa4efa33&#34;&gt;Wget vs Wallflower&lt;/h3&gt;
-
-&lt;p&gt;So if both apps can generate static sites, which one is better? If you&amp;rsquo;re working with a non-Perl site, then Wget is obviously the way to go. In terms of speed, Wget is faster if you combine the command with xargs and request the urls in parallel:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cat urls.txt | xargs -P16 wget -i
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;To take advantage of the parallel GET requests, you&amp;rsquo;ll need to serve the application on a web server though.&lt;/p&gt;
-
-&lt;p&gt;Wallflower has nice option (&amp;ldquo;-F&amp;rdquo;) to take a list of URLs to download, which can be useful if the entire site cannot be downloaded by following links from the root application page. &lt;a href=&#34;https://metacpan.org/pod/Wallflower&#34;&gt;App::Wallflower&lt;/a&gt; is the source library for Wallflower, and extendible through Perl code, so you can further tailor the process to meet your needs. This can be used for post-processing actions like generating a sitemap.xml or advanced setups like a hybrid application, where the public pages of the site are static, but the secure parts remain dynamic. With Wallflower all of this can be scripted in Perl, with Wget you&amp;rsquo;d need to a combination of shell scripts and Perl, which is less convenient.&lt;/p&gt;
-
-&lt;p&gt;As was recommended in last week&amp;rsquo;s &lt;a href=&#34;http://perltricks.com/article/102/2014/7/15/Generate-static-websites-from-dynamic-Perl-web-apps#h3Wallflower%20Tips&#34;&gt;article&lt;/a&gt; make sure you&amp;rsquo;re using absolute urls in your template code to avoid deployment issues with your static files.&lt;/p&gt;
-
-&lt;h3 id=&#34;thanks:11eb354f02100c5b1eef8d7dfa4efa33&#34;&gt;Thanks&lt;/h3&gt;
-
-&lt;p&gt;&lt;em&gt;Thanks to Steve Schnepp for contacting us with this tip. Thanks to Philippe Bruhat for creating Wallflower and providing additional technical guidance.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;*&lt;strong&gt;Correction:&lt;/strong&gt; technical comparison of Wallflower and Wget updated following clarification from module author. 2014-08-02*&lt;/p&gt;
 </description>
     </item>
     
