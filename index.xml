@@ -6,8 +6,169 @@
     <description>Recent content on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 07 Jun 2016 18:17:24 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 14 Jun 2016 20:54:51 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>The road to a 55x speedup with XS</title>
+      <link>http://perltricks.com/article/the-road-to-a-55x-speedup-with-xs/</link>
+      <pubDate>Tue, 14 Jun 2016 20:54:51 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/the-road-to-a-55x-speedup-with-xs/</guid>
+      <description>
+
+&lt;p&gt;Lately my client has been concerned with improving their application speed, so naturally I started to think about XS, Perl&amp;rsquo;s C macro language. With XS you can write C code and call it from Perl.&lt;/p&gt;
+
+&lt;p&gt;To test the waters I wrote a simple URI encoder/decoder in C and with some trial-and-error managed to make &lt;a href=&#34;https://metacpan.org/pod/URI::Encode::XS&#34;&gt;URI::Encode::XS&lt;/a&gt;, a module that used it. &amp;ldquo;This is easy!&amp;rdquo; I thought and excitedly typed out a benchmarking &lt;a href=&#34;https://github.com/dnmfarrell/URI-Encode-XS/blob/master/bench&#34;&gt;script&lt;/a&gt;. I benchmarked my module against &lt;a href=&#34;https://metacpan.org/pod/URI::Escape&#34;&gt;URI::Escape&lt;/a&gt; a venerable but rather slow &lt;em&gt;pure-Perl&lt;/em&gt; URI encoder/decoder. You can imagine how crestfallen I was when I read the benchmark results to find that all of my effort only netted a 20% speedup. I wondered if Perl&amp;rsquo;s string routines are so fast they&amp;rsquo;re hard to improve upon.&lt;/p&gt;
+
+&lt;h3 id=&#34;renewed-hope:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;Renewed hope&lt;/h3&gt;
+
+&lt;p&gt;Enter &lt;a href=&#34;https://metacpan.org&#34;&gt;URI::XSEscape&lt;/a&gt;, a &amp;ldquo;quick and dirty&amp;rdquo; (the authors&amp;rsquo; words) XS implementation of URI::Escape. It was uploaded to CPAN last month. You can see the authors&amp;rsquo; &lt;a href=&#34;https://metacpan.org/pod/URI::XSEscape#BENCHMARKS&#34;&gt;benchmarks&lt;/a&gt; for yourself, but in my testing it appeared to be about 18.5 times faster than URI::Escape. That&amp;rsquo;s not a misprint - on my laptop it encoded 2.75m strings per second, compared to 138k for URI::Escape. So how did they do it?&lt;/p&gt;
+
+&lt;p&gt;First let&amp;rsquo;s look at my naive C encode implementation:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;void *uri_encode (char *uri, const char *special_chars, char *buffer)
+{
+  int i = 0;
+  /* \0 is null, end of the string */
+  while (uri[i] != &#39;\0&#39;)
+  {
+    int encode_char = 1;
+    int j = 0;
+    while (special_chars[j] != &#39;\0&#39;)
+    {
+      if (uri[i] == special_chars[j])
+      {
+        /* do not encode char as it is in the special_chars set */
+        encode_char = 0;
+        break;
+      }
+      j++;
+    }
+    if (encode_char == 1)
+    {
+      char code[4];
+      sprintf(code, &amp;quot;%%%02X&amp;quot;, uri[i]);
+      strcat(buffer, code);
+    }
+    else
+    {
+      char code[2];
+      code[0] = uri[i];
+      code[1] = &#39;\0&#39;;
+      strcat(buffer, code);
+    }
+    i++;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Basically what this does is loop through the &lt;code&gt;uri&lt;/code&gt; string, looking characters that are in the &lt;code&gt;special_chars&lt;/code&gt; string, and if it finds a match, it percent encodes the character with &lt;code&gt;sprintf&lt;/code&gt; and appends the result to &lt;code&gt;buffer&lt;/code&gt; which is the encoded string. Compare this with the encode function from &lt;code&gt;URI::XSEscape&lt;/code&gt; (I&amp;rsquo;ve simplified it slightly):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Buffer* uri_encode(Buffer* src, int length,
+                   Buffer* tgt)
+{
+    int s = src-&amp;gt;pos;
+    int t = tgt-&amp;gt;pos;
+
+    while (s &amp;lt; (src-&amp;gt;pos + length)) {
+        unsigned char u = (unsigned char) src-&amp;gt;data[s];
+        char* v = uri_encode_tbl[(int)u];
+
+        /* if current source character doesn&#39;t need to be encoded,
+           just copy it to target*/
+        if (!v) {
+            tgt-&amp;gt;data[t++] = src-&amp;gt;data[s++];
+            continue;
+        }
+
+        /* copy encoded character from our table */
+        tgt-&amp;gt;data[t+0] = &#39;%&#39;;
+        tgt-&amp;gt;data[t+1] = v[0];
+        tgt-&amp;gt;data[t+2] = v[1];
+
+        /* we used up 3 characters (%XY) in target
+         * and 1 character from source */
+        t += 3;
+        ++s;
+    }
+    /* null-terminate target and return src as was left */
+    src-&amp;gt;pos = s;
+    tgt-&amp;gt;pos = t;
+    buffer_terminate(tgt);
+    return src;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code loops through the input string but instead of comparing the current character to another string of special characters, it does a table lookup. This is much faster than looping through another string. Note how it doesn&amp;rsquo;t use &lt;code&gt;sprintf&lt;/code&gt; either - all the hex codes are pre-computed in &lt;code&gt;uri_encode_tbl&lt;/code&gt;. Finally, instead of creating a new string and concatenating it to the output string, this code simply copies the output directly to the output string&amp;rsquo;s memory location.&lt;/p&gt;
+
+&lt;p&gt;This code also avoid a subtle bug with my implementation: Perl strings can contain null characters, but in C null is used to terminate strings. Because URI::XSEscape&amp;rsquo;s encode function accepts a length argument, it can encode strings will nulls and my version can&amp;rsquo;t.&lt;/p&gt;
+
+&lt;h3 id=&#34;going-faster:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;Going faster&lt;/h3&gt;
+
+&lt;p&gt;At this point I updated the encode/decode functions in URI::Encode::XS to be table based like URI::XSEscape and saw huge gains in performance, making URI::Encode::XS about 25 times faster than URI::Escape (URI::Encode::XS doesn&amp;rsquo;t support user-defined escape values, so it&amp;rsquo;s simpler than URI::XSEscape). I thought a 25x improvement was as good as it got, and was about done with the module, when I was contacted by &lt;a href=&#34;https://metacpan.org/author/CHANSEN&#34;&gt;Christian Hansen&lt;/a&gt; (author of &lt;a href=&#34;https://metacpan.org/release/Time-Moment&#34;&gt;Time::Moment&lt;/a&gt;). Christian overhauled my simple XS code to make it safer and faster. This is what became of the &lt;code&gt;uri_encode&lt;/code&gt; C function:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;size_t uri_encode (const char *src, const size_t len, char *dst)
+{
+  size_t i = 0, j = 0;
+  while (i &amp;lt; len
+  {
+    const char * code = uri_encode_tbl[ (unsigned char)src[i] ];
+    if (code)
+    {
+      memcpy(&amp;amp;dst[j], code, 3);
+      j += 3;
+    }
+    else
+    {
+      dst[j] = src[i];
+      j++;
+    }
+    i++;
+  }
+  dst[j] = &#39;\0&#39;;
+  return j;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This version looks up the character value in a pre-computed table and then uses &lt;code&gt;memcpy&lt;/code&gt; to append it to the output string (avoiding 3 separate assignments). It also returns the length of encoded string, which is useful. After Christian&amp;rsquo;s optimizations, my benchmarking &lt;a href=&#34;https://github.com/dnmfarrell/URI-Encode-XS/blob/master/bench&#34;&gt;script&lt;/a&gt; showed URI::Encode::XS&amp;rsquo;s encoding function to be 55 times faster than URI::Escape (about 8m encoded strings per second). Much of the gains came from optimizing the &lt;a href=&#34;https://github.com/dnmfarrell/URI-Encode-XS/blob/df8009e9d7af4cf243fa29ca8aaa23982feeba58/XS.xs#L143&#34;&gt;xsub&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-power-of-c-the-pleasure-of-perl:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;The power of C, the pleasure of Perl&lt;/h3&gt;
+
+&lt;p&gt;To me the most magical thing about XS code is you call it from Perl:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use URI::Encode::XS &#39;uri_encode&#39;;
+
+my $encoding = uri_encode($some_string); # super fast
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So the user has the convenience of writing Perl code, but the benefit of the faster implementation. Perl is already pretty fast, but there are certain operations that are expensive. If you work on a Perl application, how much faster would it be if you could make all of the bottlenecks 55 times faster?&lt;/p&gt;
+
+&lt;h3 id=&#34;learning-xs:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;Learning XS&lt;/h3&gt;
+
+&lt;p&gt;If you&amp;rsquo;d like to learn more about XS, I&amp;rsquo;d strongly recommend this &lt;a href=&#34;http://world.std.com/~swmcd/steven/perl/pm/xs/intro/index.html&#34;&gt;series&lt;/a&gt; by Steven W McDougall. It&amp;rsquo;s the best introduction I know of.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/xsawyerx/xs-fun&#34;&gt;XS is Fun&lt;/a&gt; is a more modern introduction to XS programming that takes you through the steps of writing an XS module and importing a C library.&lt;/p&gt;
+
+&lt;p&gt;Chapter 18 &amp;ldquo;Extending Perl: A First Course&amp;rdquo; in &lt;a href=&#34;http://shop.oreilly.com/product/9781565922204.do&#34;&gt;Advanced Perl Programming&lt;/a&gt; first edition has a good introduction to XS. It covers the most common macros for scalars, arrays and hashes which is useful (the second edition doesn&amp;rsquo;t cover XS). &lt;a href=&#34;https://www.manning.com/books/extending-and-embedding-perl&#34;&gt;Extending and Embedding Perl&lt;/a&gt; goes further, with several tutorials on the different ways to call and receive data from XS. Both books are a bit dated but I found them valuable and an easier read than the official docs.&lt;/p&gt;
+
+&lt;p&gt;The official Perl documentation has useful reference sources: &lt;a href=&#34;http://perldoc.perl.org/perlxs.html&#34;&gt;perlxs&lt;/a&gt;, &lt;a href=&#34;http://perldoc.perl.org/perlapi.html&#34;&gt;perlapi&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/perlxs.html&#34;&gt;perlguts&lt;/a&gt;. There is also &lt;a href=&#34;http://perldoc.perl.org/perlxs.html&#34;&gt;perlxstut&lt;/a&gt; but I would skip that in favor of the above resources.&lt;/p&gt;
+
+&lt;p&gt;Several times I&amp;rsquo;ve found XS macros used in Perl code that are not explained in any documentation (e.g. &lt;code&gt;dXSTARG&lt;/code&gt;). In those cases it pays to have a copy of the Perl &lt;a href=&#34;https://www.perl.org/get.html&#34;&gt;source code&lt;/a&gt; - just grep the source and you&amp;rsquo;ll find its definition with a comment (typically in &lt;code&gt;pp.h&lt;/code&gt;).&lt;/p&gt;
+
+&lt;h3 id=&#34;a-note-on-the-benchmarks:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;A note on the benchmarks&lt;/h3&gt;
+
+&lt;p&gt;The benchmarks in this article were all run on my laptop, a Dell XPS 13 with 8GB RAM running Fedora 23. Different hardware will yield different results (Christian&amp;rsquo;s benchmark showed URI::Encode::XS to be 90x (!) faster than URI::Escape).&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://github.com/dnmfarrell/URI-Encode-XS/blob/master/bench&#34;&gt;script&lt;/a&gt; counts how many times each module can encode a string per second. But a string of a different length, or with a different number of reserved characters will yield a different benchmark. For example benchmarking an empty string shows URI::Encode::XS to be just 9x times faster on my laptop.&lt;/p&gt;
+
+&lt;p&gt;The module versions were URI::Encode::XS v0.08 and URI::Escape v3.31. The Perl version was 5.22.&lt;/p&gt;
+
+&lt;h3 id=&#34;thanks:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;Thanks&lt;/h3&gt;
+
+&lt;p&gt;A big thank you to Christian Hansen and Jesse DuMond for your help with URI::Encode::XS. The module would not be half of what it is without your contributions.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>What&#39;s new on CPAN - May 2016</title>
@@ -1759,201 +1920,6 @@ if ($cgi-&amp;gt;upload( &#39;file&#39; )) {
 &lt;p&gt;Is the Ruby language to blame for a vulnerability in &lt;a href=&#34;http://arstechnica.com/business/2012/03/hacker-commandeers-github-to-prove-vuln-in-ruby/&#34;&gt;Ruby-on-Rails&lt;/a&gt;? Is PHP insecure because over 950 &lt;a href=&#34;https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=wordpress&#34;&gt;exploits&lt;/a&gt; were found for WordPress? This isn&amp;rsquo;t a dynamic language issue either; in &lt;a href=&#34;http://danluu.com/empirical-pl&#34;&gt;Static vs. dynamic languages: a literature review&lt;/a&gt; author Dan Luu found little evidence that statically typed languages were safer than dynamic ones.&lt;/p&gt;
 
 &lt;p&gt;Anytime you fail to adequately parse untrusted input you&amp;rsquo;re going to have a bad day. Blaming Perl for developers&amp;rsquo; bad code is like blaming the Alphabet for being turned into 50 Shades of Grey.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>An introduction to Tmux</title>
-      <link>http://perltricks.com/article/an-introduction-to-tmux/</link>
-      <pubDate>Wed, 24 Feb 2016 09:29:18 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/an-introduction-to-tmux/</guid>
-      <description>
-
-&lt;p&gt;&lt;a href=&#34;https://tmux.github.io/&#34;&gt;Tmux&lt;/a&gt; is a terminal multiplexer: it&amp;rsquo;s like a power-up for terminal programming. You can manage several terminals under a session, split terminal screens, detach and re-attach sessions and much more. If you do most of your programming at the command line, you&amp;rsquo;ll find using a terminal multiplexer invaluable.&lt;/p&gt;
-
-&lt;h3 id=&#34;setup:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Setup&lt;/h3&gt;
-
-&lt;p&gt;First you&amp;rsquo;ll need to install Tmux via your package manager or &lt;a href=&#34;https://tmux.github.io/&#34;&gt;download&lt;/a&gt; it. Tmux is highly configurable but the first change I&amp;rsquo;d recommend is to ssh, not Tmux. Make ssh &amp;ldquo;keep alive&amp;rdquo; for all connections by adding this to &lt;code&gt;~/.ssh/config&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;host *
-   ServerAliveInterval 300
-   ServerAliveCountMax 3
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If the file doesn&amp;rsquo;t exist, create it. This configuration instructs your local machine for all user ssh sessions to send a server alive message every 300 seconds to keep the ssh session alive. If the local machine sends 3 unanswered messages, it will disconnect the session. You should tweak these settings to suit your needs: for instance by restricting the &lt;code&gt;host&lt;/code&gt; to specific domains you can have different settings per domain. If you have a slow or unreliable internet connection, consider changing &lt;code&gt;ServerAliveInterval&lt;/code&gt; to a lower number to send more frequent messages.&lt;/p&gt;
-
-&lt;p&gt;If you have permission on the servers you use, you can update them with a similar configuration, in &lt;code&gt;/etc/ssh/sshd_config&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;ClientAliveInterval 300
-ClientAliveCountMax 3
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;the-prefix-and-one-true-command-trade:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;The Prefix and One True Command&amp;trade;&lt;/h3&gt;
-
-&lt;p&gt;Once Tmux is installed, start a new Tmux session from the command line:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ tmux
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;code&gt;Ctrl-b&lt;/code&gt; is the &lt;strong&gt;prefix&lt;/strong&gt; combination. Press the Ctrl key AND the letter b at the same time. When inside a Tmux session, the prefix is nearly always pressed before the shortcut key to trigger a command.&lt;/p&gt;
-
-&lt;p&gt;The prefix combination is really important. Once you get the hang of the prefix combination, you can pretty much bootstrap yourself into learning Tmux with just one command. To display a list of Tmux commands, type: &lt;code&gt;Ctrl-b ?&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;That means press &lt;code&gt;Control&lt;/code&gt; and &lt;code&gt;b&lt;/code&gt; together, release, then press &lt;code&gt;?&lt;/code&gt;. Tmux should display:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;bind-key        C-b send-prefix
-bind-key        C-o rotate-window
-bind-key        C-z suspend-client
-bind-key      Space next-layout
-bind-key          ! break-pane
-bind-key          &amp;quot; split-window
-bind-key          # list-buffers
-bind-key          $ command-prompt -I #S &amp;quot;rename-session &#39;%%&#39;&amp;quot;
-bind-key          % split-window -h
-bind-key          &amp;amp; confirm-before -p &amp;quot;kill-window #W? (y/n)&amp;quot; kill-window
-bind-key          &#39; command-prompt -p index &amp;quot;select-window -t &#39;:%%&#39;&amp;quot;
-bind-key          ( switch-client -p
-bind-key          ) switch-client -n
-bind-key          , command-prompt -I #W &amp;quot;rename-window &#39;%%&#39;&amp;quot;
-bind-key          - delete-buffer
-bind-key          . command-prompt &amp;quot;move-window -t &#39;%%&#39;&amp;quot;
-bind-key          0 select-window -t :0
-bind-key          1 select-window -t :1
-bind-key          2 select-window -t :2
-bind-key          3 select-window -t :3
-bind-key          4 select-window -t :4
-bind-key          5 select-window -t :5
-bind-key          6 select-window -t :6
-bind-key          7 select-window -t :7
-bind-key          8 select-window -t :8
-bind-key          9 select-window -t :9
-bind-key          : command-prompt
-bind-key          ; last-pane
-bind-key          = choose-buffer
-bind-key          ? list-keys
-bind-key          D choose-client
-bind-key          L switch-client -l
-bind-key          [ copy-mode
-bind-key          ] paste-buffer
-bind-key          c new-window
-bind-key          d detach-client
-bind-key          f command-prompt &amp;quot;find-window &#39;%%&#39;&amp;quot;
-bind-key          i display-message
-bind-key          l last-window
-bind-key          n next-window
-bind-key          o select-pane -t :.+
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;You can also change the prefix combination (see the Config options section). If you do that, remember to use your prefix combination instead of &lt;code&gt;Ctrl-b&lt;/code&gt; in the examples below.&lt;/p&gt;
-
-&lt;h3 id=&#34;window-control:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Window control&lt;/h3&gt;
-
-&lt;p&gt;Let&amp;rsquo;s look at a key Tmux feature: windows. They&amp;rsquo;re similar to tabs in browsers. Each one is a different terminal from where you can run different commands at the same time. To create a new window press&lt;code&gt;Ctrl-b c&lt;/code&gt;. You can cycle between windows: &lt;code&gt;Ctrl-b n&lt;/code&gt; for the next window and &lt;code&gt;Ctrl-b p&lt;/code&gt; takes you to the prior window. &lt;code&gt;Ctrl-b w&lt;/code&gt; list all windows in a session and let&amp;rsquo;s you select which one to active (using the arrow keys and enter).&lt;/p&gt;
-
-&lt;p&gt;If you know the window number you can also jump straight to it with &lt;code&gt;Ctrl-b #&lt;/code&gt; replacing &amp;ldquo;#&amp;rdquo; with the window number. By default they begin at 0, not 1!&lt;/p&gt;
-
-&lt;p&gt;You might be wondering what&amp;rsquo;s the benefit of using Tmux windows over tabbed terminals. First, with regular terminals if the window manager crashes, you&amp;rsquo;ll lose the terminals as well. This won&amp;rsquo;t happen with Tmux: it will keep the terminals running in the background and you can re-attach a new terminal to them at any time. Windows can also be subdivided into panes, all running pseudo-terminals. Let&amp;rsquo;s look at them now.&lt;/p&gt;
-
-&lt;h3 id=&#34;pane-control:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Pane control&lt;/h3&gt;
-
-&lt;p&gt;Panes are great. You can split a window horizontally, vertically and with any dimensions you like. Have you ever wanted to quickly look up a man page whilst coding? Instead of dropping back to the terminal, looking up the man page and then foregrounding your editor, just open a new vertical pane, like this:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/an-introduction-to-tmux/tmux-split-screen.png&#34; alt=&#34;Tmux Panes&#34; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Now you can read the man page and code at the same time; you can even copy and paste between the two panes. Much more convenient!&lt;/p&gt;
-
-&lt;p&gt;Recently I was processing a huge set of data; I arranged my Tmux window with 3 panes running the data processing and 1 pane monitoring the server resources with &lt;a href=&#34;http://hisham.hm/htop/&#34;&gt;htop&lt;/a&gt;. This server is almost overloaded:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/an-introduction-to-tmux/tmux-panes.png&#34; alt=&#34;Tmux Panes&#34; /&gt;&lt;/p&gt;
-
-&lt;p&gt;These are the key pane controls:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;Ctrl-b &amp;quot;      split pane horizontally
-Ctrl-b %      split pane vertically
-Ctrl-b o      next pane
-Ctrl-b ;      prior pane
-Ctrl-b ←↑→↓   jump to pane
-Ctrl-b Ctrl-o swap panes
-Ctrl-b space  arrange panes
-Ctrl-b-←↑→↓   change pane size
-Ctrl-b !      pop a pane into a new window
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The arrows &lt;code&gt;←↑→↓&lt;/code&gt; represent the arrow keys, just use one of these. For example to jump to a pane on the right, you&amp;rsquo;d press &lt;code&gt;Ctrl-b →&lt;/code&gt;. The change pane size controls are a little different. To make that work you first have to have more than one pane. Next press &lt;code&gt;Ctrl-b&lt;/code&gt; and keep the control key held down. Now you can repeatedly press an arrow key to change the pane size.&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;Ctrl-b !&lt;/code&gt; is one of my favorite features. It pops the current pane out of the window and moves it to its own window. This is wonderful if you find yourself doing some unrelated activity in one pane and want to re-organize your setup.&lt;/p&gt;
-
-&lt;h3 id=&#34;scrolling-and-copy-paste:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Scrolling and copy/paste&lt;/h3&gt;
-
-&lt;p&gt;If you can master scrolling and copy/paste in Tmux, you can master anything. I won&amp;rsquo;t lie, this is the clunkiest feature. But it&amp;rsquo;s really useful. The interface is modal, so start by entering scroll mode by typing &lt;code&gt;Ctrl-b [&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;Pressing &lt;code&gt;esc&lt;/code&gt; will exit scroll mode. You should know you&amp;rsquo;re in scroll mode because an orange line count appears in the top-right corner of the pane.&lt;/p&gt;
-
-&lt;p&gt;Once you&amp;rsquo;re in scroll mode, you can move the cursor using the arrow keys and page up and down. By default Tmux doesn&amp;rsquo;t retain much history, but you can change that (see the Config options section).&lt;/p&gt;
-
-&lt;p&gt;You can copy and paste in scroll mode. This is useful when you have split screens as a regular highlight and copy using the mouse won&amp;rsquo;t work across vertically split panes.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/an-introduction-to-tmux/tmux-copy-fail.png&#34; alt=&#34;copy fail&#34; /&gt;&lt;/p&gt;
-
-&lt;p&gt;To copy, position the cursor where you want to start copying. Press &lt;code&gt;Ctrl-space&lt;/code&gt; to begin highlighting the text to copy. Press &lt;code&gt;Alt-w&lt;/code&gt; to copy the highlighted text. Pressing &lt;code&gt;Ctrl-b ]&lt;/code&gt; will paste the copied text. There are ways to make copy and paste easier: Tmux has a &amp;ldquo;vim like&amp;rdquo; copy mode (see the Config options section and the &lt;a href=&#34;http://man.openbsd.org/OpenBSD-current/man1/tmux.1&#34;&gt;man&lt;/a&gt; page for details).&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;http://perltricks.com/images/an-introduction-to-tmux/tmux-copy-win.png&#34; alt=&#34;copy win&#34; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Shortcut&lt;/strong&gt; You can jump into scroll mode and page up in one fell swoop with &lt;code&gt;Ctrl-b PgUp&lt;/code&gt; (thanks to Ludovic Tolhurst for the tip).&lt;/p&gt;
-
-&lt;h3 id=&#34;session-control:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Session control&lt;/h3&gt;
-
-&lt;p&gt;Sessions are one of the most useful features of Tmux. They let you group multiple terminal processes into a single Tmux session which can be worked on (attached), put into the background (detached) and discarded as you see fit. Programmers will often have different sessions for different projects. Because Tmux operates under a client-server architecture, even if the original terminal that started Tmux dies or your desktop GUI crashes, the Tmux session will be preserved, along with all of the terminal sessions in it.&lt;/p&gt;
-
-&lt;p&gt;Detach your Tmux session with &lt;code&gt;Ctrl-b d&lt;/code&gt;. This will return you to a regular terminal prompt.&lt;/p&gt;
-
-&lt;p&gt;To list existing Tmux sessions just use the &lt;code&gt;ls&lt;/code&gt; command:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ tmux ls
-0: 1 windows (created Thu Jan 28 08:15:20 2016) [190x50] (attached)
-2: 2 windows (created Thu Jan 28 09:11:59 2016) [190x50]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This shows that I have two Tmux sessions running, one of which is attached to a terminal window already. To attach to a session just use the &lt;code&gt;attach&lt;/code&gt; command at the terminal prompt:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ tmux attach
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;By default Tmux attaches to the next unattached session (&amp;ldquo;2&amp;rdquo;) in this case. If I have many different sessions and want to attach to a particular one, I can specify it with &lt;code&gt;-t&lt;/code&gt; for target:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ tmux attach -t 2
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;config-options:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Config options&lt;/h3&gt;
-
-&lt;p&gt;The file &lt;code&gt;~/.tmux.conf&lt;/code&gt; is a plaintext file used by Tmux for local config. This is what mine looks like:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;# set scroll history to 10,000 lines
-set -g history-limit 10000
-
-# modern encoding and colors
-set -g utf8 on set-window-option -g utf8 on
-set -g default-terminal screen-256color
-
-# don&#39;t use a login shell
-set -g default-command /bin/bash
-
-# unbind the prefix and bind it to Ctrl-a like screen
-unbind C-b set -g prefix C-a bind C-a send-prefix
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Tmux starts with a tiny scroll history, so I like to bump that up. The modern encoding and colors are there to jive with my terminal setup - they may even be the default Tmux settings by now. By default Tmux uses a login shell, so every new pane will execute &lt;code&gt;.bash_profile&lt;/code&gt;. I prefer to disable that behavior and just launch regular non-login shells.&lt;/p&gt;
-
-&lt;p&gt;Tmux has hundreds more options: many users will switch to a different shell like zsh, enable pane switching with the trackpad, display custom data in the Tmux footer (like weather info!) and so on. Copying other programmers&amp;rsquo; &lt;a href=&#34;https://github.com/search?utf8=%E2%9C%93&amp;amp;q=.tmux.conf&#34;&gt;conf files&lt;/a&gt; is a great way to learn and experiment.&lt;/p&gt;
-
-&lt;p&gt;To reload your &lt;code&gt;.tmux.conf&lt;/code&gt; within a Tmux session, type: &lt;code&gt;Ctrl-b :&lt;/code&gt; then &lt;code&gt;source-file ~/.tmux.conf&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;tmux-resources:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Tmux resources&lt;/h3&gt;
-
-&lt;p&gt;The official Tmux &lt;a href=&#34;https://tmux.github.io/&#34;&gt;website&lt;/a&gt; is a good starting point with summary information, a changelog, downloads and a link to the extensive &lt;a href=&#34;http://man.openbsd.org/OpenBSD-current/man1/tmux.1&#34;&gt;man page&lt;/a&gt;. The Arch Linux &lt;a href=&#34;https://wiki.archlinux.org/index.php/Tmux&#34;&gt;tmux documentation&lt;/a&gt; covers advanced features and troubleshooting tips. The book &lt;a href=&#34;https://pragprog.com/book/bhtmux/tmux&#34;&gt;tmux - Productive Mouse-Free Development&lt;/a&gt; by Pragmatic Bookshelf is thorough introduction to Tmux.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://perltricks.com/article/153/2015/2/16/Get-to-grips-with-GNU-Screen/&#34;&gt;GNU Screen&lt;/a&gt; is another terminal multiplexer program. It&amp;rsquo;s older than Tmux and a little bit crufty, but it has most of the features Tmux has. The controls for Screen and Tmux are similar enough that if you know one of them you can get by using the other. The Tmux &lt;a href=&#34;https://raw.githubusercontent.com/tmux/tmux/master/FAQ&#34;&gt;FAQ&lt;/a&gt; lists the differences between them.&lt;/p&gt;
 </description>
     </item>
     

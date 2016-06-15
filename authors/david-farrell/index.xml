@@ -6,8 +6,169 @@
     <description>Recent content in David Farrell on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 07 Jun 2016 18:17:24 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 14 Jun 2016 20:54:51 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/authors/david-farrell/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>The road to a 55x speedup with XS</title>
+      <link>http://perltricks.com/article/the-road-to-a-55x-speedup-with-xs/</link>
+      <pubDate>Tue, 14 Jun 2016 20:54:51 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/the-road-to-a-55x-speedup-with-xs/</guid>
+      <description>
+
+&lt;p&gt;Lately my client has been concerned with improving their application speed, so naturally I started to think about XS, Perl&amp;rsquo;s C macro language. With XS you can write C code and call it from Perl.&lt;/p&gt;
+
+&lt;p&gt;To test the waters I wrote a simple URI encoder/decoder in C and with some trial-and-error managed to make &lt;a href=&#34;https://metacpan.org/pod/URI::Encode::XS&#34;&gt;URI::Encode::XS&lt;/a&gt;, a module that used it. &amp;ldquo;This is easy!&amp;rdquo; I thought and excitedly typed out a benchmarking &lt;a href=&#34;https://github.com/dnmfarrell/URI-Encode-XS/blob/master/bench&#34;&gt;script&lt;/a&gt;. I benchmarked my module against &lt;a href=&#34;https://metacpan.org/pod/URI::Escape&#34;&gt;URI::Escape&lt;/a&gt; a venerable but rather slow &lt;em&gt;pure-Perl&lt;/em&gt; URI encoder/decoder. You can imagine how crestfallen I was when I read the benchmark results to find that all of my effort only netted a 20% speedup. I wondered if Perl&amp;rsquo;s string routines are so fast they&amp;rsquo;re hard to improve upon.&lt;/p&gt;
+
+&lt;h3 id=&#34;renewed-hope:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;Renewed hope&lt;/h3&gt;
+
+&lt;p&gt;Enter &lt;a href=&#34;https://metacpan.org&#34;&gt;URI::XSEscape&lt;/a&gt;, a &amp;ldquo;quick and dirty&amp;rdquo; (the authors&amp;rsquo; words) XS implementation of URI::Escape. It was uploaded to CPAN last month. You can see the authors&amp;rsquo; &lt;a href=&#34;https://metacpan.org/pod/URI::XSEscape#BENCHMARKS&#34;&gt;benchmarks&lt;/a&gt; for yourself, but in my testing it appeared to be about 18.5 times faster than URI::Escape. That&amp;rsquo;s not a misprint - on my laptop it encoded 2.75m strings per second, compared to 138k for URI::Escape. So how did they do it?&lt;/p&gt;
+
+&lt;p&gt;First let&amp;rsquo;s look at my naive C encode implementation:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;void *uri_encode (char *uri, const char *special_chars, char *buffer)
+{
+  int i = 0;
+  /* \0 is null, end of the string */
+  while (uri[i] != &#39;\0&#39;)
+  {
+    int encode_char = 1;
+    int j = 0;
+    while (special_chars[j] != &#39;\0&#39;)
+    {
+      if (uri[i] == special_chars[j])
+      {
+        /* do not encode char as it is in the special_chars set */
+        encode_char = 0;
+        break;
+      }
+      j++;
+    }
+    if (encode_char == 1)
+    {
+      char code[4];
+      sprintf(code, &amp;quot;%%%02X&amp;quot;, uri[i]);
+      strcat(buffer, code);
+    }
+    else
+    {
+      char code[2];
+      code[0] = uri[i];
+      code[1] = &#39;\0&#39;;
+      strcat(buffer, code);
+    }
+    i++;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Basically what this does is loop through the &lt;code&gt;uri&lt;/code&gt; string, looking characters that are in the &lt;code&gt;special_chars&lt;/code&gt; string, and if it finds a match, it percent encodes the character with &lt;code&gt;sprintf&lt;/code&gt; and appends the result to &lt;code&gt;buffer&lt;/code&gt; which is the encoded string. Compare this with the encode function from &lt;code&gt;URI::XSEscape&lt;/code&gt; (I&amp;rsquo;ve simplified it slightly):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Buffer* uri_encode(Buffer* src, int length,
+                   Buffer* tgt)
+{
+    int s = src-&amp;gt;pos;
+    int t = tgt-&amp;gt;pos;
+
+    while (s &amp;lt; (src-&amp;gt;pos + length)) {
+        unsigned char u = (unsigned char) src-&amp;gt;data[s];
+        char* v = uri_encode_tbl[(int)u];
+
+        /* if current source character doesn&#39;t need to be encoded,
+           just copy it to target*/
+        if (!v) {
+            tgt-&amp;gt;data[t++] = src-&amp;gt;data[s++];
+            continue;
+        }
+
+        /* copy encoded character from our table */
+        tgt-&amp;gt;data[t+0] = &#39;%&#39;;
+        tgt-&amp;gt;data[t+1] = v[0];
+        tgt-&amp;gt;data[t+2] = v[1];
+
+        /* we used up 3 characters (%XY) in target
+         * and 1 character from source */
+        t += 3;
+        ++s;
+    }
+    /* null-terminate target and return src as was left */
+    src-&amp;gt;pos = s;
+    tgt-&amp;gt;pos = t;
+    buffer_terminate(tgt);
+    return src;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code loops through the input string but instead of comparing the current character to another string of special characters, it does a table lookup. This is much faster than looping through another string. Note how it doesn&amp;rsquo;t use &lt;code&gt;sprintf&lt;/code&gt; either - all the hex codes are pre-computed in &lt;code&gt;uri_encode_tbl&lt;/code&gt;. Finally, instead of creating a new string and concatenating it to the output string, this code simply copies the output directly to the output string&amp;rsquo;s memory location.&lt;/p&gt;
+
+&lt;p&gt;This code also avoid a subtle bug with my implementation: Perl strings can contain null characters, but in C null is used to terminate strings. Because URI::XSEscape&amp;rsquo;s encode function accepts a length argument, it can encode strings will nulls and my version can&amp;rsquo;t.&lt;/p&gt;
+
+&lt;h3 id=&#34;going-faster:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;Going faster&lt;/h3&gt;
+
+&lt;p&gt;At this point I updated the encode/decode functions in URI::Encode::XS to be table based like URI::XSEscape and saw huge gains in performance, making URI::Encode::XS about 25 times faster than URI::Escape (URI::Encode::XS doesn&amp;rsquo;t support user-defined escape values, so it&amp;rsquo;s simpler than URI::XSEscape). I thought a 25x improvement was as good as it got, and was about done with the module, when I was contacted by &lt;a href=&#34;https://metacpan.org/author/CHANSEN&#34;&gt;Christian Hansen&lt;/a&gt; (author of &lt;a href=&#34;https://metacpan.org/release/Time-Moment&#34;&gt;Time::Moment&lt;/a&gt;). Christian overhauled my simple XS code to make it safer and faster. This is what became of the &lt;code&gt;uri_encode&lt;/code&gt; C function:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;size_t uri_encode (const char *src, const size_t len, char *dst)
+{
+  size_t i = 0, j = 0;
+  while (i &amp;lt; len
+  {
+    const char * code = uri_encode_tbl[ (unsigned char)src[i] ];
+    if (code)
+    {
+      memcpy(&amp;amp;dst[j], code, 3);
+      j += 3;
+    }
+    else
+    {
+      dst[j] = src[i];
+      j++;
+    }
+    i++;
+  }
+  dst[j] = &#39;\0&#39;;
+  return j;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This version looks up the character value in a pre-computed table and then uses &lt;code&gt;memcpy&lt;/code&gt; to append it to the output string (avoiding 3 separate assignments). It also returns the length of encoded string, which is useful. After Christian&amp;rsquo;s optimizations, my benchmarking &lt;a href=&#34;https://github.com/dnmfarrell/URI-Encode-XS/blob/master/bench&#34;&gt;script&lt;/a&gt; showed URI::Encode::XS&amp;rsquo;s encoding function to be 55 times faster than URI::Escape (about 8m encoded strings per second). Much of the gains came from optimizing the &lt;a href=&#34;https://github.com/dnmfarrell/URI-Encode-XS/blob/df8009e9d7af4cf243fa29ca8aaa23982feeba58/XS.xs#L143&#34;&gt;xsub&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-power-of-c-the-pleasure-of-perl:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;The power of C, the pleasure of Perl&lt;/h3&gt;
+
+&lt;p&gt;To me the most magical thing about XS code is you call it from Perl:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use URI::Encode::XS &#39;uri_encode&#39;;
+
+my $encoding = uri_encode($some_string); # super fast
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So the user has the convenience of writing Perl code, but the benefit of the faster implementation. Perl is already pretty fast, but there are certain operations that are expensive. If you work on a Perl application, how much faster would it be if you could make all of the bottlenecks 55 times faster?&lt;/p&gt;
+
+&lt;h3 id=&#34;learning-xs:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;Learning XS&lt;/h3&gt;
+
+&lt;p&gt;If you&amp;rsquo;d like to learn more about XS, I&amp;rsquo;d strongly recommend this &lt;a href=&#34;http://world.std.com/~swmcd/steven/perl/pm/xs/intro/index.html&#34;&gt;series&lt;/a&gt; by Steven W McDougall. It&amp;rsquo;s the best introduction I know of.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/xsawyerx/xs-fun&#34;&gt;XS is Fun&lt;/a&gt; is a more modern introduction to XS programming that takes you through the steps of writing an XS module and importing a C library.&lt;/p&gt;
+
+&lt;p&gt;Chapter 18 &amp;ldquo;Extending Perl: A First Course&amp;rdquo; in &lt;a href=&#34;http://shop.oreilly.com/product/9781565922204.do&#34;&gt;Advanced Perl Programming&lt;/a&gt; first edition has a good introduction to XS. It covers the most common macros for scalars, arrays and hashes which is useful (the second edition doesn&amp;rsquo;t cover XS). &lt;a href=&#34;https://www.manning.com/books/extending-and-embedding-perl&#34;&gt;Extending and Embedding Perl&lt;/a&gt; goes further, with several tutorials on the different ways to call and receive data from XS. Both books are a bit dated but I found them valuable and an easier read than the official docs.&lt;/p&gt;
+
+&lt;p&gt;The official Perl documentation has useful reference sources: &lt;a href=&#34;http://perldoc.perl.org/perlxs.html&#34;&gt;perlxs&lt;/a&gt;, &lt;a href=&#34;http://perldoc.perl.org/perlapi.html&#34;&gt;perlapi&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/perlxs.html&#34;&gt;perlguts&lt;/a&gt;. There is also &lt;a href=&#34;http://perldoc.perl.org/perlxs.html&#34;&gt;perlxstut&lt;/a&gt; but I would skip that in favor of the above resources.&lt;/p&gt;
+
+&lt;p&gt;Several times I&amp;rsquo;ve found XS macros used in Perl code that are not explained in any documentation (e.g. &lt;code&gt;dXSTARG&lt;/code&gt;). In those cases it pays to have a copy of the Perl &lt;a href=&#34;https://www.perl.org/get.html&#34;&gt;source code&lt;/a&gt; - just grep the source and you&amp;rsquo;ll find its definition with a comment (typically in &lt;code&gt;pp.h&lt;/code&gt;).&lt;/p&gt;
+
+&lt;h3 id=&#34;a-note-on-the-benchmarks:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;A note on the benchmarks&lt;/h3&gt;
+
+&lt;p&gt;The benchmarks in this article were all run on my laptop, a Dell XPS 13 with 8GB RAM running Fedora 23. Different hardware will yield different results (Christian&amp;rsquo;s benchmark showed URI::Encode::XS to be 90x (!) faster than URI::Escape).&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://github.com/dnmfarrell/URI-Encode-XS/blob/master/bench&#34;&gt;script&lt;/a&gt; counts how many times each module can encode a string per second. But a string of a different length, or with a different number of reserved characters will yield a different benchmark. For example benchmarking an empty string shows URI::Encode::XS to be just 9x times faster on my laptop.&lt;/p&gt;
+
+&lt;p&gt;The module versions were URI::Encode::XS v0.08 and URI::Escape v3.31. The Perl version was 5.22.&lt;/p&gt;
+
+&lt;h3 id=&#34;thanks:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;Thanks&lt;/h3&gt;
+
+&lt;p&gt;A big thank you to Christian Hansen and Jesse DuMond for your help with URI::Encode::XS. The module would not be half of what it is without your contributions.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>What&#39;s new on CPAN - May 2016</title>
@@ -1658,130 +1819,6 @@ unbind C-b set -g prefix C-a bind C-a send-prefix
 &lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Dancer::Plugin::Swagger&#34;&gt;Dancer::Plugin::Swagger&lt;/a&gt; creates Swagger documentation of the Dancer app&amp;rsquo;s REST interface. Nice!&lt;/li&gt;
 &lt;li&gt;Another wrapper for wget / curl: &lt;a href=&#34;https://metacpan.org/pod/HTTP::Command::Wrapper&#34;&gt;HTTP::Command::Wrapper&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Save time with compile tests</title>
-      <link>http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/</link>
-      <pubDate>Tue, 05 Jan 2016 14:32:45 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/208/2016/1/5/Save-time-with-compile-tests/</guid>
-      <description>
-
-&lt;p&gt;Over the past year I&amp;rsquo;ve been working on several large Perl projects, sometimes as part of a team and sometimes alone. As the codebase grows, testing becomes increasingly important and one test in particular that pays dividends is the compile test. That is, before running any other tests, simply check if that every module in the codebase compiles.&lt;/p&gt;
-
-&lt;h3 id=&#34;the-basics:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;The basics&lt;/h3&gt;
-
-&lt;p&gt;Let&amp;rsquo;s look at a simple compile test, I&amp;rsquo;ve adapted this example from &lt;a href=&#34;https://github.com/dnmfarrell/Perly-Bot&#34;&gt;Perly-Bot&lt;/a&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use Test::More;
-use lib &#39;lib&#39;;
-
-my @modules = qw(
-  Perly::Bot
-  Perly::Bot::Feed
-  Perly::Bot::Feed::Post
-  Perly::Bot::Cache
-  Perly::Bot::Media
-  Perly::Bot::Media::Twitter
-  Perly::Bot::Media::Reddit
-);
-for my $module ( @modules )
-{
-  BAIL_OUT( &amp;quot;$module does not compile&amp;quot; ) unless require_ok( $module );
-}
-done_testing();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The code is simple enough; it adds the local &lt;code&gt;lib&lt;/code&gt; directory to the list of directories for Perl to search for modules. Then it declares an array of module names called &lt;code&gt;@modules&lt;/code&gt;. Finally it loops through each module name and tries to import it, bailing out if any module fails to load. Because tests are usually run in alphabetical order, this file is called &lt;code&gt;00-compile.t&lt;/code&gt; so that it is run first. I can run this test at the terminal:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ ./t/00-compile.t
-perl t/00-compile.t 
-ok 1 - use Perly::Bot;
-ok 2 - use Perly::Bot::Feed;
-ok 3 - use Perly::Bot::Feed::Post;
-ok 4 - use Perly::Bot::Cache;
-ok 5 - use Perly::Bot::Media;
-ok 6 - use Perly::Bot::Media::Twitter;
-ok 7 - use Perly::Bot::Media::Reddit;
-1..7
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;write-once-compile-tests:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;Write-once compile tests&lt;/h3&gt;
-
-&lt;p&gt;The basic compile test example has an obvious flaw: it requires the programmer to list all the module names to be tested. This means that every time a new module is added to the codebase or a module is renamed, this test needs to be updated. This also introduces the risk of error - a failing module could exist in the codebase and never be tested. Instead of a static list of modules, I can tell Perl to search the &lt;code&gt;lib&lt;/code&gt; directory and try to import any module it finds:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use Test::More;
-use lib &#39;lib&#39;;
-use Path::Tiny;
-
-# try to import every .pm file in /lib
-my $dir = path(&#39;lib/&#39;);
-my $iter = $dir-&amp;gt;iterator({
-            recurse         =&amp;gt; 1,
-            follow_symlinks =&amp;gt; 0,
-           }); 
-while (my $path = $iter-&amp;gt;())
-{
-  next if $path-&amp;gt;is_dir || $path !~ /\.pm$/;
-  BAIL_OUT( &amp;quot;$path does not compile&amp;quot; ) unless require_ok( $path );
-}
-done_testing;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Here I use &lt;a href=&#34;https://metacpan.org/pod/Path::Tiny&#34;&gt;Path::Tiny&lt;/a&gt; to iterate through the files in &lt;code&gt;lib&lt;/code&gt;. Instead of passing module names, I pass the filepath to &lt;code&gt;require_ok&lt;/code&gt;. Now this compile test is dynamic, it will always pick up any new modules added or removed from the codebase. Nice!&lt;/p&gt;
-
-&lt;h3 id=&#34;require-warnings:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;Require warnings&lt;/h3&gt;
-
-&lt;p&gt;One problem with using &lt;a href=&#34;http://perldoc.perl.org/functions/require.html&#34;&gt;require&lt;/a&gt; to load filepaths instead of module names is that it can generate &amp;ldquo;subroutine redefined&amp;rdquo; warnings if the same module is loaded twice by different files. Imagine this code:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;require &#39;lib/Game.pm&#39;;
-require &#39;lib/Game/Asset/Player.pm&#39;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If &lt;code&gt;Game.pm&lt;/code&gt; loads &lt;code&gt;Game::Asset::Player&lt;/code&gt;, Perl will emit the subroutine redefined warning when the second &lt;code&gt;require&lt;/code&gt; statement is executed. I can deal with this in a couple of ways: I could suppress the warning by adding &lt;code&gt;no warnings &#39;redefine&#39;;&lt;/code&gt; to my compile test file. But this would mask genuine warnings that could be helpful, like if I have circular dependencies in my codebase. Or I can convert the filepath into a module name, and then &lt;code&gt;require&lt;/code&gt; won&amp;rsquo;t complain, for example:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;require &#39;Game&#39;;
-require &#39;Game::Asset::Player&#39;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;For the compile tests, I can use substitute regexes to convert the filepath into a module name. When the compile tests run they won&amp;rsquo;t generate spurious &amp;ldquo;subroutine redefined&amp;rdquo; warnings.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use Test::More;
-use lib &#39;lib&#39;;
-use Path::Tiny;
-
-# try to import every .pm file in /lib
-my $dir = path(&#39;lib/&#39;);
-my $iter = $dir-&amp;gt;iterator({
-            recurse         =&amp;gt; 1,
-            follow_symlinks =&amp;gt; 0,
-           });
-while (my $path = $iter-&amp;gt;())
-{
-  next if $path-&amp;gt;is_dir || $path !~ /\.pm$/;
-  my $module = $path-&amp;gt;relative;
-  $module =~ s/(?:^lib\/|\.pm$)//g;
-  $module =~ s/\//::/g;
-  BAIL_OUT( &amp;quot;$module does not compile&amp;quot; ) unless require_ok( $module );
-}
-done_testing;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;additional-thoughts:cf491e3fd24f485540ea55cdf7d5e508&#34;&gt;Additional thoughts&lt;/h3&gt;
-
-&lt;p&gt;Another way to write compile tests is using &lt;a href=&#34;https://metacpan.org/pod/Class::Load&#34;&gt;Class::Load&lt;/a&gt; to do the module importing. It has a several useful functions for dynamically loading modules.&lt;/p&gt;
-
-&lt;p&gt;Compile tests are an interesting class of test. They&amp;rsquo;re an implementation of the axiom: &amp;ldquo;the codebase should always compile&amp;rdquo;. Depending on the application, there are other axioms you can test for. For example with a web application, every admin URL should only be accessible to authenticated and authorized users. So you could write a dynamic test that enumerates every admin URL and attempts to fetch it unauthorized (the test fails if any request is successful). For testing Catalyst web applications, you might find my module &lt;a href=&#34;https://metacpan.org/pod/Catalyst::Plugin::ActionPaths&#34;&gt;Catalyst::Plugin::ActionPaths&lt;/a&gt; useful. Testing axioms usually has a high reward for little or no maintenance cost. Seek them out!&lt;/p&gt;
-
-&lt;p&gt;If you ever need to suppress a particular warning, in newer versions of Perl the warnings pragma &lt;a href=&#34;http://perldoc.perl.org/warnings.html&#34;&gt;documentation&lt;/a&gt; lists all of the types of warnings it recognizes. This is especially useful when using experimental features like &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;subroutine signatures&lt;/a&gt;. You can read it for your version of Perl at the command line with:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc warnings
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     

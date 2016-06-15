@@ -6,8 +6,169 @@
     <description>Recent content in Development on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 13 May 2016 07:57:42 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 14 Jun 2016 20:54:51 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/categories/development/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>The road to a 55x speedup with XS</title>
+      <link>http://perltricks.com/article/the-road-to-a-55x-speedup-with-xs/</link>
+      <pubDate>Tue, 14 Jun 2016 20:54:51 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/the-road-to-a-55x-speedup-with-xs/</guid>
+      <description>
+
+&lt;p&gt;Lately my client has been concerned with improving their application speed, so naturally I started to think about XS, Perl&amp;rsquo;s C macro language. With XS you can write C code and call it from Perl.&lt;/p&gt;
+
+&lt;p&gt;To test the waters I wrote a simple URI encoder/decoder in C and with some trial-and-error managed to make &lt;a href=&#34;https://metacpan.org/pod/URI::Encode::XS&#34;&gt;URI::Encode::XS&lt;/a&gt;, a module that used it. &amp;ldquo;This is easy!&amp;rdquo; I thought and excitedly typed out a benchmarking &lt;a href=&#34;https://github.com/dnmfarrell/URI-Encode-XS/blob/master/bench&#34;&gt;script&lt;/a&gt;. I benchmarked my module against &lt;a href=&#34;https://metacpan.org/pod/URI::Escape&#34;&gt;URI::Escape&lt;/a&gt; a venerable but rather slow &lt;em&gt;pure-Perl&lt;/em&gt; URI encoder/decoder. You can imagine how crestfallen I was when I read the benchmark results to find that all of my effort only netted a 20% speedup. I wondered if Perl&amp;rsquo;s string routines are so fast they&amp;rsquo;re hard to improve upon.&lt;/p&gt;
+
+&lt;h3 id=&#34;renewed-hope:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;Renewed hope&lt;/h3&gt;
+
+&lt;p&gt;Enter &lt;a href=&#34;https://metacpan.org&#34;&gt;URI::XSEscape&lt;/a&gt;, a &amp;ldquo;quick and dirty&amp;rdquo; (the authors&amp;rsquo; words) XS implementation of URI::Escape. It was uploaded to CPAN last month. You can see the authors&amp;rsquo; &lt;a href=&#34;https://metacpan.org/pod/URI::XSEscape#BENCHMARKS&#34;&gt;benchmarks&lt;/a&gt; for yourself, but in my testing it appeared to be about 18.5 times faster than URI::Escape. That&amp;rsquo;s not a misprint - on my laptop it encoded 2.75m strings per second, compared to 138k for URI::Escape. So how did they do it?&lt;/p&gt;
+
+&lt;p&gt;First let&amp;rsquo;s look at my naive C encode implementation:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;void *uri_encode (char *uri, const char *special_chars, char *buffer)
+{
+  int i = 0;
+  /* \0 is null, end of the string */
+  while (uri[i] != &#39;\0&#39;)
+  {
+    int encode_char = 1;
+    int j = 0;
+    while (special_chars[j] != &#39;\0&#39;)
+    {
+      if (uri[i] == special_chars[j])
+      {
+        /* do not encode char as it is in the special_chars set */
+        encode_char = 0;
+        break;
+      }
+      j++;
+    }
+    if (encode_char == 1)
+    {
+      char code[4];
+      sprintf(code, &amp;quot;%%%02X&amp;quot;, uri[i]);
+      strcat(buffer, code);
+    }
+    else
+    {
+      char code[2];
+      code[0] = uri[i];
+      code[1] = &#39;\0&#39;;
+      strcat(buffer, code);
+    }
+    i++;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Basically what this does is loop through the &lt;code&gt;uri&lt;/code&gt; string, looking characters that are in the &lt;code&gt;special_chars&lt;/code&gt; string, and if it finds a match, it percent encodes the character with &lt;code&gt;sprintf&lt;/code&gt; and appends the result to &lt;code&gt;buffer&lt;/code&gt; which is the encoded string. Compare this with the encode function from &lt;code&gt;URI::XSEscape&lt;/code&gt; (I&amp;rsquo;ve simplified it slightly):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Buffer* uri_encode(Buffer* src, int length,
+                   Buffer* tgt)
+{
+    int s = src-&amp;gt;pos;
+    int t = tgt-&amp;gt;pos;
+
+    while (s &amp;lt; (src-&amp;gt;pos + length)) {
+        unsigned char u = (unsigned char) src-&amp;gt;data[s];
+        char* v = uri_encode_tbl[(int)u];
+
+        /* if current source character doesn&#39;t need to be encoded,
+           just copy it to target*/
+        if (!v) {
+            tgt-&amp;gt;data[t++] = src-&amp;gt;data[s++];
+            continue;
+        }
+
+        /* copy encoded character from our table */
+        tgt-&amp;gt;data[t+0] = &#39;%&#39;;
+        tgt-&amp;gt;data[t+1] = v[0];
+        tgt-&amp;gt;data[t+2] = v[1];
+
+        /* we used up 3 characters (%XY) in target
+         * and 1 character from source */
+        t += 3;
+        ++s;
+    }
+    /* null-terminate target and return src as was left */
+    src-&amp;gt;pos = s;
+    tgt-&amp;gt;pos = t;
+    buffer_terminate(tgt);
+    return src;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code loops through the input string but instead of comparing the current character to another string of special characters, it does a table lookup. This is much faster than looping through another string. Note how it doesn&amp;rsquo;t use &lt;code&gt;sprintf&lt;/code&gt; either - all the hex codes are pre-computed in &lt;code&gt;uri_encode_tbl&lt;/code&gt;. Finally, instead of creating a new string and concatenating it to the output string, this code simply copies the output directly to the output string&amp;rsquo;s memory location.&lt;/p&gt;
+
+&lt;p&gt;This code also avoid a subtle bug with my implementation: Perl strings can contain null characters, but in C null is used to terminate strings. Because URI::XSEscape&amp;rsquo;s encode function accepts a length argument, it can encode strings will nulls and my version can&amp;rsquo;t.&lt;/p&gt;
+
+&lt;h3 id=&#34;going-faster:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;Going faster&lt;/h3&gt;
+
+&lt;p&gt;At this point I updated the encode/decode functions in URI::Encode::XS to be table based like URI::XSEscape and saw huge gains in performance, making URI::Encode::XS about 25 times faster than URI::Escape (URI::Encode::XS doesn&amp;rsquo;t support user-defined escape values, so it&amp;rsquo;s simpler than URI::XSEscape). I thought a 25x improvement was as good as it got, and was about done with the module, when I was contacted by &lt;a href=&#34;https://metacpan.org/author/CHANSEN&#34;&gt;Christian Hansen&lt;/a&gt; (author of &lt;a href=&#34;https://metacpan.org/release/Time-Moment&#34;&gt;Time::Moment&lt;/a&gt;). Christian overhauled my simple XS code to make it safer and faster. This is what became of the &lt;code&gt;uri_encode&lt;/code&gt; C function:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;size_t uri_encode (const char *src, const size_t len, char *dst)
+{
+  size_t i = 0, j = 0;
+  while (i &amp;lt; len
+  {
+    const char * code = uri_encode_tbl[ (unsigned char)src[i] ];
+    if (code)
+    {
+      memcpy(&amp;amp;dst[j], code, 3);
+      j += 3;
+    }
+    else
+    {
+      dst[j] = src[i];
+      j++;
+    }
+    i++;
+  }
+  dst[j] = &#39;\0&#39;;
+  return j;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This version looks up the character value in a pre-computed table and then uses &lt;code&gt;memcpy&lt;/code&gt; to append it to the output string (avoiding 3 separate assignments). It also returns the length of encoded string, which is useful. After Christian&amp;rsquo;s optimizations, my benchmarking &lt;a href=&#34;https://github.com/dnmfarrell/URI-Encode-XS/blob/master/bench&#34;&gt;script&lt;/a&gt; showed URI::Encode::XS&amp;rsquo;s encoding function to be 55 times faster than URI::Escape (about 8m encoded strings per second). Much of the gains came from optimizing the &lt;a href=&#34;https://github.com/dnmfarrell/URI-Encode-XS/blob/df8009e9d7af4cf243fa29ca8aaa23982feeba58/XS.xs#L143&#34;&gt;xsub&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-power-of-c-the-pleasure-of-perl:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;The power of C, the pleasure of Perl&lt;/h3&gt;
+
+&lt;p&gt;To me the most magical thing about XS code is you call it from Perl:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use URI::Encode::XS &#39;uri_encode&#39;;
+
+my $encoding = uri_encode($some_string); # super fast
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So the user has the convenience of writing Perl code, but the benefit of the faster implementation. Perl is already pretty fast, but there are certain operations that are expensive. If you work on a Perl application, how much faster would it be if you could make all of the bottlenecks 55 times faster?&lt;/p&gt;
+
+&lt;h3 id=&#34;learning-xs:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;Learning XS&lt;/h3&gt;
+
+&lt;p&gt;If you&amp;rsquo;d like to learn more about XS, I&amp;rsquo;d strongly recommend this &lt;a href=&#34;http://world.std.com/~swmcd/steven/perl/pm/xs/intro/index.html&#34;&gt;series&lt;/a&gt; by Steven W McDougall. It&amp;rsquo;s the best introduction I know of.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/xsawyerx/xs-fun&#34;&gt;XS is Fun&lt;/a&gt; is a more modern introduction to XS programming that takes you through the steps of writing an XS module and importing a C library.&lt;/p&gt;
+
+&lt;p&gt;Chapter 18 &amp;ldquo;Extending Perl: A First Course&amp;rdquo; in &lt;a href=&#34;http://shop.oreilly.com/product/9781565922204.do&#34;&gt;Advanced Perl Programming&lt;/a&gt; first edition has a good introduction to XS. It covers the most common macros for scalars, arrays and hashes which is useful (the second edition doesn&amp;rsquo;t cover XS). &lt;a href=&#34;https://www.manning.com/books/extending-and-embedding-perl&#34;&gt;Extending and Embedding Perl&lt;/a&gt; goes further, with several tutorials on the different ways to call and receive data from XS. Both books are a bit dated but I found them valuable and an easier read than the official docs.&lt;/p&gt;
+
+&lt;p&gt;The official Perl documentation has useful reference sources: &lt;a href=&#34;http://perldoc.perl.org/perlxs.html&#34;&gt;perlxs&lt;/a&gt;, &lt;a href=&#34;http://perldoc.perl.org/perlapi.html&#34;&gt;perlapi&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/perlxs.html&#34;&gt;perlguts&lt;/a&gt;. There is also &lt;a href=&#34;http://perldoc.perl.org/perlxs.html&#34;&gt;perlxstut&lt;/a&gt; but I would skip that in favor of the above resources.&lt;/p&gt;
+
+&lt;p&gt;Several times I&amp;rsquo;ve found XS macros used in Perl code that are not explained in any documentation (e.g. &lt;code&gt;dXSTARG&lt;/code&gt;). In those cases it pays to have a copy of the Perl &lt;a href=&#34;https://www.perl.org/get.html&#34;&gt;source code&lt;/a&gt; - just grep the source and you&amp;rsquo;ll find its definition with a comment (typically in &lt;code&gt;pp.h&lt;/code&gt;).&lt;/p&gt;
+
+&lt;h3 id=&#34;a-note-on-the-benchmarks:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;A note on the benchmarks&lt;/h3&gt;
+
+&lt;p&gt;The benchmarks in this article were all run on my laptop, a Dell XPS 13 with 8GB RAM running Fedora 23. Different hardware will yield different results (Christian&amp;rsquo;s benchmark showed URI::Encode::XS to be 90x (!) faster than URI::Escape).&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://github.com/dnmfarrell/URI-Encode-XS/blob/master/bench&#34;&gt;script&lt;/a&gt; counts how many times each module can encode a string per second. But a string of a different length, or with a different number of reserved characters will yield a different benchmark. For example benchmarking an empty string shows URI::Encode::XS to be just 9x times faster on my laptop.&lt;/p&gt;
+
+&lt;p&gt;The module versions were URI::Encode::XS v0.08 and URI::Escape v3.31. The Perl version was 5.22.&lt;/p&gt;
+
+&lt;h3 id=&#34;thanks:4569416bc6792b95aa8a57ed35ded62b&#34;&gt;Thanks&lt;/h3&gt;
+
+&lt;p&gt;A big thank you to Christian Hansen and Jesse DuMond for your help with URI::Encode::XS. The module would not be half of what it is without your contributions.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Displaying the Git branch in the terminal prompt with and without Perl</title>
@@ -2128,68 +2289,6 @@ sub example :prototype($$) {}
 &lt;p&gt;There is a lot more to 5.20 than the summary items mentioned above. For a list of all the changes see &lt;a href=&#34;https://github.com/Perl/perl5/blob/blead/pod/perl5200delta.pod&#34;&gt;perldelta&lt;/a&gt;. Perl 5.20 is the most exciting release in years. Thanks to the Perl 5 Porters team for doing an incredible job of delivering an exceptional new Perl!&lt;/p&gt;
 
 &lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F92%2F2014%2F5%2F27%2FPerl-v5-20-what-you-need-to-know&amp;amp;text=Perl+v5.20+-+what+you+need+to+know&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F92%2F2014%2F5%2F27%2FPerl-v5-20-what-you-need-to-know&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Debunk Perl&#39;s magic with B::Deparse</title>
-      <link>http://perltricks.com/article/89/2014/5/15/Debunk-Perl-s-magic-with-B--Deparse/</link>
-      <pubDate>Thu, 15 May 2014 12:19:51 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/89/2014/5/15/Debunk-Perl-s-magic-with-B--Deparse/</guid>
-      <description>
-
-&lt;p&gt;&lt;em&gt;The &lt;a href=&#34;https://metacpan.org/pod/B::Deparse&#34;&gt;B::Deparse&lt;/a&gt; module compiles a Perl program and then deparses it, producing the internally generated source code. What&amp;rsquo;s the point of that you say? Well it let&amp;rsquo;s you look behind the curtain and inspect how Perl is structuring the program code which can help you debug it, among other things.&lt;/em&gt;&lt;/p&gt;
-
-&lt;h3 id=&#34;example:c51e9e6cf0be3f9a1a44b085736f67c8&#34;&gt;Example&lt;/h3&gt;
-
-&lt;p&gt;Consider the slurpy parameter optimization from this week&amp;rsquo;s subroutine signatures &lt;a href=&#34;http://perltricks.com/article/88/2014/5/12/Benchmarking-subroutine-signatures&#34;&gt;article&lt;/a&gt;. We know from speed benchmarks that the signature becomes ~30% faster with a slurpy parameter, and we can reason about why that is the case, but B::Deparse can &lt;em&gt;show&lt;/em&gt; us why. Here is the code for two signatures, one normal and one using the slurpy parameter:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature &#39;signatures&#39;;
-
-sub normal_signature ($foo) {}
-
-sub slurpy_signature ($foo, @) {}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Now if we save the code as signatures.pl, we can use B::Deparse to inspect it at the command line:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -MO=Deparse signatures.pl
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This generates the following output:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub normal_signature {
-    use feature &#39;signatures&#39;;
-    die &#39;Too many arguments for subroutine&#39; unless @_ &amp;lt;= 1;
-    die &#39;Too few arguments for subroutine&#39; unless @_ &amp;gt;= 1;
-    my $foo = $_[0];
-    ();
-}
-sub slurpy_signature {
-    use feature &#39;signatures&#39;;
-    die &#39;Too few arguments for subroutine&#39; unless @_ &amp;gt;= 1;
-    my $foo = $_[0];
-    ();
-}
-signatures.pl syntax OK
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The generated code shows how Perl structured the signatures.pl code internally. You can see how &amp;ldquo;slurpy_signature&amp;rdquo; has one fewer die statement. This explains the improved performance as the subroutine has less to do. Magic debunked!&lt;/p&gt;
-
-&lt;h3 id=&#34;more-on-b-deparse:c51e9e6cf0be3f9a1a44b085736f67c8&#34;&gt;More on B::Deparse&lt;/h3&gt;
-
-&lt;p&gt;B::Deparse comes with extensive &lt;a href=&#34;https://metacpan.org/pod/B::Deparse&#34;&gt;documentation&lt;/a&gt; and has some useful options for altering the output.&lt;/p&gt;
-
-&lt;p&gt;One of the many gems in brian d foy&amp;rsquo;s &lt;a href=&#34;http://www.amazon.com/gp/product/144939311X/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;amp;camp=1789&amp;amp;creative=9325&amp;amp;creativeASIN=144939311X&amp;amp;linkCode=as2&amp;amp;tag=perltrickscom-20&#34;&gt;Mastering Perl&lt;/a&gt; book is the B::Deparse entry in the &amp;ldquo;Cleaning up Perl&amp;rdquo; chapter (affiliate link). In the book brian shows several uses for B::Deparse including debugging one-liners and decoding obfuscated code. You can read a draft version of the chapter online &lt;a href=&#34;http://chimera.labs.oreilly.com/books/1234000001527/ch07.html&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;PerlMonks has an &lt;a href=&#34;http://www.perlmonks.org/?node_id=804232&#34;&gt;interesting&lt;/a&gt; entry for those curious as to why the command line use of B::Deparse is &amp;ldquo;-MO=Deparse&amp;rdquo; and not &amp;ldquo;-MB::Deparse&amp;rdquo;.&lt;/p&gt;
-
-&lt;h3 id=&#34;thanks:c51e9e6cf0be3f9a1a44b085736f67c8&#34;&gt;Thanks&lt;/h3&gt;
-
-&lt;p&gt;Thanks again to Perl Pumpking and &lt;a href=&#34;http://www.youtube.com/watch?v=Sp102BECq8s&#34;&gt;teflon&lt;/a&gt; man Ricardo Signes who put me on to using B::Deparse on subroutine signatures.&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;https://creativecommons.org/licenses/by/2.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/barkbud/4165385634&#34;&gt;bark&lt;/a&gt; image has been digitaly altered&lt;/em&gt;&lt;/p&gt;
 </description>
     </item>
     
