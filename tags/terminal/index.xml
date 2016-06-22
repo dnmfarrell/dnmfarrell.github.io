@@ -254,6 +254,12 @@ Ctrl-b !      pop a pane into a new window
 
 &lt;p&gt;&lt;strong&gt;Shortcut&lt;/strong&gt; You can jump into scroll mode and page up in one fell swoop with &lt;code&gt;Ctrl-b PgUp&lt;/code&gt; (thanks to Ludovic Tolhurst for the tip).&lt;/p&gt;
 
+&lt;h4 id=&#34;bonus-feature-search:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Bonus feature - search&lt;/h4&gt;
+
+&lt;p&gt;If you took the time to learn scroll mode, you deserve something extra, something special. Here is your prize: you can search the Tmux buffer! Just enter scroll mode with &lt;code&gt;Ctrl-b [&lt;/code&gt; and then press &lt;code&gt;Ctrl-r&lt;/code&gt;. Type your search text and press enter. Tmux will jump to the last match it finds. You can press &lt;code&gt;n&lt;/code&gt; to jump to the next match or &lt;code&gt;Shift-n&lt;/code&gt; to jump back one match.&lt;/p&gt;
+
+&lt;p&gt;There is also &lt;code&gt;Ctrl-s&lt;/code&gt; to search down the buffer, but I hardly ever use it.&lt;/p&gt;
+
 &lt;h3 id=&#34;session-control:a7fdafcdcb65652df0286deda8f9a9c6&#34;&gt;Session control&lt;/h3&gt;
 
 &lt;p&gt;Sessions are one of the most useful features of Tmux. They let you group multiple terminal processes into a single Tmux session which can be worked on (attached), put into the background (detached) and discarded as you see fit. Programmers will often have different sessions for different projects. Because Tmux operates under a client-server architecture, even if the original terminal that started Tmux dies or your desktop GUI crashes, the Tmux session will be preserved, along with all of the terminal sessions in it.&lt;/p&gt;
