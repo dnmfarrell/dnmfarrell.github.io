@@ -6,8 +6,365 @@
     <description>Recent content in Development on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 14 Jun 2016 20:54:51 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 29 Jun 2016 08:37:20 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/categories/development/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Untangling subroutine attributes</title>
+      <link>http://perltricks.com/article/untangling-subroutine-attributes/</link>
+      <pubDate>Wed, 29 Jun 2016 08:37:20 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/untangling-subroutine-attributes/</guid>
+      <description>
+
+&lt;p&gt;Subroutine attributes are optional labels that can be included in a subroutine declaration. They&amp;rsquo;re a curious feature with a clunky interface and minimal documentation. They seem underused, but it&amp;rsquo;s hard to think of legitimate uses for them. In my opinion the coolest thing about subroutine attributes is that they run at compile time. This means you can execute custom code before the main program is run, and seeing as Perl gives you access to the symbol table, you can basically do wizardy things.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-lvalue-trick:d2b269acfdd0ebc3293d2a34b1704830&#34;&gt;The lvalue trick&lt;/h3&gt;
+
+&lt;p&gt;Perl has several subroutine attributes built-in. A useful one is &lt;code&gt;lvalue&lt;/code&gt; which tells Perl that the subroutine refers to a variable that persists beyond individual calls. A common case is using them as method getter/setters:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Foo;
+
+sub new { bless {}, shift }
+
+sub bar :lvalue {
+  my $self = shift;
+
+  # must return the variable for lvalue-ness
+  $self-&amp;gt;{bar};
+}
+
+package main;
+
+my $foo = Foo-&amp;gt;new();
+
+$foo-&amp;gt;bar = &amp;quot;dogma&amp;quot;; # not $foo-&amp;gt;bar(&amp;quot;dogma&amp;quot;);
+print $foo-&amp;gt;bar;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By adding the attribute &lt;code&gt;:lvalue&lt;/code&gt; to the &lt;code&gt;bar&lt;/code&gt; subroutine, I can use it like a variable, getting, setting and substituting and so on.&lt;/p&gt;
+
+&lt;h3 id=&#34;custom-attributes:d2b269acfdd0ebc3293d2a34b1704830&#34;&gt;Custom attributes&lt;/h3&gt;
+
+&lt;p&gt;To use custom attributes in a package, you must provide a subroutine called &lt;code&gt;MODIFY_CODE_ATTRIBUTES&lt;/code&gt;. Perl will call this subroutine during compilation if it find any custom subroutine attributes. It&amp;rsquo;s called once for every subroutine with custom attributes. &lt;code&gt;MODIFY_CODE_ATTRIBUTES&lt;/code&gt; receives the package name, a coderef to the subroutine and a list of the attributes it declared:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Sub::Attributes;
+
+sub MODIFY_CODE_ATTRIBUTES {
+  my ($package, $coderef, @attributes) = @_;
+  return ();
+}
+
+sub _internal_function :Private {
+  ...
+}
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve created a new package with the required subroutine - all it does is return an empty list. I&amp;rsquo;ve then declared an empty subroutine called &lt;code&gt;_internal_function&lt;/code&gt; which has a custom attribute, &lt;code&gt;Private&lt;/code&gt;. I want to do the impossible and create truly private subroutines in Perl by making any subroutine with the &lt;code&gt;Private&lt;/code&gt; attribute only callable by its own package. But what if I misspell &lt;code&gt;Private&lt;/code&gt;?  If we received any attributes we didn&amp;rsquo;t recognize, &lt;code&gt;MODIFY_CODE_ATTRIBUTES&lt;/code&gt; can add them to a list and Perl will throw a compile time error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Sub::Attributes;
+
+sub MODIFY_CODE_ATTRIBUTES {
+  my ($package, $coderef, @attributes, @disallowed) = @_;
+
+  push @disallowed, grep { $_ ne &#39;Private&#39; } @attributes;
+
+  return @disallowed;
+}
+
+sub _internal_function :Private {
+  ...
+}
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve updated to code to declare and return &lt;code&gt;@disallowed&lt;/code&gt; - an array of any unrecognized subroutine attributes. Even though it&amp;rsquo;s declared in the first line of the subroutine, it will always be empty because &lt;code&gt;@attributes&lt;/code&gt; gobbles up all remaining arguments passed to the subroutine. Next I grep through the list of attributes received and if any don&amp;rsquo;t match &amp;ldquo;Private&amp;rdquo;, I add them to the disallowed array.&lt;/p&gt;
+
+&lt;h3 id=&#34;adding-compile-time-behavior:d2b269acfdd0ebc3293d2a34b1704830&#34;&gt;Adding compile time behavior&lt;/h3&gt;
+
+&lt;p&gt;Now any subroutine in the package can use the attribute &lt;code&gt;Private&lt;/code&gt; but it doesn&amp;rsquo;t do anything. I need to add some behavior!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Sub::Attributes;
+use B &#39;svref_2object&#39;;
+
+sub MODIFY_CODE_ATTRIBUTES {
+  my ($package, $coderef, @attributes, @disallowed) = @_;
+
+  my $subroutine_name = svref_2object($coderef)-&amp;gt;GV-&amp;gt;NAME;
+
+  my %allowed = (
+    Private =&amp;gt; sub {
+        my ($coderef, @args) = @_;
+        my ($calling_package, $filename, $line, $sub) = caller(2);
+        croak &#39;Only the object may call this sub&#39; unless $sub &amp;amp;&amp;amp; $sub =~ /^Sub\:\:Attributes\:\:/;
+        $coderef-&amp;gt;(@args);
+      },
+  );
+
+  for my $attribute (@attributes) {
+    # parse the attribute into name and value
+
+    # attribute not known, compile error
+    push(@disallowed, $attribute) &amp;amp;&amp;amp; next unless exists $allowed{$attribute};
+
+    # override subroutine with attribute coderef
+    my $overrider = $allowed{$attribute};
+    my $old_coderef = $coderef;
+    $coderef = sub { $overrider-&amp;gt;($old_coderef, @_) };
+    *{&amp;quot;Sub:\:Attributes:\:$subroutine_name&amp;quot;} = $coderef;
+  }
+  return @disallowed;
+}
+
+sub _internal_function :Private {
+  ...
+}
+
+sub call_internal_function {
+  _internal_function();
+}
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code imports the &lt;code&gt;svref_2object&lt;/code&gt; function from the &lt;a href=&#34;https://metacpan.org/pod/B&#34;&gt;B&lt;/a&gt; module. This handy function takes a reference and returns an object with the data from Perl&amp;rsquo;s internals. In this case, passing a coderef returns a &lt;a href=&#34;https://metacpan.org/pod/B#B::CV-Methods&#34;&gt;B::CV&lt;/a&gt; object. I use this to get the subroutine name and overrride the subroutine later.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ve created a hash called &lt;code&gt;%allowed&lt;/code&gt; which is where I can declare any permitted custom attributes and their associated code. For &lt;code&gt;Private&lt;/code&gt; I made a coderef that checks the caller is in the same package and croaks if it&amp;rsquo;s not, else it will call it.&lt;/p&gt;
+
+&lt;p&gt;Next I loop through any attributes received, and check they exist in &lt;code&gt;%attributes&lt;/code&gt;. If they don&amp;rsquo;t, I push them into &lt;code&gt;@disallowed&lt;/code&gt; and skip to the next attribute. If the attribute does exist, I assign the coderef to &lt;code&gt;$overrider&lt;/code&gt; and declare a new coderef which will call &lt;code&gt;$overrider&lt;/code&gt; passing the old coderef to be called.&lt;/p&gt;
+
+&lt;p&gt;Finally I override the &lt;code&gt;Private&lt;/code&gt; subroutine with the new coderef:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;*{&amp;quot;Sub:\:Attributes:\:$subroutine_name&amp;quot;} = $coderef;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is how you override subroutines using a &lt;a href=&#34;http://perldoc.perl.org/perldata.html#Typeglobs-and-Filehandles&#34;&gt;typeglob&lt;/a&gt; (&lt;a href=&#34;https://www.amazon.com/Mastering-Perl-brian-d-foy/dp/144939311X/&#34;&gt;Mastering Perl&lt;/a&gt; has a whole chapter dedicated to features like these, highly recommended). But what about that backslash in the middle of the colons &lt;code&gt;:\:&lt;/code&gt;?. That escape is necessary for the code to run on Perl versions 5.16 through 5.18 (thanks to Andreas König for debugging this).&lt;/p&gt;
+
+&lt;p&gt;If you&amp;rsquo;re wondering why I bothered to create &lt;code&gt;$old_coderef&lt;/code&gt; at all, it&amp;rsquo;s so that a subroutine can have multiple attributes with new behaviors nested inside each other.&lt;/p&gt;
+
+&lt;p&gt;Now any calls to &lt;code&gt;_internal_function&lt;/code&gt; will croak unless they come from within Sub::Attributes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Sub::Attributes;
+
+Sub::Attributes::call_internal_function(); # ok
+Sub::Attributes::_internal_function(); # croak!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;making-it-re-useable:d2b269acfdd0ebc3293d2a34b1704830&#34;&gt;Making it re-useable&lt;/h3&gt;
+
+&lt;p&gt;If it seems dumb to create custom attributes and then elsewhere in the same code, validate those attributes, join the club. To get the most out of this system, you have to make your custom attributes re-usable. Fortunately, just a few changes are needed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Sub::Attributes;
+use B &#39;svref_2object&#39;;
+
+sub MODIFY_CODE_ATTRIBUTES {
+  my ($package, $coderef, @attributes, @disallowed) = @_;
+
+  my $subroutine_name = svref_2object($coderef)-&amp;gt;GV-&amp;gt;NAME;
+
+  my %allowed = (
+    Private =&amp;gt;
+      sub {
+        my $package = shift;
+        return sub {
+          my ($coderef, @args) = @_;
+          my ($calling_package, $filename, $line, $sub) = caller(2);
+          croak &#39;Only the object may call this sub&#39; unless $sub &amp;amp;&amp;amp; $sub =~ /^$package\:\:/;
+          $coderef-&amp;gt;(@args);
+        }
+      },
+  );
+
+  for my $attribute (@attributes) {
+    # parse the attribute into name and value
+
+    # attribute not known, compile error
+    push(@disallowed, $attribute) &amp;amp;&amp;amp; next unless exists $allowed{$attribute};
+
+    # execute compile time code
+    my $overrider = $allowed{$attribute}-&amp;gt;($package);
+    next unless $overrider;
+
+    # override the subroutine if necessary
+    my $old_coderef = $coderef;
+    $coderef = sub { $overrider-&amp;gt;($old_coderef, @_) };
+    *{&amp;quot;$package:\:$subroutine_name&amp;quot;} = $coderef;
+  }
+
+  $Sub::Attributes::attributes{$package}{$subroutine_name} = \@attributes;
+  return @disallowed;
+};
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Rather than hardcoding the package name, I&amp;rsquo;ve made it dynamic. The key change here is that the coderef for &lt;code&gt;Private&lt;/code&gt; has been changed to a coderef that returns another coderef. Now I can execute some arbitrary code at compile time and optionally manufacture a new coderef that uses compile time information. In the case of &lt;code&gt;Private&lt;/code&gt;, I want to pass the package name of the private subroutine, so I can check later that the caller is from within the same package.&lt;/p&gt;
+
+&lt;p&gt;Why optionally return a coderef? Imagine if I created an attribute called &lt;code&gt;After&lt;/code&gt; which behaved like the &lt;code&gt;after&lt;/code&gt; function in &lt;a href=&#34;https://metacpan.org/pod/Class::Method::Modifiers&#34;&gt;Class::Method::Modifiers&lt;/a&gt;. In this case the subroutine with the private attribute would be reference a &lt;em&gt;different&lt;/em&gt; subroutine. That might look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub foo { }
+
+sub logger :After(foo) {
+  print &amp;quot;foo() was called!\n&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here &lt;code&gt;logger&lt;/code&gt; should be executed after &lt;code&gt;foo&lt;/code&gt;. So logger itself never changes, and doesn&amp;rsquo;t need to be overridden.&lt;/p&gt;
+
+&lt;p&gt;I store the attributes for a subroutine under the package name in the symbol table for &lt;code&gt;Sub::Attributes&lt;/code&gt;. I could add them to the package&amp;rsquo;s symbol table, but I might inadvertently overwrite something else, so I keep the data within the &lt;code&gt;Sub::Attributes&lt;/code&gt; namespace.&lt;/p&gt;
+
+&lt;p&gt;$Sub::Attributes::attributes{$package}{$subroutine_name} = \@attributes;&lt;/p&gt;
+
+&lt;h3 id=&#34;why-no-fetch-code-attributes:d2b269acfdd0ebc3293d2a34b1704830&#34;&gt;Why no FETCH_CODE_ATTRIBUTES?&lt;/h3&gt;
+
+&lt;p&gt;The &lt;code&gt;attribute&lt;/code&gt; &lt;a href=&#34;http://perldoc.perl.org/attributes.html&#34;&gt;docs&lt;/a&gt; mention another subroutine, called &lt;code&gt;FETCH_CODE_ATTRIBUTES&lt;/code&gt; that given a coderef, should return the attributes for the referenced subroutine. When &lt;code&gt;attributes::get&lt;/code&gt; is called, it passes the class of the declaring package, which is &lt;code&gt;Sub::Attributes&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# $class == &amp;quot;Sub::Attributes&amp;quot;
+sub FETCH_CODE_ATTRIBUTES {
+  my ($class, $coderef) = @_;
+  my $cv = svref_2object($coderef);
+  # $class should be subclass name, not Sub::Attributes
+  return @{$Sub::Attributes::attributes{$class}{ $cv-&amp;gt;GV-&amp;gt;NAME }};
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I don&amp;rsquo;t see a way to find out the package name of the original subroutine. &lt;code&gt;FETCH_CODE_ATTRIBUTTES&lt;/code&gt; is not required and if it&amp;rsquo;s not there Perl won&amp;rsquo;t throw an exception if &lt;code&gt;attributes::get&lt;/code&gt; is called. Instead I provided the &lt;code&gt;sub_attributes&lt;/code&gt; method which does work:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub sub_attributes {
+  my ($package) = @_;
+  my $class_name = ref $package || $package;
+  return $Sub::Attributes::attributes{ $class_name };
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This returns the attributes stored for a package. This might be useful if other packages want to inspect the attributes for a package&amp;rsquo;s subroutine. it can be called as an object method or class method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Foo;
+use base &#39;Sub::Attributes&#39;;
+
+...
+
+Foo-&amp;gt;sub_attributes(); # works
+$foo-&amp;gt;sub_attributes(); # works also
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;squashing-warnings:d2b269acfdd0ebc3293d2a34b1704830&#34;&gt;Squashing warnings&lt;/h3&gt;
+
+&lt;p&gt;It&amp;rsquo;s generally good practice to use the &lt;code&gt;strict&lt;/code&gt; and &lt;code&gt;warnings&lt;/code&gt; pragmas to help detect issues with our code. However the code so far will emit some warnings and an exception if we add those pragmas as-is. This code will add the pragmas but make Perl ignore the violations:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
+no strict &#39;refs&#39;;
+use warnings;
+no warnings qw(reserved redefine);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;reserved&lt;/code&gt; warning is of particular interest here. This would be caused by using custom subroutine attributes, so no matter what, you&amp;rsquo;d want to turn that off. Redefine is a warning emitted whenever a subroutine is over-written, strict references means no interpolating of variable names in symbol table lookups; we need these features so we can dynamically patch subroutines like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;*{&amp;quot;$class:\:$subroutine&amp;quot;} = $coderef
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;making-it-extensible:d2b269acfdd0ebc3293d2a34b1704830&#34;&gt;Making it extensible&lt;/h3&gt;
+
+&lt;p&gt;If you&amp;rsquo;ve gone to the hard work of setting up the code for inheritable custom attributes, why not make it extensible? That way consuming packages can add their own custom attributes.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Sub::Attributes;
+use strict;
+no strict &#39;refs&#39;;
+use warnings;
+no warnings qw(reserved redefine);
+
+use B &#39;svref_2object&#39;;
+
+BEGIN {
+  our %allowed = (
+    Private =&amp;gt;
+      sub {
+        my $package = shift;
+        return sub {
+          my ($coderef, @args) = @_;
+          my ($calling_package, $filename, $line, $sub) = caller(2);
+          croak &#39;Only the object may call this sub&#39; unless $sub &amp;amp;&amp;amp; $sub =~ /^$package\:\:/;
+          $coderef-&amp;gt;(@args);
+        }
+      },
+    # compile time override, run a coderef after running the subroutine
+    After =&amp;gt; sub {
+      my ($package, $value, $coderef) = @_;
+
+      # full name of the sub to override
+      my $fq_sub = &amp;quot;$package:\:$value&amp;quot;;
+
+      my $target_coderef = \&amp;amp;{$fq_sub};
+      *{$fq_sub} = sub {
+        my @rv = $target_coderef-&amp;gt;(@_);
+        $coderef-&amp;gt;(@_);
+        return wantarray ? @rv : $rv[0];
+      };
+
+      # we didn&#39;t change the method with the attribute
+      # so we return undef as we have no runtime changes
+      return undef;
+    },
+  );
+}
+
+sub MODIFY_CODE_ATTRIBUTES {
+  my ($package, $coderef, @attributes, @disallowed) = @_;
+
+  my $subroutine_name = svref_2object($coderef)-&amp;gt;GV-&amp;gt;NAME;
+
+  for my $attribute (@attributes) {
+    # parse the attribute into name and value
+    my ($name, $value) = $attribute =~ qr/^ (\w+) (?:\((\S+?)\))? $/x;
+
+    # attribute not known, compile error
+    push(@disallowed, $name) &amp;amp;&amp;amp; next unless exists $Sub::Attributes::allowed{$name};
+
+    # execute compile time code
+    my $overrider = $Sub::Attributes::allowed{$name}-&amp;gt;($package, $value, $coderef);
+    next unless $overrider;
+
+    # override the subroutine if necessary
+    my $old_coderef = $coderef;
+    $coderef = sub { $overrider-&amp;gt;($old_coderef, @_) };
+    *{&amp;quot;$package:\:$subroutine_name&amp;quot;} = $coderef;
+  }
+
+  $Sub::Attributes::attributes{$package}{$subroutine_name} = \@attributes;
+  return @disallowed;
+};
+
+sub sub_attributes {
+  my ($package) = @_;
+  my $class_name = ref $package || $package;
+  return $Sub::Attributes::attributes{ $class_name };
+}
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve moved the &lt;code&gt;%allowed&lt;/code&gt; hash into a &lt;code&gt;BEGIN&lt;/code&gt; block - this has to be declared at compile time so it&amp;rsquo;s available for &lt;code&gt;MODIFY_CODE_ATTRIBUTES&lt;/code&gt;. Now new custom attributes can be added by modifying &lt;code&gt;%Sub::Attributes::attributes&lt;/code&gt;. I also added a new custom attribute &lt;code&gt;After&lt;/code&gt; which implements causes the subroutine to be called after another one, like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub foo { }
+
+sub bar :After(foo) {
+  print &amp;quot;foo() was called!\n&amp;quot;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I added a regex which captures the attribute name and value when passing attributes (so for &lt;code&gt;After(foo)&lt;/code&gt; &amp;ldquo;After&amp;rdquo; is the name and &amp;ldquo;foo&amp;rdquo; is the value). The &lt;code&gt;$value&lt;/code&gt; and &lt;code&gt;$coderef&lt;/code&gt; are now passed to the custom attribute&amp;rsquo;s subroutine to allow compile-time overrides of other subroutines.&lt;/p&gt;
+
+&lt;h3 id=&#34;resources:d2b269acfdd0ebc3293d2a34b1704830&#34;&gt;Resources&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://perldoc.perl.org/attributes.html&#34;&gt;attributes&lt;/a&gt; is the official documentation on attributes.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Sub::Attributes&#34;&gt;Sub::Attributes&lt;/a&gt; is my module which implements the above code, and adds a few more custom attributes.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://perldoc.perl.org/perldata.html#Typeglobs-and-Filehandles&#34;&gt;perldata&lt;/a&gt; has an entry on typeglobs and the symbol table.&lt;/li&gt;
+&lt;li&gt;Chapters 7 &amp;amp; 8 of &lt;a href=&#34;https://www.amazon.com/Mastering-Perl-brian-d-foy/dp/144939311X/&#34;&gt;Mastering Perl&lt;/a&gt; second edition cover the symbol table and overrriding subroutines in detail.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://perldoc.perl.org/perlsub.html&#34;&gt;perlsub&lt;/a&gt; has information on lvalue subroutines.&lt;/li&gt;
+&lt;li&gt;Two useful blog posts by mascip on &lt;a href=&#34;http://blogs.perl.org/users/mascip/2014/02/subroutine-attributes-how-to-use-them-and-what-for.html&#34;&gt;possible uses&lt;/a&gt; and &lt;a href=&#34;http://blogs.perl.org/users/mascip/2014/02/three-ways-to-introduce-othogonal-behavior-aspects-method-modifiers-and-subroutine-attributes.html&#34;&gt;when to use&lt;/a&gt; subroutine attributes.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Attribute::Handlers&#34;&gt;Attribute::Handlers&lt;/a&gt; provides a mechanism for calling subroutines via attributes.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>The road to a 55x speedup with XS</title>
@@ -2192,103 +2549,6 @@ done_testing();
 &lt;p&gt;From there the path forward is more clear. I can add a package statement to the program and start to refactor the &lt;code&gt;run&lt;/code&gt;, using the test best practices I know. Soon the development morphs into module maintenance and its history as a standalone program doesn&amp;rsquo;t matter anymore. As I go through the process, I&amp;rsquo;ve also set the eventual maintainers on the right path.&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/deia/321829326/in/photolist-ursDu-71wk9y-nYpsHQ-e3P2i9-e1TW4-32LHXt-e4bYT8-e4bYNV-e4hB2m-e4hB5Y-69pxDc-7YWXJX-cwAfvs-e1TUY-4zkBG7-dcyLpA-aj8HAk-ajbu5L-ajbuh7-94j7Df-94jsgo-d9QS9u-dcyJAE-dcyHcT-bavZfB-2nPfVE-52nPvi-RBuWd-4tpcsD-55P2hs-4WaC4T-7w6TC-9FUUPM-94jwv1-8ohTWP-94g9Ep-6ijaiB-94jpgQ-94jcQd-94gcw8-94jveU-94jy93-94g6v8-94j9nu-94jmud-dh1bAe-dcyJoM-dcyJNK-duC43R-dcyK6z&#34;&gt;Andréia Bohner&lt;/a&gt;, the image has been digitally altered.&lt;/em&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Perl v5.20 - what you need to know</title>
-      <link>http://perltricks.com/article/92/2014/5/27/Perl-v5-20---what-you-need-to-know/</link>
-      <pubDate>Tue, 27 May 2014 12:22:52 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/92/2014/5/27/Perl-v5-20---what-you-need-to-know/</guid>
-      <description>
-
-&lt;p&gt;&lt;em&gt;With a new version of Perl expected to land this week, we&amp;rsquo;ve pulled together a summary of the headline changes for Perl v5.20. Enjoy!&lt;/em&gt;&lt;/p&gt;
-
-&lt;h3 id=&#34;subroutine-signatures:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Subroutine signatures&lt;/h3&gt;
-
-&lt;p&gt;This is the big one. It&amp;rsquo;s hard to understate how great this is. No more ugly assignment code - with 5.20 you can write:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use feature &#39;signatures&#39;;
-
-sub echo_chamber ($sound) {
-    return $sound;
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;We first &lt;a href=&#34;http://perltricks.com/article/72/2014/2/24/Perl-levels-up-with-native-subroutine-signatures&#34;&gt;covered&lt;/a&gt; them back in February, and Ovid &lt;a href=&#34;http://blogs.perl.org/users/ovid/2014/03/subroutine-signatures-in-perl-are-long-overdue.html&#34;&gt;blogged&lt;/a&gt; about them too. More recently we &lt;a href=&#34;http://perltricks.com/article/88/2014/5/12/Benchmarking-subroutine-signatures&#34;&gt;benchmarked&lt;/a&gt; them.&lt;/p&gt;
-
-&lt;h3 id=&#34;postfix-dereferencing:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Postfix dereferencing&lt;/h3&gt;
-
-&lt;p&gt;The next cool new feature is postfix dereferencing. Hard to describe but easy to show:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use experimental &#39;postderef&#39;;
-
-my $nested_array_ref = [[[[[1,2,3]]]]];
-
-# circumfix dereference - usual way
-push @{$nested_array_ref-&amp;gt;[0]-&amp;gt;[0]-&amp;gt;[0]-&amp;gt;[0]}, 4;
-
-# postfix dereference - new way
-push $nested_array_ref-&amp;gt;[0]-&amp;gt;[0]-&amp;gt;[0]-&amp;gt;[0]-&amp;gt;@*, 5;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;We previously &lt;a href=&#34;http://perltricks.com/article/68/2014/2/13/Cool-new-Perl-feature--postfix-dereferencing&#34;&gt;detailed&lt;/a&gt; the benefits of postfix dereferencing.&lt;/p&gt;
-
-&lt;h3 id=&#34;hash-slices:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Hash slices&lt;/h3&gt;
-
-&lt;p&gt;Perl 5.20 delivers a new slice type: hash slices. These work in a similar way to the array slice, except the &amp;ldquo;sliced&amp;rdquo; data provides full key value pairs instead of just the values as with an array slice.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %raindrops = ( splish =&amp;gt; 4, splash =&amp;gt; 9, splosh =&amp;gt; 7 );
-my %hash_slice = %raindrops{ &#39;splish&#39;, &#39;splosh&#39;};
-# hash_slice is (splish =&amp;gt; 4, splosh =&amp;gt; 7)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;What&amp;rsquo;s even more cool, if you use a hash slice on an array, the resulting hash has the array index elements as the keys:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @raindrop_types = qw/splish splash splosh/;
-my %hash_slice = %raindrop_types[0, 2];
-# hash_slice is (0 =&amp;gt; &#39;splish&#39;, 2 =&amp;gt; &#39;splosh&#39;)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;android:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Android&lt;/h3&gt;
-
-&lt;p&gt;Yes that&amp;rsquo;s right, Perl 5.20 compiles on Android! The current documentation is &lt;a href=&#34;https://github.com/Perl/perl5/blob/blead/README.android&#34;&gt;online&lt;/a&gt;, and will be accessible via &amp;ldquo;perldoc android&amp;rdquo; once you&amp;rsquo;ve installed 5.20.&lt;/p&gt;
-
-&lt;h3 id=&#34;performance-improvements:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Performance improvements&lt;/h3&gt;
-
-&lt;p&gt;Perl 5.20 is faster in all kinds of areas - the perldelta for 5.20 lists 17 performance improvements, covering things like faster regexes, hash key lookups and string copying. Matthew Horsfall &lt;a href=&#34;http://blogs.perl.org/users/matthew_horsfall/2014/02/perl-519x-performance-improvements.html&#34;&gt;blogged&lt;/a&gt; about some of the changes as did &lt;a href=&#34;http://blog.booking.com/more-optimizations-in-perl-5.20-to-be.html&#34;&gt;Stefan Müller&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;miscellaneous:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Miscellaneous&lt;/h3&gt;
-
-&lt;p&gt;Subroutine prototypes can now be declared as subroutine attribute with the &amp;ldquo;prototype&amp;rdquo; keyword. For example:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;# usual prototype
-sub example ($$) {}
-
-# prototype declared via attribute
-sub example :prototype($$) {}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Faster Windows installation - ~15 minutes can be saved from the installation process due to the fix of a &amp;ldquo;make test&amp;rdquo; bug. Additionally, Perl can now be built using the Visual C++ 2013 compiler.&lt;/p&gt;
-
-&lt;p&gt;Perl 5.20 uses the latest Unicode version 6.3 up from 6.2 (Unicode &lt;a href=&#34;http://www.unicode.org/versions/Unicode6.3.0/&#34;&gt;changelog&lt;/a&gt;).&lt;/p&gt;
-
-&lt;p&gt;The rand function now uses an internal platform independent random number generator. Previously Perl would use a platform specific random number generator leading to inconsistent quality of random number generation.&lt;/p&gt;
-
-&lt;h3 id=&#34;deprecations:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Deprecations&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/CGI&#34;&gt;CGI&lt;/a&gt; and its associated modules are being removed from core (Sawyer X &lt;a href=&#34;http://www.youtube.com/watch?v=jKOqtRMT85s&#34;&gt;must&lt;/a&gt; be happy).&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/Module::Build&#34;&gt;Module::Build&lt;/a&gt; is also being removed from core. David Golden &lt;a href=&#34;http://www.dagolden.com/index.php/2140/paying-respect-to-modulebuild/&#34;&gt;blogged&lt;/a&gt; about this last year.&lt;/p&gt;
-
-&lt;p&gt;Setting a non-integer reference value to the input record separator variable (&amp;ldquo;$/&amp;rdquo;) will throw a fatal exception (but undef is still fine).&lt;/p&gt;
-
-&lt;h3 id=&#34;conclusion:999d6889f3c69750b45ce67cbc31e8ce&#34;&gt;Conclusion&lt;/h3&gt;
-
-&lt;p&gt;There is a lot more to 5.20 than the summary items mentioned above. For a list of all the changes see &lt;a href=&#34;https://github.com/Perl/perl5/blob/blead/pod/perl5200delta.pod&#34;&gt;perldelta&lt;/a&gt;. Perl 5.20 is the most exciting release in years. Thanks to the Perl 5 Porters team for doing an incredible job of delivering an exceptional new Perl!&lt;/p&gt;
-
-&lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F92%2F2014%2F5%2F27%2FPerl-v5-20-what-you-need-to-know&amp;amp;text=Perl+v5.20+-+what+you+need+to+know&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F92%2F2014%2F5%2F27%2FPerl-v5-20-what-you-need-to-know&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
 </description>
     </item>
     
