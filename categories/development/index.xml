@@ -6,8 +6,69 @@
     <description>Recent content in Development on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 29 Jun 2016 08:37:20 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 05 Jul 2016 11:18:55 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/categories/development/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Write multiline programs at the terminal</title>
+      <link>http://perltricks.com/article/write-multiline-programs-at-the-terminal/</link>
+      <pubDate>Tue, 05 Jul 2016 11:18:55 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/write-multiline-programs-at-the-terminal/</guid>
+      <description>
+
+&lt;p&gt;Perl one liners are incredibly useful, and when I&amp;rsquo;m working I write several a day. Whether it&amp;rsquo;s to test if a new module compiles, check the syntax of a function, or edit a file, one liners do the trick. Sometimes when I need to do something more involved, instead of a one liner I&amp;rsquo;ll write a throwaway script. Of course I usually forget to delete the script and that&amp;rsquo;s why my machine is littered with Perl files like &amp;lsquo;tmp.pl&amp;rsquo;, &amp;lsquo;getname.pl&amp;rsquo; etc. But I&amp;rsquo;ve since found a better way - using a shell here-doc!&lt;/p&gt;
+
+&lt;h3 id=&#34;shell-here-docs:d9e36343a40cb58c91b5d1c8b86bcefc&#34;&gt;Shell here-docs&lt;/h3&gt;
+
+&lt;p&gt;In the terminal I can use the here-doc syntax to write an entire Perl script at the command line. Here&amp;rsquo;s an example using &lt;a href=&#34;https://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt; to print out the HTTP headers returned by this website.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ perl - &amp;lt;&amp;lt;&#39;EOF&#39;
+&amp;gt; use HTTP::Tiny;
+&amp;gt; use Data::Dumper;
+&amp;gt; my $res = HTTP::Tiny-&amp;gt;new-&amp;gt;get(&#39;http://perltricks.com/&#39;);
+&amp;gt; print Dumper($res-&amp;gt;{headers});
+&amp;gt; EOF
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;What&amp;rsquo;s happening here? The syntax &lt;code&gt;perl -&lt;/code&gt; primes Perl to execute STDIN. The syntax for a shell here-doc is &lt;code&gt;&amp;lt;&amp;lt;&#39;word&#39;&lt;/code&gt; where &amp;ldquo;word&amp;rdquo; is the value to terminate the here-doc with (I tend to use &lt;code&gt;EOF&lt;/code&gt; or &lt;code&gt;END&lt;/code&gt;). After typing the first line and pressing enter, the shell caret will move to a new line, prefixed with &lt;code&gt;&amp;gt;&lt;/code&gt;. It would look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ perl - &amp;lt;&amp;lt;&#39;EOF&#39;
+&amp;gt; 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;At this point, you can type the lines of the Perl script, pressing enter for a new line. Or you can paste in code from an existing script. Once you type the terminating word on a new line, the terminal sends the script to &lt;code&gt;perl&lt;/code&gt; via STDIN. Unlike with one-liners, you&amp;rsquo;re free to use both single and double quotes in the program text. Yay!&lt;/p&gt;
+
+&lt;p&gt;If I want shell parameter expansion, I leave the terminator unquoted:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ perl - &amp;lt;&amp;lt;EOF
+&amp;gt; print &amp;quot;$HOME\n&amp;quot;
+&amp;gt; EOF
+/home/dfarrell
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now I can write throwaway scripts in the terminal, and not leave them littered all over my hard drive. Just like other successful commands, Bash will store the script in it&amp;rsquo;s history, so you can search for, edit and re-execute the scripts over and over again.&lt;/p&gt;
+
+&lt;p&gt;This trick isn&amp;rsquo;t specific to Perl. Shell here-docs can be used in the same way to execute code in Perl 6, Python, Ruby &amp;hellip; any binary which can execture code from STDIN.&lt;/p&gt;
+
+&lt;h3 id=&#34;editing-tips:d9e36343a40cb58c91b5d1c8b86bcefc&#34;&gt;Editing tips&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s say you just ran a throwaway script using a here-doc, and now you want to edit it and run it again. If you press the up arrow, Bash will display the command, but you can&amp;rsquo;t press up again, else Bash will display the previous command. Instead, use the left and right arrow keys to move to the beginning and end of lines, and the caret will automatically jump to the next line.&lt;/p&gt;
+
+&lt;p&gt;When editing a throwaway script, I start by deleting the terminator word (&amp;ldquo;EOF&amp;rdquo; or whatever). That way when I press enter, I can add more lines to the script. If the command you&amp;rsquo;re looking for is an old one, you can search your terminal history with &lt;code&gt;&amp;lt;Ctrl&amp;gt;&amp;lt;shift&amp;gt;r&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;references:d9e36343a40cb58c91b5d1c8b86bcefc&#34;&gt;References&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The Wikipedia &lt;a href=&#34;https://en.wikipedia.org/wiki/Heredoc#Unix_shells&#34;&gt;here-docs entry&lt;/a&gt; has examples of shell here-doc syntax.&lt;/li&gt;
+&lt;li&gt;The bash manpage (&lt;code&gt;man bash&lt;/code&gt;) has a concise but useful entry on shell here-docs and the different types.&lt;/li&gt;
+&lt;li&gt;The more common way to use here-docs is inside Perl code. Read about &lt;em&gt;those&lt;/em&gt; in &lt;a href=&#34;http://perldoc.perl.org/perlop.html&#34;&gt;perlop&lt;/a&gt;, the official Perl documentation.Read it in the terminal with &lt;code&gt;perldoc perlop&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt; is a lightweight, &lt;em&gt;fast&lt;/em&gt; Perl user agent that comes bundled with Perl (since version 5.14.0). You probably have it installed already, so you can read it&amp;rsquo;s documentation with &lt;code&gt;perldoc HTTP::Tiny&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;N.B. When reading documentation in the terminal, type &lt;code&gt;/search-term&amp;lt;enter&amp;gt;&lt;/code&gt; to jump to the next search match. Pressing &lt;code&gt;n&lt;/code&gt; will jump to the next match and &lt;code&gt;N&lt;/code&gt; the previous match. Pressing &lt;code&gt;h&lt;/code&gt; will display the help page. (all of this assumes your terminal reader is &lt;code&gt;less&lt;/code&gt;, which is typical).&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Untangling subroutine attributes</title>
@@ -2441,114 +2502,6 @@ for (@{ $w-&amp;gt;hourly })
 &lt;p&gt;The Wunderground API provides a lot more than just a 24 hour forecast. Check out their API &lt;a href=&#34;http://www.wunderground.com/weather/api/d/docs&#34;&gt;documentation&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/gsfc/5598148465/in/photolist-9wFYv8-kYwXMt-bsoJ2F-epZCJW-51zsz5-4xqurW-dQW1WX-ntLbig-47NhYw-8ha98x-gKjXSn-iGqBL8-fkVu7f-3bs6Hv-9C5Gp9-dfRRoo-ab4NaA-5nNgKY-hkfRe6-hSmCX2-97fCju-8fqUzR-e6xj8j-943upK-CaRbr-5sSeXx-6yuU9E-4adC2H-9YWWVQ-dK9bTn-piUN9-8NP9b5-8hdo8u-8xGTYN-mG2TTk-bmH4rF-7A8s15-97GPeg-fxsEhK-a1cDq-nMWvny-7xTFh6-ow6uvp-i7yjhS-82v13J-6DmEYb-c6BXa-5eCgsS-bo1p2k-nytJYo/&#34;&gt;NASA Goddard Space Flight Center&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Rescue legacy code with modulinos</title>
-      <link>http://perltricks.com/article/107/2014/8/7/Rescue-legacy-code-with-modulinos/</link>
-      <pubDate>Thu, 07 Aug 2014 12:22:42 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/107/2014/8/7/Rescue-legacy-code-with-modulinos/</guid>
-      <description>
-
-&lt;p&gt;As businesses grow, they move into situations they didn&amp;rsquo;t anticipate and often have problems other businesses would love to have. Under rapid growth their codebase struggles to keep up. I&amp;rsquo;ve seen more bad code making money than I&amp;rsquo;ve seen good code making money, and it&amp;rsquo;s an exciting situation to fix. Modulinos have been a nice trick for me to move standalone programs toward a testable and manageable CPAN-like distribution.&lt;/p&gt;
-
-&lt;p&gt;Modulinos isn&amp;rsquo;t an idea that I invented, but it&amp;rsquo;s something I popularized. I first got the idea from a talk by &lt;a href=&#34;http://blog.plover.com&#34;&gt;Mark Jason Dominus&lt;/a&gt; and the &lt;a href=&#34;https://github.com/Perl/perl5/blob/blead/lib/diagnostics.pm&#34;&gt;diagnostics&lt;/a&gt; module, written by Tom Christiansen way back in 1995. In this article I&amp;rsquo;ll talk a little about the trick, but more about why and how I&amp;rsquo;ve used it.&lt;/p&gt;
-
-&lt;p&gt;The trick involves using &lt;a href=&#34;http://perldoc.perl.org/functions/caller.html&#34;&gt;caller&lt;/a&gt; to decide how a Perl file should act depending on how it&amp;rsquo;s loaded. When run from the command line, it acts like a program, but when loaded as a module, it doesn&amp;rsquo;t run anything while still making its subroutines and packages available. In the second edition of &lt;a href=&#34;http://www.masteringperl.org/&#34;&gt;Mastering Perl&lt;/a&gt;, I expanded this a bit to check for the presence of a test harness so it could run methods that start with &lt;code&gt;test_&lt;/code&gt;, a Python feature I&amp;rsquo;ve liked.&lt;/p&gt;
-
-&lt;p&gt;You can see the basic structure in &lt;a href=&#34;https://metacpan.org/pod/Modulino::Test&#34;&gt;Modulino::Test&lt;/a&gt;, part of the &lt;a href=&#34;https://metacpan.org/release/Modulino-Demo&#34;&gt;Modulino::Demo&lt;/a&gt; distribution:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Modulino::Test;
-use utf8;
-use strict;
-use warnings;
-
-use v5.10;
-
-our $VERSION = &#39;0.10_01&#39;;
-
-sub _running_under_tester { !! $ENV{CPANTEST} }
-
-sub _running_as_app { ! defined scalar caller(1) }
-
-sub _loaded_as_module { defined scalar caller(1); }
-
-my $method = do {
-        if( _running_under_tester()   ) { &#39;test&#39; }
-    elsif( _loaded_as_module()       ) { undef  }
-    elsif( _running_as_app()            ) { &#39;run&#39;  }
-    else                                { undef }
-    };
-
-__PACKAGE__-&amp;gt;$method(@ARGV) if defined $method;
-
-sub test { ... }
-sub run  { ... }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;I originally wrote about modulinos in &lt;a href=&#34;http://www.perlmonks.org/index.pl?node_id=396759&#34;&gt;How a script becomes a module&lt;/a&gt; on Perlmonks, and that&amp;rsquo;s where I first used the term. I might have even invented in while creating that post. I expanded it a little bit for &lt;a href=&#34;http://www.drdobbs.com/scripts-as-modules/184416165&#34;&gt;Scripts as Modules&lt;/a&gt; for &lt;em&gt;The Perl Journal&lt;/em&gt; (now swallowed as &lt;em&gt;Dr. Dobbs Journal&lt;/em&gt;).&lt;/p&gt;
-
-&lt;p&gt;At the time, I was doing quite a bit of work to translate legacy codebases into something more manageable. Instead of rewriting everything, I created paths to better behavior with immediate results. Part of this path is testing the existing codebase so I could recreate it, bugs and rough edges included, in the next part. Moving standalone scripts to libraries or modules is a big part of that; I have to maintain the program behavior, but I want to unit test its innards.&lt;/p&gt;
-
-&lt;p&gt;I have quite a bit of fun organizing a messy and (previously) unmanaged codebase. A little work makes a big difference and gives quick gains. From there it&amp;rsquo;s an easy path toward adding tests. It&amp;rsquo;s part of my motivation for &lt;a href=&#34;http://search.cpan.org/dist/scriptdist/&#34;&gt;scriptdist&lt;/a&gt;, which I wrote about in &lt;a href=&#34;http://www.drdobbs.com/web-development/automating-distributions-with-scriptdist/184416112&#34;&gt;Automating Distributions with scriptdist&lt;/a&gt;. Given a stand-alone program, I used that tool to build a distribution around it and include the test files. The program file stays the same, but once wrapped in the distribution goodness, I can start the transformation. Even if this code will never make it to CPAN, I can still use all the CPAN tools by making it look like a CPAN distribution.&lt;/p&gt;
-
-&lt;h3 id=&#34;converting-a-script-to-a-modulino:f0a7da8ae6aa523fe204e85806c139f8&#34;&gt;Converting a script to a modulino&lt;/h3&gt;
-
-&lt;p&gt;Suppose I start with a script. Here&amp;rsquo;s a short one:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
-
-print &amp;quot;Hello World!\n&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Even this simple program has problems (we never have trouble finding faults with programs; it&amp;rsquo;s almost bloodsport in some parts!). I can&amp;rsquo;t change where the output goes and it&amp;rsquo;s hard-coded to use English.&lt;/p&gt;
-
-&lt;p&gt;My first step is to make this a program that behaves the same but has a different structure. Larry designed Perl to do away with the &lt;code&gt;main&lt;/code&gt; subroutine required by many other languages, but I bring it back:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
-
-__PACKAGE__-&amp;gt;run();
-
-sub run {
-    print &amp;quot;Hello World!\n&amp;quot;;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The &lt;code&gt;__PACKAGE__&lt;/code&gt; token is a compiler directive that refers to the current package. It calls the &lt;code&gt;run&lt;/code&gt; subroutine, which operates the same as it introduces a new scope. Some black magic and weird idioms might break, but, for the most part, this should (a dangerous word!) run the same. At this point, I&amp;rsquo;m probably also introducing this legacy codebase to source control, so a small change with no new behavior makes for a good first patch to a new branch.&lt;/p&gt;
-
-&lt;p&gt;This program is now mostly a module and it has the distribution structure that allows me to test it. I can start to create acceptance tests (end-to-end, or some other label even) since I haven&amp;rsquo;t had a way to reach into the code itself. These form the basis of the regression tests I can use to check the new code against the original code.&lt;/p&gt;
-
-&lt;p&gt;When I&amp;rsquo;m satisfied that the new code works, I can make more changes. This is where the modulino idea comes in. I want to test the code without automatically executing the code in &lt;code&gt;run&lt;/code&gt;. I can use the &lt;code&gt;caller&lt;/code&gt; trick; I don&amp;rsquo;t execute the code if there&amp;rsquo;s a higher level in the call stack (a program would be at the top):&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
-
-__PACKAGE__-&amp;gt;run() unless caller;
-
-sub run {
-    print &amp;quot;Hello World!\n&amp;quot;;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;That&amp;rsquo;s another small change in the actual code, but a significant change in behavior. I can get to the code in a test program:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Test::More;
-
-subtest &#39;load program&#39; =&amp;gt; sub {
-    require_ok( &#39;scripts/program.pl&#39; );
-    };
-    
-subtest &#39;test innards&#39; =&amp;gt; sub {
-    ok( defined &amp;amp;run, &#39;Run subroutine is defined&#39; );
-    };
-
-done_testing();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;From there the path forward is more clear. I can add a package statement to the program and start to refactor the &lt;code&gt;run&lt;/code&gt;, using the test best practices I know. Soon the development morphs into module maintenance and its history as a standalone program doesn&amp;rsquo;t matter anymore. As I go through the process, I&amp;rsquo;ve also set the eventual maintainers on the right path.&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/deia/321829326/in/photolist-ursDu-71wk9y-nYpsHQ-e3P2i9-e1TW4-32LHXt-e4bYT8-e4bYNV-e4hB2m-e4hB5Y-69pxDc-7YWXJX-cwAfvs-e1TUY-4zkBG7-dcyLpA-aj8HAk-ajbu5L-ajbuh7-94j7Df-94jsgo-d9QS9u-dcyJAE-dcyHcT-bavZfB-2nPfVE-52nPvi-RBuWd-4tpcsD-55P2hs-4WaC4T-7w6TC-9FUUPM-94jwv1-8ohTWP-94g9Ep-6ijaiB-94jpgQ-94jcQd-94gcw8-94jveU-94jy93-94g6v8-94j9nu-94jmud-dh1bAe-dcyJoM-dcyJNK-duC43R-dcyK6z&#34;&gt;Andréia Bohner&lt;/a&gt;, the image has been digitally altered.&lt;/em&gt;&lt;/p&gt;
 </description>
     </item>
     

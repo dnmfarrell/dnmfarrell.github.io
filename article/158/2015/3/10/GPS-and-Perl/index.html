@@ -12,9 +12,10 @@
 </head>
 <body>
 
-<div class="container antonio">
-  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container">
+<div class="container-fluid full-wdith antonio">
+ <div class="row">
+  <div class="navbar-inverse" style="border-radius:none !important" role="navigation">
+    <div class="container-fluid">
       <ul id="follow-buttons" class="nav navbar-nav pull-right follow">
           <li>FOLLOW US:</li>
           <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
@@ -59,8 +60,8 @@
       </div>
     </div>
   </div>
+ </div>
 </div>
-<div class="push"></div>
 
 
   <section id="content" role="main">
@@ -177,13 +178,12 @@ while(1) {
               <div class="col-sm-2">
                 <div class="circle-avatar" style="background-image:url(/images/author/timm.jpg)"></div>
               </div>
-              <div class="col-sm-10">
+              <div class="col-sm-10" style="margin:0 0 50px 0">
                 <h3>Timm Murray</h3>
                 <p>Timm Murray is a Perl programmer and hardware specialist. He is the creator of <a href="https://metacpan.org/pod/UAV::Pilot">UAV::Pilot</a> the de-facto standard Perl drone library. He regularly <a href="http://http://www.wumpus-cave.net/">blogs</a> about Perl and hardware hacking.</p>
                 <h5><a href="/authors/timm-murray">Browse their articles</a></h5>
               </div>
             </div>
-            <div class="push"></div>
           </div>
           <div class="col-md-3">
             <div class="latest-sidebar">
@@ -192,6 +192,20 @@ while(1) {
     <div class="col-sm-12 centering">
       <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
     </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/write-multiline-programs-at-the-terminal/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Write multiline programs at the terminal</h6>
+        <p style="line-height:1"><small>Using the shell here-doc for throwaway programs</small></p>
+    </div>
+      </a>
   </div>
   
         
@@ -250,20 +264,6 @@ while(1) {
       </a>
   </div>
   
-        
-        
-  <div class="row">
-      <a href="http://perltricks.com/article/displaying-the-git-branch-in-the-terminal-prompt-with-perl/">
-    <div class="col-sm-3">
-      <div class="circle-avatar" style="background-image:url(/images/displaying-the-git-branch-in-the-terminal-prompt-with-perl/Git-Logo-1788C.png)"></div>
-    </div>
-    <div class="col-sm-9">
-        <h6>Displaying the Git branch in the terminal prompt with and without Perl</h6>
-        <p style="line-height:1"><small>Where am I again? No more typing &#34;git branch&#34;</small></p>
-    </div>
-      </a>
-  </div>
-  
 </div>
 
             <div class="row" style="margin-top:20px">
@@ -286,7 +286,6 @@ while(1) {
   </div>
 </div>
 
-            </div>
           </div>
         </div>
       </div>
