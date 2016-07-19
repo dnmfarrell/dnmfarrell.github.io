@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+  <title> Announcing Geo::libpostal </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Perl bindings for libpostal, the address parsing library"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container-fluid full-wdith antonio">
+ <div class="row">
+  <div class="navbar-inverse" style="border-radius:none !important" role="navigation">
+    <div class="container-fluid">
+      <ul id="follow-buttons" class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+          <li><a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+ </div>
+</div>
+
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <div class="row">
+              <article>
+              
+              
+              <h1 class="blog-post-title">Announcing Geo::libpostal</h1>
+              <p class="blog-post-meta">Jul 19, 2016 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src="/images/announcing-geo--libpostal/openstreetmap-small.png"/>
+                
+
+<p><a href="https://github.com/openvenues/libpostal">libpostal</a> is a C library for normalizing and parsing international street addresses. It&rsquo;s built from <a href="http://www.openstreetmap.org/">OpenStreetMap</a> data, supports normalization in over 60 languages and can parse addresses from over 100 countries. It&rsquo;s blindingly fast and now you can use it with Perl using <a href="https://metacpan.org/pod/Geo::libpostal">Geo::libpostal</a>, a new module I wrote.</p>
+
+<h3 id="normalizing-an-address:e046575a69114c4aa4ccae4e8b7fbc4f">Normalizing an address</h3>
+
+<p>Let&rsquo;s say you support an application with a customer sign up process where the customer provides their address. One way to prevent duplicate sign-ups is by allowing only one customer per address. But how do you handle the scenario where the customer types their address slightly differently every time?</p>
+
+<p>One answer is to use libpostal&rsquo;s normalization capability to expand single address string into valid variants. If you already have a customer whose address matches one of the variants, you know you&rsquo;ve got a duplicate sign-up. Let&rsquo;s say you have a customer with the address &ldquo;216 Park Avenue Apt 17D, New York, NY 10022&rdquo;. Then another customer comes along with the ever-so-similar address &ldquo;216 Park <strong>Ave</strong> Apt 17D, New York, NY 10022&rdquo;. Here&rsquo;s how you can test for that with Perl:</p>
+
+<pre><code class="language-prettyprint">use Geo::libpostal 'expand_address';
+
+my @original_variants = expand_address(&quot;216 Park Avenue Apt 17D, New York, NY 10022&quot;);
+
+# @original_variants contains:
+#   216 park avenue apartment 17d new york new york 10022
+#   216 park avenue apartment 17d new york ny 10022
+
+my @new_variants = expand_address(&quot;216 Park Ave Apt 17D, New York, NY 10022&quot;);
+
+for my $address (@new_variants) {
+  if (grep { $address eq $_ } @original_variants) {
+    print &quot;Duplicate address found!\n&quot;;
+  }
+}
+</code></pre>
+
+<p><code>expand_address()</code> supports a ton of <a href="https://metacpan.org/pod/Geo::libpostal#expand_address">options</a>: including returning results in multiple languages, expanding only certain components of an address, and the format of the expanded addresses.</p>
+
+<h3 id="parsing-an-address:e046575a69114c4aa4ccae4e8b7fbc4f">Parsing an address</h3>
+
+<p>libpostal can also parse an address string into its constituent parts using such as house name, number, city and postcode. This can be useful for all sorts of things from information extraction to simplifying web forms. This is how to parse an address string with Perl:</p>
+
+<pre><code class="language-prettyprint">use Geo::libpostal 'parse_address';
+
+my %address = parse_address(&quot;216 Park Avenue Apt 17D, New York, NY 10022&quot;);
+
+# %address contains:
+#    road         =&gt; 'park avenue apt 17d',
+#    city         =&gt; 'new york',
+#    postcode     =&gt; '10022',
+#    state        =&gt; 'ny',
+#    house_number =&gt; '216'
+</code></pre>
+
+<h3 id="a-slow-starter:e046575a69114c4aa4ccae4e8b7fbc4f">A slow starter</h3>
+
+<p>To be as fast as possible, libpostal uses setup functions to create lookup tables in memory. These can take several seconds to construct, so under the hood Geo::libpostal lazily calls the setup functions for you. This means that the first call to <code>expand_address</code> or <code>parse_address</code> is a lot slower than usual as the setup functions are running as well:</p>
+
+<pre><code class="language-prettyprint">use Geo::libpostal 'expand_address';
+
+# this is slow
+@addresses = expand_address(&quot;216 Park Avenue Apt 17D, New York, NY 10022&quot;);
+
+# this is fast!
+@addresses = expand_address(&quot;76 Ninth Avenue, New York, NY 10111&quot;);
+</code></pre>
+
+<p>Similarly, libpostal has teardown functions which unload the lookup tables. Geo::libpostal has an internal function, <code>_teardown</code> that is automatically called in an <code>END</code> block, but you can call it directly too. The only effect will be that the subsequent call to <code>expand_address</code> or <code>parse_address</code> will be slower, as the setup functions are called again. With the latest version of libpostal it is safe to call setup or teardown multiple times in a process.</p>
+
+<h3 id="references:e046575a69114c4aa4ccae4e8b7fbc4f">References</h3>
+
+<ul>
+<li><a href="https://github.com/openvenues/libpostal">libpostal</a> is hosted on GitHub and maintained by <a href="http://iam.al/">Al Barrentine</a></li>
+<li>This <a href="https://medium.com/@albarrentine/statistical-nlp-on-openstreetmap-b9d573e6cc86#.5cbxb54w5">blog post</a> by Al Barrentine is an in-depth introduction to libpostal</li>
+<li><a href="https://metacpan.org/pod/Geo::libpostal">Geo::libpostal</a> is hosted on <a href="https://github.com/dnmfarrell/Geo-libpostal">GitHub</a>, pull requests welcome!</li>
+</ul>
+
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                <div class="category"><a href="/categories/data">data</a></div>
+                
+                  <div class="tag"><a href="/tags/libpostal">libpostal</a></div>
+                
+                  <div class="tag"><a href="/tags/geocode">geocode</a></div>
+                
+                  <div class="tag"><a href="/tags/openstreetmap">openstreetmap</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
+              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10" style="margin:0 0 50px 0">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the <a href="http://www.meetup.com/The-New-York-Perl-Meetup-Group/">New York Perl Meetup</a>, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/announcing-geo--libpostal/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/announcing-geo--libpostal/openstreetmap-small.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Announcing Geo::libpostal</h6>
+        <p style="line-height:1"><small>Perl bindings for libpostal, the address parsing library</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/what-s-new-on-cpan---june-2016/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/181/88AAA022-2639-11E5-B854-07139DAABC69.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - June 2016</h6>
+        <p style="line-height:1"><small>A curated look at June&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/write-multiline-programs-at-the-terminal/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Write multiline programs at the terminal</h6>
+        <p style="line-height:1"><small>Using the shell here-doc for throwaway programs</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/untangling-subroutine-attributes/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Untangling subroutine attributes</h6>
+        <p style="line-height:1"><small>How they work and how to implement your own custom versions</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/the-road-to-a-55x-speedup-with-xs/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/61/EC20EEA0-FF2E-11E3-9D6C-5C05A68B9E16.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>The road to a 55x speedup with XS</h6>
+        <p style="line-height:1"><small>The power of C with the pleasure of Perl</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <script async src="/widgets/toplinks/toplinks.js" type="text/javascript"></script>
+    <div id="toplinks"></div>
+  </div>
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <script src="https://www.reddit.com/r/perl/hot/.embed?limit=10&t=all" type="text/javascript"></script>
+  </div>
+</div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<script>
+ 
+var tables, i;
+tables = document.getElementsByTagName('table');
+for (i=0;i<tables.length;i++) {
+  tables[i].className = 'table table-striped';
+}
+</script>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+          <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a>
+          <a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

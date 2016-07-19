@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Libpostal on Perl programming news, code and culture</title>
+    <link>http://perltricks.com/tags/libpostal/</link>
+    <description>Recent content in Libpostal on Perl programming news, code and culture</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 19 Jul 2016 08:33:59 +0000</lastBuildDate>
+    <atom:link href="http://perltricks.com/tags/libpostal/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Announcing Geo::libpostal</title>
+      <link>http://perltricks.com/article/announcing-geo--libpostal/</link>
+      <pubDate>Tue, 19 Jul 2016 08:33:59 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/announcing-geo--libpostal/</guid>
+      <description>
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/openvenues/libpostal&#34;&gt;libpostal&lt;/a&gt; is a C library for normalizing and parsing international street addresses. It&amp;rsquo;s built from &lt;a href=&#34;http://www.openstreetmap.org/&#34;&gt;OpenStreetMap&lt;/a&gt; data, supports normalization in over 60 languages and can parse addresses from over 100 countries. It&amp;rsquo;s blindingly fast and now you can use it with Perl using &lt;a href=&#34;https://metacpan.org/pod/Geo::libpostal&#34;&gt;Geo::libpostal&lt;/a&gt;, a new module I wrote.&lt;/p&gt;
+
+&lt;h3 id=&#34;normalizing-an-address:e046575a69114c4aa4ccae4e8b7fbc4f&#34;&gt;Normalizing an address&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s say you support an application with a customer sign up process where the customer provides their address. One way to prevent duplicate sign-ups is by allowing only one customer per address. But how do you handle the scenario where the customer types their address slightly differently every time?&lt;/p&gt;
+
+&lt;p&gt;One answer is to use libpostal&amp;rsquo;s normalization capability to expand single address string into valid variants. If you already have a customer whose address matches one of the variants, you know you&amp;rsquo;ve got a duplicate sign-up. Let&amp;rsquo;s say you have a customer with the address &amp;ldquo;216 Park Avenue Apt 17D, New York, NY 10022&amp;rdquo;. Then another customer comes along with the ever-so-similar address &amp;ldquo;216 Park &lt;strong&gt;Ave&lt;/strong&gt; Apt 17D, New York, NY 10022&amp;rdquo;. Here&amp;rsquo;s how you can test for that with Perl:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Geo::libpostal &#39;expand_address&#39;;
+
+my @original_variants = expand_address(&amp;quot;216 Park Avenue Apt 17D, New York, NY 10022&amp;quot;);
+
+# @original_variants contains:
+#   216 park avenue apartment 17d new york new york 10022
+#   216 park avenue apartment 17d new york ny 10022
+
+my @new_variants = expand_address(&amp;quot;216 Park Ave Apt 17D, New York, NY 10022&amp;quot;);
+
+for my $address (@new_variants) {
+  if (grep { $address eq $_ } @original_variants) {
+    print &amp;quot;Duplicate address found!\n&amp;quot;;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;expand_address()&lt;/code&gt; supports a ton of &lt;a href=&#34;https://metacpan.org/pod/Geo::libpostal#expand_address&#34;&gt;options&lt;/a&gt;: including returning results in multiple languages, expanding only certain components of an address, and the format of the expanded addresses.&lt;/p&gt;
+
+&lt;h3 id=&#34;parsing-an-address:e046575a69114c4aa4ccae4e8b7fbc4f&#34;&gt;Parsing an address&lt;/h3&gt;
+
+&lt;p&gt;libpostal can also parse an address string into its constituent parts using such as house name, number, city and postcode. This can be useful for all sorts of things from information extraction to simplifying web forms. This is how to parse an address string with Perl:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Geo::libpostal &#39;parse_address&#39;;
+
+my %address = parse_address(&amp;quot;216 Park Avenue Apt 17D, New York, NY 10022&amp;quot;);
+
+# %address contains:
+#    road         =&amp;gt; &#39;park avenue apt 17d&#39;,
+#    city         =&amp;gt; &#39;new york&#39;,
+#    postcode     =&amp;gt; &#39;10022&#39;,
+#    state        =&amp;gt; &#39;ny&#39;,
+#    house_number =&amp;gt; &#39;216&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;a-slow-starter:e046575a69114c4aa4ccae4e8b7fbc4f&#34;&gt;A slow starter&lt;/h3&gt;
+
+&lt;p&gt;To be as fast as possible, libpostal uses setup functions to create lookup tables in memory. These can take several seconds to construct, so under the hood Geo::libpostal lazily calls the setup functions for you. This means that the first call to &lt;code&gt;expand_address&lt;/code&gt; or &lt;code&gt;parse_address&lt;/code&gt; is a lot slower than usual as the setup functions are running as well:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Geo::libpostal &#39;expand_address&#39;;
+
+# this is slow
+@addresses = expand_address(&amp;quot;216 Park Avenue Apt 17D, New York, NY 10022&amp;quot;);
+
+# this is fast!
+@addresses = expand_address(&amp;quot;76 Ninth Avenue, New York, NY 10111&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Similarly, libpostal has teardown functions which unload the lookup tables. Geo::libpostal has an internal function, &lt;code&gt;_teardown&lt;/code&gt; that is automatically called in an &lt;code&gt;END&lt;/code&gt; block, but you can call it directly too. The only effect will be that the subsequent call to &lt;code&gt;expand_address&lt;/code&gt; or &lt;code&gt;parse_address&lt;/code&gt; will be slower, as the setup functions are called again. With the latest version of libpostal it is safe to call setup or teardown multiple times in a process.&lt;/p&gt;
+
+&lt;h3 id=&#34;references:e046575a69114c4aa4ccae4e8b7fbc4f&#34;&gt;References&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/openvenues/libpostal&#34;&gt;libpostal&lt;/a&gt; is hosted on GitHub and maintained by &lt;a href=&#34;http://iam.al/&#34;&gt;Al Barrentine&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;This &lt;a href=&#34;https://medium.com/@albarrentine/statistical-nlp-on-openstreetmap-b9d573e6cc86#.5cbxb54w5&#34;&gt;blog post&lt;/a&gt; by Al Barrentine is an in-depth introduction to libpostal&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Geo::libpostal&#34;&gt;Geo::libpostal&lt;/a&gt; is hosted on &lt;a href=&#34;https://github.com/dnmfarrell/Geo-libpostal&#34;&gt;GitHub&lt;/a&gt;, pull requests welcome!&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+

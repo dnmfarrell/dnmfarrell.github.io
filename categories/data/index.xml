@@ -6,8 +6,84 @@
     <description>Recent content in Data on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 18 Apr 2016 19:56:47 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 19 Jul 2016 08:33:59 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/categories/data/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Announcing Geo::libpostal</title>
+      <link>http://perltricks.com/article/announcing-geo--libpostal/</link>
+      <pubDate>Tue, 19 Jul 2016 08:33:59 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/announcing-geo--libpostal/</guid>
+      <description>
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/openvenues/libpostal&#34;&gt;libpostal&lt;/a&gt; is a C library for normalizing and parsing international street addresses. It&amp;rsquo;s built from &lt;a href=&#34;http://www.openstreetmap.org/&#34;&gt;OpenStreetMap&lt;/a&gt; data, supports normalization in over 60 languages and can parse addresses from over 100 countries. It&amp;rsquo;s blindingly fast and now you can use it with Perl using &lt;a href=&#34;https://metacpan.org/pod/Geo::libpostal&#34;&gt;Geo::libpostal&lt;/a&gt;, a new module I wrote.&lt;/p&gt;
+
+&lt;h3 id=&#34;normalizing-an-address:e046575a69114c4aa4ccae4e8b7fbc4f&#34;&gt;Normalizing an address&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s say you support an application with a customer sign up process where the customer provides their address. One way to prevent duplicate sign-ups is by allowing only one customer per address. But how do you handle the scenario where the customer types their address slightly differently every time?&lt;/p&gt;
+
+&lt;p&gt;One answer is to use libpostal&amp;rsquo;s normalization capability to expand single address string into valid variants. If you already have a customer whose address matches one of the variants, you know you&amp;rsquo;ve got a duplicate sign-up. Let&amp;rsquo;s say you have a customer with the address &amp;ldquo;216 Park Avenue Apt 17D, New York, NY 10022&amp;rdquo;. Then another customer comes along with the ever-so-similar address &amp;ldquo;216 Park &lt;strong&gt;Ave&lt;/strong&gt; Apt 17D, New York, NY 10022&amp;rdquo;. Here&amp;rsquo;s how you can test for that with Perl:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Geo::libpostal &#39;expand_address&#39;;
+
+my @original_variants = expand_address(&amp;quot;216 Park Avenue Apt 17D, New York, NY 10022&amp;quot;);
+
+# @original_variants contains:
+#   216 park avenue apartment 17d new york new york 10022
+#   216 park avenue apartment 17d new york ny 10022
+
+my @new_variants = expand_address(&amp;quot;216 Park Ave Apt 17D, New York, NY 10022&amp;quot;);
+
+for my $address (@new_variants) {
+  if (grep { $address eq $_ } @original_variants) {
+    print &amp;quot;Duplicate address found!\n&amp;quot;;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;expand_address()&lt;/code&gt; supports a ton of &lt;a href=&#34;https://metacpan.org/pod/Geo::libpostal#expand_address&#34;&gt;options&lt;/a&gt;: including returning results in multiple languages, expanding only certain components of an address, and the format of the expanded addresses.&lt;/p&gt;
+
+&lt;h3 id=&#34;parsing-an-address:e046575a69114c4aa4ccae4e8b7fbc4f&#34;&gt;Parsing an address&lt;/h3&gt;
+
+&lt;p&gt;libpostal can also parse an address string into its constituent parts using such as house name, number, city and postcode. This can be useful for all sorts of things from information extraction to simplifying web forms. This is how to parse an address string with Perl:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Geo::libpostal &#39;parse_address&#39;;
+
+my %address = parse_address(&amp;quot;216 Park Avenue Apt 17D, New York, NY 10022&amp;quot;);
+
+# %address contains:
+#    road         =&amp;gt; &#39;park avenue apt 17d&#39;,
+#    city         =&amp;gt; &#39;new york&#39;,
+#    postcode     =&amp;gt; &#39;10022&#39;,
+#    state        =&amp;gt; &#39;ny&#39;,
+#    house_number =&amp;gt; &#39;216&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;a-slow-starter:e046575a69114c4aa4ccae4e8b7fbc4f&#34;&gt;A slow starter&lt;/h3&gt;
+
+&lt;p&gt;To be as fast as possible, libpostal uses setup functions to create lookup tables in memory. These can take several seconds to construct, so under the hood Geo::libpostal lazily calls the setup functions for you. This means that the first call to &lt;code&gt;expand_address&lt;/code&gt; or &lt;code&gt;parse_address&lt;/code&gt; is a lot slower than usual as the setup functions are running as well:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Geo::libpostal &#39;expand_address&#39;;
+
+# this is slow
+@addresses = expand_address(&amp;quot;216 Park Avenue Apt 17D, New York, NY 10022&amp;quot;);
+
+# this is fast!
+@addresses = expand_address(&amp;quot;76 Ninth Avenue, New York, NY 10111&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Similarly, libpostal has teardown functions which unload the lookup tables. Geo::libpostal has an internal function, &lt;code&gt;_teardown&lt;/code&gt; that is automatically called in an &lt;code&gt;END&lt;/code&gt; block, but you can call it directly too. The only effect will be that the subsequent call to &lt;code&gt;expand_address&lt;/code&gt; or &lt;code&gt;parse_address&lt;/code&gt; will be slower, as the setup functions are called again. With the latest version of libpostal it is safe to call setup or teardown multiple times in a process.&lt;/p&gt;
+
+&lt;h3 id=&#34;references:e046575a69114c4aa4ccae4e8b7fbc4f&#34;&gt;References&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/openvenues/libpostal&#34;&gt;libpostal&lt;/a&gt; is hosted on GitHub and maintained by &lt;a href=&#34;http://iam.al/&#34;&gt;Al Barrentine&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;This &lt;a href=&#34;https://medium.com/@albarrentine/statistical-nlp-on-openstreetmap-b9d573e6cc86#.5cbxb54w5&#34;&gt;blog post&lt;/a&gt; by Al Barrentine is an in-depth introduction to libpostal&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Geo::libpostal&#34;&gt;Geo::libpostal&lt;/a&gt; is hosted on &lt;a href=&#34;https://github.com/dnmfarrell/Geo-libpostal&#34;&gt;GitHub&lt;/a&gt;, pull requests welcome!&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>How to parse binary data with Perl</title>
@@ -1924,98 +2000,6 @@ my $30SecondsAgo = $now - 30;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;strong&gt;Updated:&lt;/strong&gt; &lt;em&gt;Added timezone strptime example 2015-01-28. Added timezone semicolon handling 2016-03-17.&lt;/em&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>How to Load YAML Config Files</title>
-      <link>http://perltricks.com/article/29/2013/9/17/How-to-Load-YAML-Config-Files/</link>
-      <pubDate>Tue, 17 Sep 2013 03:18:10 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/29/2013/9/17/How-to-Load-YAML-Config-Files/</guid>
-      <description>
-
-&lt;p&gt;Config files are used by programmers to store local variables as it&amp;rsquo;s usually better to update a config file than to edit source code. &lt;a href=&#34;http://www.yaml.org/spec/1.2/spec.html#Introduction&#34;&gt;YAML&lt;/a&gt; is a popular data serialization language that&amp;rsquo;s easy to read and can serialize the common Perl variables (scalars, arrays and hashes). This article describes how to read a YAML config file in Perl and access the config file&amp;rsquo;s variables.&lt;/p&gt;
-
-&lt;h3 id=&#34;the-config-file:3635643ce2dafff7a934f356c4953c84&#34;&gt;The config file&lt;/h3&gt;
-
-&lt;p&gt;YAML defines different types of &lt;a href=&#34;http://www.yaml.org/spec/1.2/spec.html#id2759963&#34;&gt;data collections&lt;/a&gt; that can be used to serialize (represent or store) Perl variables. Let&amp;rsquo;s define a YAML config file to store some local email data. The config.yaml file could look like this:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;---
-emailName: David
-emailAddresses: 
-    - sillymoos@cpan.org
-    - perltricks.com@gmail.com
-credentials:
-    username: sillymoose
-    password: itsasecret
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Let&amp;rsquo;s walkthrough config.yaml: the config file starts with three hyphens (&amp;ldquo;&amp;mdash;&amp;rdquo;) to signify the start of the document, &amp;ldquo;emailName&amp;rdquo;: is a scalar mapping with the value &amp;ldquo;David&amp;rdquo;, &amp;ldquo;emailAddresses&amp;rdquo; is a sequence of email addresses and &amp;ldquo;credentials&amp;rdquo; is a mapping of scalar mappings for the email username and password.&lt;/p&gt;
-
-&lt;h3 id=&#34;load-the-config-file:3635643ce2dafff7a934f356c4953c84&#34;&gt;Load the config file&lt;/h3&gt;
-
-&lt;p&gt;Perl&amp;rsquo;s &lt;a href=&#34;https://metacpan.org/module/YAML::XS&#34;&gt;YAML::XS&lt;/a&gt; module provides a &lt;code&gt;LoadFile&lt;/code&gt; subroutine that can be used to read any YAML file into a scalar variable. This script loads the &amp;ldquo;config.yaml&amp;rdquo; config file and prints it using &lt;a href=&#34;https://metacpan.org/pod/Data::Dumper&#34;&gt;Data::Dumper&lt;/a&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
-use warnings;
-use YAML::XS &#39;LoadFile&#39;;
-use Data::Dumper;
-    
-my $config = LoadFile(&#39;config.yaml&#39;);
-
-print Dumper($config);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If we run this script we get the following results:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$VAR1 = {
-          &#39;emailName&#39; =&amp;gt; &#39;David&#39;,
-          &#39;credentials&#39; =&amp;gt; {
-                           &#39;password&#39; =&amp;gt; &#39;itsasecret&#39;,
-                           &#39;username&#39; =&amp;gt; &#39;sillymoose&#39;
-                         },
-          &#39;emailAddresses&#39; =&amp;gt; [
-                              &#39;sillymoos@cpan.org&#39;,
-                              &#39;perltricks.com@gmail.com&#39;
-                            ]
-        };
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;These results show that config.yaml has been read into &lt;code&gt;$config&lt;/code&gt; as a hash reference with three keys: &amp;ldquo;emailName&amp;rdquo;, &amp;ldquo;credentials&amp;rdquo; and &amp;ldquo;emailAddresses&amp;rdquo;.&lt;/p&gt;
-
-&lt;h3 id=&#34;accessing-the-config-data:3635643ce2dafff7a934f356c4953c84&#34;&gt;Accessing the config data&lt;/h3&gt;
-
-&lt;p&gt;So far the script reads the contents of config.yaml into &lt;code&gt;$config&lt;/code&gt;. To access the config data we need to dereference the data from &lt;code&gt;$config&lt;/code&gt;. The following script shows examples of accessing the config scalar, array and hash data.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use YAML::XS &#39;LoadFile&#39;;
-use feature &#39;say&#39;;
-
-my $config = LoadFile(&#39;config.yaml&#39;);
-
-# access the scalar emailName
-my $emailName = $config-&amp;gt;{emailName};
-
-# access the array emailAddresses directly
-my $firstEmailAddress = $config-&amp;gt;{emailAddresses}-&amp;gt;[0];
-my $secondEmailAddress= $config-&amp;gt;{emailAddresses}-&amp;gt;[1];
-
-# loop through and print emailAddresses
-for (@{$config-&amp;gt;{emailAddresses}}) { say }
-
-# access the credentials hash key values directly
-my $username = $config-&amp;gt;{credentials}-&amp;gt;{username};
-my $password = $config-&amp;gt;{credentials}-&amp;gt;{password};
-
-# loop through and print credentials
-for (keys %{$config-&amp;gt;{credentials}}) {
-    say &amp;quot;$_: $config-&amp;gt;{credentials}-&amp;gt;{$_}&amp;quot;;
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;more-yaml:3635643ce2dafff7a934f356c4953c84&#34;&gt;More YAML&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://metacpan.org/module/YAML::XS&#34;&gt;YAML::XS&lt;/a&gt; uses the libyaml C library and provides strong performance and adherence to the YAML specification. However if you have difficulty installing YAML::XS, there are pure Perl alternatives available: &lt;a href=&#34;https://metacpan.org/module/YAML&#34;&gt;YAML&lt;/a&gt; is not actively maintained and has several bugs but excellent documentation and generally works, &lt;a href=&#34;https://metacpan.org/module/YAML::Tiny&#34;&gt;YAML::Tiny&lt;/a&gt; is a newer module that implements a useful subset of the YAML specification.&lt;/p&gt;
 </description>
     </item>
     
