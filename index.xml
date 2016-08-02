@@ -6,8 +6,194 @@
     <description>Recent content on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 19 Jul 2016 08:33:59 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 02 Aug 2016 08:47:57 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Building a UTF-8 encoder in Perl</title>
+      <link>http://perltricks.com/article/building-a-utf-8-encoder-in-perl/</link>
+      <pubDate>Tue, 02 Aug 2016 08:47:57 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/building-a-utf-8-encoder-in-perl/</guid>
+      <description>
+
+&lt;p&gt;This week I wrote a UTF-8 encoder/decoder. Perl already comes with UTF-8 encoding features built-in, so this wasn&amp;rsquo;t necessary, but sometimes it&amp;rsquo;s nice to understand how things work. The UTF-8 scheme is defined in &lt;a href=&#34;https://tools.ietf.org/html/rfc3629&#34;&gt;RFC 3629&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;what-does-a-utf-8-encoder-do:bacb6356dcc1a00cc990d0647178b7de&#34;&gt;What does a UTF-8 encoder do?&lt;/h3&gt;
+
+&lt;p&gt;UTF-8 is a scheme for encoding &lt;a href=&#34;https://en.wikipedia.org/wiki/Unicode&#34;&gt;Unicode&lt;/a&gt; sequences of codepoints as bytes/octets. A codepoint is just a number, that identifies the Unicode entry (such as 0x24 which is a dollar sign).&lt;/p&gt;
+
+&lt;p&gt;Unicode defines codepoints in the range 0x0000..0x10FFFF, so the encoder must take a codepoint and convert it to bytes according to the UTF-8 scheme, which looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Char. number range  |     UTF-8 bytes/octets sequence
+   (hexadecimal)    |              (binary)
+--------------------+------------------------------------
+0000 0000-0000 007F | 0xxxxxxx
+0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This has some interesting properties. First of all, codepoints in the range 0x00..0x7F (0-127) will have the same bytes as with ASCII encoding, which is convenient. Second it&amp;rsquo;s a &lt;em&gt;variable width&lt;/em&gt; encoding, which means that a single codepoint can be 1-4 bytes long.&lt;/p&gt;
+
+&lt;p&gt;Decoding is simply the process in reverse: converting a sequence of bytes back into a codepoint.&lt;/p&gt;
+
+&lt;h3 id=&#34;encoding-utf-8:bacb6356dcc1a00cc990d0647178b7de&#34;&gt;Encoding UTF-8&lt;/h3&gt;
+
+&lt;p&gt;To encode UTF-8, I need to convert a codepoint (which is just a number), into a sequence of bytes. As there are four different byte sequences defined in the UTF-8 table, there are four scenarios to handle:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub codepoint_to_bytes {
+  my $codepoint = shift;
+
+  if ($codepoint &amp;lt; 0x80) {
+    return $codepoint;
+  }
+  elsif ($codepoint &amp;lt; 0x800) {
+    return $codepoint &amp;gt;&amp;gt;  6 | 0b11000000,
+           $codepoint       &amp;amp; 0b00111111 | 0b10000000;
+  }
+  elsif ($codepoint &amp;lt; 0x10000) {
+    return $codepoint &amp;gt;&amp;gt; 12 | 0b11100000,
+           $codepoint &amp;gt;&amp;gt;  6 &amp;amp; 0b00111111 | 0b10000000,
+           $codepoint       &amp;amp; 0b00111111 | 0b10000000;
+  }
+  else {
+    return $codepoint &amp;gt;&amp;gt; 18 | 0b11110000,
+           $codepoint &amp;gt;&amp;gt; 12 &amp;amp; 0b00111111 | 0b10000000,
+           $codepoint &amp;gt;&amp;gt;  6 &amp;amp; 0b00111111 | 0b10000000,
+           $codepoint       &amp;amp; 0b00111111 | 0b10000000;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The first is the easiest: if the codepoint is between 0x00 and 0x7F, no transformation is required, so I just return the codepoint as-is. The byte value of a character is the same as the codepoint (e.g. &lt;code&gt;&#39;U&#39; == 56 == 0x38 == 00111000&lt;/code&gt;).&lt;/p&gt;
+
+&lt;p&gt;For the second scenario I have to populate the bitmask &lt;code&gt;110xxxxx 10xxxxxx&lt;/code&gt; with the codepoint, which means I need to return two bytes. This is how I do it:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;For the first byte, bitshift the codepoint 6 places to the right (as the second byte will get those 6 bits).&lt;/li&gt;
+&lt;li&gt;Use bitwise OR to set the two most significant bits to one (&lt;code&gt;xxxxxxxx | 11000000 == 11xxxxxx&lt;/code&gt;). I&amp;rsquo;m using Perl&amp;rsquo;s inline binary notation (&lt;code&gt;0b...&lt;/code&gt;) which makes it easy to compare the binary numbers with the bitmask.&lt;/li&gt;
+&lt;li&gt;For the second byte use bitwise AND to set the two most significant bits to zero (&lt;code&gt;xxxxxxxx &amp;amp; 00111111 == 00xxxxxx&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;Use bitwise OR to set the most significant bit to 1 (&lt;code&gt;xxxxxxxx | 10000000 == 1xxxxxxx&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;Return both bytes as a list.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The process for three byte and four byte encoding follows the same approach, with the rules updated according to the UTF-8 scheme.&lt;/p&gt;
+
+&lt;p&gt;If I wanted to get UTF-8 encoded bytes for the &lt;a href=&#34;http://www.fileformat.info/info/unicode/char/1f4fa/fontsupport.htm&#34;&gt;Television&lt;/a&gt; codepoint (U+1F4FA) I could use the code like so:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @bytes = codepoint_to_bytes(0x1F4FA);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;decoding-utf-8:bacb6356dcc1a00cc990d0647178b7de&#34;&gt;Decoding UTF-8&lt;/h3&gt;
+
+&lt;p&gt;To decode UTF-8 bytes, we need to reverse the encoding process to get back to the original Unicode codepoint number. The decoder must check how many bytes it received, extract the appropriate bits and add them together.&lt;/p&gt;
+
+&lt;p&gt;Perl tries &amp;ldquo;to make the easy things easy, and the hard things possible&amp;rdquo; as the saying goes, but sometimes it makes easy things harder than they are in simpler languages like C. Binary data is one such area: Perl needs to be told to turn off its character features before you can safely work with the data.&lt;/p&gt;
+
+&lt;p&gt;There are two ways to do that. The old, discouraged way is to use the &lt;a href=&#34;https://metacpan.org/pod/bytes&#34;&gt;bytes pragma&lt;/a&gt;. The newer way is to use the &lt;a href=&#34;https://metacpan.org/pod/Encode#SYNOPSIS&#34;&gt;Encode&lt;/a&gt; module to encode the scalar as bytes and remove its UTF-8 flag. After that, Perl&amp;rsquo;s functions will treat the scalar as a sequence of bytes instead of characters:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Encode &#39;encode&#39;;
+
+sub bytes_to_codepoint {
+  # treat the scalar as bytes/octets
+  my $input    = encode(&#39;UTF-8&#39;, shift);
+
+  # length returns number of bytes
+  my $len      = length $input;
+  my $template = &#39;C&#39; x $len;
+  my @bytes    = unpack $template, $input;
+
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the subroutine &lt;code&gt;bytes_to_codepoint&lt;/code&gt; I use &lt;code&gt;encode()&lt;/code&gt; to populate &lt;code&gt;$input&lt;/code&gt; with the bytes passed to it.&lt;/p&gt;
+
+&lt;p&gt;Next I use the &lt;code&gt;length&lt;/code&gt; function to return the number of bytes in &lt;code&gt;$input&lt;/code&gt; - this is different from its usual behavior which returns the number of characters; this is the effect of using &lt;code&gt;encode()&lt;/code&gt; to convert the scalar to bytes. Finally I use &lt;code&gt;unpack&lt;/code&gt; to extract the bytes from &lt;code&gt;$input&lt;/code&gt;;&lt;/p&gt;
+
+&lt;p&gt;Now I know the number of bytes passed to &lt;code&gt;bytes_to_codepoint&lt;/code&gt;, it&amp;rsquo;s just a matter of reversing the binary operations from the encoding process:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;if ($len == 1) {
+  return $bytes[0];
+}
+elsif ($len == 2) {
+  return (($bytes[0] &amp;amp; 0b00011111) &amp;lt;&amp;lt;  6) +
+          ($bytes[1] &amp;amp; 0b00111111);
+}
+elsif ($len == 3) {
+  return (($bytes[0] &amp;amp; 0b00001111) &amp;lt;&amp;lt; 12) +
+         (($bytes[1] &amp;amp; 0b00111111) &amp;lt;&amp;lt;  6) +
+         ( $bytes[2] &amp;amp; 0b00111111);
+}
+else {
+  return (($bytes[0] &amp;amp; 0b00000111) &amp;lt;&amp;lt; 18) +
+         (($bytes[1] &amp;amp; 0b00111111) &amp;lt;&amp;lt; 12) +
+         (($bytes[2] &amp;amp; 0b00111111) &amp;lt;&amp;lt;  6) +
+          ($bytes[3] &amp;amp; 0b00111111);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If there is just one byte, I return it as-is because the codepoint number is the same as the byte value. As with encoding, it gets interesting with two bytes:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Remove the bitmask from the first byte with bitwise AND. Remember bitwise AND returns any bits as zero which are zero in the right operand (&lt;code&gt;xxxxxxxx &amp;amp; 00011111 == 000xxxxx&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;Bit shift the resulting number 6 places to the left to get the original value. So &lt;code&gt;00000010&lt;/code&gt; would become &lt;code&gt;10000000&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Remove the bitmask from the second byte with bitwise AND (&lt;code&gt;xxxxxxxx &amp;amp; 00111111 == 00xxxxxx&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;Add the numbers together.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The same logic applies to three byte and four byte sequences, I just update the bitwise operations to match the UTF-8 scheme. The final code looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Encode &#39;encode&#39;;
+
+sub bytes_to_codepoint {
+  # treat the scalar as bytes/octets
+  my $input    = encode(&#39;UTF-8&#39;, shift);
+
+  # length returns number of bytes
+  my $len      = length $input;
+  my $template = &#39;C&#39; x $len;
+  my @bytes    = unpack $template, $input;
+
+  # reverse encoding
+  if ($len == 1) {
+    return $bytes[0];
+  }
+  elsif ($len == 2) {
+    return (($bytes[0] &amp;amp; 0b00011111) &amp;lt;&amp;lt;  6) +
+            ($bytes[1] &amp;amp; 0b00111111);
+  }
+  elsif ($len == 3) {
+    return (($bytes[0] &amp;amp; 0b00001111) &amp;lt;&amp;lt; 12) +
+           (($bytes[1] &amp;amp; 0b00111111) &amp;lt;&amp;lt;  6) +
+           ( $bytes[2] &amp;amp; 0b00111111);
+  }
+  else {
+    return (($bytes[0] &amp;amp; 0b00000111) &amp;lt;&amp;lt; 18) +
+           (($bytes[1] &amp;amp; 0b00111111) &amp;lt;&amp;lt; 12) +
+           (($bytes[2] &amp;amp; 0b00111111) &amp;lt;&amp;lt;  6) +
+            ($bytes[3] &amp;amp; 0b00111111);
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s say I wanted to get the codepoint for the &lt;a href=&#34;http://www.fileformat.info/info/unicode/char/1f5fc/index.htm&#34;&gt;Tokyo Tower&lt;/a&gt; I can call the code like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use utf8;
+my $codepoint = bytes_to_codepoint(&#39;🗼&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;notes:bacb6356dcc1a00cc990d0647178b7de&#34;&gt;Notes&lt;/h3&gt;
+
+&lt;ol&gt;
+&lt;li&gt;This is a naive implementation - it doesn&amp;rsquo;t handle UTF-16 reserved characters (U+D800..U+DFFF), noncharacters and only encodes/decodes one codepoint at a time.&lt;/li&gt;
+&lt;li&gt;Take a look at &lt;a href=&#34;https://metacpan.org/pod/distribution/Unicode-UTF8/lib/Unicode/UTF8.pod&#34;&gt;Unicode::UTF8&lt;/a&gt; if you need a fast UTF-8 encoder and don&amp;rsquo;t want to use Perl&amp;rsquo;s builtin tools.&lt;/li&gt;
+&lt;li&gt;UTF-8 is by far the most popular Unicode encoding. It was created by Ken Thompson and Rob Pike in &lt;a href=&#34;http://doc.cat-v.org/bell_labs/utf-8_history&#34;&gt;just a few days&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Building your own UTF-8 encoder? Check out Markus Kuhn&amp;rsquo;s &lt;a href=&#34;https://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt&#34;&gt;decoder test file&lt;/a&gt; which contains several difficult or edge case tests for UTF-8 decoding. Markus also wrote a comprehensive &lt;a href=&#34;https://www.cl.cam.ac.uk/~mgk25/unicode.html&#34;&gt;UTF-8 and Unicode FAQ for Unix/Linux&lt;/a&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+    </item>
     
     <item>
       <title>Announcing Geo::libpostal</title>
@@ -1673,89 +1859,6 @@ printf $template,
 &lt;p&gt;If you&amp;rsquo;ve made it this far without complaining on Twitter, Reddit, or Hacker News, congratulations. You know what day of the year it is.&lt;/p&gt;
 
 &lt;p&gt;These are real issues, though, and if your application is senstive to small differences in numbers (such as calculating fundamental constants of the universe or pension fund allocations), you&amp;rsquo;re probably using sophisticated number libraries and have various levels of audits to verify the results.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Prevent harmful Linux updates with versionlock</title>
-      <link>http://perltricks.com/article/prevent-harmful-updates-with-versionlock/</link>
-      <pubDate>Mon, 21 Mar 2016 20:46:17 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/prevent-harmful-updates-with-versionlock/</guid>
-      <description>
-
-&lt;p&gt;On my home machine I run Fedora, a Linux distro famous for being at the cutting-edge of Linux development. My laptop is the &lt;a href=&#34;http://perltricks.com/article/187/2015/8/18/Laptop-review--Dell-XPS-13-2015/&#34;&gt;Dell XPS 13&lt;/a&gt; which uses some fairly advanced hardware. In Open Source this can be dangerous combination: older Linux kernels can&amp;rsquo;t handle my machine&amp;rsquo;s hardware, and brand new kernels often break it too. Every time I do a software update, I&amp;rsquo;m walking a tightrope.&lt;/p&gt;
-
-&lt;p&gt;The way I handle this is with a package manager plugin called &lt;a href=&#34;https://github.com/rpm-software-management/dnf-plugins-extras&#34;&gt;versionlock&lt;/a&gt;. It lets me tell the package manager to lock certain packages at their current version and voilà! I can blindly apply all software updates and know that those troublesome packages will not be upgraded.&lt;/p&gt;
-
-&lt;h3 id=&#34;installation:cc50447c6adbe416d99715fce2b83d16&#34;&gt;Installation&lt;/h3&gt;
-
-&lt;p&gt;The versionlock plugin is available for both dnf and yum, so pick which package manager your system is using. For dnf:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ sudo dnf install python-dnf-plugins-extras-versionlock
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;And for yum:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ sudo yum install yum-plugin-versionlock
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;lock-a-package:cc50447c6adbe416d99715fce2b83d16&#34;&gt;Lock a package&lt;/h3&gt;
-
-&lt;p&gt;To add a package to the locked list, simply run the package manager program with the &lt;code&gt;versionlock&lt;/code&gt; and &lt;code&gt;add&lt;/code&gt; commands:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ sudo dnf versionlock add my-package
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The yum version:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ sudo yum versionlock add my-package
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;As you can see, the commands for dnf and yum are the same. You can lock multiple packages in one command. Here&amp;rsquo;s how I prevent my system from upgrading the kernel packages:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ sudo dnf versionlock add kernel-0:4.3.5-300.fc23 kernel-modules-0:4.3.5-300.fc23 kernel-core-0:4.3.5-300.fc23 kernel-devel-0:4.3.5-300.fc23
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;list-locked-packages:cc50447c6adbe416d99715fce2b83d16&#34;&gt;List locked packages&lt;/h3&gt;
-
-&lt;p&gt;To see which packages are locked, use the &lt;code&gt;list&lt;/code&gt; command:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ dnf versionlock list
-Last metadata expiration check: 0:00:00 ago on Mon Mar 21 20:58:57 2016.
-kernel-0:4.3.5-300.fc23.*
-kernel-modules-0:4.3.5-300.fc23.*
-kernel-core-0:4.3.5-300.fc23.*
-kernel-devel-0:4.3.5-300.fc23.*
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;unlock-a-package:cc50447c6adbe416d99715fce2b83d16&#34;&gt;Unlock a package&lt;/h3&gt;
-
-&lt;p&gt;To remove one package from the lock list, use &lt;code&gt;delete&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ sudo dnf versionlock delete my-package
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;To remove all packages from the lock list, use &lt;code&gt;clear&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ sudo yum versionlock clear
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;help:cc50447c6adbe416d99715fce2b83d16&#34;&gt;Help&lt;/h3&gt;
-
-&lt;p&gt;If you ever forget these commands, you can list the available commands with &lt;code&gt;help&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ dnf help versionlock
-versionlock [add|exclude|list|delete|clear] [&amp;lt;package-nevr-spec&amp;gt;]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;how-many-installers-do-you-need:cc50447c6adbe416d99715fce2b83d16&#34;&gt;How many installers do you need?&lt;/h3&gt;
-
-&lt;p&gt;On Fedora I also remove the &lt;a href=&#34;https://wiki.gnome.org/Apps/Software&#34;&gt;Gnome Software&lt;/a&gt; program (&lt;code&gt;gnome-software&lt;/code&gt; package). Whilst it&amp;rsquo;s useful to be reminded of pending updates via the GUI, any package installed via Gnome Software is not part of the dnf history. That makes it harder when it&amp;rsquo;s necessary to downgrade or remove a troublesome package.&lt;/p&gt;
-
-&lt;h3 id=&#34;conclusion:cc50447c6adbe416d99715fce2b83d16&#34;&gt;Conclusion&lt;/h3&gt;
-
-&lt;p&gt;Managing packages can be a pain, but versionlock makes life easier. If you use Debian or Ubuntu you can use &lt;code&gt;apt-mark hold my-package&lt;/code&gt; and &lt;code&gt;apt-mark unhold my-package&lt;/code&gt; to similar effect.&lt;/p&gt;
 </description>
     </item>
     

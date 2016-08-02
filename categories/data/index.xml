@@ -6,8 +6,194 @@
     <description>Recent content in Data on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 19 Jul 2016 08:33:59 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 02 Aug 2016 08:47:57 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/categories/data/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Building a UTF-8 encoder in Perl</title>
+      <link>http://perltricks.com/article/building-a-utf-8-encoder-in-perl/</link>
+      <pubDate>Tue, 02 Aug 2016 08:47:57 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/building-a-utf-8-encoder-in-perl/</guid>
+      <description>
+
+&lt;p&gt;This week I wrote a UTF-8 encoder/decoder. Perl already comes with UTF-8 encoding features built-in, so this wasn&amp;rsquo;t necessary, but sometimes it&amp;rsquo;s nice to understand how things work. The UTF-8 scheme is defined in &lt;a href=&#34;https://tools.ietf.org/html/rfc3629&#34;&gt;RFC 3629&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;what-does-a-utf-8-encoder-do:bacb6356dcc1a00cc990d0647178b7de&#34;&gt;What does a UTF-8 encoder do?&lt;/h3&gt;
+
+&lt;p&gt;UTF-8 is a scheme for encoding &lt;a href=&#34;https://en.wikipedia.org/wiki/Unicode&#34;&gt;Unicode&lt;/a&gt; sequences of codepoints as bytes/octets. A codepoint is just a number, that identifies the Unicode entry (such as 0x24 which is a dollar sign).&lt;/p&gt;
+
+&lt;p&gt;Unicode defines codepoints in the range 0x0000..0x10FFFF, so the encoder must take a codepoint and convert it to bytes according to the UTF-8 scheme, which looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Char. number range  |     UTF-8 bytes/octets sequence
+   (hexadecimal)    |              (binary)
+--------------------+------------------------------------
+0000 0000-0000 007F | 0xxxxxxx
+0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This has some interesting properties. First of all, codepoints in the range 0x00..0x7F (0-127) will have the same bytes as with ASCII encoding, which is convenient. Second it&amp;rsquo;s a &lt;em&gt;variable width&lt;/em&gt; encoding, which means that a single codepoint can be 1-4 bytes long.&lt;/p&gt;
+
+&lt;p&gt;Decoding is simply the process in reverse: converting a sequence of bytes back into a codepoint.&lt;/p&gt;
+
+&lt;h3 id=&#34;encoding-utf-8:bacb6356dcc1a00cc990d0647178b7de&#34;&gt;Encoding UTF-8&lt;/h3&gt;
+
+&lt;p&gt;To encode UTF-8, I need to convert a codepoint (which is just a number), into a sequence of bytes. As there are four different byte sequences defined in the UTF-8 table, there are four scenarios to handle:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub codepoint_to_bytes {
+  my $codepoint = shift;
+
+  if ($codepoint &amp;lt; 0x80) {
+    return $codepoint;
+  }
+  elsif ($codepoint &amp;lt; 0x800) {
+    return $codepoint &amp;gt;&amp;gt;  6 | 0b11000000,
+           $codepoint       &amp;amp; 0b00111111 | 0b10000000;
+  }
+  elsif ($codepoint &amp;lt; 0x10000) {
+    return $codepoint &amp;gt;&amp;gt; 12 | 0b11100000,
+           $codepoint &amp;gt;&amp;gt;  6 &amp;amp; 0b00111111 | 0b10000000,
+           $codepoint       &amp;amp; 0b00111111 | 0b10000000;
+  }
+  else {
+    return $codepoint &amp;gt;&amp;gt; 18 | 0b11110000,
+           $codepoint &amp;gt;&amp;gt; 12 &amp;amp; 0b00111111 | 0b10000000,
+           $codepoint &amp;gt;&amp;gt;  6 &amp;amp; 0b00111111 | 0b10000000,
+           $codepoint       &amp;amp; 0b00111111 | 0b10000000;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The first is the easiest: if the codepoint is between 0x00 and 0x7F, no transformation is required, so I just return the codepoint as-is. The byte value of a character is the same as the codepoint (e.g. &lt;code&gt;&#39;U&#39; == 56 == 0x38 == 00111000&lt;/code&gt;).&lt;/p&gt;
+
+&lt;p&gt;For the second scenario I have to populate the bitmask &lt;code&gt;110xxxxx 10xxxxxx&lt;/code&gt; with the codepoint, which means I need to return two bytes. This is how I do it:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;For the first byte, bitshift the codepoint 6 places to the right (as the second byte will get those 6 bits).&lt;/li&gt;
+&lt;li&gt;Use bitwise OR to set the two most significant bits to one (&lt;code&gt;xxxxxxxx | 11000000 == 11xxxxxx&lt;/code&gt;). I&amp;rsquo;m using Perl&amp;rsquo;s inline binary notation (&lt;code&gt;0b...&lt;/code&gt;) which makes it easy to compare the binary numbers with the bitmask.&lt;/li&gt;
+&lt;li&gt;For the second byte use bitwise AND to set the two most significant bits to zero (&lt;code&gt;xxxxxxxx &amp;amp; 00111111 == 00xxxxxx&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;Use bitwise OR to set the most significant bit to 1 (&lt;code&gt;xxxxxxxx | 10000000 == 1xxxxxxx&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;Return both bytes as a list.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The process for three byte and four byte encoding follows the same approach, with the rules updated according to the UTF-8 scheme.&lt;/p&gt;
+
+&lt;p&gt;If I wanted to get UTF-8 encoded bytes for the &lt;a href=&#34;http://www.fileformat.info/info/unicode/char/1f4fa/fontsupport.htm&#34;&gt;Television&lt;/a&gt; codepoint (U+1F4FA) I could use the code like so:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @bytes = codepoint_to_bytes(0x1F4FA);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;decoding-utf-8:bacb6356dcc1a00cc990d0647178b7de&#34;&gt;Decoding UTF-8&lt;/h3&gt;
+
+&lt;p&gt;To decode UTF-8 bytes, we need to reverse the encoding process to get back to the original Unicode codepoint number. The decoder must check how many bytes it received, extract the appropriate bits and add them together.&lt;/p&gt;
+
+&lt;p&gt;Perl tries &amp;ldquo;to make the easy things easy, and the hard things possible&amp;rdquo; as the saying goes, but sometimes it makes easy things harder than they are in simpler languages like C. Binary data is one such area: Perl needs to be told to turn off its character features before you can safely work with the data.&lt;/p&gt;
+
+&lt;p&gt;There are two ways to do that. The old, discouraged way is to use the &lt;a href=&#34;https://metacpan.org/pod/bytes&#34;&gt;bytes pragma&lt;/a&gt;. The newer way is to use the &lt;a href=&#34;https://metacpan.org/pod/Encode#SYNOPSIS&#34;&gt;Encode&lt;/a&gt; module to encode the scalar as bytes and remove its UTF-8 flag. After that, Perl&amp;rsquo;s functions will treat the scalar as a sequence of bytes instead of characters:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Encode &#39;encode&#39;;
+
+sub bytes_to_codepoint {
+  # treat the scalar as bytes/octets
+  my $input    = encode(&#39;UTF-8&#39;, shift);
+
+  # length returns number of bytes
+  my $len      = length $input;
+  my $template = &#39;C&#39; x $len;
+  my @bytes    = unpack $template, $input;
+
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the subroutine &lt;code&gt;bytes_to_codepoint&lt;/code&gt; I use &lt;code&gt;encode()&lt;/code&gt; to populate &lt;code&gt;$input&lt;/code&gt; with the bytes passed to it.&lt;/p&gt;
+
+&lt;p&gt;Next I use the &lt;code&gt;length&lt;/code&gt; function to return the number of bytes in &lt;code&gt;$input&lt;/code&gt; - this is different from its usual behavior which returns the number of characters; this is the effect of using &lt;code&gt;encode()&lt;/code&gt; to convert the scalar to bytes. Finally I use &lt;code&gt;unpack&lt;/code&gt; to extract the bytes from &lt;code&gt;$input&lt;/code&gt;;&lt;/p&gt;
+
+&lt;p&gt;Now I know the number of bytes passed to &lt;code&gt;bytes_to_codepoint&lt;/code&gt;, it&amp;rsquo;s just a matter of reversing the binary operations from the encoding process:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;if ($len == 1) {
+  return $bytes[0];
+}
+elsif ($len == 2) {
+  return (($bytes[0] &amp;amp; 0b00011111) &amp;lt;&amp;lt;  6) +
+          ($bytes[1] &amp;amp; 0b00111111);
+}
+elsif ($len == 3) {
+  return (($bytes[0] &amp;amp; 0b00001111) &amp;lt;&amp;lt; 12) +
+         (($bytes[1] &amp;amp; 0b00111111) &amp;lt;&amp;lt;  6) +
+         ( $bytes[2] &amp;amp; 0b00111111);
+}
+else {
+  return (($bytes[0] &amp;amp; 0b00000111) &amp;lt;&amp;lt; 18) +
+         (($bytes[1] &amp;amp; 0b00111111) &amp;lt;&amp;lt; 12) +
+         (($bytes[2] &amp;amp; 0b00111111) &amp;lt;&amp;lt;  6) +
+          ($bytes[3] &amp;amp; 0b00111111);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If there is just one byte, I return it as-is because the codepoint number is the same as the byte value. As with encoding, it gets interesting with two bytes:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Remove the bitmask from the first byte with bitwise AND. Remember bitwise AND returns any bits as zero which are zero in the right operand (&lt;code&gt;xxxxxxxx &amp;amp; 00011111 == 000xxxxx&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;Bit shift the resulting number 6 places to the left to get the original value. So &lt;code&gt;00000010&lt;/code&gt; would become &lt;code&gt;10000000&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Remove the bitmask from the second byte with bitwise AND (&lt;code&gt;xxxxxxxx &amp;amp; 00111111 == 00xxxxxx&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;Add the numbers together.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The same logic applies to three byte and four byte sequences, I just update the bitwise operations to match the UTF-8 scheme. The final code looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Encode &#39;encode&#39;;
+
+sub bytes_to_codepoint {
+  # treat the scalar as bytes/octets
+  my $input    = encode(&#39;UTF-8&#39;, shift);
+
+  # length returns number of bytes
+  my $len      = length $input;
+  my $template = &#39;C&#39; x $len;
+  my @bytes    = unpack $template, $input;
+
+  # reverse encoding
+  if ($len == 1) {
+    return $bytes[0];
+  }
+  elsif ($len == 2) {
+    return (($bytes[0] &amp;amp; 0b00011111) &amp;lt;&amp;lt;  6) +
+            ($bytes[1] &amp;amp; 0b00111111);
+  }
+  elsif ($len == 3) {
+    return (($bytes[0] &amp;amp; 0b00001111) &amp;lt;&amp;lt; 12) +
+           (($bytes[1] &amp;amp; 0b00111111) &amp;lt;&amp;lt;  6) +
+           ( $bytes[2] &amp;amp; 0b00111111);
+  }
+  else {
+    return (($bytes[0] &amp;amp; 0b00000111) &amp;lt;&amp;lt; 18) +
+           (($bytes[1] &amp;amp; 0b00111111) &amp;lt;&amp;lt; 12) +
+           (($bytes[2] &amp;amp; 0b00111111) &amp;lt;&amp;lt;  6) +
+            ($bytes[3] &amp;amp; 0b00111111);
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s say I wanted to get the codepoint for the &lt;a href=&#34;http://www.fileformat.info/info/unicode/char/1f5fc/index.htm&#34;&gt;Tokyo Tower&lt;/a&gt; I can call the code like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use utf8;
+my $codepoint = bytes_to_codepoint(&#39;🗼&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;notes:bacb6356dcc1a00cc990d0647178b7de&#34;&gt;Notes&lt;/h3&gt;
+
+&lt;ol&gt;
+&lt;li&gt;This is a naive implementation - it doesn&amp;rsquo;t handle UTF-16 reserved characters (U+D800..U+DFFF), noncharacters and only encodes/decodes one codepoint at a time.&lt;/li&gt;
+&lt;li&gt;Take a look at &lt;a href=&#34;https://metacpan.org/pod/distribution/Unicode-UTF8/lib/Unicode/UTF8.pod&#34;&gt;Unicode::UTF8&lt;/a&gt; if you need a fast UTF-8 encoder and don&amp;rsquo;t want to use Perl&amp;rsquo;s builtin tools.&lt;/li&gt;
+&lt;li&gt;UTF-8 is by far the most popular Unicode encoding. It was created by Ken Thompson and Rob Pike in &lt;a href=&#34;http://doc.cat-v.org/bell_labs/utf-8_history&#34;&gt;just a few days&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Building your own UTF-8 encoder? Check out Markus Kuhn&amp;rsquo;s &lt;a href=&#34;https://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt&#34;&gt;decoder test file&lt;/a&gt; which contains several difficult or edge case tests for UTF-8 decoding. Markus also wrote a comprehensive &lt;a href=&#34;https://www.cl.cam.ac.uk/~mgk25/unicode.html&#34;&gt;UTF-8 and Unicode FAQ for Unix/Linux&lt;/a&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+    </item>
     
     <item>
       <title>Announcing Geo::libpostal</title>
@@ -1860,146 +2046,6 @@ sub read_data {
 &lt;p&gt;The examples have focused on including YAML data, but the solutions would work for most data types. Including data with Perl distributions is not as easy as it should be. However with the three solutions described here, you should be equipped to tackle the typical scenarios.&lt;/p&gt;
 
 &lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F66%2F2014%2F2%2F7%2F3-ways-to-include-data-with-your-Perl-distribution&amp;amp;text=3%20ways%20to%20include%20data%20with%20your%20Perl%20distribution&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F66%2F2014%2F2%2F7%2F3-ways-to-include-data-with-your-Perl-distribution&amp;amp;via=perltricks&#34;&gt;retweet&lt;/a&gt; it!&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Solve almost any datetime need with Time::Piece</title>
-      <link>http://perltricks.com/article/59/2014/1/10/Solve-almost-any-datetime-need-with-Time--Piece/</link>
-      <pubDate>Fri, 10 Jan 2014 04:24:25 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/59/2014/1/10/Solve-almost-any-datetime-need-with-Time--Piece/</guid>
-      <description>
-
-&lt;p&gt;&lt;em&gt;Datetimes come up all the time in programming, so being fluent in handling them is an essential skill. There are &lt;a href=&#34;https://metacpan.org/search?q=date+time&#34;&gt;many modules&lt;/a&gt; on CPAN for dealing with datetimes, but for most tasks you only need one: &lt;a href=&#34;https://metacpan.org/pod/Time::Piece&#34;&gt;Time::Piece&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;
-
-&lt;h3 id=&#34;requirements:15c12906ca779ac02701e8af216e915b&#34;&gt;Requirements&lt;/h3&gt;
-
-&lt;p&gt;Time::Piece has been in Perl core since version 5.8, so you should already have it installed. If you don&amp;rsquo;t have it, you can install it via cpan at the terminal.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan Time::Piece
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;create-a-time-piece-object:15c12906ca779ac02701e8af216e915b&#34;&gt;Create a Time::Piece object&lt;/h3&gt;
-
-&lt;p&gt;To create a new Time::Piece object with the current system time, use new:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
-
-my $time = Time::Piece-&amp;gt;new;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;get-a-datetime-string-in-any-format:15c12906ca779ac02701e8af216e915b&#34;&gt;Get a datetime string in any format&lt;/h3&gt;
-
-&lt;p&gt;Time::Piece provides many methods for printing the datetime in common formats. For example:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$time;           # Thu Jan  9 21:21:36 2014
-$time-&amp;gt;datetime; # 2014-01-09T21:21:36
-$time-&amp;gt;date;     # 2014-01-09
-$time-&amp;gt;mdy;      # 01-09-2014
-$time-&amp;gt;fullday;  # Thursday
-$time-&amp;gt;hms;      # 21:21:36
-$time-&amp;gt;epoch;    # 1389320496 (Unix time)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If you need to get the datetime in a custom format, Time::Piece provides a &amp;ldquo;strftime&amp;rdquo; method which takes a custom string format. A complete list of formatting codes is on the &lt;a href=&#34;http://man7.org/linux/man-pages/man3/strftime.3.html&#34;&gt;man page&lt;/a&gt;. Here are some examples:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
-
-my $time = Time::Piece-&amp;gt;new;
-$time-&amp;gt;strftime(&#39;%y/%m/%d %H:%M&#39;); # 14/01/09 21:21
-$time-&amp;gt;strftime(&#39;%y_%m_%d&#39;);       # 14_01_09
-$time-&amp;gt;strftime(&#39;%s&#39;);             # 1389320496 (Unix time)
-$time-&amp;gt;strftime(&#39;%Y %y %G %g&#39;);    # 2014 14 2014 14 (4 different years,really)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;read-a-datetime-string-in-any-format:15c12906ca779ac02701e8af216e915b&#34;&gt;Read a datetime string in any format&lt;/h3&gt;
-
-&lt;p&gt;Time::Piece also provides a strptime method which takes a string, and a string format and initializes a new Time::Piece object with that datetime. If either the date or time component is missing, Time::Piece assumes the current date or time. Here are some examples:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
-
-my $yesterday    = Time::Piece-&amp;gt;strptime(&#39;01-08-2014&#39;, &#39;%m-%d-%Y&#39;);
-my $yesterdayDMY = Time::Piece-&amp;gt;strptime(&#39;08-01-14&#39;, &#39;%d-%m-%y&#39;);
-my $lunchhour24  = Time::Piece-&amp;gt;strptime(&#39;12:30&#39;, &#39;%H:%M&#39;);
-my $bedtime      = Time::Piece-&amp;gt;strptime(&#39;12:30 AM&#39;, &#39;%l:%M %p&#39;);
-
-# timezones are easy too
-my $utc_datetime = Time::Piece-&amp;gt;strptime(&#39;Mon, 19 Jan 2015 14:56:20 +0000&#39;,&#39;%a, %d %b %Y %H:%M:%S %z&#39;);
-my $eastern_datetime = Time::Piece-&amp;gt;strptime(&#39;2015-10-05T09:34:19 -0400&#39;,&#39;%Y-%m-%dT%T %z&#39;);
-my $pacific_datetime = Time::Piece-&amp;gt;strptime(&#39;2015-10-05T09:34:19 -0700&#39;,&#39;%Y-%m-%dT%T %z&#39;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;Warning&lt;/strong&gt; Time::Piece fails to parse timezones with semicolons in them. To handle that, just remove the semicolon from the timezone before passing it to &lt;code&gt;strptime&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
-
-my $datetime = &#39;2015-10-05T09:34:19 -04:00&#39;;
-$datetime    =~ s/([+\-]\d\d):(\d\d)/$1$2;
-my $dt       = Time::Piece-&amp;gt;strptime($datetime, &amp;quot;%Y-%m-%dT%H:%M:%S %z&amp;quot;);
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;code&gt;strptime&lt;/code&gt; uses the same formatting codes as &lt;code&gt;strftime&lt;/code&gt;, you can get the full list &lt;a href=&#34;http://man7.org/linux/man-pages/man3/strftime.3.html&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;compare-datetimes:15c12906ca779ac02701e8af216e915b&#34;&gt;Compare datetimes&lt;/h3&gt;
-
-&lt;p&gt;This is easy. Just initialize two Time::Piece objects and compare them with an operator (&amp;lt;, &amp;lt;=, ==, &amp;gt;=, &amp;gt; and &amp;lt;=&amp;gt;). For example:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
-
-my $today = Time::Piece-&amp;gt;new;
-my $yesterday = Time::Piece-&amp;gt;strptime(&#39;01/08/2014&#39;, &#39;%m/%d/%Y&#39;);
-
-if ($today &amp;gt; $yesterday) {
-    ...
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;datetime-math:15c12906ca779ac02701e8af216e915b&#34;&gt;Datetime math&lt;/h3&gt;
-
-&lt;p&gt;The first thing to know is that Time::Piece objects are &lt;strong&gt;immutable&lt;/strong&gt; so any operation performed on them will return a new object.&lt;/p&gt;
-
-&lt;p&gt;Time::Piece provides a couple of methods for adding months and years (&amp;ldquo;add_months&amp;rdquo;, &amp;ldquo;add_years&amp;rdquo;) from Time::Piece objects. Simply use a negative integer to subtract. For example:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
-
-my $datetime = Time::Piece-&amp;gt;new;
-my $nextMonth   = $datetime-&amp;gt;add_months(1);   # plus one month
-my $lastQuarter = $datetime-&amp;gt;add_months(-3);  # minus three months
-my $nextDecade  = $datetime-&amp;gt;add_years(10);   # plus 10 years
-my $lastYear    = $datetime-&amp;gt;add_years(-1);   # minus 1 year
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;You&amp;rsquo;ll often need more granular control over the datetime, and that&amp;rsquo;s where the &lt;a href=&#34;https://metacpan.org/pod/Time::Seconds&#34;&gt;Time::Seconds&lt;/a&gt; module comes in. Just include it in your program, and it will export several constants which can be used to adjust the datetime. The constants are: ONE_MINUTE, ONE_HOUR, ONE_DAY, ONE_WEEK, ONE_MONTH, ONE_YEAR, ONE_FINANCIAL_MONTH, LEAP_YEAR, NON_LEAP_YEAR.&lt;/p&gt;
-
-&lt;p&gt;Let&amp;rsquo;s see how to use the constants:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
-use Time::Seconds;
-
-my $time = Time::Piece-&amp;gt;new;
-my $tomorrow  = $time + ONE_DAY;
-my $lastWeek  = $time - ONE_WEEK;
-my $lastMonth = $time - ONE_MONTH;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If you need to change the datetime by seconds, with you can simply use integer arithmetic.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Time::Piece;
-
-my $now = Time::Piece-&amp;gt;new;
-my $30SecondsAgo = $now - 30; 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;documentation:15c12906ca779ac02701e8af216e915b&#34;&gt;Documentation&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://metacpan.org/pod/Time::Piece&#34;&gt;Time::Piece&lt;/a&gt; has excellent documentation, you can read it on the command line with perldoc:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perldoc Time::Piece
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;Updated:&lt;/strong&gt; &lt;em&gt;Added timezone strptime example 2015-01-28. Added timezone semicolon handling 2016-03-17.&lt;/em&gt;&lt;/p&gt;
 </description>
     </item>
     
