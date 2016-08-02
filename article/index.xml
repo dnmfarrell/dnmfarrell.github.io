@@ -46,7 +46,7 @@
   my $codepoint = shift;
 
   if ($codepoint &amp;lt; 0x80) {
-    return $codepoint;
+    return pack &#39;C&#39;, $codepoint;
   }
   elsif ($codepoint &amp;lt; 0x800) {
     return pack &#39;CC&#39;,
@@ -69,7 +69,7 @@
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;The first is the easiest: if the codepoint is between 0x00 and 0x7F, no transformation is required, so I just return the codepoint as-is. The byte value of a character is the same as the codepoint (e.g. &lt;code&gt;&#39;U&#39; == 56 == 0x38 == 00111000&lt;/code&gt;).&lt;/p&gt;
+&lt;p&gt;The first is the easiest: if the codepoint is between 0x00 and 0x7F, no transformation is required, so I just &lt;a href=&#34;http://perldoc.perl.org/functions/pack.html&#34;&gt;pack&lt;/a&gt; the codepoint as-is. The byte value of a character is the same as the codepoint (e.g. &lt;code&gt;&#39;U&#39; == 56 == 0x38 == 00111000&lt;/code&gt;).&lt;/p&gt;
 
 &lt;p&gt;For the second scenario I have to populate the bitmask &lt;code&gt;110xxxxx 10xxxxxx&lt;/code&gt; with the codepoint, which means I need to return two bytes. This is how I do it:&lt;/p&gt;
 
