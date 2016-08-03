@@ -85,7 +85,7 @@
 
 &lt;p&gt;If I wanted to get UTF-8 encoded bytes for the &lt;a href=&#34;http://www.fileformat.info/info/unicode/char/1f4fa/fontsupport.htm&#34;&gt;Television&lt;/a&gt; codepoint (U+1F4FA) I could use the code like so:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @bytes = codepoint_to_bytes(0x1F4FA);
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $bytes = codepoint_to_bytes(0x1F4FA);
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h3 id=&#34;decoding-utf-8:bacb6356dcc1a00cc990d0647178b7de&#34;&gt;Decoding UTF-8&lt;/h3&gt;
