@@ -6,8 +6,89 @@
     <description>Recent content on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 02 Aug 2016 08:47:57 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 09 Aug 2016 09:11:11 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>What&#39;s new on CPAN - July 2016</title>
+      <link>http://perltricks.com/article/what-s-new-on-cpan---july-2016/</link>
+      <pubDate>Tue, 09 Aug 2016 09:11:11 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/what-s-new-on-cpan---july-2016/</guid>
+      <description>
+
+&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Enjoy!&lt;/p&gt;
+
+&lt;h3 id=&#34;apis-apps:f3bb894e15cb1eeff469d8127fc0975c&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Add copyright information to your images with &lt;a href=&#34;https://metacpan.org/pod/App::CopyrightImage&#34;&gt;App::CopyrightImage&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Test the tone perception of your ears with &lt;a href=&#34;https://metacpan.org/pod/App::tonematch&#34;&gt;App::tonematch&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/ExtUtils::PL2Bat&#34;&gt;ExtUtils::PL2Bat&lt;/a&gt; converts Perl scripts to batch files to run on Windows&lt;/li&gt;
+&lt;li&gt;Get an interface to Mail Chimp&amp;rsquo;s API using &lt;a href=&#34;https://metacpan.org/pod/Mail::Chimp3&#34;&gt;Mail::Chimp3&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;OneAll is an all-in-one social media API, use it with &lt;a href=&#34;https://metacpan.org/pod/WWW::OneAll&#34;&gt;WWW::OneAll&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/PowerShell&#34;&gt;PowerShell&lt;/a&gt; wraps PowerShell commands&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Snapforce::API&#34;&gt;Snapforce::API&lt;/a&gt; provides a perly interface for the Snapforce CRM API&lt;/li&gt;
+&lt;li&gt;Communicate with socket.io servers using &lt;a href=&#34;https://metacpan.org/pod/SocketIO::Emitter&#34;&gt;SocketIO::Emitter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;config-devops:f3bb894e15cb1eeff469d8127fc0975c&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Get a simple API for querying Gentoo&amp;rsquo;s installed-package database using &lt;a href=&#34;https://metacpan.org/pod/Gentoo::VDB&#34;&gt;Gentoo::VDB&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Perl::Critic::Policy::BuiltinFunctions::ProhibitReturnOr&#34;&gt;Perl::Critic::Policy::BuiltinFunctions::ProhibitReturnOr&lt;/a&gt; checks for use of &lt;code&gt;return ... or ...&lt;/code&gt; - an easy mistake to make&lt;/li&gt;
+&lt;li&gt;RT-Extension-Tags Extension using &lt;a href=&#34;https://metacpan.org/pod/RT::Extension::Tags&#34;&gt;RT::Extension::Tags&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;data:f3bb894e15cb1eeff469d8127fc0975c&#34;&gt;Data&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Parse::SAMGov&#34;&gt;Parse::SAMGov&lt;/a&gt; parses SAM Entity Management Public Extract Layout from SAM.gov&lt;/li&gt;
+&lt;li&gt;Access CSV, XML, HTML and log data with SQL using &lt;a href=&#34;https://metacpan.org/pod/DBD::AnyData2&#34;&gt;DBD::AnyData2&lt;/a&gt;, a new version of &lt;a href=&#34;https://metacpan.org/pod/DBD::AnyData&#34;&gt;DBIx::AnyData&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Use DBIx::Class in asynchronous environments with &lt;a href=&#34;https://metacpan.org/pod/DBIx::Connector::Pool&#34;&gt;DBIx::Connector::Pool&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Data::IEEE754::Tools&#34;&gt;Data::IEEE754::Tools&lt;/a&gt; provides functions for inspecting and manipulating Perl&amp;rsquo;s floating point values&lt;/li&gt;
+&lt;li&gt;Create custom ETL processes using &lt;a href=&#34;https://metacpan.org/pod/ETL::Pipeline&#34;&gt;ETL::Pipeline&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Geo::libpostal&#34;&gt;Geo::libpostal&lt;/a&gt; Perl bindings for the speedy libpostal geo coder (disclaimer: I am the module author)&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/MARC::Spec&#34;&gt;MARC::Spec&lt;/a&gt; builds and parses the MARCspec record path language&lt;/li&gt;
+&lt;li&gt;Daniel Șuteu uploaded two search modules:&lt;a href=&#34;https://metacpan.org/pod/Search::MultiMatch&#34;&gt;Search::MultiMatch&lt;/a&gt; uses 2 dimensional arrays as keys, and &lt;a href=&#34;https://metacpan.org/pod/Search::ByPrefix&#34;&gt;Search::ByPrefix&lt;/a&gt; searches for substring matches&lt;/li&gt;
+&lt;li&gt;Normalize URIs with &lt;a href=&#34;https://metacpan.org/pod/URI::Normalize&#34;&gt;URI::Normalize&lt;/a&gt; - no more missing trailing slashes, yay!&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/YAML::LoadBundle&#34;&gt;YAML::LoadBundle&lt;/a&gt; loads a directory of YAML files into a single data structure, with different merge options. Nice!&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;development-version-control:f3bb894e15cb1eeff469d8127fc0975c&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Use map reduce with just a few lines of code using &lt;a href=&#34;https://metacpan.org/pod/MapReduce::Framework::Simple&#34;&gt;MapReduce::Framework::Simple&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/ReadonlyX&#34;&gt;ReadonlyX&lt;/a&gt; aims to be a faster, better version of Readonly. I wonder how it compares to community favorite &lt;a href=&#34;https://metacpan.org/pod/Const::Fast&#34;&gt;Const::Fast&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Write your script in any encoding with &lt;a href=&#34;https://metacpan.org/pod/Filter::Encoding&#34;&gt;Filter::Encoding&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Alt::FFI::libffi&#34;&gt;Alt::FFI::libffi&lt;/a&gt; provides a Perl Foreign Function interface based on libffi&lt;/li&gt;
+&lt;li&gt;Monkeypatch Moose exceptions with &lt;a href=&#34;https://metacpan.org/pod/MooseX::ErrorHandling&#34;&gt;MooseX::ErrorHandling&lt;/a&gt;. Docs say &amp;ldquo;This module is almost certainly a bad idea&amp;rdquo;. Ready for production then!&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Params::ValidationCompiler&#34;&gt;Params::ValidationCompiler&lt;/a&gt; let&amp;rsquo;s you create and re-use parameter validation routines&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;hardware:f3bb894e15cb1eeff469d8127fc0975c&#34;&gt;Hardware&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Device::Chip::AVR_HVSP&#34;&gt;Device::Chip::AVR_HVSP&lt;/a&gt; enables high-voltage serial programming for AVR chips&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;other:f3bb894e15cb1eeff469d8127fc0975c&#34;&gt;Other&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Geo::GoogleEarth::AutoTour&#34;&gt;Geo::GoogleEarth::AutoTour&lt;/a&gt; generates Google Earth tours using tracks and paths&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;web:f3bb894e15cb1eeff469d8127fc0975c&#34;&gt;Web&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Parse::WWWAuthenticate&#34;&gt;Parse::WWWAuthenticate&lt;/a&gt; parses the WWW-Authenticate HTTP header; not sure if this is better than using a general purpose parser like &lt;a href=&#34;https://metacpan.org/pod/HTTP::Headers::Fast::XS&#34;&gt;HTTP::Headers::Fast::XS&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/PEF::Front&#34;&gt;PEF::Front&lt;/a&gt; is a new web framework&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Plift&#34;&gt;Plift&lt;/a&gt; is a new templating module&lt;/li&gt;
+&lt;li&gt;Implement a mock HTTP server for testing using &lt;a href=&#34;https://metacpan.org/pod/Test::HTTP::MockServer&#34;&gt;Test::HTTP::MockServer&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Create a test Apache instance with &lt;a href=&#34;https://metacpan.org/pod/Test::Instance::Apache&#34;&gt;Test::Instance::Apache&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Building a UTF-8 encoder in Perl</title>
@@ -1635,231 +1716,6 @@ my ($magic, $version, @numbers) = unpack &#39;a4 a x15 N N N N N N&#39;, $bytes;
 &lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mojo::ACME&#34;&gt;Mojo::ACME&lt;/a&gt; use the Let&amp;rsquo;s Encrypt ACME API with your Mojo app&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Plack::Middleware::Pod&#34;&gt;Plack::Middleware::Pod&lt;/a&gt; can render POD files as HTML&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Perl Jam VI: The Return of the Camel</title>
-      <link>http://perltricks.com/article/perl-jam-iv-return-of-the-camel/</link>
-      <pubDate>Fri, 01 Apr 2016 08:32:57 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/perl-jam-iv-return-of-the-camel/</guid>
-      <description>
-
-&lt;p&gt;A couple of recent presentations about Perl&amp;rsquo;s security have focused on the &lt;a href=&#34;http://www.metacpan.org/module/CGI&#34;&gt;CGI module&lt;/a&gt; and &lt;a href=&#34;https://www.bugzilla.org&#34;&gt;Bugzilla&lt;/a&gt;. David Farrell responded to these in &lt;a href=&#34;http://perltricks.com/article/netanel-rubins-perljam-circus/&#34;&gt;Netanel Rubin&amp;rsquo;s Perl Jam circus&lt;/a&gt;. There are much worse problems with Perl that we should think about.&lt;/p&gt;
-
-&lt;h3 id=&#34;perl-s-rounding-problem:895dfc94e45590b36c5dd569303f6b79&#34;&gt;Perl&amp;rsquo;s rounding problem&lt;/h3&gt;
-
-&lt;p&gt;Perl&amp;rsquo;s approved way of rounding numbers goes through &lt;code&gt;(s)printf&lt;/code&gt;, but there&amp;rsquo;s a problem. In short, it does the wrong thing.&lt;/p&gt;
-
-&lt;p&gt;Most people were taught the rule that 1, 2, 3, 4 round down to 0, and that 5, 6, 7, 8, and 9 round up to the next 0. That means that more digits round up than round down, introducing a systematic bias into any computations where you might round. You shouldn&amp;rsquo;t have to watch &lt;a href=&#34;http://www.imdb.com/title/tt0086393/&#34;&gt;Superman III&lt;/a&gt; to realize the disasterous global consequences this has.&lt;/p&gt;
-
-&lt;p&gt;There&amp;rsquo;s more than one way to round a number. Most want to get to the nearest number, but if you are half way between, there are options. There are more than two ways. There are more than three. There are, well, a lot of ways:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;Round half up&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Round half down&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Round half toward zero&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Round half away from zero&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Round half to even&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Round half to odd&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Round half alternately up and down&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Round half stochastically&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;If you use the GNU C compiler (or something based on it), you round half to even as the default. Perl relies on this behavior.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ perl -e &#39;printf &amp;quot;%.0f\n&amp;quot;, shift&#39; 1.5
-2
-
-$ perl -e &#39;printf &amp;quot;%.0f\n&amp;quot;, shift&#39; 2.5
-2
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Every time you try this you get the same answer (so, no stochastic or alternate rounding). The GNU C compiler can also use floor, ceiling, or truncate, but those have similar problems.&lt;/p&gt;
-
-&lt;p&gt;As you are rounding, you are going to get more even numbers than odd numbers. If you are writing banking software, &lt;a href=&#34;http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.91.8055&amp;amp;rep=rep1&amp;amp;type=pdf&#34;&gt;assymetric currency rounding&lt;/a&gt; could destabilize a currency. The Risks Digest has several entries for &lt;a href=&#34;http://catless.ncl.ac.uk/php/risks/search.php?query=rounding&#34;&gt;security problems in rounding&lt;/a&gt;. These issues are much worse than some lame &amp;ldquo;attack&amp;rdquo; on CGI.pm because a programmer can&amp;rsquo;t read.&lt;/p&gt;
-
-&lt;h3 id=&#34;the-modulus-of-negative-numbers:895dfc94e45590b36c5dd569303f6b79&#34;&gt;The modulus of negative numbers&lt;/h3&gt;
-
-&lt;p&gt;Among the heated technical debates, such as vi or emacs, tabs or spaces, or Star Wars or Star Trek (the first answer in each is the right one), the ones that matter, such as the correct value of modulo addition with negative numbers, are overlooked.&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Binary &amp;ldquo;%&amp;rdquo; is the modulo operator, which computes the division remainder of its first argument with respect to its second argument. Given integer operands $m and $n : If $n is positive, then $m % $n is $m minus the largest multiple of $n less than or equal to $m. If $n is negative, then $m % $n is $m minus the smallest multiple of $n that is not less than $m (that is, the result will be less than or equal to zero).&lt;/p&gt;
-
-&lt;p&gt;&amp;ndash; &lt;cite&gt;The perldoc documentation for the % operators&lt;/cite&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;The modulo operators take two numbers and does something to them. For &lt;code&gt;$m % $n&lt;/code&gt;, you have:&lt;/p&gt;
-
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;$m&lt;/th&gt;
-&lt;th&gt;$n&lt;/th&gt;
-&lt;th&gt;%&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;0&lt;/td&gt;
-&lt;td&gt;0&lt;/td&gt;
-&lt;td&gt;undefined&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td&gt;+&lt;/td&gt;
-&lt;td&gt;+&lt;/td&gt;
-&lt;td&gt;$m - $n * $i ∈ $n * $i &amp;lt;= $m and ($m - $n * $i) &amp;lt; $n&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td&gt;+&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;$m - $n * $i ∈ $n * $i &amp;gt;= $m and ($m - $n * $i) &amp;lt; $n&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;+&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my( $m, $n ) = @ARGV;
-
-$m //= 137;
-$n //= 13;
-
-my $template = &amp;lt;&amp;lt;&#39;HERE&#39;;
-m = %d  n = %d
-
-   $m %  $n = %d
-  -$m %  $n = %d
-   $m % -$n = %d
-  -$m % -$n = %d
-HERE
-
-printf $template,
-   $m, $n,
-   $m %  $n,
-  -$m %  $n,
-   $m % -$n,
-  -$m % -$n;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Running this give different results depending on the location of the unary minus operator:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ perl modulo.pl 137 12
-m = 137  n = 12
-
-   $m %  $n = 5
-  -$m %  $n = 7
-   $m % -$n = -7
-  -$m % -$n = -5
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;That unary minus operator is two precedence levels above the modulo operator. That Perl makes one operator better than another is a whole other issue, but that&amp;rsquo;s the way it is and we can&amp;rsquo;t fix it now. Try it again. Use the parentheses (a feature Perl stole from LISP, which had some extra to spare) to separate the operators:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my( $m, $n ) = @ARGV;
-
-$m //= 137;
-$n //= 13;
-
-my $template = &amp;lt;&amp;lt;&#39;HERE&#39;;
-m = %d  n = %d
-
-    $m %  $n  = %d
-  -($m %  $n) = %d
-    $m % -$n  = %d
-  -($m % -$n) = %d
-HERE
-
-printf $template,
-    $m, $n,
-    $m %  $n,
-  -($m %  $n),
-    $m % -$n,
-  -($m % -$n);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;You get different numbers this time:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;m = 137  n = 12
-
-    $m %  $n  = 5
-  -($m %  $n) = -5
-    $m % -$n  = -7
-  -($m % -$n) = 7
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;But it&amp;rsquo;s even worse, because those numbers aren&amp;rsquo;t what the documentation says they should be. &amp;ldquo;If &lt;code&gt;$n&lt;/code&gt; is positive, then &lt;code&gt;$m % $n&lt;/code&gt; is &lt;code&gt;$m&lt;/code&gt; minus the largest multiple of &lt;code&gt;$n&lt;/code&gt; less than or equal to &lt;code&gt;$m&lt;/code&gt;&amp;rdquo;. Let&amp;rsquo;s take the case of -137 and 12. There are a couple of ways to look at this. If a &amp;ldquo;multiple&amp;rdquo; we call &lt;code&gt;$i&lt;/code&gt; must be positive, there is no value such that &lt;code&gt;$n * $i&lt;/code&gt; will be less than or equal to any negative value. If that &lt;code&gt;$i&lt;/code&gt; can be negative, the word &amp;ldquo;largest&amp;rdquo;  is a bit troublesome. Wikipedia says &lt;a href=&#34;https://en.wikipedia.org/wiki/Large_numbers&#34;&gt;large numbers are positive&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;fake-random-numbers:895dfc94e45590b36c5dd569303f6b79&#34;&gt;Fake random numbers&lt;/h3&gt;
-
-&lt;p&gt;Perl has a &lt;a href=&#34;http://perldoc.perl.org/functions/rand.html&#34;&gt;rand&lt;/a&gt; function. It claims to return &amp;ldquo;a random fractional number greater than or equal to 0&amp;rdquo;, but it doesn&amp;rsquo;t. It&amp;rsquo;s not random. It&amp;rsquo;s fake random in a way that might work if you only want to use one of them to complete a homework assignment in a beginning programming course in middle school. Although the documentation includes a footnote saying &amp;ldquo;You should not rely on it in security-sensitive situations&amp;rdquo;, it does not say &amp;ldquo;Don&amp;rsquo;t ever use this.&amp;rdquo; like it should. Try this program:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ perl -le &#39;srand(137); print rand for 1 .. 10&#39;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;It outputs some numbers, which might look like this:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;0.470744323291914
-0.278795581867115
-0.263413724062172
-0.646815254210146
-0.958771364426031
-0.3733677954733
-0.561358958619476
-0.537256242282716
-0.967152799238111
-0.846555037715689
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Run it again:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;0.470744323291914
-0.278795581867115
-0.263413724062172
-0.646815254210146
-0.958771364426031
-0.3733677954733
-0.561358958619476
-0.537256242282716
-0.967152799238111
-0.846555037715689
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Not only do you get the same numbers, but you get them in the same order. Perl tries to hide this from you by automatically calling &lt;code&gt;srand&lt;/code&gt; and giving it a &amp;ldquo;random&amp;rdquo; number to start the completely repeatable sequence.&lt;/p&gt;
-
-&lt;p&gt;That&amp;rsquo;s not the only problem with these fake random numbers (which, again, Perl&amp;rsquo;s documentation never calls &amp;ldquo;fake&amp;rdquo;). They can only represent certain discrete values. See, for instance, the thread that &lt;a href=&#34;https://www.quora.com/Why-does-perl-rand-on-Win32-never-generate-a-value-between-0-890655528357032-and-0-890685315537721&#34;&gt;Why does perl rand() on Win32 never generate a value between 0.890655528357032 and 0.890685315537721?&lt;/a&gt;. On Windows, Perl uses 15 bits to represent the range of the fake random numbers instead of the 53 bits Perl could use.&lt;/p&gt;
-
-&lt;p&gt;There are a variety of ways this can screw up if you use it in an application that keeps going and going. Eventually you come back to the beginning of the sequence, perhaps colliding with existing customer data.&lt;/p&gt;
-
-&lt;h3 id=&#34;perl-lets-anyone-program:895dfc94e45590b36c5dd569303f6b79&#34;&gt;Perl lets anyone program&lt;/h3&gt;
-
-&lt;p&gt;Perhaps the biggest problem with Perl is that anyone with a text editor can write a program and upload it to the internet. It&amp;rsquo;s a feature that Perl allows someone to get their work done, but the problem shows up when someone tries to generalize that to other people&amp;rsquo;s work. Projects such as &lt;a href=&#34;http://nms-cgi.sourceforge.net/&#34;&gt;Not Matt&amp;rsquo;s Scripts&lt;/a&gt; try to mitigate this by fixing the problem one script at a time. There are simply too many scripts to get to in the lifetime of the Universe.&lt;/p&gt;
-
-&lt;h3 id=&#34;in-conclusion:895dfc94e45590b36c5dd569303f6b79&#34;&gt;In conclusion&lt;/h3&gt;
-
-&lt;p&gt;If you&amp;rsquo;ve made it this far without complaining on Twitter, Reddit, or Hacker News, congratulations. You know what day of the year it is.&lt;/p&gt;
-
-&lt;p&gt;These are real issues, though, and if your application is senstive to small differences in numbers (such as calculating fundamental constants of the universe or pension fund allocations), you&amp;rsquo;re probably using sophisticated number libraries and have various levels of audits to verify the results.&lt;/p&gt;
 </description>
     </item>
     
