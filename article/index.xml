@@ -6,8 +6,103 @@
     <description>Recent content in Articles on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 09 Aug 2016 09:11:11 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 17 Aug 2016 08:38:50 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/article/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Identify slow code with Devel::Timer</title>
+      <link>http://perltricks.com/article/identify-slow-code-with-devel--timer/</link>
+      <pubDate>Wed, 17 Aug 2016 08:38:50 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/identify-slow-code-with-devel--timer/</guid>
+      <description>
+
+&lt;p&gt;Program speed is an important factor in programming. No one wants their program to execute more slowly. As a general purpose programming language, Perl is usually fast enough for most things, and when it isn&amp;rsquo;t, we have some great tools to help us make it faster. We can use the &lt;a href=&#34;https://metacpan.org/pod/Benchmark&#34;&gt;Benchmark&lt;/a&gt; module to compare code and &lt;a href=&#34;https://metacpan.org/pod/Devel::NYTProf&#34;&gt;Devel::NYTProf&lt;/a&gt; to produce detailed analyses of our programs.&lt;/p&gt;
+
+&lt;p&gt;This article is about &lt;a href=&#34;https://metacpan.org/pod/Devel::Timer&#34;&gt;Devel::Timer&lt;/a&gt;, another module I like to use when I want to optimize an existing subroutine, and I&amp;rsquo;m not sure how long each statement within the subroutine takes to execute. It&amp;rsquo;s very easy to setup, so if you haven&amp;rsquo;t used it before, once you&amp;rsquo;ve read this article you&amp;rsquo;ll have another tool in your toolbox for optimizing code.&lt;/p&gt;
+
+&lt;h3 id=&#34;use-devel-timer-to-get-a-timing-report:c8f1bf769d62e73aff7cbb1221d2bf48&#34;&gt;Use Devel::Timer to get a timing report&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s say I have a subroutine which is far too slow, but I&amp;rsquo;m not sure what&amp;rsquo;s slowing it down. The (fictional) subroutine looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub foo {
+  my $args = shift;
+
+  die &#39;foo() requires an hashref of args&#39;
+    unless $args &amp;amp;&amp;amp; ref $args eq &#39;HASH&#39;;
+
+  my %parsed_args = validate_args($args);
+
+  my $user        = find_user($parsed_args{username});
+
+  my $location    = get_location($parsed_args{req_address});
+
+  my $bar         = register_request($user, $location);
+
+  return $bar;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can use Devel::Timer to time each statement in the subroutine, and tell me how long each one took:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Devel::Timer;
+
+sub foo {
+  my $args = shift;
+  my $timer = Devel::Timer-&amp;gt;new();
+
+  die &#39;foo() requires an hashref of args&#39;
+    unless $args &amp;amp;&amp;amp; ref $args eq &#39;HASH&#39;;
+  $timer-&amp;gt;mark(&#39;check $args is hashref&#39;);
+
+  my %parsed_args = validate_args($args);
+  $timer-&amp;gt;mark(&#39;validate_args()&#39;);
+
+  my $user        = find_user($parsed_args{username});
+  $timer-&amp;gt;mark(&#39;find_user()&#39;);
+
+  my $location    = get_location($parsed_args{req_address});
+  $timer-&amp;gt;mark(&#39;get_location()&#39;);
+
+  my $bar         = register_request($user, $location);
+  $timer-&amp;gt;mark(&#39;register_request()&#39;);
+
+  $timer-&amp;gt;report();
+  return $bar;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve updated the code to import Devel::Timer and construct a new &lt;code&gt;$timer&lt;/code&gt; object. After every statement I want to time, I call the &lt;code&gt;mark&lt;/code&gt; method which adds an entry to the timer, like recording split times on a stopwatch. Finally I call &lt;code&gt;report&lt;/code&gt; which prints out a table listing the time spent between every &lt;code&gt;mark&lt;/code&gt; call.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Devel::Timer Report -- Total time: 0.0515 secs
+Interval  Time    Percent
+----------------------------------------------
+02 -&amp;gt; 03  0.0328  63.68%  validate_args() -&amp;gt; find_user()
+04 -&amp;gt; 05  0.0095  18.44%  get_location() -&amp;gt; register_request()
+03 -&amp;gt; 04  0.0081  15.72%  find_user() -&amp;gt; get_location()
+06 -&amp;gt; 07  0.0010   0.19%  register_request() -&amp;gt; END
+01 -&amp;gt; 02  0.0001   0.00%  check $args is hashref -&amp;gt; validate_args()
+00 -&amp;gt; 01  0.0000   0.00%  INIT -&amp;gt; check $args is hashref
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By default the table is printed in descending order of duration. The output shows that the subroutine took 515ms to execute, and the time between the &lt;code&gt;validate_args()&lt;/code&gt; mark and the &lt;code&gt;find_user()&lt;/code&gt; mark took a whopping 63.68% of the runtime. So if I was going to refactor this subroutine, I would start with the &lt;code&gt;find_user()&lt;/code&gt; function.&lt;/p&gt;
+
+&lt;p&gt;In my experience, this is a typical distribution of timings. It&amp;rsquo;s rare to find every statement in a subroutine takes the same amount of time. Usually there just are one or two culprits, and if you can refactor those, the subroutine runtime can improve by an order of magnitude or more.&lt;/p&gt;
+
+&lt;h3 id=&#34;a-common-pitfall:c8f1bf769d62e73aff7cbb1221d2bf48&#34;&gt;A common pitfall&lt;/h3&gt;
+
+&lt;p&gt;One thing to watch out for with Devel::Timer is lazy evaluation. This is when code is written to only execute when it&amp;rsquo;s required. Sometimes the first call to a subroutine may be slow, as objects are created, caches initialized or whatever. But subsequent calls are much faster. An easy way to check for this is to call the subroutine multiple times in the same process, and check the Devel::Timer reports to confirm the timings.&lt;/p&gt;
+
+&lt;h3 id=&#34;references:c8f1bf769d62e73aff7cbb1221d2bf48&#34;&gt;References&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;This article is about &lt;a href=&#34;https://metacpan.org/pod/Devel::Timer&#34;&gt;Devel::Timer&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Benchmark::Stopwatch&#34;&gt;Benchmark::Stopwatch&lt;/a&gt; is another timer module, similar to Devel::Timer&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Devel::NYTProf&#34;&gt;Devel::NYTProf&lt;/a&gt; is a code profiler for Perl. Tim Bunce regularly gives &lt;a href=&#34;https://www.youtube.com/watch?v=SDWoCQf53Ck&#34;&gt;talks&lt;/a&gt; about it&lt;/li&gt;
+&lt;li&gt;The &lt;a href=&#34;https://metacpan.org/pod/Benchmark&#34;&gt;Benchmark&lt;/a&gt; module comes with Perl&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>What&#39;s new on CPAN - July 2016</title>
@@ -1636,85 +1731,6 @@ my ($magic, $version, @numbers) = unpack &#39;a4 a x15 N N N N N N&#39;, $bytes;
 &lt;li&gt;The Perl Monks &lt;a href=&#34;http://www.perlmonks.org/?node_id=224666&#34;&gt;Pack/Unpack tutorial&lt;/a&gt; has some great information on the template types.&lt;/li&gt;
 &lt;li&gt;Entry 117 &amp;ldquo;Use pack and unpack for data munging&amp;rdquo; from &lt;a href=&#34;http://www.effectiveperlprogramming.com/&#34;&gt;Effective Perl Programming&lt;/a&gt; shows how to use &lt;code&gt;unpack&lt;/code&gt; for fixed width data.&lt;/li&gt;
 &lt;li&gt;The official Perl documentation also has a pack/unpack &lt;a href=&#34;http://perldoc.perl.org/perlpacktut.html&#34;&gt;tutorial&lt;/a&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>What&#39;s new on CPAN - March 2016</title>
-      <link>http://perltricks.com/article/what-s-new-on-cpan---march-2016/</link>
-      <pubDate>Wed, 06 Apr 2016 09:12:09 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/what-s-new-on-cpan---march-2016/</guid>
-      <description>
-
-&lt;p&gt;Welcome to &amp;ldquo;What&amp;rsquo;s new on CPAN&amp;rdquo;, a curated look at last month&amp;rsquo;s new CPAN uploads for your reading and programming pleasure. Everything old was new again in March. Apart from smatterings of cool new toys, CPAN got several new loggers, plugin loaders, templates, and configuration management tools.&lt;/p&gt;
-
-&lt;h3 id=&#34;apis-apps:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;APIs &amp;amp; Apps&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Net::Pushover&#34;&gt;Net::Pushover&lt;/a&gt; provides a Perly interface to Pushover, the message delivery service&lt;/li&gt;
-&lt;li&gt;Get a client for the TeamCity, the CI service with &lt;a href=&#34;https://metacpan.org/pod/WebService::TeamCity&#34;&gt;WebService::TeamCity&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Finance::Robinhood&#34;&gt;Finance::Robinhood&lt;/a&gt; allows you to trade stocks and ETFs with RobinHood, the free brokerage startup&lt;/li&gt;
-&lt;li&gt;Use the Let&amp;rsquo;s Encrypt certificate service with &lt;a href=&#34;https://metacpan.org/pod/WWW::LetsEncrypt&#34;&gt;WWW::LetsEncrypt&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/WWW::PubNub&#34;&gt;WWW::PubNub&lt;/a&gt; provides an interface to PubNub, the streaming network service&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;config-devops:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Config &amp;amp; Devops&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Footprintless&#34;&gt;Footprintless&lt;/a&gt; is a configuration management program with minimal installations&lt;/li&gt;
-&lt;li&gt;Log to date/time-stamped files with &lt;a href=&#34;https://metacpan.org/pod/Log::File::Rolling&#34;&gt;Log::File::Rolling&lt;/a&gt;, a fork of Log::Dispatch::File::Rolling&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Logging::Simple&#34;&gt;Logging::Simple&lt;/a&gt; aims to be a minimalist but useful logging system&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Task::Viral&#34;&gt;Task::Viral&lt;/a&gt; is a Perl configuration and installation system, like Pinto, CPAN::Mini et al.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;data:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Data&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/AtteanX::Endpoint&#34;&gt;AtteanX::Endpoint&lt;/a&gt; is a SPARQL 1.1 endpoint for &lt;a href=&#34;https://metacpan.org/pod/Attean&#34;&gt;Attean&lt;/a&gt;, the semantic web framework&lt;/li&gt;
-&lt;li&gt;Print nice calendars at the terminal using &lt;a href=&#34;https://metacpan.org/pod/Calendar::Gregorian&#34;&gt;Calendar::Gregorian&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Data::Tubes&#34;&gt;Data::Tubes&lt;/a&gt; is a cute data transformation module; needs iterators!&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/JSON::Typist&#34;&gt;JSON::Typist&lt;/a&gt; aims to &amp;ldquo;replace mushy strings and numbers&amp;rdquo; with proper typed classes. Useful&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Template::Pure&#34;&gt;Template::Pure&lt;/a&gt; is a port of &lt;a href=&#34;http://beebole.com/pure/&#34;&gt;pure.js&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;development-version-control:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Development &amp;amp; Version Control&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Extract a stack trace from an exception object with &lt;a href=&#34;https://metacpan.org/pod/Devel::StackTrace::Extract&#34;&gt;Devel::StackTrace::Extract&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Dist::Zilla::Plugin::SmokeTests&#34;&gt;Dist::Zilla::Plugin::SmokeTests&lt;/a&gt; makes it easy to run smoke tests run automated environments only&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/MCE::Shared&#34;&gt;MCE::Shared&lt;/a&gt; is an extension for sharing threads and processes, also &lt;a href=&#34;https://metacpan.org/pod/MCE&#34;&gt;MCE&lt;/a&gt; is great&lt;/li&gt;
-&lt;li&gt;Load plugins from files or modules with &lt;a href=&#34;https://metacpan.org/pod/Plugin::Simple&#34;&gt;Plugin::Simple&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Test::Doctest&#34;&gt;Test::Doctest&lt;/a&gt; can extract and evaluate tests from pod fragments - curious&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;hardware:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Hardware&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Linux::IRPulses&#34;&gt;Linux::IRPulses&lt;/a&gt; Parse infra-red pulse data - also see Timm&amp;rsquo;s recent &lt;a href=&#34;http://localhost:1313/article/controlling-insanity-by-parsing-ir-codes-with-linux--irpulses/&#34;&gt;article&lt;/a&gt; on the subject&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;language-international:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Language &amp;amp; International&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Guess language from text using a word list with &lt;a href=&#34;https://metacpan.org/pod/Text::Guess::Language&#34;&gt;Text::Guess::Language&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Check if text is UTF8 compatible with &lt;a href=&#34;https://metacpan.org/pod/Unicode::CheckUTF8::PP&#34;&gt;Unicode::CheckUTF8::PP&lt;/a&gt; a pure Perl module&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/ecl&#34;&gt;ecl&lt;/a&gt; executes Embedded Common Lisp code within Perl&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;science-mathematics:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Science &amp;amp; Mathematics&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/EMDIS::ECS&#34;&gt;EMDIS::ECS&lt;/a&gt; provides useful subroutines for the European Marrow Donor Information System standard&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;web:c9b5ea5fe97fc4a604c5139fcd9ab84e&#34;&gt;Web&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Get a simple local search engine for your Dancer app with &lt;a href=&#34;https://metacpan.org/pod/Dancer::SearchApp&#34;&gt;Dancer::SearchApp&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mojo::ACME&#34;&gt;Mojo::ACME&lt;/a&gt; use the Let&amp;rsquo;s Encrypt ACME API with your Mojo app&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Plack::Middleware::Pod&#34;&gt;Plack::Middleware::Pod&lt;/a&gt; can render POD files as HTML&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>

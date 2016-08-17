@@ -94,7 +94,7 @@
 
 <h3 id="timing-perl-code:9f13c3fb84d6c1f3b2fdc2b107f646bd">Timing Perl Code</h3>
 
-<p>Benchmarks are most interesting when comparing performance of code - so we&rsquo;re going to focus on methods that do that. Benchmark provides a &ldquo;timethese&rdquo; subroutine which continuously executes sets of Perl code for a number of CPU seconds and then prints out the results. Let&rsquo;s compare the speed difference of two common Perl operations: array assignment using the shift built in function and direct array assignment using equals:</p>
+<p>Benchmarks are most interesting when comparing performance of code - so we&rsquo;re going to focus on methods that do that. Benchmark provides a <code>timethese</code> subroutine which continuously executes sets of Perl code for a number of CPU seconds and then prints out the results. Let&rsquo;s compare the speed difference of two common Perl operations: array assignment using the shift built in function and direct array assignment using equals:</p>
 
 <pre><code class="language-prettyprint">use strict;
 use warnings;
@@ -125,7 +125,7 @@ shiftAssign: 11 wallclock secs (10.43 usr +  0.00 sys = 10.43 CPU) @ 148529.82/s
 
 <h3 id="comparing-perl-code:9f13c3fb84d6c1f3b2fdc2b107f646bd">Comparing Perl Code</h3>
 
-<p>The &ldquo;cmpthese&rdquo; subroutine provided the Benchmark module accepts the same arguments and &ldquo;timethese&rdquo; shown above, but prints out a useful comparison grid of the results to show which code block was faster by %. Helpfully it also includes the rate per CPU second.</p>
+<p>The <code>cmpthese</code> subroutine provided the Benchmark module accepts the same arguments and <code>timethese</code> shown above, but prints out a useful comparison grid of the results to show which code block was faster by %. Helpfully it also includes the rate per CPU second.</p>
 
 <pre><code class="language-prettyprint">use strict;
 use warnings;
@@ -152,13 +152,13 @@ shiftAssign  142529/s           --          -4%
 equalsAssign 148159/s           4%           --
 </code></pre>
 
-<p>The results above are ordered from slowest to fastest (as seen by the rate/s measurement). This benchmark shows that the equalsAssign code block was on average 4% faster than the shiftAssign code block.</p>
+<p>The results above are ordered from slowest to fastest (as seen by the rate/s measurement). This benchmark shows that the equalsAssign code block was 4% faster than the shiftAssign code block.</p>
 
 <h3 id="additional-tips:9f13c3fb84d6c1f3b2fdc2b107f646bd">Additional Tips</h3>
 
 <ul>
 <li>Try to use the minimum set of code required for the behavior required - this will increase the accuracy of the benchmark pertaining to operations being benchmarked.</li>
-<li>Use a negative number as the CPU seconds count for &ldquo;timethese&rdquo; or &ldquo;cmpthese&rdquo;. This specifies the minimum number of CPU seconds to run. <a href="http://www.perlmonks.org/?node_id=8745">Some sources</a> recommend at least -5 seconds to avoid inaccurate benchmarks.</li>
+<li>Use a negative number as the CPU seconds count for <code>timethese</code> or <code>cmpthese</code>. This specifies the minimum number of CPU seconds to run. <a href="http://www.perlmonks.org/?node_id=8745">Some sources</a> recommend at least -5 seconds to avoid inaccurate benchmarks.</li>
 <li>Sanity check your results: if you&rsquo;re not sure try comparing two code blocks with one obviously slower than the other to check that Benchmark is returning sensible results.</li>
 <li>Compare code examples rather than time individual ones: the actual execution time of a block of code is usually not that important; knowing which set of code is faster than the other however is useful as this will generally be a repeatable occurrence.</li>
 <li>If you require more in depth benchmarking consider using <a href="https://metacpan.org/module/Devel::NYTProf">Devel::NYTProf</a>.</li>
@@ -202,6 +202,20 @@ equalsAssign 148159/s           4%           --
     <div class="col-sm-12 centering">
       <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
     </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/identify-slow-code-with-devel--timer/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/identify-slow-code-with-devel--timer/stopwatch.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Identify slow code with Devel::Timer</h6>
+        <p style="line-height:1"><small>How timing statements can help you pinpoint bottlenecks</small></p>
+    </div>
+      </a>
   </div>
   
         
@@ -256,20 +270,6 @@ equalsAssign 148159/s           4%           --
     <div class="col-sm-9">
         <h6>What&#39;s new on CPAN - June 2016</h6>
         <p style="line-height:1"><small>A curated look at June&#39;s new CPAN uploads</small></p>
-    </div>
-      </a>
-  </div>
-  
-        
-        
-  <div class="row">
-      <a href="http://perltricks.com/article/write-multiline-programs-at-the-terminal/">
-    <div class="col-sm-3">
-      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
-    </div>
-    <div class="col-sm-9">
-        <h6>Write multiline programs at the terminal</h6>
-        <p style="line-height:1"><small>Using the shell here-doc for throwaway programs</small></p>
     </div>
       </a>
   </div>

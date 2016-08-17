@@ -6,8 +6,103 @@
     <description>Recent content in Development on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 05 Jul 2016 11:18:55 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 17 Aug 2016 08:38:50 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/categories/development/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Identify slow code with Devel::Timer</title>
+      <link>http://perltricks.com/article/identify-slow-code-with-devel--timer/</link>
+      <pubDate>Wed, 17 Aug 2016 08:38:50 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/identify-slow-code-with-devel--timer/</guid>
+      <description>
+
+&lt;p&gt;Program speed is an important factor in programming. No one wants their program to execute more slowly. As a general purpose programming language, Perl is usually fast enough for most things, and when it isn&amp;rsquo;t, we have some great tools to help us make it faster. We can use the &lt;a href=&#34;https://metacpan.org/pod/Benchmark&#34;&gt;Benchmark&lt;/a&gt; module to compare code and &lt;a href=&#34;https://metacpan.org/pod/Devel::NYTProf&#34;&gt;Devel::NYTProf&lt;/a&gt; to produce detailed analyses of our programs.&lt;/p&gt;
+
+&lt;p&gt;This article is about &lt;a href=&#34;https://metacpan.org/pod/Devel::Timer&#34;&gt;Devel::Timer&lt;/a&gt;, another module I like to use when I want to optimize an existing subroutine, and I&amp;rsquo;m not sure how long each statement within the subroutine takes to execute. It&amp;rsquo;s very easy to setup, so if you haven&amp;rsquo;t used it before, once you&amp;rsquo;ve read this article you&amp;rsquo;ll have another tool in your toolbox for optimizing code.&lt;/p&gt;
+
+&lt;h3 id=&#34;use-devel-timer-to-get-a-timing-report:c8f1bf769d62e73aff7cbb1221d2bf48&#34;&gt;Use Devel::Timer to get a timing report&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s say I have a subroutine which is far too slow, but I&amp;rsquo;m not sure what&amp;rsquo;s slowing it down. The (fictional) subroutine looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;sub foo {
+  my $args = shift;
+
+  die &#39;foo() requires an hashref of args&#39;
+    unless $args &amp;amp;&amp;amp; ref $args eq &#39;HASH&#39;;
+
+  my %parsed_args = validate_args($args);
+
+  my $user        = find_user($parsed_args{username});
+
+  my $location    = get_location($parsed_args{req_address});
+
+  my $bar         = register_request($user, $location);
+
+  return $bar;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I can use Devel::Timer to time each statement in the subroutine, and tell me how long each one took:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Devel::Timer;
+
+sub foo {
+  my $args = shift;
+  my $timer = Devel::Timer-&amp;gt;new();
+
+  die &#39;foo() requires an hashref of args&#39;
+    unless $args &amp;amp;&amp;amp; ref $args eq &#39;HASH&#39;;
+  $timer-&amp;gt;mark(&#39;check $args is hashref&#39;);
+
+  my %parsed_args = validate_args($args);
+  $timer-&amp;gt;mark(&#39;validate_args()&#39;);
+
+  my $user        = find_user($parsed_args{username});
+  $timer-&amp;gt;mark(&#39;find_user()&#39;);
+
+  my $location    = get_location($parsed_args{req_address});
+  $timer-&amp;gt;mark(&#39;get_location()&#39;);
+
+  my $bar         = register_request($user, $location);
+  $timer-&amp;gt;mark(&#39;register_request()&#39;);
+
+  $timer-&amp;gt;report();
+  return $bar;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;ve updated the code to import Devel::Timer and construct a new &lt;code&gt;$timer&lt;/code&gt; object. After every statement I want to time, I call the &lt;code&gt;mark&lt;/code&gt; method which adds an entry to the timer, like recording split times on a stopwatch. Finally I call &lt;code&gt;report&lt;/code&gt; which prints out a table listing the time spent between every &lt;code&gt;mark&lt;/code&gt; call.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Devel::Timer Report -- Total time: 0.0515 secs
+Interval  Time    Percent
+----------------------------------------------
+02 -&amp;gt; 03  0.0328  63.68%  validate_args() -&amp;gt; find_user()
+04 -&amp;gt; 05  0.0095  18.44%  get_location() -&amp;gt; register_request()
+03 -&amp;gt; 04  0.0081  15.72%  find_user() -&amp;gt; get_location()
+06 -&amp;gt; 07  0.0010   0.19%  register_request() -&amp;gt; END
+01 -&amp;gt; 02  0.0001   0.00%  check $args is hashref -&amp;gt; validate_args()
+00 -&amp;gt; 01  0.0000   0.00%  INIT -&amp;gt; check $args is hashref
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;By default the table is printed in descending order of duration. The output shows that the subroutine took 515ms to execute, and the time between the &lt;code&gt;validate_args()&lt;/code&gt; mark and the &lt;code&gt;find_user()&lt;/code&gt; mark took a whopping 63.68% of the runtime. So if I was going to refactor this subroutine, I would start with the &lt;code&gt;find_user()&lt;/code&gt; function.&lt;/p&gt;
+
+&lt;p&gt;In my experience, this is a typical distribution of timings. It&amp;rsquo;s rare to find every statement in a subroutine takes the same amount of time. Usually there just are one or two culprits, and if you can refactor those, the subroutine runtime can improve by an order of magnitude or more.&lt;/p&gt;
+
+&lt;h3 id=&#34;a-common-pitfall:c8f1bf769d62e73aff7cbb1221d2bf48&#34;&gt;A common pitfall&lt;/h3&gt;
+
+&lt;p&gt;One thing to watch out for with Devel::Timer is lazy evaluation. This is when code is written to only execute when it&amp;rsquo;s required. Sometimes the first call to a subroutine may be slow, as objects are created, caches initialized or whatever. But subsequent calls are much faster. An easy way to check for this is to call the subroutine multiple times in the same process, and check the Devel::Timer reports to confirm the timings.&lt;/p&gt;
+
+&lt;h3 id=&#34;references:c8f1bf769d62e73aff7cbb1221d2bf48&#34;&gt;References&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;This article is about &lt;a href=&#34;https://metacpan.org/pod/Devel::Timer&#34;&gt;Devel::Timer&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Benchmark::Stopwatch&#34;&gt;Benchmark::Stopwatch&lt;/a&gt; is another timer module, similar to Devel::Timer&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Devel::NYTProf&#34;&gt;Devel::NYTProf&lt;/a&gt; is a code profiler for Perl. Tim Bunce regularly gives &lt;a href=&#34;https://www.youtube.com/watch?v=SDWoCQf53Ck&#34;&gt;talks&lt;/a&gt; about it&lt;/li&gt;
+&lt;li&gt;The &lt;a href=&#34;https://metacpan.org/pod/Benchmark&#34;&gt;Benchmark&lt;/a&gt; module comes with Perl&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Write multiline programs at the terminal</title>
@@ -2286,222 +2381,6 @@ done_testing();
 &lt;p&gt;With this project I intend to create a lot of simple roles, so this approach provides a lightweight way for me to test roles within the test file without creating test classes for every role.&lt;/p&gt;
 
 &lt;p&gt;I really like &lt;a href=&#34;https://metacpan.org/pod/Role::Tiny&#34;&gt;Role::Tiny&lt;/a&gt;. It&amp;rsquo;s flexible: you can create minimalist trait-like behavior or go further and create mixins (roles which modify state). It has nice features like auto-enabling strict and warnings, method modifiers and good &lt;a href=&#34;https://metacpan.org/pod/Role::Tiny&#34;&gt;documentation&lt;/a&gt;. &lt;a href=&#34;https://metacpan.org/pod/Role::Basic&#34;&gt;Role::Basic&lt;/a&gt; is another lightweight roles module that supports traits only (by &lt;a href=&#34;https://metacpan.org/pod/Role::Basic#DESIGN-GOALS-AND-LIMITATIONS&#34;&gt;design&lt;/a&gt;). I wonder if I&amp;rsquo;ll come to regret using a mixin approach as I get further into development of the game engine.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Get a weather report at the terminal with Perl</title>
-      <link>http://perltricks.com/article/114/2014/9/11/Get-a-weather-report-at-the-terminal-with-Perl/</link>
-      <pubDate>Thu, 11 Sep 2014 12:36:33 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/114/2014/9/11/Get-a-weather-report-at-the-terminal-with-Perl/</guid>
-      <description>
-
-&lt;p&gt;Getting a weather forecast can be a chore; you have to navigate to the right website, close the banner ad, type in your location, click the right link, and &lt;em&gt;maybe&lt;/em&gt; then you can see a forecast. I wanted a more convenient way and found one using &lt;a href=&#34;https://metacpan.org/pod/WWW::Wunderground::API&#34;&gt;WWW::Wunderground::API&lt;/a&gt;. As the name suggests, the module provides a Perl interface to the Wunderground.com API. In this article I&amp;rsquo;ll show you how to use it.&lt;/p&gt;
-
-&lt;h3 id=&#34;setup:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;Setup&lt;/h3&gt;
-
-&lt;p&gt;You&amp;rsquo;ll need an API key for Wunderground.com (sign up &lt;a href=&#34;http://www.wunderground.com/weather/api/&#34;&gt;here&lt;/a&gt; it&amp;rsquo;s free). You&amp;rsquo;ll also need to install WWW::Wunderground.::API. The CPAN Testers &lt;a href=&#34;http://matrix.cpantesters.org/?dist=WWW-Wunderground-API+0.06&#34;&gt;results&lt;/a&gt; show that it runs on most platforms, including Windows. You can install the module at the command line:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan WWW::Wunderground::API
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;the-code:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;The Code&lt;/h3&gt;
-
-&lt;p&gt;Using WWW::Wunderground::API, I created a script that would pull an hourly forecast for my local city:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use strict;
-use warnings;
-use WWW::Wunderground::API;
-
-binmode STDOUT, &#39;:utf8&#39;; # for degrees symbol
-
-my $w = new WWW::Wunderground::API(
-    location =&amp;gt; &#39;New York City, NY&#39;,
-    api_key  =&amp;gt; &#39;123456789012345&#39;,
-    auto_api =&amp;gt; 1,
-);
-
-# print header
-printf &amp;quot;%-10s%-4s%-4s%-8s%-20s\n&amp;quot;,
-       &#39;Time&#39;,
-       &amp;quot;\x{2109}&amp;quot;,
-       &amp;quot;\x{2103}&amp;quot;,
-       &#39;Rain %&#39;,
-       &#39;Conditions&#39;;
-
-# print hourly
-for (@{ $w-&amp;gt;hourly })
-{
-    printf &amp;quot;%8s%4i%4i%8i  %-30s\n&amp;quot;,
-           $_-&amp;gt;{FCTTIME}{civil},
-           $_-&amp;gt;{temp}{english},
-           $_-&amp;gt;{temp}{metric},
-           $_-&amp;gt;{pop},
-           $_-&amp;gt;{condition};
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;In the script I use code&amp;gt;binmode to switch the standard output to UTF8 mode. This lets me print some cool degrees symbols later on. I then connect to the Wunderground API, passing my API key and location (location can be a city name or a zip code). Finally I print out the weather forecast using printf to format the output nicely. I saved the script as &lt;code&gt;weather&lt;/code&gt; and ran it at the command line:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ weather
-Time      ℉   ℃   Rain %  Conditions          
-11:00 PM  69  21       3  Partly Cloudy                 
-12:00 AM  69  21       3  Partly Cloudy                 
- 1:00 AM  69  21       8  Partly Cloudy                 
- 2:00 AM  69  21       9  Mostly Cloudy                 
- 3:00 AM  69  21       8  Mostly Cloudy                 
- 4:00 AM  69  21       5  Mostly Cloudy                 
- 5:00 AM  69  21       5  Overcast                      
- 6:00 AM  69  21       4  Overcast                      
- 7:00 AM  69  21       4  Mostly Cloudy                 
- 8:00 AM  70  21       4  Mostly Cloudy                 
- 9:00 AM  72  22       3  Mostly Cloudy                 
-10:00 AM  74  23       2  Mostly Cloudy                 
-11:00 AM  77  25       2  Mostly Cloudy                 
-12:00 PM  80  27       2  Mostly Cloudy                 
- 1:00 PM  82  28       1  Mostly Cloudy                 
- 2:00 PM  84  29       7  Overcast                      
- 3:00 PM  84  29      46  Chance of a Thunderstorm      
- 4:00 PM  84  29      52  Chance of a Thunderstorm      
- 5:00 PM  82  28      56  Chance of a Thunderstorm      
- 6:00 PM  82  28      45  Chance of a Thunderstorm      
- 7:00 PM  81  27      50  Chance of a Thunderstorm      
- 8:00 PM  80  27      39  Chance of a Thunderstorm      
- 9:00 PM  78  26      32  Chance of a Thunderstorm      
-10:00 PM  77  25      38  Chance of a Thunderstorm      
-11:00 PM  74  23       6  Partly Cloudy                 
-12:00 AM  71  22       3  Clear                         
- 1:00 AM  69  21       3  Clear                         
- 2:00 AM  67  19       2  Partly Cloudy                 
- 3:00 AM  65  18       2  Clear                         
- 4:00 AM  64  18       2  Clear                         
- 5:00 AM  62  17       2  Clear                         
- 6:00 AM  61  16       2  Clear                         
- 7:00 AM  60  16       2  Clear                         
- 8:00 AM  60  16       2  Clear                         
- 9:00 AM  62  17       1  Clear                         
-10:00 AM  64  18       0  Clear  
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The results show an hourly forecast with the temperature in Fahrenheit and Celsius, the probability of rain and an overall description. As I do most of my work from the terminal, this is much more convenient than using the browser and there are no ads!&lt;/p&gt;
-
-&lt;h3 id=&#34;multiple-locations:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;Multiple Locations&lt;/h3&gt;
-
-&lt;p&gt;So the script is nice, but how can we make it better? Well, I&amp;rsquo;m rarely in the same place all the time, and I expect most people mover around too, so it would good to be more flexible and let the user type in the location, rather than using the same location every time:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use strict;
-use warnings;
-use WWW::Wunderground::API;
-
-my $home_location = &#39;New York City, NY&#39;;
-
-# capture location
-print &amp;quot;Enter city or zip code ($home_location): &amp;quot;;
-my $location = &amp;lt;&amp;gt;;
-chomp $location;
-
-binmode STDOUT, &#39;:utf8&#39;; # for degrees symbol
-my $w = new WWW::Wunderground::API(
-    location =&amp;gt; $location || $home_location,
-    api_key  =&amp;gt; &#39;123456789012345&#39;,
-    auto_api =&amp;gt; 1,
-);
-
-# print header
-printf &amp;quot;%-10s%-4s%-4s%-8s%-20s\n&amp;quot;,
-       &#39;Time&#39;,
-       &amp;quot;\x{2109}&amp;quot;,
-       &amp;quot;\x{2103}&amp;quot;,
-       &#39;Rain %&#39;,
-       &#39;Conditions&#39;;
-
-# print hourly
-for (@{ $w-&amp;gt;hourly })
-{
-    printf &amp;quot;%8s%4i%4i%8i  %-30s\n&amp;quot;,
-           $_-&amp;gt;{FCTTIME}{civil},
-           $_-&amp;gt;{temp}{english},
-           $_-&amp;gt;{temp}{metric},
-           $_-&amp;gt;{pop},
-           $_-&amp;gt;{condition};
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;I&amp;rsquo;ve updated the code to store a default location called &lt;code&gt;$home_location&lt;/code&gt;. I then ask the user to enter a City or zip code, making sure to &lt;a href=&#34;http://perldoc.perl.org/functions/chomp.html&#34;&gt;chomp&lt;/a&gt; the result. Later in the API call, the code: &lt;code&gt;$location || $home_location&lt;/code&gt; will submit the home location unless the user has entered a location. Running the script now, I can get the weather for London easily:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ weather
-Enter city or zip code (New York City, NY): London, UK
-Time      ℉   ℃   Rain %  Conditions          
- 4:00 AM  50  10       4  Clear                         
- 5:00 AM  50  10       4  Clear                         
- 6:00 AM  49   9       4  Clear                         
- 7:00 AM  49   9       4  Clear                         
- 8:00 AM  52  11       4  Clear                         
- 9:00 AM  55  13       4  Clear                         
-10:00 AM  59  15       4  Clear                         
-11:00 AM  62  17       3  Clear                         
-...
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;caching:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;Caching&lt;/h3&gt;
-
-&lt;p&gt;The &lt;a href=&#34;https://metacpan.org/pod/WWW::Wunderground::API&#34;&gt;WWW::Wunderground::API&lt;/a&gt; documentation shows how to use &lt;a href=&#34;https://metacpan.org/pod/Cache::FileCache&#34;&gt;Cache::FileCache&lt;/a&gt; to cache the weather results locally. When you setup the cache, you can specify an expiry parameter - until the cache expires the WWW::Wunderground::API will use the cached results instead of the Wunderground API. This prevents unnecessary API calls and makes the script faster:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
-use strict;
-use warnings;
-use WWW::Wunderground::API;
-use Cache::FileCache;
-
-my $home_location = &#39;New York City, NY&#39;;
-
-#capture location
-print &amp;quot;Enter city or zip code ($home_location): &amp;quot;;
-my $location = &amp;lt;&amp;gt;;
-chomp $location;
-
-binmode STDOUT, &#39;:utf8&#39;; # for degrees symbol
-my $w = new WWW::Wunderground::API(
-    location =&amp;gt; $location || $home_location,
-    api_key  =&amp;gt; &#39;123456789012345&#39;,
-    auto_api =&amp;gt; 1,
-    cache    =&amp;gt; Cache::FileCache-&amp;gt;new({
-                    namespace          =&amp;gt; &#39;wundercache&#39;,
-                    default_expires_in =&amp;gt; 2400 }),
-);
-
-# print header
-printf &amp;quot;%-10s%-4s%-4s%-8s%-20s\n&amp;quot;,
-       &#39;Time&#39;,
-       &amp;quot;\x{2109}&amp;quot;,
-       &amp;quot;\x{2103}&amp;quot;,
-       &#39;Rain %&#39;,
-       &#39;Conditions&#39;;
-
-# print hourly
-for (@{ $w-&amp;gt;hourly })
-{
-    printf &amp;quot;%8s%4i%4i%8i  %-30s\n&amp;quot;,
-           $_-&amp;gt;{FCTTIME}{civil},
-           $_-&amp;gt;{temp}{english},
-           $_-&amp;gt;{temp}{metric},
-           $_-&amp;gt;{pop},
-           $_-&amp;gt;{condition};
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Not much has changed in the code. The line &lt;code&gt;use Cache::FileCache;&lt;/code&gt; imports the module and a &lt;code&gt;cache&lt;/code&gt; parameter has been added to the Wunderground API call. WWW::Wunderground::API is smart enough to not return cached results for different locations.&lt;/p&gt;
-
-&lt;h3 id=&#34;conclusion:81c6a0b1c118f0273c807f4fd711a8ff&#34;&gt;Conclusion&lt;/h3&gt;
-
-&lt;p&gt;That&amp;rsquo;s probably enough to get started, however there is more that could be done with this script. I could make the script more portable by using environment variables instead of the hard coded values for my API key and home location. Exception handling could better - checking for an internet connection before running the script, handling failed API calls more gracefully (for unknown locations for example). Finally, why have the user type in a location at all? We could use get the user&amp;rsquo;s IP address and then geolocate them using the &lt;a href=&#34;https://metacpan.org/pod/Geo::IP&#34;&gt;Geo::IP&lt;/a&gt; module.&lt;/p&gt;
-
-&lt;p&gt;The Wunderground API provides a lot more than just a 24 hour forecast. Check out their API &lt;a href=&#34;http://www.wunderground.com/weather/api/d/docs&#34;&gt;documentation&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/gsfc/5598148465/in/photolist-9wFYv8-kYwXMt-bsoJ2F-epZCJW-51zsz5-4xqurW-dQW1WX-ntLbig-47NhYw-8ha98x-gKjXSn-iGqBL8-fkVu7f-3bs6Hv-9C5Gp9-dfRRoo-ab4NaA-5nNgKY-hkfRe6-hSmCX2-97fCju-8fqUzR-e6xj8j-943upK-CaRbr-5sSeXx-6yuU9E-4adC2H-9YWWVQ-dK9bTn-piUN9-8NP9b5-8hdo8u-8xGTYN-mG2TTk-bmH4rF-7A8s15-97GPeg-fxsEhK-a1cDq-nMWvny-7xTFh6-ow6uvp-i7yjhS-82v13J-6DmEYb-c6BXa-5eCgsS-bo1p2k-nytJYo/&#34;&gt;NASA Goddard Space Flight Center&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 </description>
     </item>
     
