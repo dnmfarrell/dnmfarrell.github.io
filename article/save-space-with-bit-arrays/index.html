@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+  <title> Save space with bit arrays </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An old school data structure that efficiently stores data"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container-fluid full-wdith antonio">
+ <div class="row">
+  <div class="navbar-inverse" style="border-radius:none !important" role="navigation">
+    <div class="container-fluid">
+      <ul id="follow-buttons" class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+          <li><a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+ </div>
+</div>
+
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <div class="row">
+              <article>
+              
+              
+              <h1 class="blog-post-title">Save space with bit arrays</h1>
+              <p class="blog-post-meta">Aug 23, 2016 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src="/images/save-space-with-bit-arrays/binary-msg.png"/>
+                
+
+<p>&ldquo;Big data&rdquo; is an overused term, but when you&rsquo;re actually working with big data, every bit can count. Shaving several bits from data structure used billions of times can save a lot of space. A few months ago I was working on a job distribution system; it would send millions of jobs out every day. We wanted to capture every decision made by the system, so that a user could later query the system to understand <em>why</em> a job had or hadn&rsquo;t been sent to a partner.</p>
+
+<p>The problem was that the system was making billions of decisions a day, so we needed a way to pack those decisions as efficiently as possible. A colleague of mine had the bright idea to use a <a href="https://en.wikipedia.org/wiki/Bit_array">bit array</a>, and it worked very well - we were able to compress the data by a factor of 18 or more. If you&rsquo;re not familiar with bit arrays, or a little rusty on the code, keep reading and I&rsquo;ll show you how to use them with Perl.</p>
+
+<h3 id="bit-array-basics:a332d1994b52ca26596563ea047b2f1d">Bit array basics</h3>
+
+<p>Bit arrays are a way of storing multiple booleans in single number. Consider the number 0 as a byte/octet represented as bits:</p>
+
+<pre><code>00000000
+</code></pre>
+
+<p>Instead of treating it like a number, using <a href="https://en.wikipedia.org/wiki/Bitwise_operation">bitwise operators</a> we can treat each bit as a separate column. As this is an 8 bit number, we can store up to 8 booleans in it:</p>
+
+<pre><code>0|0|0|0|0|0|0|0
+</code></pre>
+
+<p>To store a boolean in the first bit of the array, we can use bitwise or equals (<code>|=</code>). Here&rsquo;s how that looks in C pseudocode:</p>
+
+<pre><code class="language-prettyprint">short bit_array = 0;
+bit_array |= 1 &lt;&lt; 6;
+</code></pre>
+
+<p>Let&rsquo;s take this one step at a time. First I initialize an 8 bit integer called <code>bit_array</code>. Next, I create a binary number with the bit set that I wish to set in <code>bit_array</code>. I do this with the left bitshift code <code>1 &lt;&lt; 6</code>. This means, &ldquo;shift the bits in the number on the left, 6 places to the left&rdquo;, which does this:</p>
+
+<pre><code>00000001 &lt;&lt; 6;
+01000000
+</code></pre>
+
+<p>This is called a bitmask. Next I use or equals to update <code>bit_array</code> with the bitmask <code>01000000</code>. Bitwise or (<code>|</code>) works by setting any bit to 1 in its left operand that is set to 1 in its right operand. Adding a equals sign on the end simply assigns the resulting value to <code>bit_array</code>.</p>
+
+<p>If we wanted to store a boolean in the fourth bit, we&rsquo;d do this:</p>
+
+<pre><code class="language-prettyprint">bit_array |= 1 &lt;&lt; 3;
+</code></pre>
+
+<p>So now the <code>bit_array</code> looks like this:</p>
+
+<pre><code>01001000
+</code></pre>
+
+<p>To test if a particular bit is set, I can use bitwise and (<code>&amp;</code>):</p>
+
+<pre><code class="language-prettyprint">if (bit_array &amp; (1 &lt;&lt; 6)) {
+  /* the seventh column is true */
+}
+</code></pre>
+
+<p>Bitwise and returns a number with every bit set to 0 in its left operand which is 0 in its right operand. So the code <code>1 &lt;&lt; 6</code> bitshifts a number that only has one particular bit set to 1 (<code>01000000</code>). This is the bitmask. If the bit array has that bit set to 1, it will return non-zero (true), else it returns zero (false).</p>
+
+<h3 id="bit-arrays-in-perl:a332d1994b52ca26596563ea047b2f1d">Bit arrays in Perl</h3>
+
+<p>I&rsquo;m going to use a contrived example to show how bit arrays work in Perl. Imagine we&rsquo;re working on an ordering system at a pizza restaurant. We need to store all the toppings required for the pizza. In Perl we store numbers in scalars, which are usually 32 or 64 bits long; that&rsquo;s a lot of toppings we can pack into a single number!</p>
+
+<p>Here is the class:</p>
+
+<pre><code class="language-prettyprint">package Pizza::Order;
+use utf8;
+
+my %toppings = (
+  tomato        =&gt; 1 &lt;&lt; 0,
+  cheese        =&gt; 1 &lt;&lt; 1,
+  onion         =&gt; 1 &lt;&lt; 2,
+  sausage       =&gt; 1 &lt;&lt; 3,
+  pepperoni     =&gt; 1 &lt;&lt; 4,
+  ham           =&gt; 1 &lt;&lt; 5,
+  chicken       =&gt; 1 &lt;&lt; 6,
+  bbq_chicken   =&gt; 1 &lt;&lt; 7,
+  olives        =&gt; 1 &lt;&lt; 8,
+  vegetables    =&gt; 1 &lt;&lt; 9,
+  jalapeńo      =&gt; 1 &lt;&lt; 10,
+  ranch         =&gt; 1 &lt;&lt; 11,
+  eggplant      =&gt; 1 &lt;&lt; 12,
+  garlic        =&gt; 1 &lt;&lt; 13,
+);
+
+sub new {
+  my $class = shift;
+  my $self = 0;
+  return bless \$self, $class;
+}
+
+sub print_state {
+  my $self = shift;
+  printf &quot;%014b\n&quot;, $$self;
+}
+
+sub available_toppings {
+  return keys %toppings;
+}
+
+sub add_topping {
+  my ($self, $topping) = @_;
+  # bitwise OR equals to set a bit field
+  return $$self |= $toppings{ $topping };
+}
+
+sub remove_topping {
+  my ($self, $topping) = @_;
+  # bitwise NOT to invert a field and bitwise AND equals to unset it
+  return $$self &amp;= ~$toppings{ $topping };
+}
+
+sub get_toppings {
+  my $self = shift;
+  my @ordered_toppings = ();
+  for my $topping (keys %toppings) {
+    push @ordered_toppings, $topping
+      # bitwise AND to test if this bit is set
+      if $$self &amp; $toppings{ $topping };
+  }
+  return @ordered_toppings;
+}
+1;
+</code></pre>
+
+<p>I create a class called <code>Pizza::Order</code>. The <code>%toppings</code> hash stores names of pizza toppings and their associated bitmask. I could only think of 14 toppings, leaving 18 spare slots for the future (if we want to stick to 32 bit integers). The <code>new</code> subroutine is a constructor which creates a blessed scalar as the <code>Pizza::Order</code> object.</p>
+
+<p>The <code>print_state</code> method uses <a href="http://perldoc.perl.org/functions/printf.html">printf</a> to print the Pizza::Order object state as a binary number. This is a really useful feature of <code>printf</code> which many other languages don&rsquo;t have (C &amp; Python for example). Both <code>add_topping</code> and <code>get_toppings</code> use the techniques described earlier to set and check for set bits.</p>
+
+<p>More interesting perhaps, is the <code>remove_topping</code> method. This uses bitwise not (<code>~</code>) to invert a bitmask and then bitwise and (<code>&amp;</code>) equals to unset it. Pretty nifty, huh? Here&rsquo;s a quick script to test it:</p>
+
+<pre><code class="language-prettyprint">#!/usr/bin/perl
+use Pizza::Order;
+
+my $order = Pizza::Order-&gt;new();
+$order-&gt;add_topping('cheese');
+$order-&gt;add_topping('eggplant');
+$order-&gt;remove_topping('cheese');
+$order-&gt;add_topping('tomato');
+$order-&gt;print_state();
+print &quot;$_\n&quot; for $order-&gt;get_toppings();
+</code></pre>
+
+<p>This prints:</p>
+
+<pre><code class="language-prettyprint">01000000000001
+eggplant
+tomato
+</code></pre>
+
+<p>The first line is the current state of the <code>$order</code> object. It shows the first, and second-to-last bits set, which correspond to the tomato and eggplant bitmasks. It then prints out those toppings. Yay, it works!</p>
+
+<h3 id="bit-array-limitations:a332d1994b52ca26596563ea047b2f1d">Bit array limitations</h3>
+
+<p>One thing to watch out for when storing bit arrays on disk is code change. Imagine if I had several years&rsquo; worth of pizza orders saved in a database. Then one day, we stopped offering bbq chicken. It would be tempting to update the toppings hash like this:</p>
+
+<pre><code class="language-prettyprint">my %toppings = (
+  tomato        =&gt; 1 &lt;&lt; 0,
+  cheese        =&gt; 1 &lt;&lt; 1,
+  onion         =&gt; 1 &lt;&lt; 2,
+  sausage       =&gt; 1 &lt;&lt; 3,
+  pepperoni     =&gt; 1 &lt;&lt; 4,
+  ham           =&gt; 1 &lt;&lt; 5,
+  chicken       =&gt; 1 &lt;&lt; 6,
+  olives        =&gt; 1 &lt;&lt; 7, # deleted bbq_chicken
+  vegetables    =&gt; 1 &lt;&lt; 8,
+  jalapeńo      =&gt; 1 &lt;&lt; 9,
+  ranch         =&gt; 1 &lt;&lt; 10,
+  eggplant      =&gt; 1 &lt;&lt; 11,
+  garlic        =&gt; 1 &lt;&lt; 12,
+);
+</code></pre>
+
+<p>I deleted the <code>bbq_chicken</code> entry and bumped up the remaining toppings bitmasks. The problem is compatibility: in all the historical pizza orders, <code>olives</code> (for example) had a bitmask of <code>00000010000000</code> but in the new code, its bitmask is one lower. So if I tried to load a historical order with this class, the toppings data would be wrong. One way to handle this is remove, but not reuse, the bitmask for the deleted entry.</p>
+
+<pre><code class="language-prettyprint">my %toppings = (
+  tomato        =&gt; 1 &lt;&lt; 0,
+  cheese        =&gt; 1 &lt;&lt; 1,
+  onion         =&gt; 1 &lt;&lt; 2,
+  sausage       =&gt; 1 &lt;&lt; 3,
+  pepperoni     =&gt; 1 &lt;&lt; 4,
+  ham           =&gt; 1 &lt;&lt; 5,
+  chicken       =&gt; 1 &lt;&lt; 6,
+  # reserved
+  olives        =&gt; 1 &lt;&lt; 8,
+  vegetables    =&gt; 1 &lt;&lt; 9,
+  jalapeńo      =&gt; 1 &lt;&lt; 10,
+  ranch         =&gt; 1 &lt;&lt; 11,
+  eggplant      =&gt; 1 &lt;&lt; 12,
+  garlic        =&gt; 1 &lt;&lt; 13,
+);
+</code></pre>
+
+<p>This limitation makes bitmasks less useful for long-term storage of data, unless the existing bitmasks are unlikely to change. Note that it&rsquo;s fine to add additional toppings and bitmasks, it&rsquo;s just re-using existing bitmasks that causes issues.</p>
+
+<p>Another thing to consider is upper limits. If you want your Perl code to be compatible with 32 bit and 64 bit Perls, you should probably stick to a maximum of 32 bitmasks (using a module like <a href="https://metacpan.org/pod/bigint">bigint</a> may <em>not</em> work because of addressable memory limitations). You can see the settings your Perl has been compiled with by typing <code>perl -V | grep longsize</code> at the command line. The longsize value is the number of bytes your Perl can store in an integer natively.</p>
+
+<p>Finally, in order to get the data back out of a bit array it needs to be tested with all the available bitmasks. Consider the <code>get_toppings</code> method in <code>Pizza::Order</code>. To find out what toppings are set, the code has to check every topping&rsquo;s bitmask. This is pretty inefficient. So bitmasks are good for compact data storage, but not fast access.</p>
+
+<h3 id="references:a332d1994b52ca26596563ea047b2f1d">References</h3>
+
+<ul>
+<li>Wikipedia has useful entries on <a href="https://en.wikipedia.org/wiki/Bit_array">bit arrays</a> and <a href="https://en.wikipedia.org/wiki/Bitwise_operation">bitwise operators</a></li>
+<li>Perl&rsquo;s official <a href="http://perldoc.perl.org/perlop.html">operator documentation</a> covers the bitwise operators. You can read it in the terminal with the command <code>perldoc perlop</code></li>
+<li>Use Perl&rsquo;s builtin functions <a href="http://perldoc.perl.org/functions/sprintf.html">sprintf</a> (<code>perldoc -f sprintf</code>) and <a href="http://perldoc.perl.org/functions/printf.html">printf</a> (<code>perldoc -f printf</code>) to inspect binary values</li>
+<li>Stringifying / printing numbers as binary isn&rsquo;t the only nice binary feature Perl has over other languages. Another is the ability to write binary numbers inline, just like octal and hexadecimal numbers, for example: <code>0b00001000</code>. This is great for comparing binary numbers.</li>
+<li><a href="https://metacpan.org/pod/bigint">bigint</a> is one of several modules on CPAN for working with large integers, but watch out for bitwise operator limitations!</li>
+</ul>
+
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                <div class="category"><a href="/categories/data">data</a></div>
+                
+                  <div class="tag"><a href="/tags/bit-array">bit-array</a></div>
+                
+                  <div class="tag"><a href="/tags/bitwise">bitwise</a></div>
+                
+                  <div class="tag"><a href="/tags/binary">binary</a></div>
+                
+                  <div class="tag"><a href="/tags/boolean">boolean</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
+              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10" style="margin:0 0 50px 0">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the <a href="http://www.meetup.com/The-New-York-Perl-Meetup-Group/">New York Perl Meetup</a>, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/save-space-with-bit-arrays/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/save-space-with-bit-arrays/binary-msg.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save space with bit arrays</h6>
+        <p style="line-height:1"><small>An old school data structure that efficiently stores data</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/identify-slow-code-with-devel--timer/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/identify-slow-code-with-devel--timer/stopwatch.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Identify slow code with Devel::Timer</h6>
+        <p style="line-height:1"><small>How timing statements can help you pinpoint bottlenecks</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/what-s-new-on-cpan---july-2016/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/184/AFD0459E-3AA7-11E5-801C-5EB3B8BB4BA2.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - July 2016</h6>
+        <p style="line-height:1"><small>A curated look at July&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/building-a-utf-8-encoder-in-perl/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/building-a-utf8-encoder-in-perl/bart-simpson-utf8.gif)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Building a UTF-8 encoder in Perl</h6>
+        <p style="line-height:1"><small>Learn UTF-8 by encoding it yourself</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/announcing-geo--libpostal/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/announcing-geo--libpostal/openstreetmap-small.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Announcing Geo::libpostal</h6>
+        <p style="line-height:1"><small>Perl bindings for libpostal, the address parsing library</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <script async src="/widgets/toplinks/toplinks.js" type="text/javascript"></script>
+    <div id="toplinks"></div>
+  </div>
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <script src="https://www.reddit.com/r/perl/hot/.embed?limit=10&t=all" type="text/javascript"></script>
+  </div>
+</div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<script>
+ 
+var tables, i;
+tables = document.getElementsByTagName('table');
+for (i=0;i<tables.length;i++) {
+  tables[i].className = 'table table-striped';
+}
+</script>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+          <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a>
+          <a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

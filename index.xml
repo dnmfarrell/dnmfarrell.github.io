@@ -6,8 +6,217 @@
     <description>Recent content on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 17 Aug 2016 08:38:50 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 23 Aug 2016 08:58:54 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Save space with bit arrays</title>
+      <link>http://perltricks.com/article/save-space-with-bit-arrays/</link>
+      <pubDate>Tue, 23 Aug 2016 08:58:54 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/save-space-with-bit-arrays/</guid>
+      <description>
+
+&lt;p&gt;&amp;ldquo;Big data&amp;rdquo; is an overused term, but when you&amp;rsquo;re actually working with big data, every bit can count. Shaving several bits from data structure used billions of times can save a lot of space. A few months ago I was working on a job distribution system; it would send millions of jobs out every day. We wanted to capture every decision made by the system, so that a user could later query the system to understand &lt;em&gt;why&lt;/em&gt; a job had or hadn&amp;rsquo;t been sent to a partner.&lt;/p&gt;
+
+&lt;p&gt;The problem was that the system was making billions of decisions a day, so we needed a way to pack those decisions as efficiently as possible. A colleague of mine had the bright idea to use a &lt;a href=&#34;https://en.wikipedia.org/wiki/Bit_array&#34;&gt;bit array&lt;/a&gt;, and it worked very well - we were able to compress the data by a factor of 18 or more. If you&amp;rsquo;re not familiar with bit arrays, or a little rusty on the code, keep reading and I&amp;rsquo;ll show you how to use them with Perl.&lt;/p&gt;
+
+&lt;h3 id=&#34;bit-array-basics:a332d1994b52ca26596563ea047b2f1d&#34;&gt;Bit array basics&lt;/h3&gt;
+
+&lt;p&gt;Bit arrays are a way of storing multiple booleans in single number. Consider the number 0 as a byte/octet represented as bits:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;00000000
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Instead of treating it like a number, using &lt;a href=&#34;https://en.wikipedia.org/wiki/Bitwise_operation&#34;&gt;bitwise operators&lt;/a&gt; we can treat each bit as a separate column. As this is an 8 bit number, we can store up to 8 booleans in it:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;0|0|0|0|0|0|0|0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To store a boolean in the first bit of the array, we can use bitwise or equals (&lt;code&gt;|=&lt;/code&gt;). Here&amp;rsquo;s how that looks in C pseudocode:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;short bit_array = 0;
+bit_array |= 1 &amp;lt;&amp;lt; 6;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s take this one step at a time. First I initialize an 8 bit integer called &lt;code&gt;bit_array&lt;/code&gt;. Next, I create a binary number with the bit set that I wish to set in &lt;code&gt;bit_array&lt;/code&gt;. I do this with the left bitshift code &lt;code&gt;1 &amp;lt;&amp;lt; 6&lt;/code&gt;. This means, &amp;ldquo;shift the bits in the number on the left, 6 places to the left&amp;rdquo;, which does this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;00000001 &amp;lt;&amp;lt; 6;
+01000000
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is called a bitmask. Next I use or equals to update &lt;code&gt;bit_array&lt;/code&gt; with the bitmask &lt;code&gt;01000000&lt;/code&gt;. Bitwise or (&lt;code&gt;|&lt;/code&gt;) works by setting any bit to 1 in its left operand that is set to 1 in its right operand. Adding a equals sign on the end simply assigns the resulting value to &lt;code&gt;bit_array&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;If we wanted to store a boolean in the fourth bit, we&amp;rsquo;d do this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;bit_array |= 1 &amp;lt;&amp;lt; 3;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So now the &lt;code&gt;bit_array&lt;/code&gt; looks like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;01001000
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To test if a particular bit is set, I can use bitwise and (&lt;code&gt;&amp;amp;&lt;/code&gt;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;if (bit_array &amp;amp; (1 &amp;lt;&amp;lt; 6)) {
+  /* the seventh column is true */
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Bitwise and returns a number with every bit set to 0 in its left operand which is 0 in its right operand. So the code &lt;code&gt;1 &amp;lt;&amp;lt; 6&lt;/code&gt; bitshifts a number that only has one particular bit set to 1 (&lt;code&gt;01000000&lt;/code&gt;). This is the bitmask. If the bit array has that bit set to 1, it will return non-zero (true), else it returns zero (false).&lt;/p&gt;
+
+&lt;h3 id=&#34;bit-arrays-in-perl:a332d1994b52ca26596563ea047b2f1d&#34;&gt;Bit arrays in Perl&lt;/h3&gt;
+
+&lt;p&gt;I&amp;rsquo;m going to use a contrived example to show how bit arrays work in Perl. Imagine we&amp;rsquo;re working on an ordering system at a pizza restaurant. We need to store all the toppings required for the pizza. In Perl we store numbers in scalars, which are usually 32 or 64 bits long; that&amp;rsquo;s a lot of toppings we can pack into a single number!&lt;/p&gt;
+
+&lt;p&gt;Here is the class:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;package Pizza::Order;
+use utf8;
+
+my %toppings = (
+  tomato        =&amp;gt; 1 &amp;lt;&amp;lt; 0,
+  cheese        =&amp;gt; 1 &amp;lt;&amp;lt; 1,
+  onion         =&amp;gt; 1 &amp;lt;&amp;lt; 2,
+  sausage       =&amp;gt; 1 &amp;lt;&amp;lt; 3,
+  pepperoni     =&amp;gt; 1 &amp;lt;&amp;lt; 4,
+  ham           =&amp;gt; 1 &amp;lt;&amp;lt; 5,
+  chicken       =&amp;gt; 1 &amp;lt;&amp;lt; 6,
+  bbq_chicken   =&amp;gt; 1 &amp;lt;&amp;lt; 7,
+  olives        =&amp;gt; 1 &amp;lt;&amp;lt; 8,
+  vegetables    =&amp;gt; 1 &amp;lt;&amp;lt; 9,
+  jalapeńo      =&amp;gt; 1 &amp;lt;&amp;lt; 10,
+  ranch         =&amp;gt; 1 &amp;lt;&amp;lt; 11,
+  eggplant      =&amp;gt; 1 &amp;lt;&amp;lt; 12,
+  garlic        =&amp;gt; 1 &amp;lt;&amp;lt; 13,
+);
+
+sub new {
+  my $class = shift;
+  my $self = 0;
+  return bless \$self, $class;
+}
+
+sub print_state {
+  my $self = shift;
+  printf &amp;quot;%014b\n&amp;quot;, $$self;
+}
+
+sub available_toppings {
+  return keys %toppings;
+}
+
+sub add_topping {
+  my ($self, $topping) = @_;
+  # bitwise OR equals to set a bit field
+  return $$self |= $toppings{ $topping };
+}
+
+sub remove_topping {
+  my ($self, $topping) = @_;
+  # bitwise NOT to invert a field and bitwise AND equals to unset it
+  return $$self &amp;amp;= ~$toppings{ $topping };
+}
+
+sub get_toppings {
+  my $self = shift;
+  my @ordered_toppings = ();
+  for my $topping (keys %toppings) {
+    push @ordered_toppings, $topping
+      # bitwise AND to test if this bit is set
+      if $$self &amp;amp; $toppings{ $topping };
+  }
+  return @ordered_toppings;
+}
+1;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I create a class called &lt;code&gt;Pizza::Order&lt;/code&gt;. The &lt;code&gt;%toppings&lt;/code&gt; hash stores names of pizza toppings and their associated bitmask. I could only think of 14 toppings, leaving 18 spare slots for the future (if we want to stick to 32 bit integers). The &lt;code&gt;new&lt;/code&gt; subroutine is a constructor which creates a blessed scalar as the &lt;code&gt;Pizza::Order&lt;/code&gt; object.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;print_state&lt;/code&gt; method uses &lt;a href=&#34;http://perldoc.perl.org/functions/printf.html&#34;&gt;printf&lt;/a&gt; to print the Pizza::Order object state as a binary number. This is a really useful feature of &lt;code&gt;printf&lt;/code&gt; which many other languages don&amp;rsquo;t have (C &amp;amp; Python for example). Both &lt;code&gt;add_topping&lt;/code&gt; and &lt;code&gt;get_toppings&lt;/code&gt; use the techniques described earlier to set and check for set bits.&lt;/p&gt;
+
+&lt;p&gt;More interesting perhaps, is the &lt;code&gt;remove_topping&lt;/code&gt; method. This uses bitwise not (&lt;code&gt;~&lt;/code&gt;) to invert a bitmask and then bitwise and (&lt;code&gt;&amp;amp;&lt;/code&gt;) equals to unset it. Pretty nifty, huh? Here&amp;rsquo;s a quick script to test it:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
+use Pizza::Order;
+
+my $order = Pizza::Order-&amp;gt;new();
+$order-&amp;gt;add_topping(&#39;cheese&#39;);
+$order-&amp;gt;add_topping(&#39;eggplant&#39;);
+$order-&amp;gt;remove_topping(&#39;cheese&#39;);
+$order-&amp;gt;add_topping(&#39;tomato&#39;);
+$order-&amp;gt;print_state();
+print &amp;quot;$_\n&amp;quot; for $order-&amp;gt;get_toppings();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This prints:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;01000000000001
+eggplant
+tomato
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The first line is the current state of the &lt;code&gt;$order&lt;/code&gt; object. It shows the first, and second-to-last bits set, which correspond to the tomato and eggplant bitmasks. It then prints out those toppings. Yay, it works!&lt;/p&gt;
+
+&lt;h3 id=&#34;bit-array-limitations:a332d1994b52ca26596563ea047b2f1d&#34;&gt;Bit array limitations&lt;/h3&gt;
+
+&lt;p&gt;One thing to watch out for when storing bit arrays on disk is code change. Imagine if I had several years&amp;rsquo; worth of pizza orders saved in a database. Then one day, we stopped offering bbq chicken. It would be tempting to update the toppings hash like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %toppings = (
+  tomato        =&amp;gt; 1 &amp;lt;&amp;lt; 0,
+  cheese        =&amp;gt; 1 &amp;lt;&amp;lt; 1,
+  onion         =&amp;gt; 1 &amp;lt;&amp;lt; 2,
+  sausage       =&amp;gt; 1 &amp;lt;&amp;lt; 3,
+  pepperoni     =&amp;gt; 1 &amp;lt;&amp;lt; 4,
+  ham           =&amp;gt; 1 &amp;lt;&amp;lt; 5,
+  chicken       =&amp;gt; 1 &amp;lt;&amp;lt; 6,
+  olives        =&amp;gt; 1 &amp;lt;&amp;lt; 7, # deleted bbq_chicken
+  vegetables    =&amp;gt; 1 &amp;lt;&amp;lt; 8,
+  jalapeńo      =&amp;gt; 1 &amp;lt;&amp;lt; 9,
+  ranch         =&amp;gt; 1 &amp;lt;&amp;lt; 10,
+  eggplant      =&amp;gt; 1 &amp;lt;&amp;lt; 11,
+  garlic        =&amp;gt; 1 &amp;lt;&amp;lt; 12,
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I deleted the &lt;code&gt;bbq_chicken&lt;/code&gt; entry and bumped up the remaining toppings bitmasks. The problem is compatibility: in all the historical pizza orders, &lt;code&gt;olives&lt;/code&gt; (for example) had a bitmask of &lt;code&gt;00000010000000&lt;/code&gt; but in the new code, its bitmask is one lower. So if I tried to load a historical order with this class, the toppings data would be wrong. One way to handle this is remove, but not reuse, the bitmask for the deleted entry.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my %toppings = (
+  tomato        =&amp;gt; 1 &amp;lt;&amp;lt; 0,
+  cheese        =&amp;gt; 1 &amp;lt;&amp;lt; 1,
+  onion         =&amp;gt; 1 &amp;lt;&amp;lt; 2,
+  sausage       =&amp;gt; 1 &amp;lt;&amp;lt; 3,
+  pepperoni     =&amp;gt; 1 &amp;lt;&amp;lt; 4,
+  ham           =&amp;gt; 1 &amp;lt;&amp;lt; 5,
+  chicken       =&amp;gt; 1 &amp;lt;&amp;lt; 6,
+  # reserved
+  olives        =&amp;gt; 1 &amp;lt;&amp;lt; 8,
+  vegetables    =&amp;gt; 1 &amp;lt;&amp;lt; 9,
+  jalapeńo      =&amp;gt; 1 &amp;lt;&amp;lt; 10,
+  ranch         =&amp;gt; 1 &amp;lt;&amp;lt; 11,
+  eggplant      =&amp;gt; 1 &amp;lt;&amp;lt; 12,
+  garlic        =&amp;gt; 1 &amp;lt;&amp;lt; 13,
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This limitation makes bitmasks less useful for long-term storage of data, unless the existing bitmasks are unlikely to change. Note that it&amp;rsquo;s fine to add additional toppings and bitmasks, it&amp;rsquo;s just re-using existing bitmasks that causes issues.&lt;/p&gt;
+
+&lt;p&gt;Another thing to consider is upper limits. If you want your Perl code to be compatible with 32 bit and 64 bit Perls, you should probably stick to a maximum of 32 bitmasks (using a module like &lt;a href=&#34;https://metacpan.org/pod/bigint&#34;&gt;bigint&lt;/a&gt; may &lt;em&gt;not&lt;/em&gt; work because of addressable memory limitations). You can see the settings your Perl has been compiled with by typing &lt;code&gt;perl -V | grep longsize&lt;/code&gt; at the command line. The longsize value is the number of bytes your Perl can store in an integer natively.&lt;/p&gt;
+
+&lt;p&gt;Finally, in order to get the data back out of a bit array it needs to be tested with all the available bitmasks. Consider the &lt;code&gt;get_toppings&lt;/code&gt; method in &lt;code&gt;Pizza::Order&lt;/code&gt;. To find out what toppings are set, the code has to check every topping&amp;rsquo;s bitmask. This is pretty inefficient. So bitmasks are good for compact data storage, but not fast access.&lt;/p&gt;
+
+&lt;h3 id=&#34;references:a332d1994b52ca26596563ea047b2f1d&#34;&gt;References&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Wikipedia has useful entries on &lt;a href=&#34;https://en.wikipedia.org/wiki/Bit_array&#34;&gt;bit arrays&lt;/a&gt; and &lt;a href=&#34;https://en.wikipedia.org/wiki/Bitwise_operation&#34;&gt;bitwise operators&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Perl&amp;rsquo;s official &lt;a href=&#34;http://perldoc.perl.org/perlop.html&#34;&gt;operator documentation&lt;/a&gt; covers the bitwise operators. You can read it in the terminal with the command &lt;code&gt;perldoc perlop&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Use Perl&amp;rsquo;s builtin functions &lt;a href=&#34;http://perldoc.perl.org/functions/sprintf.html&#34;&gt;sprintf&lt;/a&gt; (&lt;code&gt;perldoc -f sprintf&lt;/code&gt;) and &lt;a href=&#34;http://perldoc.perl.org/functions/printf.html&#34;&gt;printf&lt;/a&gt; (&lt;code&gt;perldoc -f printf&lt;/code&gt;) to inspect binary values&lt;/li&gt;
+&lt;li&gt;Stringifying / printing numbers as binary isn&amp;rsquo;t the only nice binary feature Perl has over other languages. Another is the ability to write binary numbers inline, just like octal and hexadecimal numbers, for example: &lt;code&gt;0b00001000&lt;/code&gt;. This is great for comparing binary numbers.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/bigint&#34;&gt;bigint&lt;/a&gt; is one of several modules on CPAN for working with large integers, but watch out for bitwise operator limitations!&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Identify slow code with Devel::Timer</title>
@@ -1594,144 +1803,6 @@ Not all commands can make use of the -c cpulist option.
 
 Use &#39;cpupower help &amp;lt;command&amp;gt;&#39; for getting help for above commands.
 &lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>How to parse binary data with Perl</title>
-      <link>http://perltricks.com/article/how-to-parse-binary-data-with-perl/</link>
-      <pubDate>Mon, 18 Apr 2016 19:56:47 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/how-to-parse-binary-data-with-perl/</guid>
-      <description>
-
-&lt;p&gt;Parsing binary data is one of those tasks that seems to come up rarely, but is useful to know. Many common file types like images, music, timestamps, network packets and auth logs all come in binary flavors. Unfortunately it&amp;rsquo;s nowhere near as exciting as the fictitious depictions from &lt;a href=&#34;https://en.wikipedia.org/wiki/Hackers_%28film%29&#34;&gt;Hackers&lt;/a&gt;. The good news though is parsing binary data with Perl is easy using the &lt;code&gt;unpack&lt;/code&gt; function. I&amp;rsquo;m going to walk you through the three steps you&amp;rsquo;ll need when working with binary data.&lt;/p&gt;
-
-&lt;h3 id=&#34;1-open-a-binary-filehandle:a3988b664e92bd43196703eed4e43682&#34;&gt;1. Open a binary filehandle&lt;/h3&gt;
-
-&lt;p&gt;Start things off &lt;em&gt;right&lt;/em&gt; by opening a filehandle to binary file:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use autodie;
-open my $fh, &#39;&amp;lt;:raw&#39;, &#39;/usr/share/zoneinfo/America/New_York&#39;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This is a suitably Modern Perlish beginning. I start by importing &lt;a href=&#34;https://metacpan.org/pod/autodie&#34;&gt;autodie&lt;/a&gt; which ensures the code will &lt;code&gt;die&lt;/code&gt; if any function call fails. This avoids repetitive &lt;code&gt;... or die &amp;quot;IO failed&amp;quot;&lt;/code&gt; type coding constructs.&lt;/p&gt;
-
-&lt;p&gt;Next I use the &lt;code&gt;:raw&lt;/code&gt; IO layer to open a filehandle to a binary file. This will avoid newline translation issues. No need for &lt;code&gt;binmode&lt;/code&gt; here. The file I&amp;rsquo;m opening is a history of New York timezone changes, from the &lt;a href=&#34;https://en.wikipedia.org/wiki/Tz_database&#34;&gt;tz database&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;2-read-a-few-bytes:a3988b664e92bd43196703eed4e43682&#34;&gt;2. Read a few bytes&lt;/h3&gt;
-
-&lt;p&gt;All binary files have a specific format that they follow. In the case of the zoneinfo files, the first 44 bytes/octets are the header, so I&amp;rsquo;ll grab that:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use autodie;
-open my $fh, &#39;&amp;lt;:raw&#39;, &#39;/usr/share/zoneinfo/America/New_York&#39;;
-
-my $bytes_read = read $fh, my $bytes, 44;
-die &#39;Got $bytes_read but expected 44&#39; unless $bytes_read == 44;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Here I use &lt;code&gt;read&lt;/code&gt; to read in 44 bytes of data into the variable &lt;code&gt;$bytes&lt;/code&gt;. The &lt;code&gt;read&lt;/code&gt; function returns the number of bytes read; it&amp;rsquo;s good practice to check this as &lt;code&gt;read&lt;/code&gt; may not return the expected number of bytes if it reaches the end of the file. In this case, if the file ends before the header does, we know we&amp;rsquo;ve got bad data and bail out.&lt;/p&gt;
-
-&lt;h3 id=&#34;3-unpack-bytes-into-variables:a3988b664e92bd43196703eed4e43682&#34;&gt;3. Unpack bytes into variables&lt;/h3&gt;
-
-&lt;p&gt;Now comes the fun part. I&amp;rsquo;ve got to split out the data in &lt;code&gt;$bytes&lt;/code&gt; into separate Perl variables. The tzfile &lt;a href=&#34;http://linux.die.net/man/5/tzfile&#34;&gt;man page&lt;/a&gt; defines the header format:&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Timezone information files begin with the magic characters &amp;ldquo;TZif&amp;rdquo; to identify them as timezone information files, followed by a character identifying the version of the file&amp;rsquo;s format (as of 2005, either an ASCII NUL (&amp;rsquo;\0&amp;rsquo;) or a &amp;lsquo;2&amp;rsquo;) followed by fifteen bytes containing zeros reserved for future use, followed by six four-byte values of type long&lt;/p&gt;
-
-&lt;p&gt;&lt;cite&gt;Tzfile manual&lt;/cite&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;The &lt;code&gt;unpack&lt;/code&gt; function takes a template of the binary data to read (this is defined in the pack &lt;a href=&#34;http://perldoc.perl.org/functions/pack.html&#34;&gt;documentation&lt;/a&gt;) and returns Perl variables. I&amp;rsquo;m going to match up the header description with the template codes to design the template.&lt;/p&gt;
-
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;Description&lt;/th&gt;
-&lt;th&gt;Example&lt;/th&gt;
-&lt;th&gt;Type&lt;/th&gt;
-&lt;th&gt;Length&lt;/th&gt;
-&lt;th&gt;Template Code&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;Magic chars&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;TZif&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;String&lt;/td&gt;
-&lt;td&gt;4&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;a4&lt;/code&gt;&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td&gt;Version&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;2&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;String&lt;/td&gt;
-&lt;td&gt;1&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;a&lt;/code&gt;&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td&gt;Reserved&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;0&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Ignore&lt;/td&gt;
-&lt;td&gt;15&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;x15&lt;/code&gt;&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td&gt;Numbers&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;244&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Long&lt;/td&gt;
-&lt;td&gt;1&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;N N N N N N&lt;/code&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;p&gt;The header begins with the magic chars &amp;ldquo;TZif&amp;rdquo;, this is 4 bytes. The template code &lt;code&gt;a4&lt;/code&gt; matches this. Next is the version, this is a single ASCII character matched by &lt;code&gt;a&lt;/code&gt; (the strings are not space or null terminated, I could have use &lt;code&gt;A&lt;/code&gt; instead). The next 15 bytes are reserved and can be ignored, so I use &lt;code&gt;x15&lt;/code&gt; to skip over them. Finally there are 6 numbers of type long. Each one is separate variable so I must write &lt;code&gt;N&lt;/code&gt; 6 times instead of &lt;code&gt;N6&lt;/code&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use autodie;
-open my $fh, &#39;&amp;lt;:raw&#39;, &#39;/usr/share/zoneinfo/America/New_York&#39;;
-
-my $bytes_read = read $fh, my $bytes, 44;
-die &#39;Got $bytes_read but expected 44&#39; unless $bytes_read == 44;
-
-my ($magic, $version, @numbers) = unpack &#39;a4 a x15 N N N N N N&#39;, $bytes;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This code passes my template to &lt;code&gt;unpack&lt;/code&gt; and it returns the variables we asked for. Now they&amp;rsquo;re in Perl variables, the hard part is done. In the case of a tzfile, the header defines the length of the body of the file, so I can use these variables to calculate how much more data to read from the file.&lt;/p&gt;
-
-&lt;p&gt;If you&amp;rsquo;re interested in how to parse the rest of a tzfile, check out the source code of my module &lt;a href=&#34;https://metacpan.org/pod/Time::Tzfile&#34;&gt;Time::Tzfile&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;troubleshooting:a3988b664e92bd43196703eed4e43682&#34;&gt;Troubleshooting&lt;/h3&gt;
-
-&lt;p&gt;Sometimes you&amp;rsquo;ll unpack some binary data and get garbage. This happens when the template passed to &lt;code&gt;unpack&lt;/code&gt; doesn&amp;rsquo;t match the binary data. The first thing you can do is print the binary data to the terminal with &lt;code&gt;hexdump&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;Here are the first 44 bytes of the New York tzfile:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ hexdump -c -n 44 /usr/share/zoneinfo/America/New_York
-0000000   T   Z   i   f   2  \0  \0  \0  \0  \0  \0  \0  \0  \0  \0  \0
-0000010  \0  \0  \0  \0  \0  \0  \0 005  \0  \0  \0 005  \0  \0  \0  \0
-0000020  \0  \0  \0 354  \0  \0  \0 005  \0  \0  \0 024
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This gives you a chance to inspect the data byte by byte and see if it matches your template. To create a template to match binary data, take it one value at a time. Consider the type of value you&amp;rsquo;re trying to match. Get the right bit length and for numbers, be sure to know if it is signed or unsigned.&lt;/p&gt;
-
-&lt;p&gt;The other thing to be aware of is &lt;a href=&#34;https://en.wikipedia.org/wiki/Endianness&#34;&gt;endianness&lt;/a&gt; of the data. Often man pages will say a variable is in &amp;ldquo;standard&amp;rdquo; or &amp;ldquo;network&amp;rdquo; order. This means big endian. Tzfiles have several 32 bit signed integers in big endian order. There is no &lt;code&gt;unpack&lt;/code&gt; template code which matches that type. To match it I need to use &lt;code&gt;l&amp;gt;&lt;/code&gt;. The &lt;code&gt;l&lt;/code&gt; matches signed 32 bit integers and the &lt;code&gt;&amp;gt;&lt;/code&gt; is a modifier which tells Perl the value is big endian.&lt;/p&gt;
-
-&lt;p&gt;Between Perl&amp;rsquo;s built-in template &lt;a href=&#34;http://perldoc.perl.org/functions/pack.html&#34;&gt;types&lt;/a&gt; and the modifiers, you can match any binary data.&lt;/p&gt;
-
-&lt;h3 id=&#34;more-binary-parsing-examples:a3988b664e92bd43196703eed4e43682&#34;&gt;More binary parsing examples&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;In section 7.2 of &lt;a href=&#34;http://perlhacks.com/2014/04/data-munging-perl/&#34;&gt;Data Munging with Perl&lt;/a&gt; Dave Cross shows how to parse png and mp3 files.&lt;/li&gt;
-&lt;li&gt;There are some useful replies on the Perl Monks thread &lt;a href=&#34;http://www.perlmonks.org/?node_id=53473&#34;&gt;Confession of a Perl Hacker&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;The Perl Monks &lt;a href=&#34;http://www.perlmonks.org/?node_id=224666&#34;&gt;Pack/Unpack tutorial&lt;/a&gt; has some great information on the template types.&lt;/li&gt;
-&lt;li&gt;Entry 117 &amp;ldquo;Use pack and unpack for data munging&amp;rdquo; from &lt;a href=&#34;http://www.effectiveperlprogramming.com/&#34;&gt;Effective Perl Programming&lt;/a&gt; shows how to use &lt;code&gt;unpack&lt;/code&gt; for fixed width data.&lt;/li&gt;
-&lt;li&gt;The official Perl documentation also has a pack/unpack &lt;a href=&#34;http://perldoc.perl.org/perlpacktut.html&#34;&gt;tutorial&lt;/a&gt;.&lt;/li&gt;
-&lt;/ul&gt;
 </description>
     </item>
     
