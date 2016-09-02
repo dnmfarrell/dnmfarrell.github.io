@@ -6,8 +6,164 @@
     <description>Recent content in Articles on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 23 Aug 2016 08:58:54 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 02 Sep 2016 11:18:55 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/article/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>The History of the Schwartzian Transform</title>
+      <link>http://perltricks.com/article/the-history-of-the-schwartzian-transform/</link>
+      <pubDate>Fri, 02 Sep 2016 11:18:55 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/the-history-of-the-schwartzian-transform/</guid>
+      <description>
+
+&lt;p&gt;The history of the Schwartzian Transform is fascinating, full of intrigue, competing philosophies, and cross-language reluctant cooperation. The Schwartzian Transform is the name applied to a particular implementation of a cached-key sorting algorithm.&lt;/p&gt;
+
+&lt;p&gt;The first public appearance is probably Randal Schwartz&amp;rsquo;s Usenet &lt;a href=&#34;https://groups.google.com/d/msg/comp.unix.shell/MdqXDOuzDG0/gcmc1IG9GckJ&#34;&gt;post&lt;/a&gt; on December 16, 1994 in response to Ken Brown&amp;rsquo;s request for help:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I&amp;rsquo;m having trouble sorting on the *last* word of the last field in a record&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Ken Brown&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Randal included the following code in his reply:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
+require 5; # new features, new bugs!
+print
+  map { $_-&amp;gt;[0] }
+  sort { $a-&amp;gt;[1] cmp $b-&amp;gt;[1] }
+  map { [$_, /(\S+)$/] }
+  &amp;lt;&amp;gt;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Randal didn&amp;rsquo;t name it. He wrote the code and essentially dropped the mic. He says that he was on a break from teaching a Perl class, so his response was brief and unexplicated - typical for an experienced Usenet denizen (he said that he was there when you could read all of Usenet in a half hour). I don&amp;rsquo;t think he expected it to be as troublesome as it turned out to be.&lt;/p&gt;
+
+&lt;p&gt;His code isn&amp;rsquo;t that complex. It&amp;rsquo;s a big statement, but when I teach it in Perl classes, I tell people to read it from the end toward the beginning (a handy technique for any list pipeline):&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;The first step computes the key to sort on. It combines that with the original value in a tuple.&lt;/li&gt;
+&lt;li&gt;The middle step sorts of the computed element in the tuple.&lt;/li&gt;
+&lt;li&gt;The last step extracts the original value from the tuple.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;You probably can&amp;rsquo;t imagine how shocking this could be back then. Perl 5 was officially released in October 1994, but the first development versions had been around since the middle of 1993. Randal was surely playing with Perl 5 as soon as it came out. This means that most Perl programmers had not yet seen new features like the &lt;a href=&#34;http://perldoc.perl.org/functions/map.html&#34;&gt;map&lt;/a&gt; function or references. They certainly weren&amp;rsquo;t comfortable with those ideas.&lt;/p&gt;
+
+&lt;p&gt;Randal, however, knew the &lt;em&gt;decorate-sort-undecorate&lt;/em&gt; technique from LISP, especially since he&amp;rsquo;s solidly in the emacs camp in the editor wars. Renzo on &lt;a href=&#34;http://codereview.stackexchange.com/a/138436/13050&#34;&gt;Code Review&lt;/a&gt; fixed up my attempt at a LISP version:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;(defun schwartzian-transform (list costly-function predicate)
+&amp;quot;sort a list of objects over the value of a function applied to them,
+by applying the Schwartzian Transform (https://en.wikipedia.org/wiki/Schwartzian_transform)
+the parameters are the list, the function, and the predicate for the sort.&amp;quot;
+  (mapcar #&#39;cdr
+      (stable-sort (mapcar (lambda (x)
+                 (cons (funcall costly-function x) x))
+                 list)
+             predicate
+             :key #&#39;car)))
+
+(require :sb-posix)
+(schwartzian-transform
+ (directory &amp;quot;/etc/*&amp;quot;)
+ (lambda (x) (sb-posix:stat-mtime (sb-posix:stat x)))
+ #&#39;&amp;lt;=)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Even with a little LISP knowledge you can tease out the same algorithm. You see the &lt;code&gt;mapcar&lt;/code&gt;, &lt;code&gt;stable-sort&lt;/code&gt;, and &lt;code&gt;mapcar&lt;/code&gt;. (I used &lt;a href=&#34;http://www.sbcl.org&#34;&gt;SBCL&lt;/a&gt; for this).&lt;/p&gt;
+
+&lt;p&gt;In 1995 Tom Christiansen wrote &lt;a href=&#34;http://www.perl.com/doc/FMTEYEWTK/sort.html&#34;&gt;Far More Than Everything You&amp;rsquo;ve Ever Wanted to Know About Sorting&lt;/a&gt; and extensively covered Randal&amp;rsquo;s code even though he hadn&amp;rsquo;t labeled yet. He didn&amp;rsquo;t like it that much, but, to be fair, he says at the end:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I&amp;rsquo;m not ragging on Randal, merely teasing a bit. He&amp;rsquo;s just trying to be clever, and that&amp;rsquo;s what he does. I&amp;rsquo;m just submitting a sample chapter for his perusal for inclusion the mythical Alpaca Book :-)&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Tom Christiansen&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Tom refers to &lt;em&gt;Learning Perl Objects, References, Objects, and Modules&lt;/em&gt;, which wouldn&amp;rsquo;t show up until 2003 (it&amp;rsquo;s now called &lt;a href=&#34;http://www.intermediateperl.com&#34;&gt;Intermediate Perl&lt;/a&gt;). Curiously, in that same year &lt;a href=&#34;https://books.google.com/books?id=GxKWdn7u4w8C&amp;amp;pg=PA113&amp;amp;dq=schwartzian+transform&amp;amp;hl=en&amp;amp;sa=X&amp;amp;ved=0ahUKEwir89e-krvNAhXMdz4KHW4uAqQQ6AEILjAC#v=onepage&amp;amp;q=schwartzian%20transform&amp;amp;f=false&#34;&gt;Text Processing in Python&lt;/a&gt; (Google Books) mentioned it.&lt;/p&gt;
+
+&lt;p&gt;A month after his Usenet posting, Randal wrote about his decorate-sort-undecorate idiom in his &lt;a href=&#34;http://www.stonehenge.com/merlyn/UnixReview/col06.html&#34;&gt;Unix Review column&lt;/a&gt; for January 1996, but he hadn&amp;rsquo;t labeled the technique by then either.&lt;/p&gt;
+
+&lt;h3 id=&#34;getting-the-name:cfab7c104a06866196fb7592f2146c3d&#34;&gt;Getting the name&lt;/h3&gt;
+
+&lt;p&gt;In August 1995, &lt;a href=&#34;https://groups.google.com/forum/?hl=en#!topic/comp.lang.perl.misc/fLo0RNV8oW8&#34;&gt;Bennett Todd answers a sorting question&lt;/a&gt; with a &amp;ldquo;Schwartz transformation&amp;rdquo;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Or for possibly more efficiency, ensure that the calls only happen once per
+record, rather than approximately NlogN times, with the Schwartz
+transformation:-)&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Bennett Todd&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;@keys = map { $_-&amp;gt;[0] }
+    sort { $a-&amp;gt;[1] &amp;lt;=&amp;gt; $b-&amp;gt;[1] or $a cmp $b }
+    map { [ $_, datexform($foo{$_}) ] } keys %foo;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is the first instance I could find where Randal&amp;rsquo;s last name was attached to the technique. People have seen and understood the technique and it has the start of a name, but it&amp;rsquo;s not quite an idiom yet. It also hasn&amp;rsquo;t settled on a name.&lt;/p&gt;
+
+&lt;p&gt;Tom Christiansen&amp;rsquo;s April 1996 post in &lt;em&gt;comp.lang.perl.misc&lt;/em&gt; for &lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/pw-Hl4byLnc/yzejRnku3RoJ&#34;&gt;Read directory in timestamp order?&lt;/a&gt; showed some benchmarks for sorting methods. He labeled one the &amp;ldquo;Schwartzian Transform&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;In July, Colin Howarth started the thread &lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/6NEeX4XJx54/nmpMmReMIbcJ&#34;&gt;&amp;ldquo;Schwartzian transform of %$self &amp;hellip; help?&amp;rdquo;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;In October, Tom posted &lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/VIKNMCeNFAM/18UApg1hWy8J&#34;&gt;an expanded draft of perllol&lt;/a&gt; as part of his &lt;a href=&#34;http://www.perl.com/doc/FMTEYEWTK/pdsc/&#34;&gt;Perl Data Structures Cookbook&lt;/a&gt;, which turned into &lt;a href=&#34;http://perldoc.perl.org/perldsc.html&#34;&gt;perldsc&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/perllol.html&#34;&gt;perllol&lt;/a&gt;. He uses the full term &amp;ldquo;Schwartzian Transform&amp;rdquo;. The term was catching on.&lt;/p&gt;
+
+&lt;h3 id=&#34;gaining-notoriety:cfab7c104a06866196fb7592f2146c3d&#34;&gt;Gaining notoriety&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/fPx42DB2jd8/cC_6osV70mMJ&#34;&gt;I&amp;rsquo;m still pissed at Randal for having posted it&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Tom Christiansen&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Tom wrote that in December and he didn&amp;rsquo;t mince words. It might look catty now, but at the time, Tom was on a mission to make people fall in love with Perl. He evangelized the language and didn&amp;rsquo;t want to scare people off with weird looking code. He was everywhere that people were talking about Perl, and that was good for us. That meant he was effectively supporting code he didn&amp;rsquo;t write, he didn&amp;rsquo;t like, and people didn&amp;rsquo;t understand. In his role of Perl&amp;rsquo;s apostle, he was besieged with people asking about something he wouldn&amp;rsquo;t have written himself.&lt;/p&gt;
+
+&lt;p&gt;Later, in that same thread, he&amp;rsquo;d give it another name, the &lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/fPx42DB2jd8/cC_6osV70mMJ&#34;&gt;Black Transform&lt;/a&gt;. He played on the translation of Randal&amp;rsquo;s &lt;a href=&#34;https://en.wikipedia.org/wiki/Schwartz_(surname&#34;&gt;Germanic surname&lt;/a&gt;) that reflected his own opinion. That name didn&amp;rsquo;t stick.&lt;/p&gt;
+
+&lt;p&gt;As with most long Usenet threads, it&amp;rsquo;s not entirely clear what people specifically didn&amp;rsquo;t like about the code, or even that there&amp;rsquo;s a consensus complaint. Some complaints spiral around Randal&amp;rsquo;s lack of comments. Some people want Perl to be accessible at first glance to someone who doesn&amp;rsquo;t know the language. Others who were comfortable with advanced programming skills weren&amp;rsquo;t bothered at all. That&amp;rsquo;s a tension even today.&lt;/p&gt;
+
+&lt;p&gt;Remember, references and method notation were new syntax. People skilled with Perl 4 were still learning Perl 5. Perl hadn&amp;rsquo;t developed idioms for list processing (LISP, natch), so people apparently weren&amp;rsquo;t that comfortable with stacked list operations. Some people merely hated functional programming and LISP.&lt;/p&gt;
+
+&lt;p&gt;There&amp;rsquo;s also a segment of people who would rather have programming languages that are easy to learn over more powerful but more opaque.&lt;/p&gt;
+
+&lt;p&gt;Around that time, Joseph Hall wrote &lt;a href=&#34;http://web.archive.org/web/19961228210914/http://www.5sigma.com/perl/schwtr.html&#34;&gt;More about the Schwartzian Transform (Internet Archive)&lt;/a&gt;. It&amp;rsquo;s tough to tell exactly when he wrote this, but the earliest copy in the Internet archive notes it was last modified in January 1997. Joseph used his PeGS (Perl Graphical Structures) to show them in action. This might be the first mention outside of Usenet. It&amp;rsquo;s also the basis for the item that appears in his 1998 book &lt;a href=&#34;http://www.effectiveperlprogramming.com&#34;&gt;Effective Perl Programming&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Also, around that time, Joseph was working with Randal at Stonehenge Consulting Services to develop the Perl courses. I&amp;rsquo;m fuzzy on that timeline, but his coursework turned into the book &lt;em&gt;Learning Perl Objects, References, and Modules&lt;/em&gt; (later renamed &lt;a href=&#34;https://www.intermediateperl.com&#34;&gt;Intermediate Perl&lt;/a&gt;). He&amp;rsquo;s the one who came up with the Gilligan&amp;rsquo;s Island as examples, but his handiwork with PeGS and the Schwartzian Transform show up in that book and in the class.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.effectiveperlprogramming.com&#34;&gt;Effective Perl Programming&lt;/a&gt; might be the first book to mention the transform, using what he&amp;rsquo;d already written. Even though I worked on the second edition of that book, I think &lt;a href=&#34;https://www.amazon.com/gp/product/0201419750/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;amp;tag=hashbang09-20&amp;amp;camp=1789&amp;amp;creative=9325&amp;amp;linkCode=as2&amp;amp;creativeASIN=0201419750&amp;amp;linkId=b8a4558fd65ec4c4bb17add6e194e5e4&#34;&gt;Joseph&amp;rsquo;s original is still worth the $4 on Amazon.com&lt;/a&gt;. It&amp;rsquo;s some of the best Perl writing in the history of Perl.&lt;/p&gt;
+
+&lt;p&gt;In 1998 the transform also showed up in the first edition of &lt;a href=&#34;https://books.google.com/books?id=7q5QAAAAMAAJ&amp;amp;q=schwartzian+transform+%22programming+perl%22&amp;amp;dq=schwartzian+transform+%22programming+perl%22&amp;amp;hl=en&amp;amp;sa=X&amp;amp;ved=0ahUKEwjplePak7vNAhWSZj4KHYK9AtUQ6AEINDAD&#34;&gt;The Perl Cookbook&lt;/a&gt;, where Tom called it the Schwartzian Transform. I don&amp;rsquo;t know who first typed it into a manuscript, so perhaps it&amp;rsquo;s a tie. Tom and Joseph might have to figure that out between them.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://books.google.com/books?id=4ju67sMPwEkC&amp;amp;pg=PA111&amp;amp;dq=schwartzian+transform&amp;amp;hl=en&amp;amp;sa=X&amp;amp;ved=0ahUKEwir89e-krvNAhXMdz4KHW4uAqQQ6AEIOjAE#v=onepage&amp;amp;q=schwartzian%20transform&amp;amp;f=false&#34;&gt;Mastering Perl Algorithms (Google Books)&lt;/a&gt; covered the transform in 1999 and &lt;a href=&#34;https://books.google.com/books?id=gGNQ-O1WWQAC&amp;amp;pg=PA310&amp;amp;dq=schwartzian+transform&amp;amp;hl=en&amp;amp;sa=X&amp;amp;ved=0ahUKEwjo79KEk7vNAhWBMj4KHcBFDEY4ChDoAQhNMAg#v=onepage&amp;amp;q=schwartzian%20transform&amp;amp;f=false&#34;&gt;CGI Programming in Perl (Google Books)&lt;/a&gt; mentioned it in 2000. After that, the term &amp;ldquo;Schwartzian Transform&amp;rdquo; turns up quite a bit, even in some Ruby, Python, the Jython books.&lt;/p&gt;
+
+&lt;p&gt;Some other interesting quotes from that long thread, which seem quaint twenty years later. My favorite was prophetic:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/fPx42DB2jd8/CTRmyWyJW6MJ&#34;&gt;I wonder if this chunk of code will haunt us forever.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Eric Arnold&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Indeed it has haunted us since then, but that&amp;rsquo;s not the end of the story.&lt;/p&gt;
+
+&lt;h3 id=&#34;variations:cfab7c104a06866196fb7592f2146c3d&#34;&gt;Variations&lt;/h3&gt;
+
+&lt;p&gt;Randal&amp;rsquo;s use of the anonymous array is interesting, but it&amp;rsquo;s not the only way to decorate the original value. You could compute the values and store them in a hash. Joseph Hall came up with something called the Orcish Maneuver - a clever pun on &lt;a href=&#34;http://lotr.wikia.com/wiki/Orcs&#34;&gt;Orc&lt;/a&gt; (perhaps) and &amp;ldquo;OR Cache&amp;rdquo;. This doesn&amp;rsquo;t use the &lt;a href=&#34;http://perldoc.perl.org/functions/map.html&#34;&gt;map&lt;/a&gt; function  or references:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @sorted = sort {
+  ( $times{$a} ||= -M $a ) &amp;lt;=&amp;gt;
+  ( $times{$b} ||= -M $b )
+} @old_array;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Joseph uses a hash to store the potentially expensive sort value. If that key does not yet exist, he calculates and stores it for next time. This idiom relies on the feature that a Perl assignment returns the value assigned.&lt;/p&gt;
+
+&lt;p&gt;Thanks to the &lt;a href=&#34;http://act.yapc.eu/alpineperl2016/&#34;&gt;Alpine Perl Workshop 2016&lt;/a&gt; in Innsbruck for sponsoring the accompanying talk on this history. You can find &lt;a href=&#34;http://bit.ly/2bHNNx4&#34;&gt;the slides for that talk on Slideshare&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;For what it&amp;rsquo;s worth, you&amp;rsquo;ll find plenty more Lord of the Rings references in the perl source.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Save space with bit arrays</title>
@@ -1708,101 +1864,6 @@ PS1=&amp;quot;\w\$(current_git_branch) &amp;quot;
 &lt;li&gt;&lt;a href=&#34;https://metacpan.org/pod/Mojo::RoleTiny&#34;&gt;Mojo::RoleTiny&lt;/a&gt; - a simple role system for Mojo; curious why Role::Tiny wouldn&amp;rsquo;t suffice, must be a reason&lt;/li&gt;
 &lt;li&gt;Display a stack trace when your Plack app dies with &lt;a href=&#34;https://metacpan.org/pod/Plack::Middleware::ExtractedStackTrace&#34;&gt;Plack::Middleware::ExtractedStackTrace&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Fixing a sluggish Linux after suspend-resume</title>
-      <link>http://perltricks.com/article/fixing-a-sluggish-linux-after-suspend-resume/</link>
-      <pubDate>Tue, 26 Apr 2016 20:42:41 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/fixing-a-sluggish-linux-after-suspend-resume/</guid>
-      <description>
-
-&lt;p&gt;Occasionally when I suspend my Linux laptop (sleep mode) and later resume working the machine is sluggish. Perceptible pauses occur every time I change applications, scrolling is fractured and text edits are delayed. Monitoring tools like &lt;a href=&#34;http://hisham.hm/htop/&#34;&gt;htop&lt;/a&gt; and &lt;a href=&#34;http://guichaz.free.fr/iotop/&#34;&gt;iotop&lt;/a&gt; give no indication of system resources being under heavy load. I can close all applications and the sluggishness persists.&lt;/p&gt;
-
-&lt;p&gt;Apparently this is a bug where the CPU frequency has been pinned to a very low level. Linux uses CPU frequency scaling to save power; when the machine is resumed, it should start increasing the CPU frequency to meet the demands of the system, but it doesn&amp;rsquo;t always do that. A reboot fixes the problem, but who has time for that? The good news is that it&amp;rsquo;s an easy fix with the &lt;code&gt;cpupower&lt;/code&gt; utility.&lt;/p&gt;
-
-&lt;h3 id=&#34;get-the-cpupower-utility:19d2d70d512c1beb1a7d378bc4e289d3&#34;&gt;Get the cpupower utility&lt;/h3&gt;
-
-&lt;p&gt;You may have &lt;code&gt;cpupower&lt;/code&gt; already installed, but if not it&amp;rsquo;s easy to get with via a package manager. On Ubuntu &lt;a href=&#34;http://manpages.ubuntu.com/manpages/trusty/man1/cpupower.1.html&#34;&gt;cpupower&lt;/a&gt; is part of the &lt;code&gt;linux-tools-common&lt;/code&gt; package. You can install it at the terminal with this command:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ sudo apt-get install linux-tools-common
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;On RHEL based distributions like Fedora and CentOS, &lt;code&gt;cpupower&lt;/code&gt; is bundled with the &lt;code&gt;kernel-tools&lt;/code&gt; package. On CentOS and older Fedoras you can install it with:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ sudo yum install kernel-tools
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;On newer Fedoras you can use &lt;code&gt;dnf&lt;/code&gt; to install it:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ sudo dnf install kernel-tools
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;switch-back-to-performance-mode:19d2d70d512c1beb1a7d378bc4e289d3&#34;&gt;Switch back to performance mode&lt;/h3&gt;
-
-&lt;p&gt;CPU frequency scaling for modern Intel CPUs is provided by the &lt;a href=&#34;https://www.kernel.org/doc/Documentation/cpu-freq/intel-pstate.txt&#34;&gt;intel_pstate driver&lt;/a&gt;. It supports two modes (called &amp;ldquo;governors&amp;rdquo;) of operation: performance and powersave. Performance mode is not necessarily &amp;ldquo;all guns blazing&amp;rdquo; performance. Likewise, powersave doesn&amp;rsquo;t cripple your system either. Both are intelligent governors that responds to system loads by scaling the CPU frequency. I&amp;rsquo;ve found that switching governors immediately resolves my sluggish system issue.&lt;/p&gt;
-
-&lt;p&gt;To confirm which governors are available, I use &lt;code&gt;cpupower&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ cpupower frequency-info --governors
-analyzing CPU 0:
-performance powersave
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Here you can see my system printed both &amp;ldquo;performance&amp;rdquo; and &amp;ldquo;powersave&amp;rdquo; as expected. To switch to the performance governor, I can use the following command:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ sudo cpupower frequency-set --governor performance
-Setting cpu: 0
-Setting cpu: 1
-Setting cpu: 2
-Setting cpu: 3
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The &lt;code&gt;frequency-info&lt;/code&gt; subcommand will show me which governor is active:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ cpupower frequency-info
-analyzing CPU 0:
-  driver: intel_pstate
-  CPUs which run at the same hardware frequency: 0
-  CPUs which need to have their frequency coordinated by software: 0
-  maximum transition latency: 0.97 ms.
-  hardware limits: 500 MHz - 2.70 GHz
-  available cpufreq governors: performance, powersave
-  current policy: frequency should be within 500 MHz and 2.70 GHz.
-                  The governor &amp;quot;performance&amp;quot; may decide which speed to use
-                  within this range.
-  current CPU frequency is 2.28 GHz.
-  boost state support:
-    Supported: yes
-    Active: yes
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The &amp;ldquo;current policy&amp;rdquo; section describes the active governor, which in my case is showing the performance governor as active.&lt;/p&gt;
-
-&lt;h3 id=&#34;cpupower-resources:19d2d70d512c1beb1a7d378bc4e289d3&#34;&gt;cpupower resources&lt;/h3&gt;
-
-&lt;p&gt;The Redhat Linux documentation includes an CPU frequency setup &lt;a href=&#34;https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Power_Management_Guide/cpufreq_setup.html#enabling_a_cpufreq_governor&#34;&gt;guide&lt;/a&gt; with instruction on how to load additional drivers. The Arch Linux CPU frequency scaling &lt;a href=&#34;https://wiki.archlinux.org/index.php/CPU_Frequency_Scaling&#34;&gt;documentation&lt;/a&gt; contains lots of useful information including which files control frequency settings.&lt;/p&gt;
-
-&lt;p&gt;The &lt;code&gt;cpupower&lt;/code&gt; manpage is pretty sparse. Once you have installed &lt;code&gt;cpupower&lt;/code&gt; try running the &lt;code&gt;help&lt;/code&gt; command to get started:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ cpupower help
-Usage:  cpupower [-d|--debug] [-c|--cpu cpulist ] &amp;lt;command&amp;gt; [&amp;lt;args&amp;gt;]
-Supported commands are:
-        frequency-info
-        frequency-set
-        idle-info
-        idle-set
-        set
-        info
-        monitor
-        help
-
-Not all commands can make use of the -c cpulist option.
-
-Use &#39;cpupower help &amp;lt;command&amp;gt;&#39; for getting help for above commands.
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     

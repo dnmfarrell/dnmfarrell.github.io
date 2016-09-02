@@ -6,8 +6,164 @@
     <description>Recent content in Brian D Foy on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 04 May 2016 20:37:57 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 02 Sep 2016 11:18:55 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/authors/brian-d-foy/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>The History of the Schwartzian Transform</title>
+      <link>http://perltricks.com/article/the-history-of-the-schwartzian-transform/</link>
+      <pubDate>Fri, 02 Sep 2016 11:18:55 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/the-history-of-the-schwartzian-transform/</guid>
+      <description>
+
+&lt;p&gt;The history of the Schwartzian Transform is fascinating, full of intrigue, competing philosophies, and cross-language reluctant cooperation. The Schwartzian Transform is the name applied to a particular implementation of a cached-key sorting algorithm.&lt;/p&gt;
+
+&lt;p&gt;The first public appearance is probably Randal Schwartz&amp;rsquo;s Usenet &lt;a href=&#34;https://groups.google.com/d/msg/comp.unix.shell/MdqXDOuzDG0/gcmc1IG9GckJ&#34;&gt;post&lt;/a&gt; on December 16, 1994 in response to Ken Brown&amp;rsquo;s request for help:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I&amp;rsquo;m having trouble sorting on the *last* word of the last field in a record&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Ken Brown&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Randal included the following code in his reply:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
+require 5; # new features, new bugs!
+print
+  map { $_-&amp;gt;[0] }
+  sort { $a-&amp;gt;[1] cmp $b-&amp;gt;[1] }
+  map { [$_, /(\S+)$/] }
+  &amp;lt;&amp;gt;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Randal didn&amp;rsquo;t name it. He wrote the code and essentially dropped the mic. He says that he was on a break from teaching a Perl class, so his response was brief and unexplicated - typical for an experienced Usenet denizen (he said that he was there when you could read all of Usenet in a half hour). I don&amp;rsquo;t think he expected it to be as troublesome as it turned out to be.&lt;/p&gt;
+
+&lt;p&gt;His code isn&amp;rsquo;t that complex. It&amp;rsquo;s a big statement, but when I teach it in Perl classes, I tell people to read it from the end toward the beginning (a handy technique for any list pipeline):&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;The first step computes the key to sort on. It combines that with the original value in a tuple.&lt;/li&gt;
+&lt;li&gt;The middle step sorts of the computed element in the tuple.&lt;/li&gt;
+&lt;li&gt;The last step extracts the original value from the tuple.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;You probably can&amp;rsquo;t imagine how shocking this could be back then. Perl 5 was officially released in October 1994, but the first development versions had been around since the middle of 1993. Randal was surely playing with Perl 5 as soon as it came out. This means that most Perl programmers had not yet seen new features like the &lt;a href=&#34;http://perldoc.perl.org/functions/map.html&#34;&gt;map&lt;/a&gt; function or references. They certainly weren&amp;rsquo;t comfortable with those ideas.&lt;/p&gt;
+
+&lt;p&gt;Randal, however, knew the &lt;em&gt;decorate-sort-undecorate&lt;/em&gt; technique from LISP, especially since he&amp;rsquo;s solidly in the emacs camp in the editor wars. Renzo on &lt;a href=&#34;http://codereview.stackexchange.com/a/138436/13050&#34;&gt;Code Review&lt;/a&gt; fixed up my attempt at a LISP version:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;(defun schwartzian-transform (list costly-function predicate)
+&amp;quot;sort a list of objects over the value of a function applied to them,
+by applying the Schwartzian Transform (https://en.wikipedia.org/wiki/Schwartzian_transform)
+the parameters are the list, the function, and the predicate for the sort.&amp;quot;
+  (mapcar #&#39;cdr
+      (stable-sort (mapcar (lambda (x)
+                 (cons (funcall costly-function x) x))
+                 list)
+             predicate
+             :key #&#39;car)))
+
+(require :sb-posix)
+(schwartzian-transform
+ (directory &amp;quot;/etc/*&amp;quot;)
+ (lambda (x) (sb-posix:stat-mtime (sb-posix:stat x)))
+ #&#39;&amp;lt;=)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Even with a little LISP knowledge you can tease out the same algorithm. You see the &lt;code&gt;mapcar&lt;/code&gt;, &lt;code&gt;stable-sort&lt;/code&gt;, and &lt;code&gt;mapcar&lt;/code&gt;. (I used &lt;a href=&#34;http://www.sbcl.org&#34;&gt;SBCL&lt;/a&gt; for this).&lt;/p&gt;
+
+&lt;p&gt;In 1995 Tom Christiansen wrote &lt;a href=&#34;http://www.perl.com/doc/FMTEYEWTK/sort.html&#34;&gt;Far More Than Everything You&amp;rsquo;ve Ever Wanted to Know About Sorting&lt;/a&gt; and extensively covered Randal&amp;rsquo;s code even though he hadn&amp;rsquo;t labeled yet. He didn&amp;rsquo;t like it that much, but, to be fair, he says at the end:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I&amp;rsquo;m not ragging on Randal, merely teasing a bit. He&amp;rsquo;s just trying to be clever, and that&amp;rsquo;s what he does. I&amp;rsquo;m just submitting a sample chapter for his perusal for inclusion the mythical Alpaca Book :-)&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Tom Christiansen&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Tom refers to &lt;em&gt;Learning Perl Objects, References, Objects, and Modules&lt;/em&gt;, which wouldn&amp;rsquo;t show up until 2003 (it&amp;rsquo;s now called &lt;a href=&#34;http://www.intermediateperl.com&#34;&gt;Intermediate Perl&lt;/a&gt;). Curiously, in that same year &lt;a href=&#34;https://books.google.com/books?id=GxKWdn7u4w8C&amp;amp;pg=PA113&amp;amp;dq=schwartzian+transform&amp;amp;hl=en&amp;amp;sa=X&amp;amp;ved=0ahUKEwir89e-krvNAhXMdz4KHW4uAqQQ6AEILjAC#v=onepage&amp;amp;q=schwartzian%20transform&amp;amp;f=false&#34;&gt;Text Processing in Python&lt;/a&gt; (Google Books) mentioned it.&lt;/p&gt;
+
+&lt;p&gt;A month after his Usenet posting, Randal wrote about his decorate-sort-undecorate idiom in his &lt;a href=&#34;http://www.stonehenge.com/merlyn/UnixReview/col06.html&#34;&gt;Unix Review column&lt;/a&gt; for January 1996, but he hadn&amp;rsquo;t labeled the technique by then either.&lt;/p&gt;
+
+&lt;h3 id=&#34;getting-the-name:cfab7c104a06866196fb7592f2146c3d&#34;&gt;Getting the name&lt;/h3&gt;
+
+&lt;p&gt;In August 1995, &lt;a href=&#34;https://groups.google.com/forum/?hl=en#!topic/comp.lang.perl.misc/fLo0RNV8oW8&#34;&gt;Bennett Todd answers a sorting question&lt;/a&gt; with a &amp;ldquo;Schwartz transformation&amp;rdquo;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Or for possibly more efficiency, ensure that the calls only happen once per
+record, rather than approximately NlogN times, with the Schwartz
+transformation:-)&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Bennett Todd&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;@keys = map { $_-&amp;gt;[0] }
+    sort { $a-&amp;gt;[1] &amp;lt;=&amp;gt; $b-&amp;gt;[1] or $a cmp $b }
+    map { [ $_, datexform($foo{$_}) ] } keys %foo;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is the first instance I could find where Randal&amp;rsquo;s last name was attached to the technique. People have seen and understood the technique and it has the start of a name, but it&amp;rsquo;s not quite an idiom yet. It also hasn&amp;rsquo;t settled on a name.&lt;/p&gt;
+
+&lt;p&gt;Tom Christiansen&amp;rsquo;s April 1996 post in &lt;em&gt;comp.lang.perl.misc&lt;/em&gt; for &lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/pw-Hl4byLnc/yzejRnku3RoJ&#34;&gt;Read directory in timestamp order?&lt;/a&gt; showed some benchmarks for sorting methods. He labeled one the &amp;ldquo;Schwartzian Transform&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;In July, Colin Howarth started the thread &lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/6NEeX4XJx54/nmpMmReMIbcJ&#34;&gt;&amp;ldquo;Schwartzian transform of %$self &amp;hellip; help?&amp;rdquo;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;In October, Tom posted &lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/VIKNMCeNFAM/18UApg1hWy8J&#34;&gt;an expanded draft of perllol&lt;/a&gt; as part of his &lt;a href=&#34;http://www.perl.com/doc/FMTEYEWTK/pdsc/&#34;&gt;Perl Data Structures Cookbook&lt;/a&gt;, which turned into &lt;a href=&#34;http://perldoc.perl.org/perldsc.html&#34;&gt;perldsc&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/perllol.html&#34;&gt;perllol&lt;/a&gt;. He uses the full term &amp;ldquo;Schwartzian Transform&amp;rdquo;. The term was catching on.&lt;/p&gt;
+
+&lt;h3 id=&#34;gaining-notoriety:cfab7c104a06866196fb7592f2146c3d&#34;&gt;Gaining notoriety&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/fPx42DB2jd8/cC_6osV70mMJ&#34;&gt;I&amp;rsquo;m still pissed at Randal for having posted it&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Tom Christiansen&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Tom wrote that in December and he didn&amp;rsquo;t mince words. It might look catty now, but at the time, Tom was on a mission to make people fall in love with Perl. He evangelized the language and didn&amp;rsquo;t want to scare people off with weird looking code. He was everywhere that people were talking about Perl, and that was good for us. That meant he was effectively supporting code he didn&amp;rsquo;t write, he didn&amp;rsquo;t like, and people didn&amp;rsquo;t understand. In his role of Perl&amp;rsquo;s apostle, he was besieged with people asking about something he wouldn&amp;rsquo;t have written himself.&lt;/p&gt;
+
+&lt;p&gt;Later, in that same thread, he&amp;rsquo;d give it another name, the &lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/fPx42DB2jd8/cC_6osV70mMJ&#34;&gt;Black Transform&lt;/a&gt;. He played on the translation of Randal&amp;rsquo;s &lt;a href=&#34;https://en.wikipedia.org/wiki/Schwartz_(surname&#34;&gt;Germanic surname&lt;/a&gt;) that reflected his own opinion. That name didn&amp;rsquo;t stick.&lt;/p&gt;
+
+&lt;p&gt;As with most long Usenet threads, it&amp;rsquo;s not entirely clear what people specifically didn&amp;rsquo;t like about the code, or even that there&amp;rsquo;s a consensus complaint. Some complaints spiral around Randal&amp;rsquo;s lack of comments. Some people want Perl to be accessible at first glance to someone who doesn&amp;rsquo;t know the language. Others who were comfortable with advanced programming skills weren&amp;rsquo;t bothered at all. That&amp;rsquo;s a tension even today.&lt;/p&gt;
+
+&lt;p&gt;Remember, references and method notation were new syntax. People skilled with Perl 4 were still learning Perl 5. Perl hadn&amp;rsquo;t developed idioms for list processing (LISP, natch), so people apparently weren&amp;rsquo;t that comfortable with stacked list operations. Some people merely hated functional programming and LISP.&lt;/p&gt;
+
+&lt;p&gt;There&amp;rsquo;s also a segment of people who would rather have programming languages that are easy to learn over more powerful but more opaque.&lt;/p&gt;
+
+&lt;p&gt;Around that time, Joseph Hall wrote &lt;a href=&#34;http://web.archive.org/web/19961228210914/http://www.5sigma.com/perl/schwtr.html&#34;&gt;More about the Schwartzian Transform (Internet Archive)&lt;/a&gt;. It&amp;rsquo;s tough to tell exactly when he wrote this, but the earliest copy in the Internet archive notes it was last modified in January 1997. Joseph used his PeGS (Perl Graphical Structures) to show them in action. This might be the first mention outside of Usenet. It&amp;rsquo;s also the basis for the item that appears in his 1998 book &lt;a href=&#34;http://www.effectiveperlprogramming.com&#34;&gt;Effective Perl Programming&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Also, around that time, Joseph was working with Randal at Stonehenge Consulting Services to develop the Perl courses. I&amp;rsquo;m fuzzy on that timeline, but his coursework turned into the book &lt;em&gt;Learning Perl Objects, References, and Modules&lt;/em&gt; (later renamed &lt;a href=&#34;https://www.intermediateperl.com&#34;&gt;Intermediate Perl&lt;/a&gt;). He&amp;rsquo;s the one who came up with the Gilligan&amp;rsquo;s Island as examples, but his handiwork with PeGS and the Schwartzian Transform show up in that book and in the class.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.effectiveperlprogramming.com&#34;&gt;Effective Perl Programming&lt;/a&gt; might be the first book to mention the transform, using what he&amp;rsquo;d already written. Even though I worked on the second edition of that book, I think &lt;a href=&#34;https://www.amazon.com/gp/product/0201419750/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;amp;tag=hashbang09-20&amp;amp;camp=1789&amp;amp;creative=9325&amp;amp;linkCode=as2&amp;amp;creativeASIN=0201419750&amp;amp;linkId=b8a4558fd65ec4c4bb17add6e194e5e4&#34;&gt;Joseph&amp;rsquo;s original is still worth the $4 on Amazon.com&lt;/a&gt;. It&amp;rsquo;s some of the best Perl writing in the history of Perl.&lt;/p&gt;
+
+&lt;p&gt;In 1998 the transform also showed up in the first edition of &lt;a href=&#34;https://books.google.com/books?id=7q5QAAAAMAAJ&amp;amp;q=schwartzian+transform+%22programming+perl%22&amp;amp;dq=schwartzian+transform+%22programming+perl%22&amp;amp;hl=en&amp;amp;sa=X&amp;amp;ved=0ahUKEwjplePak7vNAhWSZj4KHYK9AtUQ6AEINDAD&#34;&gt;The Perl Cookbook&lt;/a&gt;, where Tom called it the Schwartzian Transform. I don&amp;rsquo;t know who first typed it into a manuscript, so perhaps it&amp;rsquo;s a tie. Tom and Joseph might have to figure that out between them.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://books.google.com/books?id=4ju67sMPwEkC&amp;amp;pg=PA111&amp;amp;dq=schwartzian+transform&amp;amp;hl=en&amp;amp;sa=X&amp;amp;ved=0ahUKEwir89e-krvNAhXMdz4KHW4uAqQQ6AEIOjAE#v=onepage&amp;amp;q=schwartzian%20transform&amp;amp;f=false&#34;&gt;Mastering Perl Algorithms (Google Books)&lt;/a&gt; covered the transform in 1999 and &lt;a href=&#34;https://books.google.com/books?id=gGNQ-O1WWQAC&amp;amp;pg=PA310&amp;amp;dq=schwartzian+transform&amp;amp;hl=en&amp;amp;sa=X&amp;amp;ved=0ahUKEwjo79KEk7vNAhWBMj4KHcBFDEY4ChDoAQhNMAg#v=onepage&amp;amp;q=schwartzian%20transform&amp;amp;f=false&#34;&gt;CGI Programming in Perl (Google Books)&lt;/a&gt; mentioned it in 2000. After that, the term &amp;ldquo;Schwartzian Transform&amp;rdquo; turns up quite a bit, even in some Ruby, Python, the Jython books.&lt;/p&gt;
+
+&lt;p&gt;Some other interesting quotes from that long thread, which seem quaint twenty years later. My favorite was prophetic:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/fPx42DB2jd8/CTRmyWyJW6MJ&#34;&gt;I wonder if this chunk of code will haunt us forever.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Eric Arnold&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Indeed it has haunted us since then, but that&amp;rsquo;s not the end of the story.&lt;/p&gt;
+
+&lt;h3 id=&#34;variations:cfab7c104a06866196fb7592f2146c3d&#34;&gt;Variations&lt;/h3&gt;
+
+&lt;p&gt;Randal&amp;rsquo;s use of the anonymous array is interesting, but it&amp;rsquo;s not the only way to decorate the original value. You could compute the values and store them in a hash. Joseph Hall came up with something called the Orcish Maneuver - a clever pun on &lt;a href=&#34;http://lotr.wikia.com/wiki/Orcs&#34;&gt;Orc&lt;/a&gt; (perhaps) and &amp;ldquo;OR Cache&amp;rdquo;. This doesn&amp;rsquo;t use the &lt;a href=&#34;http://perldoc.perl.org/functions/map.html&#34;&gt;map&lt;/a&gt; function  or references:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @sorted = sort {
+  ( $times{$a} ||= -M $a ) &amp;lt;=&amp;gt;
+  ( $times{$b} ||= -M $b )
+} @old_array;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Joseph uses a hash to store the potentially expensive sort value. If that key does not yet exist, he calculates and stores it for next time. This idiom relies on the feature that a Perl assignment returns the value assigned.&lt;/p&gt;
+
+&lt;p&gt;Thanks to the &lt;a href=&#34;http://act.yapc.eu/alpineperl2016/&#34;&gt;Alpine Perl Workshop 2016&lt;/a&gt; in Innsbruck for sponsoring the accompanying talk on this history. You can find &lt;a href=&#34;http://bit.ly/2bHNNx4&#34;&gt;the slides for that talk on Slideshare&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;For what it&amp;rsquo;s worth, you&amp;rsquo;ll find plenty more Lord of the Rings references in the perl source.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Perl Jam VI: April Trolls</title>
@@ -2014,211 +2170,6 @@ $mech-&amp;gt;eval_in_page( &#39;StackExchange.switchMobile(&amp;quot;on&amp;quo
 &lt;p&gt;&lt;em&gt;Join the discussion on the Perl &lt;a href=&#34;http://www.reddit.com/r/perl/comments/2onaz4/controlling_firefox_from_perl_by_brian_d_foy/&#34;&gt;subreddit&lt;/a&gt; about this article!&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Update:&lt;/strong&gt; &lt;em&gt;last paragraph updated to include Selenium reference. 2014-12-09&lt;/em&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Facing the music with Perl</title>
-      <link>http://perltricks.com/article/111/2014/8/29/Facing-the-music-with-Perl/</link>
-      <pubDate>Fri, 29 Aug 2014 15:03:09 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/111/2014/8/29/Facing-the-music-with-Perl/</guid>
-      <description>&lt;p&gt;My digital music libraries were messed up. Spread across several devices and a couple of flirtations with iTunes Match and iCloud, I didn&amp;rsquo;t have everything in one place—ironically. Not only that, but Apple had replaced some files with what it considered better versions. Although I don&amp;rsquo;t want to perform the experiment to confirm it, I&amp;rsquo;m sure that the new files had different metadata. I needed to sort it out to start on a better system. I thought the task would be arduous, and it was until I settled on a simpler problem that a couple of Perl modules solved quickly.&lt;/p&gt;
-
-&lt;p&gt;For my first step, I needed to find all the music I had. I had backed up my files before I let Apple replace them with better versions. But I seemed to have made several backups, each with a different subset of my music. One backup would have most of the Led Zepplin but none of the Beatles, while another had no Zepplin and some of the Beatles. Another had all of the Beatles but no Cat Stevens.&lt;/p&gt;
-
-&lt;p&gt;I started by collecting all the unique files from the directories in which I had found music. This program has some of my favorite things about Perl, especially since I still have the wounds from moving files around during my C phase.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
-use strict;
-use warnings;
-
-use Digest::MD5 qw(md5_hex);
-use File::Copy  qw(copy);
-use File::Find;
-use File::Map   qw(map_file);
-use File::Path  qw(make_path);
-use File::Spec::Functions qw(catfile);
-
-my $wanted = sub {
-    state $Seen  = {};
-
-    my $full_name = $File::Find::name;
-    return if -d $full_name;
-
-    map_file my $map, $full_name, &#39;+&amp;lt;&#39;;
-    my $digest_hex = md5_hex( $map );
-    return if $Seen-&amp;gt;{ $digest_hex }++;
-    
-    my( $extension )     = $full_name  =~ /(\.[^.]+)\z/;
-    my( $n, $m, $o, $p ) = $digest_hex =~ /\A (..) (..) (..) (..)/x;
-
-    my $basename = $_;
-    my $dir = catfile( $new_dir, $n, $m, $o, $p );
-    my $new_file = catfile( $dir, $basename );
-    return if -e $new_file;
-
-    make_path( $dir ) unless -d $dir;
-
-    copy(
-        $full_name, 
-        catfile( $dir, $basename )
-        );
-    };
-
-find( $wanted, @ARGV );
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://www.metacpan.org/module/File::Find&#34;&gt;File::Find&lt;/a&gt; provides the code to traverse the file structure for me. I give find the list of starting directories, in this case those in &lt;code&gt;@ARGV&lt;/code&gt;, and a callback subroutine as a reference. The meat of my program is in that &lt;code&gt;$wanted&lt;/code&gt; subroutine. The hardest part of this code is remembering that &lt;code&gt;$File::Find::name&lt;/code&gt; is the full path and &lt;code&gt;$_&lt;/code&gt; is the filename only. I put those into variables to remind me which is which.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://www.metacpan.org/pod/File::Map&#34;&gt;File::Map&lt;/a&gt; allows me to access a file&amp;rsquo;s data directly from disk as a memory map rather than reading it into memory. I don&amp;rsquo;t need to change the file to get its digest (using &lt;a href=&#34;http://www.metacpan.org/pod/Digest::MD5&#34;&gt;Digest::MD5&lt;/a&gt;), so memory mapping is a big win across tens of thousands of music files. If I have seen that digest before, I move on to the next file. Otherwise I do some string manipulations to create new file paths, putting the pieces together with the cross-plaform &lt;a href=&#34;http://www.metacpan.org/pod/File::Spec&#34;&gt;File::Spec&lt;/a&gt;. I copy the file to the new location with &lt;a href=&#34;http://www.metacpan.org/pod/File::Copy&#34;&gt;File::Copy&lt;/a&gt;. I specifically make a copy so I leave the original files where they are for now. I anticipate messing up at least a couple of times. The new path is four levels deep with each deeper level based on the next two characters in the file&amp;rsquo;s digest. That way, no directory gets too big, slowing down all directory operations.&lt;/p&gt;
-
-&lt;p&gt;Some rough calculations showed me that no particular music library was more than 85% complete. This was where the real fun began, but also my embarrassing tales of woe. Out of the newly copied files, I needed to select the ones I wanted to keep.&lt;/p&gt;
-
-&lt;p&gt;First, I merely cleaned out my iTunes library and reimported everything to see what I was working with. Most music I had in duplicates, and some in triplicates. iTunes Match had upgraded MP3 files to M4A (encoded in Apple&amp;rsquo;s AAC codec) and had done the same for M4P files, the DRM-ed versions of music I had purchased. Each version had a different digest, so several versions of the same content survived.&lt;/p&gt;
-
-&lt;p&gt;I struggled with the next part of the problem because I have too much computer power at my disposal. I could collect all of the metadata for each file and store it in a database. I could throw it into a NoSQL thingy. I even thought about redis. Any one of these technologies are fun diversions but they require too much work. I started and abandoned several approaches, including a brief attempt to use AppleScript to interact with iTunes directly. Oh, the insanity.&lt;/p&gt;
-
-&lt;p&gt;Working from the digested directory each time was a bad decision. I&amp;rsquo;d have to collect the metadata then group files by album or artist. iTunes had already done that for me, although I didn&amp;rsquo;t realize this for a week. When I imported the music, it copied the files into folders named after the artist and album (something I could have done instead of using the digests). Most of my work would be limited to the files in a single directory. I don&amp;rsquo;t need a data structure to hold all of that. I certainly didn&amp;rsquo;t need a database.&lt;/p&gt;
-
-&lt;p&gt;If I could enter a directory, examine each file in that directory, then process them on the way out of that directory, removing the duplicate files becomes much easier. I remembered that &lt;a href=&#34;http://www.metacpan.org/pod/File::Find&#34;&gt;File::Find&lt;/a&gt; has a &lt;code&gt;post_process&lt;/code&gt; option that allows me to do this, although I haven&amp;rsquo;t used it in years:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use File::Find qw(find);
-
-find( 
-    { 
-    wanted      =&amp;gt; $wanted,   #code refs
-    postprocess =&amp;gt; $post,
-    },
-    @ARGV,
-    );
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;While I was in each directory, I could collect information on each file. Each file is already sorted by artist and album but I still need to choose which one of the duplicate files to keep. After a bit of thought, the solution turned out to be simple. I could sort on file extension, looking up the ordering in a hash. When I have two files with the same extension I&amp;rsquo;ll choose the one with the higher bitrate. When the bitrates match, I&amp;rsquo;ll choose the one with the shortest filename. With the various music libraries, I had some files like &lt;em&gt;Susie Q.m4a&lt;/em&gt; and &lt;em&gt;Susie Q 1.m4a&lt;/em&gt;; essentially the same file except for some slight metadata differences. I used &lt;a href=&#34;http://www.metacpan.org/pod/Music::Tag&#34;&gt;Music::Tag&lt;/a&gt; to get the metadata since it automatically delegated to plugins for the various file formats.&lt;/p&gt;
-
-&lt;p&gt;After sorting, I mark for deletion everything except the first element in the list. I don&amp;rsquo;t delete them right away; I print the list to a file which I can use later to delete files. I&amp;rsquo;ve been around too long to delete files right away.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/Users/brian/bin/perls/perl5.18.1
-use v5.18;
-use Digest::MD5 qw( md5_hex );
-use Data::Dumper;
-use File::Basename qw( basename );
-use File::Find;
-use File::Map   qw( map_file );
-use File::Copy  qw( copy );
-use File::Path  qw( make_path );
-use File::Spec::Functions  qw(abs2rel rel2abs splitdir);
-use Music::Tag;
-
-my $extensions_order = {
-    m4a =&amp;gt; -2,        
-    mp3 =&amp;gt; -1,
-    m4p =&amp;gt;  0,
-    };
-
-open my $fh, &#39;&amp;gt;&#39;, &#39;delete_files.txt&#39;;
-
-my $hash = {};
-
-my( $wanted, $post ) = make_subs( $dir, $hash );
-
-find( 
-    { 
-    wanted      =&amp;gt; $wanted,
-    postprocess =&amp;gt; $post,
-    },
-    @ARGV,
-    );
-    
-sub make_subs {
-    my( $dir, $hash ) = @_;
-    
-    sub { # wanted
-        # my $path     = $File::Find::name;
-        # my $filename = $_;
-        
-        state $count = 0;
-
-        return if( -d $File::Find::name or -l $File::Find::name );
-        return if $_ eq &#39;.DS_Store&#39;;
-
-        my $filename = basename( $File::Find::name );
-        my $relative = abs2rel( $File::Find::name, $dir );
-        
-        my $basename_no_ext = $filename =~ s/\.[^.]+\z//r;
-
-        my( $extension ) = $filename =~ m/ \. ( [^.]+ ) \z /x;
-        return unless exists $extensions_order-&amp;gt;{$extension};
-
-        my $this_file = {};
-
-        my $info = eval { Music::Tag-&amp;gt;new( $filename )-&amp;gt;get_tag };
-        
-        my $title = eval{ $info-&amp;gt;title };
-        if( $@ ) { 
-            warn &amp;quot;Title had a problem: $@&amp;quot;;
-            }
-
-        $this_file-&amp;gt;{tag} = {
-            title   =&amp;gt; $title,
-            bitrate =&amp;gt; eval{ $info-&amp;gt;bitrate },
-            };    
-        $this_file-&amp;gt;{file} = {
-            extension =&amp;gt; $extension,
-            basename  =&amp;gt; $filename,
-            relative  =&amp;gt; $relative,
-            no_ext    =&amp;gt; $basename_no_ext,
-            &#39;File::Find::name&#39; =&amp;gt; $File::Find::name,
-            &#39;_&#39; =&amp;gt; $_,
-            };    
-        
-        push @{ $hash-&amp;gt;{$File::Find::dir}{$title} }, $this_file;
-
-        $hash-&amp;gt;{extensions}{$extension}++;
-        },
-        
-    sub { # postprocess        
-        my $this = $hash-&amp;gt;{$File::Find::dir};
-
-        TITLE: foreach my $title ( sort keys %$this ) {
-            my $songs = $this-&amp;gt;{ $title };
-            next if @$songs == 1; # no duplicates, no problem
-
-            my @sorted = sort {
-              state $e = $extensions_order;
-                
-              $e-&amp;gt;{ $a-&amp;gt;{file}{extension} } &amp;lt;=&amp;gt; $e-&amp;gt;{ $b-&amp;gt;{file}{extension} }
-                    or
-              length $a-&amp;gt;{file}{basename} &amp;lt;=&amp;gt; length $b-&amp;gt;{file}{basename}
-                    or
-              $b-&amp;gt;{tag}{bitrate} &amp;lt;=&amp;gt; $a-&amp;gt;{tag}{bitrate}
-              } @$songs;
-
-            # everything without the chosen key will be deleted
-            $sorted[0]{chosen}++;
-            
-            SONG: foreach my $song ( @sorted ) {
-                $hash-&amp;gt;{seen}++;
-                next unless exists $extensions_order-&amp;gt;{
-                    $song-&amp;gt;{file}{extension} };
-                $hash-&amp;gt;{examined}++;
-                next if $song-&amp;gt;{chosen};
-                
-                # ignore other files, such as videos and e-books
-                next unless exists $extensions_order-&amp;gt;{
-                    $song-&amp;gt;{file}{extension} };
-
-                $hash-&amp;gt;{deleted}++;
-                print { $fh } &amp;quot;delete:\t$song-&amp;gt;{file}{relative}\n&amp;quot;;
-                }
-            }
-
-        delete $hash-&amp;gt;{$File::Find::dir};
-        }
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;And that was it. This left behind a couple of problems, such as messed up metadata, but I wasn&amp;rsquo;t going to be able to solve that programmatically anyway. Getting a complete set of files with no duplicates solved most of the problem and leaves me with the joy of flipping through physical albums that only us grey beards remember.&lt;/p&gt;
 </description>
     </item>
     

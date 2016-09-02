@@ -6,8 +6,164 @@
     <description>Recent content in Community on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 26 May 2016 08:53:36 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 02 Sep 2016 11:18:55 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/categories/community/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>The History of the Schwartzian Transform</title>
+      <link>http://perltricks.com/article/the-history-of-the-schwartzian-transform/</link>
+      <pubDate>Fri, 02 Sep 2016 11:18:55 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/the-history-of-the-schwartzian-transform/</guid>
+      <description>
+
+&lt;p&gt;The history of the Schwartzian Transform is fascinating, full of intrigue, competing philosophies, and cross-language reluctant cooperation. The Schwartzian Transform is the name applied to a particular implementation of a cached-key sorting algorithm.&lt;/p&gt;
+
+&lt;p&gt;The first public appearance is probably Randal Schwartz&amp;rsquo;s Usenet &lt;a href=&#34;https://groups.google.com/d/msg/comp.unix.shell/MdqXDOuzDG0/gcmc1IG9GckJ&#34;&gt;post&lt;/a&gt; on December 16, 1994 in response to Ken Brown&amp;rsquo;s request for help:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I&amp;rsquo;m having trouble sorting on the *last* word of the last field in a record&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Ken Brown&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Randal included the following code in his reply:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/perl
+require 5; # new features, new bugs!
+print
+  map { $_-&amp;gt;[0] }
+  sort { $a-&amp;gt;[1] cmp $b-&amp;gt;[1] }
+  map { [$_, /(\S+)$/] }
+  &amp;lt;&amp;gt;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Randal didn&amp;rsquo;t name it. He wrote the code and essentially dropped the mic. He says that he was on a break from teaching a Perl class, so his response was brief and unexplicated - typical for an experienced Usenet denizen (he said that he was there when you could read all of Usenet in a half hour). I don&amp;rsquo;t think he expected it to be as troublesome as it turned out to be.&lt;/p&gt;
+
+&lt;p&gt;His code isn&amp;rsquo;t that complex. It&amp;rsquo;s a big statement, but when I teach it in Perl classes, I tell people to read it from the end toward the beginning (a handy technique for any list pipeline):&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;The first step computes the key to sort on. It combines that with the original value in a tuple.&lt;/li&gt;
+&lt;li&gt;The middle step sorts of the computed element in the tuple.&lt;/li&gt;
+&lt;li&gt;The last step extracts the original value from the tuple.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;You probably can&amp;rsquo;t imagine how shocking this could be back then. Perl 5 was officially released in October 1994, but the first development versions had been around since the middle of 1993. Randal was surely playing with Perl 5 as soon as it came out. This means that most Perl programmers had not yet seen new features like the &lt;a href=&#34;http://perldoc.perl.org/functions/map.html&#34;&gt;map&lt;/a&gt; function or references. They certainly weren&amp;rsquo;t comfortable with those ideas.&lt;/p&gt;
+
+&lt;p&gt;Randal, however, knew the &lt;em&gt;decorate-sort-undecorate&lt;/em&gt; technique from LISP, especially since he&amp;rsquo;s solidly in the emacs camp in the editor wars. Renzo on &lt;a href=&#34;http://codereview.stackexchange.com/a/138436/13050&#34;&gt;Code Review&lt;/a&gt; fixed up my attempt at a LISP version:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;(defun schwartzian-transform (list costly-function predicate)
+&amp;quot;sort a list of objects over the value of a function applied to them,
+by applying the Schwartzian Transform (https://en.wikipedia.org/wiki/Schwartzian_transform)
+the parameters are the list, the function, and the predicate for the sort.&amp;quot;
+  (mapcar #&#39;cdr
+      (stable-sort (mapcar (lambda (x)
+                 (cons (funcall costly-function x) x))
+                 list)
+             predicate
+             :key #&#39;car)))
+
+(require :sb-posix)
+(schwartzian-transform
+ (directory &amp;quot;/etc/*&amp;quot;)
+ (lambda (x) (sb-posix:stat-mtime (sb-posix:stat x)))
+ #&#39;&amp;lt;=)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Even with a little LISP knowledge you can tease out the same algorithm. You see the &lt;code&gt;mapcar&lt;/code&gt;, &lt;code&gt;stable-sort&lt;/code&gt;, and &lt;code&gt;mapcar&lt;/code&gt;. (I used &lt;a href=&#34;http://www.sbcl.org&#34;&gt;SBCL&lt;/a&gt; for this).&lt;/p&gt;
+
+&lt;p&gt;In 1995 Tom Christiansen wrote &lt;a href=&#34;http://www.perl.com/doc/FMTEYEWTK/sort.html&#34;&gt;Far More Than Everything You&amp;rsquo;ve Ever Wanted to Know About Sorting&lt;/a&gt; and extensively covered Randal&amp;rsquo;s code even though he hadn&amp;rsquo;t labeled yet. He didn&amp;rsquo;t like it that much, but, to be fair, he says at the end:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I&amp;rsquo;m not ragging on Randal, merely teasing a bit. He&amp;rsquo;s just trying to be clever, and that&amp;rsquo;s what he does. I&amp;rsquo;m just submitting a sample chapter for his perusal for inclusion the mythical Alpaca Book :-)&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Tom Christiansen&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Tom refers to &lt;em&gt;Learning Perl Objects, References, Objects, and Modules&lt;/em&gt;, which wouldn&amp;rsquo;t show up until 2003 (it&amp;rsquo;s now called &lt;a href=&#34;http://www.intermediateperl.com&#34;&gt;Intermediate Perl&lt;/a&gt;). Curiously, in that same year &lt;a href=&#34;https://books.google.com/books?id=GxKWdn7u4w8C&amp;amp;pg=PA113&amp;amp;dq=schwartzian+transform&amp;amp;hl=en&amp;amp;sa=X&amp;amp;ved=0ahUKEwir89e-krvNAhXMdz4KHW4uAqQQ6AEILjAC#v=onepage&amp;amp;q=schwartzian%20transform&amp;amp;f=false&#34;&gt;Text Processing in Python&lt;/a&gt; (Google Books) mentioned it.&lt;/p&gt;
+
+&lt;p&gt;A month after his Usenet posting, Randal wrote about his decorate-sort-undecorate idiom in his &lt;a href=&#34;http://www.stonehenge.com/merlyn/UnixReview/col06.html&#34;&gt;Unix Review column&lt;/a&gt; for January 1996, but he hadn&amp;rsquo;t labeled the technique by then either.&lt;/p&gt;
+
+&lt;h3 id=&#34;getting-the-name:cfab7c104a06866196fb7592f2146c3d&#34;&gt;Getting the name&lt;/h3&gt;
+
+&lt;p&gt;In August 1995, &lt;a href=&#34;https://groups.google.com/forum/?hl=en#!topic/comp.lang.perl.misc/fLo0RNV8oW8&#34;&gt;Bennett Todd answers a sorting question&lt;/a&gt; with a &amp;ldquo;Schwartz transformation&amp;rdquo;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Or for possibly more efficiency, ensure that the calls only happen once per
+record, rather than approximately NlogN times, with the Schwartz
+transformation:-)&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Bennett Todd&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;@keys = map { $_-&amp;gt;[0] }
+    sort { $a-&amp;gt;[1] &amp;lt;=&amp;gt; $b-&amp;gt;[1] or $a cmp $b }
+    map { [ $_, datexform($foo{$_}) ] } keys %foo;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is the first instance I could find where Randal&amp;rsquo;s last name was attached to the technique. People have seen and understood the technique and it has the start of a name, but it&amp;rsquo;s not quite an idiom yet. It also hasn&amp;rsquo;t settled on a name.&lt;/p&gt;
+
+&lt;p&gt;Tom Christiansen&amp;rsquo;s April 1996 post in &lt;em&gt;comp.lang.perl.misc&lt;/em&gt; for &lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/pw-Hl4byLnc/yzejRnku3RoJ&#34;&gt;Read directory in timestamp order?&lt;/a&gt; showed some benchmarks for sorting methods. He labeled one the &amp;ldquo;Schwartzian Transform&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;In July, Colin Howarth started the thread &lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/6NEeX4XJx54/nmpMmReMIbcJ&#34;&gt;&amp;ldquo;Schwartzian transform of %$self &amp;hellip; help?&amp;rdquo;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;In October, Tom posted &lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/VIKNMCeNFAM/18UApg1hWy8J&#34;&gt;an expanded draft of perllol&lt;/a&gt; as part of his &lt;a href=&#34;http://www.perl.com/doc/FMTEYEWTK/pdsc/&#34;&gt;Perl Data Structures Cookbook&lt;/a&gt;, which turned into &lt;a href=&#34;http://perldoc.perl.org/perldsc.html&#34;&gt;perldsc&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/perllol.html&#34;&gt;perllol&lt;/a&gt;. He uses the full term &amp;ldquo;Schwartzian Transform&amp;rdquo;. The term was catching on.&lt;/p&gt;
+
+&lt;h3 id=&#34;gaining-notoriety:cfab7c104a06866196fb7592f2146c3d&#34;&gt;Gaining notoriety&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/fPx42DB2jd8/cC_6osV70mMJ&#34;&gt;I&amp;rsquo;m still pissed at Randal for having posted it&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Tom Christiansen&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Tom wrote that in December and he didn&amp;rsquo;t mince words. It might look catty now, but at the time, Tom was on a mission to make people fall in love with Perl. He evangelized the language and didn&amp;rsquo;t want to scare people off with weird looking code. He was everywhere that people were talking about Perl, and that was good for us. That meant he was effectively supporting code he didn&amp;rsquo;t write, he didn&amp;rsquo;t like, and people didn&amp;rsquo;t understand. In his role of Perl&amp;rsquo;s apostle, he was besieged with people asking about something he wouldn&amp;rsquo;t have written himself.&lt;/p&gt;
+
+&lt;p&gt;Later, in that same thread, he&amp;rsquo;d give it another name, the &lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/fPx42DB2jd8/cC_6osV70mMJ&#34;&gt;Black Transform&lt;/a&gt;. He played on the translation of Randal&amp;rsquo;s &lt;a href=&#34;https://en.wikipedia.org/wiki/Schwartz_(surname&#34;&gt;Germanic surname&lt;/a&gt;) that reflected his own opinion. That name didn&amp;rsquo;t stick.&lt;/p&gt;
+
+&lt;p&gt;As with most long Usenet threads, it&amp;rsquo;s not entirely clear what people specifically didn&amp;rsquo;t like about the code, or even that there&amp;rsquo;s a consensus complaint. Some complaints spiral around Randal&amp;rsquo;s lack of comments. Some people want Perl to be accessible at first glance to someone who doesn&amp;rsquo;t know the language. Others who were comfortable with advanced programming skills weren&amp;rsquo;t bothered at all. That&amp;rsquo;s a tension even today.&lt;/p&gt;
+
+&lt;p&gt;Remember, references and method notation were new syntax. People skilled with Perl 4 were still learning Perl 5. Perl hadn&amp;rsquo;t developed idioms for list processing (LISP, natch), so people apparently weren&amp;rsquo;t that comfortable with stacked list operations. Some people merely hated functional programming and LISP.&lt;/p&gt;
+
+&lt;p&gt;There&amp;rsquo;s also a segment of people who would rather have programming languages that are easy to learn over more powerful but more opaque.&lt;/p&gt;
+
+&lt;p&gt;Around that time, Joseph Hall wrote &lt;a href=&#34;http://web.archive.org/web/19961228210914/http://www.5sigma.com/perl/schwtr.html&#34;&gt;More about the Schwartzian Transform (Internet Archive)&lt;/a&gt;. It&amp;rsquo;s tough to tell exactly when he wrote this, but the earliest copy in the Internet archive notes it was last modified in January 1997. Joseph used his PeGS (Perl Graphical Structures) to show them in action. This might be the first mention outside of Usenet. It&amp;rsquo;s also the basis for the item that appears in his 1998 book &lt;a href=&#34;http://www.effectiveperlprogramming.com&#34;&gt;Effective Perl Programming&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Also, around that time, Joseph was working with Randal at Stonehenge Consulting Services to develop the Perl courses. I&amp;rsquo;m fuzzy on that timeline, but his coursework turned into the book &lt;em&gt;Learning Perl Objects, References, and Modules&lt;/em&gt; (later renamed &lt;a href=&#34;https://www.intermediateperl.com&#34;&gt;Intermediate Perl&lt;/a&gt;). He&amp;rsquo;s the one who came up with the Gilligan&amp;rsquo;s Island as examples, but his handiwork with PeGS and the Schwartzian Transform show up in that book and in the class.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.effectiveperlprogramming.com&#34;&gt;Effective Perl Programming&lt;/a&gt; might be the first book to mention the transform, using what he&amp;rsquo;d already written. Even though I worked on the second edition of that book, I think &lt;a href=&#34;https://www.amazon.com/gp/product/0201419750/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;amp;tag=hashbang09-20&amp;amp;camp=1789&amp;amp;creative=9325&amp;amp;linkCode=as2&amp;amp;creativeASIN=0201419750&amp;amp;linkId=b8a4558fd65ec4c4bb17add6e194e5e4&#34;&gt;Joseph&amp;rsquo;s original is still worth the $4 on Amazon.com&lt;/a&gt;. It&amp;rsquo;s some of the best Perl writing in the history of Perl.&lt;/p&gt;
+
+&lt;p&gt;In 1998 the transform also showed up in the first edition of &lt;a href=&#34;https://books.google.com/books?id=7q5QAAAAMAAJ&amp;amp;q=schwartzian+transform+%22programming+perl%22&amp;amp;dq=schwartzian+transform+%22programming+perl%22&amp;amp;hl=en&amp;amp;sa=X&amp;amp;ved=0ahUKEwjplePak7vNAhWSZj4KHYK9AtUQ6AEINDAD&#34;&gt;The Perl Cookbook&lt;/a&gt;, where Tom called it the Schwartzian Transform. I don&amp;rsquo;t know who first typed it into a manuscript, so perhaps it&amp;rsquo;s a tie. Tom and Joseph might have to figure that out between them.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://books.google.com/books?id=4ju67sMPwEkC&amp;amp;pg=PA111&amp;amp;dq=schwartzian+transform&amp;amp;hl=en&amp;amp;sa=X&amp;amp;ved=0ahUKEwir89e-krvNAhXMdz4KHW4uAqQQ6AEIOjAE#v=onepage&amp;amp;q=schwartzian%20transform&amp;amp;f=false&#34;&gt;Mastering Perl Algorithms (Google Books)&lt;/a&gt; covered the transform in 1999 and &lt;a href=&#34;https://books.google.com/books?id=gGNQ-O1WWQAC&amp;amp;pg=PA310&amp;amp;dq=schwartzian+transform&amp;amp;hl=en&amp;amp;sa=X&amp;amp;ved=0ahUKEwjo79KEk7vNAhWBMj4KHcBFDEY4ChDoAQhNMAg#v=onepage&amp;amp;q=schwartzian%20transform&amp;amp;f=false&#34;&gt;CGI Programming in Perl (Google Books)&lt;/a&gt; mentioned it in 2000. After that, the term &amp;ldquo;Schwartzian Transform&amp;rdquo; turns up quite a bit, even in some Ruby, Python, the Jython books.&lt;/p&gt;
+
+&lt;p&gt;Some other interesting quotes from that long thread, which seem quaint twenty years later. My favorite was prophetic:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://groups.google.com/d/msg/comp.lang.perl.misc/fPx42DB2jd8/CTRmyWyJW6MJ&#34;&gt;I wonder if this chunk of code will haunt us forever.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Eric Arnold&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Indeed it has haunted us since then, but that&amp;rsquo;s not the end of the story.&lt;/p&gt;
+
+&lt;h3 id=&#34;variations:cfab7c104a06866196fb7592f2146c3d&#34;&gt;Variations&lt;/h3&gt;
+
+&lt;p&gt;Randal&amp;rsquo;s use of the anonymous array is interesting, but it&amp;rsquo;s not the only way to decorate the original value. You could compute the values and store them in a hash. Joseph Hall came up with something called the Orcish Maneuver - a clever pun on &lt;a href=&#34;http://lotr.wikia.com/wiki/Orcs&#34;&gt;Orc&lt;/a&gt; (perhaps) and &amp;ldquo;OR Cache&amp;rdquo;. This doesn&amp;rsquo;t use the &lt;a href=&#34;http://perldoc.perl.org/functions/map.html&#34;&gt;map&lt;/a&gt; function  or references:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @sorted = sort {
+  ( $times{$a} ||= -M $a ) &amp;lt;=&amp;gt;
+  ( $times{$b} ||= -M $b )
+} @old_array;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Joseph uses a hash to store the potentially expensive sort value. If that key does not yet exist, he calculates and stores it for next time. This idiom relies on the feature that a Perl assignment returns the value assigned.&lt;/p&gt;
+
+&lt;p&gt;Thanks to the &lt;a href=&#34;http://act.yapc.eu/alpineperl2016/&#34;&gt;Alpine Perl Workshop 2016&lt;/a&gt; in Innsbruck for sponsoring the accompanying talk on this history. You can find &lt;a href=&#34;http://bit.ly/2bHNNx4&#34;&gt;the slides for that talk on Slideshare&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;For what it&amp;rsquo;s worth, you&amp;rsquo;ll find plenty more Lord of the Rings references in the perl source.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Promoting Perl community articles</title>
@@ -1466,90 +1622,6 @@ Result: PASS
 &lt;p&gt;I&amp;rsquo;ve released these files under the FreeBSD license, but keep in mind that there may be additional restrictions on use, which is out of my hands. Check out the repo &lt;a href=&#34;https://github.com/dnmfarrell/Perl-Icons/blob/master/README.pod&#34;&gt;README&lt;/a&gt; for the specifics.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Update&lt;/strong&gt; &lt;em&gt;I&amp;rsquo;ve added a fourth glyph to the repo, the Perl 5 Raptor! Thanks to Marcus Smith for the suggestion. 2015-01-23&lt;/em&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>The Whitespace in the Perl community</title>
-      <link>http://perltricks.com/article/141/2014/12/15/The-Whitespace-in-the-Perl-community/</link>
-      <pubDate>Mon, 15 Dec 2014 14:00:45 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/141/2014/12/15/The-Whitespace-in-the-Perl-community/</guid>
-      <description>
-
-&lt;p&gt;One night over pastrami sandwiches, David Farrell and I came up with the idea of &lt;em&gt;the whitespace in the Perl community&lt;/em&gt;. Between all the code, projects, user groups, and events we already enjoy, there&amp;rsquo;s much more that people who want to make names for themselves can do. The trick is picking what to do.&lt;/p&gt;
-
-&lt;p&gt;David started this website and wants to give people a place to publish their stories about Perl. He can promote it, readers can discover it once instead of finding new blogs, and authors don&amp;rsquo;t have to maintain their own site. Perl.com used to be such a site, and while it&amp;rsquo;s still around, it&amp;rsquo;s not active.&lt;/p&gt;
-
-&lt;p&gt;You probably know my own projects. I and a few others started Perl mongers when there were no Perl user groups. After &lt;em&gt;The Perl Journal&lt;/em&gt; finally gave up, I started &lt;em&gt;The Perl Review&lt;/em&gt; to take its place (and the print magazine lasted just as long). I&amp;rsquo;ve done many other things as well.&lt;/p&gt;
-
-&lt;p&gt;Both David and I looked for things that other people weren&amp;rsquo;t doing, and we both asked around to see who&amp;rsquo;s toes we might step on and to build support for our new thing.&lt;/p&gt;
-
-&lt;p&gt;We wanted to list things which other people might do if they were looking to make a name for themselves in the community. That&amp;rsquo;s different than mere participation. They need to make something that&amp;rsquo;s virtually synonymous with their names. That&amp;rsquo;s how they can build their résumés. Every project needs a spiritual center and chief motivator to keep things going.&lt;/p&gt;
-
-&lt;p&gt;I still remember Graham Barr demonstrating &lt;a href=&#34;http://search.cpan.org&#34;&gt;CPAN Search&lt;/a&gt; for me at a long ago Perl conference. It was groundbreaking; we didn&amp;rsquo;t have anything like that yet. Younger Perl programmers probably have never been without it and didn&amp;rsquo;t realize how big a leap it was from browsing directories.&lt;/p&gt;
-
-&lt;p&gt;Before JJ Allen set up &lt;a href=&#34;http://perldoc.perl.org&#34;&gt;perldoc.perl.org&lt;/a&gt;, Carlos Ramirez had &lt;a href=&#34;http://www.perldoc.com&#34;&gt;Perldoc.com&lt;/a&gt;. Before those sites, there were isolated ways to get the Perl docs in HTML, but Carlos somehow leapt ahead of all of them to create an integrated solution. Fortunately, JJ Allen took the idea further when Carlos disappeared.&lt;/p&gt;
-
-&lt;p&gt;Not every successful project is a completely new idea. Sometimes it&amp;rsquo;s an older idea done better. Gabor Szabo started &lt;a href=&#34;http://perlweekly.com&#34;&gt;Perl Weekly&lt;/a&gt; to curate the internet activity of the Perl community. He discovers what&amp;rsquo;s worth reading so the rest of the community doesn&amp;rsquo;t need to spend too much time away from &lt;a href=&#34;https://www.youtube.com/results?search_query=kitten+videos&#34;&gt;kitten videos&lt;/a&gt; and coding. Other people have tried the same thing, but Gabor&amp;rsquo;s advantage is his perseverance.&lt;/p&gt;
-
-&lt;p&gt;We did come up with a list of opportunities, but we&amp;rsquo;re not going to present it here. We thought of things that we&amp;rsquo;d like to do, but in my experience that&amp;rsquo;s not that helpful. Not only that, but the most successful ideas seem to be something that nobody had ever considered, including us. The next big ideas will be things that most people never imagined.&lt;/p&gt;
-
-&lt;p&gt;Instead, we talked about the process to come up with those ideas, which is the advice either of us tend to give out anyway. Along with that, we put together some advice on how you might make it work.&lt;/p&gt;
-
-&lt;h3 id=&#34;finding-opportunity:8518d03148399efeae5968329e94e564&#34;&gt;Finding opportunity&lt;/h3&gt;
-
-&lt;p&gt;Whitespace is any opportunity to add value. In that sense, there are two categories of whitespace:&lt;/p&gt;
-
-&lt;p&gt;The first is discovered through innovation; truly original ideas whose time has come. No one is doing it because no one has thought of it. These &amp;ldquo;gladwellian&amp;rdquo; opportunities can be highly valuable and often come from deep insight. They&amp;rsquo;re also exceedingly rare, such as the creation of CPAN. Every language has their own version of CPAN now.&lt;/p&gt;
-
-&lt;p&gt;The second kind is less appealing. These are the opportunities that exist because no one wants to do them. Typically the work required to exploit the opportunity will involve repetitive and manual tasks, such as maintaining documentation or shepherding modules that you didn&amp;rsquo;t write and don&amp;rsquo;t use. In Perl we hack through inconveniences all the time. Inconvenience is an annoyance or an afterthought. We &lt;code&gt;chomp&lt;/code&gt; it, &lt;code&gt;split&lt;/code&gt; on it, trim it and move on. But those inconveniences are opportunities, where (usually) no one is working. These kinds of opportunities can be just as valuable to the community and even so, are easy to find. Just look for the jobs that would benefit the community that no one is doing, and start doing them.&lt;/p&gt;
-
-&lt;p&gt;If you want big results, you can do either the boring or the hard work that no one else is doing.&lt;/p&gt;
-
-&lt;h3 id=&#34;just-do-it:8518d03148399efeae5968329e94e564&#34;&gt;Just do it&lt;/h3&gt;
-
-&lt;p&gt;We had a much easier time back in the day because we didn&amp;rsquo;t think anyone was in charge and there were fewer toes to step on. Now there are various organizations, such as &lt;a href=&#34;http://www.perlfoundation.org&#34;&gt;The Perl Foundation&lt;/a&gt;. People often ask me how to get TPF approval, but they don&amp;rsquo;t need it. They don&amp;rsquo;t need a grant, or a subhost on a particular domain, or many of the other things any organization might control.&lt;/p&gt;
-
-&lt;p&gt;This isn&amp;rsquo;t to say that you should ignore those who can help you; just don&amp;rsquo;t let them stop or delay you. Remember that they are all volunteers and are probably already giving the time that they have available.&lt;/p&gt;
-
-&lt;h3 id=&#34;planning-ahead:8518d03148399efeae5968329e94e564&#34;&gt;Planning ahead&lt;/h3&gt;
-
-&lt;p&gt;Your first step is to ensure that you&amp;rsquo;re doing something you&amp;rsquo;re going to want to do. It&amp;rsquo;s one thing to come up with an idea, but it&amp;rsquo;s another to want to work on it for months (or longer), most likely on your own until the community gets behind you.&lt;/p&gt;
-
-&lt;p&gt;To do this, you should talk to as many people as you can. Start with private or limited conversations with people you trust. Some people may tell you to just put it out there, but do a little research first. Don&amp;rsquo;t get discouraged by irrelevant details from people who weren&amp;rsquo;t going to use it and weren&amp;rsquo;t going to help.&lt;/p&gt;
-
-&lt;p&gt;Specifically, don&amp;rsquo;t design a database schema right away. I&amp;rsquo;ve long had a rule that lets me figure out which conference fever projects will fail within the month; they are the ones who start picking the technologies right away.&lt;/p&gt;
-
-&lt;p&gt;Figure out how you want it to work, and keep a particular audience in mind. Instead of pleasing everyone, which drags out your design and creates much more work, start simply so you can get something out there quickly.&lt;/p&gt;
-
-&lt;h3 id=&#34;sticking-to-it:8518d03148399efeae5968329e94e564&#34;&gt;Sticking to it&lt;/h3&gt;
-
-&lt;p&gt;Most ideas fail because their originators think that the idea is enough. People will see the merits instantly and volunteers will step in to do all the work. Fall into that trap and you may find yourself unmotivated and overworked because you are doing everything. For awhile, embrace the idea that you&amp;rsquo;re doing most of the work and look at help as gravy instead of the meat.&lt;/p&gt;
-
-&lt;h3 id=&#34;be-ready-to-give-it-up:8518d03148399efeae5968329e94e564&#34;&gt;Be ready to give it up&lt;/h3&gt;
-
-&lt;p&gt;Our last bit of advice seems contradictory to the rest. After you develop your great idea, be prepared to lose it. The idea may change from underneath you, or more motivated and enthusiastic volunteers may take it in another direction. Trying to stick to the original plan might drive everyone away.&lt;/p&gt;
-
-&lt;p&gt;Also be prepared to hand off major responsibilities to other people and to trust what they do with it even if it&amp;rsquo;s not the same thing that you would have done.&lt;/p&gt;
-
-&lt;h3 id=&#34;some-ideas-we-had:8518d03148399efeae5968329e94e564&#34;&gt;Some ideas we had&lt;/h3&gt;
-
-&lt;p&gt;You didn&amp;rsquo;t think we weren&amp;rsquo;t going to suggest anything, did you? We had a few ideas of things that we&amp;rsquo;d like to do but don&amp;rsquo;t have the time to do ourselves.&lt;/p&gt;
-
-&lt;p&gt;Perl is under-represented on Reddit, Twitter, and Facebook. There&amp;rsquo;s no person we can point to as the energy behind these efforts. Some of the same names that you see everywhere are present, but no one has planted their flag here. If you&amp;rsquo;re social media savvy, you could be the person to tend to Perl wherever you spend your time. The different sites have different purposes, each of which could highlight Perl in a different way and for a different purpose. You can create content or highlight the work of others.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;https://farm8.staticflickr.com/7159/6847365223_4b5bdabf97.jpg&#34; alt=&#34;Social Media Explained (with Donuts)&#34; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://www.cpantesters.org&#34;&gt;CPAN Testers&lt;/a&gt; is a fantastic service, but have you ever wanted to re-create a bug report from CPAN Testers? Unless you have access to the specific operating system and Perl version, you may not be able to. Even once you get hold of a virtual machine, it may take several hours to install the Perl modules and C library dependencies required. We should have a collection of virtual machine images within easy reach that any Perl programmer can startup to launch, pre-loaded with every major Perl version and most stuff installed.&lt;/p&gt;
-
-&lt;p&gt;There could be a a &amp;ldquo;PDL Perl&amp;rdquo; distribution that would have all of the main &lt;a href=&#34;http://pdl.perl.org&#34;&gt;Perl Data Language&lt;/a&gt; libraries installed and the same for our major web frameworks and our OO frameworks. A Perl developer could then quickly spin up an instance of OpenBSD and run their Perl code against every installed Perl version using &lt;em&gt;perlbrew&lt;/em&gt;. This might happen with something like &lt;a href=&#34;https://www.virtualbox.org&#34;&gt;Virtual Box&lt;/a&gt; or &lt;a href=&#34;https://www.vagrantup.com&#34;&gt;Vagrant&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;This doesn&amp;rsquo;t be something you distribute. Free service hosting services like &lt;a href=&#34;https://www.digitalocean.com&#34;&gt;Digital Ocean&lt;/a&gt; allow users to share snapshots of virtual machines, but the end user would still have to pay a few cents to lease the virtual machine for a couple of hours. What this requires is someone to regularly maintain and refresh the snapshots, installing the latest Perl versions and keeping everything up to date. Similarly, someone could create and maintain a &lt;a href=&#34;http://blogs.perl.org/users/brian_d_foy/2012/02/the-perl-learning-environment.html&#34;&gt;Perl Learning Environment&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;final-thoughts:8518d03148399efeae5968329e94e564&#34;&gt;Final thoughts&lt;/h3&gt;
-
-&lt;p&gt;Our advice is simple. Find something that you want to spend time working on, get advice before you start, and plan on doing most of the work yourself. Once you get going, settle in for the long term. You don&amp;rsquo;t need anyone&amp;rsquo;s permission for any of this.&lt;/p&gt;
 </description>
     </item>
     
