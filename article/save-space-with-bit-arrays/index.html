@@ -263,7 +263,7 @@ tomato
 
 <p>This limitation makes bitmasks less useful for long-term storage of data, unless the existing bitmasks are unlikely to change. Note that it&rsquo;s fine to add additional toppings and bitmasks, it&rsquo;s just re-using existing bitmasks that causes issues.</p>
 
-<p>Another thing to consider is upper limits. If you want your Perl code to be compatible with 32 bit and 64 bit Perls, you should probably stick to a maximum of 32 bitmasks (using a module like <a href="https://metacpan.org/pod/bigint">bigint</a> may <em>not</em> work because of addressable memory limitations). You can see the settings your Perl has been compiled with by typing <code>perl -V | grep longsize</code> at the command line. The longsize value is the number of bytes your Perl can store in an integer natively.</p>
+<p>Another thing to consider is upper limits (update - see <a href="http://perltricks.com/article/using-bitmasks-with-large-integers/">using bit arrays with large integers</a>). If you want your Perl code to be compatible with 32 bit and 64 bit Perls, you should probably stick to a maximum of 32 bitmasks (using a module like <a href="https://metacpan.org/pod/bigint">bigint</a> may <em>not</em> work because of addressable memory limitations). You can see the settings your Perl has been compiled with by typing <code>perl -V | grep longsize</code> at the command line. The longsize value is the number of bytes your Perl can store in an integer natively.</p>
 
 <p>Finally, in order to get the data back out of a bit array it needs to be tested with all the available bitmasks. Consider the <code>get_toppings</code> method in <code>Pizza::Order</code>. To find out what toppings are set, the code has to check every topping&rsquo;s bitmask. This is pretty inefficient. So bitmasks are good for compact data storage, but not fast access.</p>
 
@@ -273,8 +273,8 @@ tomato
 <li>Wikipedia has useful entries on <a href="https://en.wikipedia.org/wiki/Bit_array">bit arrays</a> and <a href="https://en.wikipedia.org/wiki/Bitwise_operation">bitwise operators</a></li>
 <li>Perl&rsquo;s official <a href="http://perldoc.perl.org/perlop.html">operator documentation</a> covers the bitwise operators. You can read it in the terminal with the command <code>perldoc perlop</code></li>
 <li>Use Perl&rsquo;s builtin functions <a href="http://perldoc.perl.org/functions/sprintf.html">sprintf</a> (<code>perldoc -f sprintf</code>) and <a href="http://perldoc.perl.org/functions/printf.html">printf</a> (<code>perldoc -f printf</code>) to inspect binary values</li>
-<li>Stringifying / printing numbers as binary isn&rsquo;t the only nice binary feature Perl has over other languages. Another is the ability to write binary numbers inline, just like octal and hexadecimal numbers, for example: <code>0b00001000</code>. This is great for comparing binary numbers.</li>
-<li><a href="https://metacpan.org/pod/bigint">bigint</a> is one of several modules on CPAN for working with large integers, but watch out for bitwise operator limitations!</li>
+<li>Stringifying / printing numbers as binary isn&rsquo;t the only nice binary feature Perl has over other languages. Another is the ability to write binary numbers inline, just like octal and hexadecimal numbers, for example: <code>0b00001000</code>. This is great for comparing binary numbers</li>
+<li><a href="https://metacpan.org/pod/bigint">bigint</a> is one of several modules on CPAN for working with large integers, see <a href="http://perltricks.com/article/using-bitmasks-with-large-integers/">using bit arrays with large integers</a></li>
 </ul>
 
               </article>
@@ -289,6 +289,10 @@ tomato
                   <div class="tag"><a href="/tags/binary">binary</a></div>
                 
                   <div class="tag"><a href="/tags/boolean">boolean</a></div>
+                
+                  <div class="tag"><a href="/tags/bigint">bigint</a></div>
+                
+                  <div class="tag"><a href="/tags/integer">integer</a></div>
                 
               </div>
             </div>
