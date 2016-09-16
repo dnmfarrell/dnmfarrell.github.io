@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+  <title> Using bit arrays with large integers </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Testing huge bit arrays with Perl"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container-fluid full-wdith antonio">
+ <div class="row">
+  <div class="navbar-inverse" style="border-radius:none !important" role="navigation">
+    <div class="container-fluid">
+      <ul id="follow-buttons" class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+          <li><a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+ </div>
+</div>
+
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <div class="row">
+              <article>
+              
+              
+              <h1 class="blog-post-title">Using bit arrays with large integers</h1>
+              <p class="blog-post-meta">Sep 15, 2016 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src=""/>
+                
+
+<p>A few weeks ago I wrote <a href="http://perltricks.com/article/save-space-with-bit-arrays/">Save space with bit arrays</a> and employed some hand-waving around maximum bitmask lengths. Specifically, I said:</p>
+
+<blockquote>
+<p>using a module like bigint may not work because of addressable memory limitations</p>
+</blockquote>
+
+<p>Now I&rsquo;m not sure exactly where the &ldquo;addressable memory limitation&rdquo; line is, but this was something that I&rsquo;d read elsewhere, and believed to be true, but didn&rsquo;t have time to research. The more I thought about it, the less sense that sentence made. The amount of memory a system can address is controlled by <a href="https://superuser.com/questions/168114/how-much-memory-can-a-64bit-machine-address-at-a-time#168121">many factors</a>, but I don&rsquo;t believe you&rsquo;d ever want to create a bit array using all the addressable memory just for storing bitmasks. I decided to test bit arrays with large integers and see if they behaved correctly under <a href="https://metacpan.org/pod/bigint">bigint</a>.</p>
+
+<h3 id="testing-large-bitmasks:45b406225733c523a87ffdfd363b9d74">Testing large bitmasks</h3>
+
+<p>For these tests I wanted to check the typical operations that a bit array would be used for: setting / unsetting a bitmask and converting the bit array into a binary string. I came up with the follow test script:</p>
+
+<pre><code class="language-prettyprint">#!/usr/bin/env perl
+use strict;
+use warnings;
+use bigint;
+use Test::More tests =&gt; 60;
+
+for my $shift_size (8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096) {
+  my $bitmask  = 1 &lt;&lt; ($shift_size - 1);
+  my $bit_array = 0;
+
+  ok !($bit_array &amp; $bitmask),  'bitmask is not set';
+  ok $bit_array |= $bitmask,    'set bitmask';
+  ok $bit_array  &amp; $bitmask,    'bitmask is set';
+  ok !($bit_array &amp;= ~$bitmask),'bitmask is unset';
+  ok !($bit_array &amp; $bitmask),  'bitmask is not set';
+
+  cmp_ok length(sprintf &quot;%b&quot;, $bitmask), '==', $shift_size,
+    'bitmask string is correct length';
+}
+</code></pre>
+
+<p>This script loops over numbers of increasing size, creating bitmasks with them, and then testing the bit array against the bitmask. The bitwise operations were explained in my previous <a href="http://perltricks.com/article/save-space-with-bit-arrays/">article</a>. Finally the script uses <code>sprintf</code> to convert the bitmask to a binary string, and check its length is correct. Running this script I got some interesting failures. Here&rsquo;s a snippet of the output:</p>
+
+<pre><code>...
+not ok 24 - bitmask string is correct length
+#   Failed test 'bitmask string is correct length'
+#   at ./bigint-test line 18.
+#          got: 64
+#     expected: 128
+ok 25 - bitmask is not set
+ok 26 - set bitmask
+ok 27 - bitmask is set
+ok 28 - bitmask is unset
+ok 29 - bitmask is not set
+not ok 30 - bitmask string is correct length
+#   Failed test 'bitmask string is correct length'
+#   at ./bigint-test line 18.
+#          got: 64
+#     expected: 256
+...
+</code></pre>
+
+<p>Whilst all of the bitwise operations passed, the string length test failed as soon as the bitmask size was larger than 64 bits (my machine is 64 bit, I expect on a 32 bit compiled Perl it would fail after 32 bits). So what to do about this? Is it that <code>sprintf</code> cannot print integers larger than 64 bit? After trying a bunch of different functions, I tried the simplest: including a length argument to <code>sprintf</code>. So this line:</p>
+
+<pre><code class="language-prettyprint">cmp_ok length(sprintf &quot;%b&quot;, $bitmask), '==', $shift_size,
+</code></pre>
+
+<p>Became:</p>
+
+<pre><code class="language-prettyprint">cmp_ok length(sprintf &quot;%0${shift_size}b&quot;, $bitmask), '==', $shift_size,
+</code></pre>
+
+<p>I&rsquo;m pleased to report that the change worked, and all tests passed (on Perl 5.10 and higher). Here is the finished script:</p>
+
+<pre><code class="language-prettyprint">#!/usr/bin/env perl
+use strict;
+use warnings;
+use bigint;
+use Test::More tests =&gt; 60;
+
+for my $shift_size (8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096) {
+  my $bitmask  = 1 &lt;&lt; ($shift_size - 1);
+  my $bit_array = 0;
+
+  ok !($bit_array &amp; $bitmask),  'bitmask is not set';
+  ok $bit_array |= $bitmask,    'set bitmask';
+  ok $bit_array  &amp; $bitmask,    'bitmask is set';
+  ok !($bit_array &amp;= ~$bitmask),'bitmask is unset';
+  ok !($bit_array &amp; $bitmask),  'bitmask is not set';
+
+  cmp_ok length(sprintf &quot;%0${shift_size}b&quot;, $bitmask), '==', $shift_size,
+    'bitmask string is correct length';
+}
+</code></pre>
+
+<p>I&rsquo;m not sure at what point you would hit &ldquo;addressable memory limitations&rdquo;, but a 4096 bit integer is a huge number. This suggests to me that you <em>could</em> use a 4096 bit array with Perl, although whether you <em>should</em> is another question, TIMTOWTDI.</p>
+
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                <div class="category"><a href="/categories/data">data</a></div>
+                
+                  <div class="tag"><a href="/tags/bigint">bigint</a></div>
+                
+                  <div class="tag"><a href="/tags/bit-array">bit-array</a></div>
+                
+                  <div class="tag"><a href="/tags/bitmask">bitmask</a></div>
+                
+                  <div class="tag"><a href="/tags/integer">integer</a></div>
+                
+                  <div class="tag"><a href="/tags/memory">memory</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
+              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10" style="margin:0 0 50px 0">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the <a href="http://www.meetup.com/The-New-York-Perl-Meetup-Group/">New York Perl Meetup</a>, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/using-bitmasks-with-large-integers/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Using bit arrays with large integers</h6>
+        <p style="line-height:1"><small>Testing huge bit arrays with Perl</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/what-s-new-on-cpan---august-2016/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/192/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - August 2016</h6>
+        <p style="line-height:1"><small>A curated look at August&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/the-history-of-the-schwartzian-transform/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/brian.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>The History of the Schwartzian Transform</h6>
+        <p style="line-height:1"><small>A complex sort with a complex history</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/save-space-with-bit-arrays/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/save-space-with-bit-arrays/binary-msg.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save space with bit arrays</h6>
+        <p style="line-height:1"><small>An old school data structure that efficiently stores data</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/identify-slow-code-with-devel--timer/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/identify-slow-code-with-devel--timer/stopwatch.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Identify slow code with Devel::Timer</h6>
+        <p style="line-height:1"><small>How timing statements can help you pinpoint bottlenecks</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <script async src="/widgets/toplinks/toplinks.js" type="text/javascript"></script>
+    <div id="toplinks"></div>
+  </div>
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <script src="https://www.reddit.com/r/perl/hot/.embed?limit=10&t=all" type="text/javascript"></script>
+  </div>
+</div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<script>
+ 
+var tables, i;
+tables = document.getElementsByTagName('table');
+for (i=0;i<tables.length;i++) {
+  tables[i].className = 'table table-striped';
+}
+</script>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+          <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a>
+          <a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

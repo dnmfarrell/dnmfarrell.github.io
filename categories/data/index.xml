@@ -6,8 +6,107 @@
     <description>Recent content in Data on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 23 Aug 2016 08:58:54 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 15 Sep 2016 17:40:12 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/categories/data/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Using bit arrays with large integers</title>
+      <link>http://perltricks.com/article/using-bitmasks-with-large-integers/</link>
+      <pubDate>Thu, 15 Sep 2016 17:40:12 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/using-bitmasks-with-large-integers/</guid>
+      <description>
+
+&lt;p&gt;A few weeks ago I wrote &lt;a href=&#34;http://perltricks.com/article/save-space-with-bit-arrays/&#34;&gt;Save space with bit arrays&lt;/a&gt; and employed some hand-waving around maximum bitmask lengths. Specifically, I said:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;using a module like bigint may not work because of addressable memory limitations&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Now I&amp;rsquo;m not sure exactly where the &amp;ldquo;addressable memory limitation&amp;rdquo; line is, but this was something that I&amp;rsquo;d read elsewhere, and believed to be true, but didn&amp;rsquo;t have time to research. The more I thought about it, the less sense that sentence made. The amount of memory a system can address is controlled by &lt;a href=&#34;https://superuser.com/questions/168114/how-much-memory-can-a-64bit-machine-address-at-a-time#168121&#34;&gt;many factors&lt;/a&gt;, but I don&amp;rsquo;t believe you&amp;rsquo;d ever want to create a bit array using all the addressable memory just for storing bitmasks. I decided to test bit arrays with large integers and see if they behaved correctly under &lt;a href=&#34;https://metacpan.org/pod/bigint&#34;&gt;bigint&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;testing-large-bitmasks:45b406225733c523a87ffdfd363b9d74&#34;&gt;Testing large bitmasks&lt;/h3&gt;
+
+&lt;p&gt;For these tests I wanted to check the typical operations that a bit array would be used for: setting / unsetting a bitmask and converting the bit array into a binary string. I came up with the follow test script:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use bigint;
+use Test::More tests =&amp;gt; 60;
+
+for my $shift_size (8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096) {
+  my $bitmask  = 1 &amp;lt;&amp;lt; ($shift_size - 1);
+  my $bit_array = 0;
+
+  ok !($bit_array &amp;amp; $bitmask),  &#39;bitmask is not set&#39;;
+  ok $bit_array |= $bitmask,    &#39;set bitmask&#39;;
+  ok $bit_array  &amp;amp; $bitmask,    &#39;bitmask is set&#39;;
+  ok !($bit_array &amp;amp;= ~$bitmask),&#39;bitmask is unset&#39;;
+  ok !($bit_array &amp;amp; $bitmask),  &#39;bitmask is not set&#39;;
+
+  cmp_ok length(sprintf &amp;quot;%b&amp;quot;, $bitmask), &#39;==&#39;, $shift_size,
+    &#39;bitmask string is correct length&#39;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This script loops over numbers of increasing size, creating bitmasks with them, and then testing the bit array against the bitmask. The bitwise operations were explained in my previous &lt;a href=&#34;http://perltricks.com/article/save-space-with-bit-arrays/&#34;&gt;article&lt;/a&gt;. Finally the script uses &lt;code&gt;sprintf&lt;/code&gt; to convert the bitmask to a binary string, and check its length is correct. Running this script I got some interesting failures. Here&amp;rsquo;s a snippet of the output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;...
+not ok 24 - bitmask string is correct length
+#   Failed test &#39;bitmask string is correct length&#39;
+#   at ./bigint-test line 18.
+#          got: 64
+#     expected: 128
+ok 25 - bitmask is not set
+ok 26 - set bitmask
+ok 27 - bitmask is set
+ok 28 - bitmask is unset
+ok 29 - bitmask is not set
+not ok 30 - bitmask string is correct length
+#   Failed test &#39;bitmask string is correct length&#39;
+#   at ./bigint-test line 18.
+#          got: 64
+#     expected: 256
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Whilst all of the bitwise operations passed, the string length test failed as soon as the bitmask size was larger than 64 bits (my machine is 64 bit, I expect on a 32 bit compiled Perl it would fail after 32 bits). So what to do about this? Is it that &lt;code&gt;sprintf&lt;/code&gt; cannot print integers larger than 64 bit? After trying a bunch of different functions, I tried the simplest: including a length argument to &lt;code&gt;sprintf&lt;/code&gt;. So this line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cmp_ok length(sprintf &amp;quot;%b&amp;quot;, $bitmask), &#39;==&#39;, $shift_size,
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Became:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cmp_ok length(sprintf &amp;quot;%0${shift_size}b&amp;quot;, $bitmask), &#39;==&#39;, $shift_size,
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;m pleased to report that the change worked, and all tests passed (on Perl 5.10 and higher). Here is the finished script:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use bigint;
+use Test::More tests =&amp;gt; 60;
+
+for my $shift_size (8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096) {
+  my $bitmask  = 1 &amp;lt;&amp;lt; ($shift_size - 1);
+  my $bit_array = 0;
+
+  ok !($bit_array &amp;amp; $bitmask),  &#39;bitmask is not set&#39;;
+  ok $bit_array |= $bitmask,    &#39;set bitmask&#39;;
+  ok $bit_array  &amp;amp; $bitmask,    &#39;bitmask is set&#39;;
+  ok !($bit_array &amp;amp;= ~$bitmask),&#39;bitmask is unset&#39;;
+  ok !($bit_array &amp;amp; $bitmask),  &#39;bitmask is not set&#39;;
+
+  cmp_ok length(sprintf &amp;quot;%0${shift_size}b&amp;quot;, $bitmask), &#39;==&#39;, $shift_size,
+    &#39;bitmask string is correct length&#39;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;m not sure at what point you would hit &amp;ldquo;addressable memory limitations&amp;rdquo;, but a 4096 bit integer is a huge number. This suggests to me that you &lt;em&gt;could&lt;/em&gt; use a 4096 bit array with Perl, although whether you &lt;em&gt;should&lt;/em&gt; is another question, TIMTOWTDI.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Save space with bit arrays</title>
@@ -1888,181 +1987,6 @@ $upload-&amp;gt;delete;
 &lt;p&gt;Enjoyed this article? Help us out and &lt;a href=&#34;https://twitter.com/intent/tweet?original_referer=http%3A%2F%2Fperltricks.com%2Farticle%2F98%2F2014%2F6%2F30%2FManaging-files-is-a-breeze-with-this-DBIx--Class-plugin&amp;amp;text=Managing+files+is+a+breeze+with+this+DBIx%3A%3AClass+plugin&amp;amp;tw_p=tweetbutton&amp;amp;url=http%3A%2F%2Fperltricks.com%2Farticle%2F98%2F2014%2F6%2F30%2FManaging-files-is-a-breeze-with-this-DBIx--Class-plugin&amp;amp;via=perltricks&#34;&gt;tweet&lt;/a&gt; about it!&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;https://creativecommons.org/licenses/by/2.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/brightmeadow/3748310435/in/photolist-6He56Z-bDdcmL-5Jp3Z-aZWgk-aaGbZM-aZWfK-5uGDfb-63MA6m-88qSJK-6B33mX-76En59-6N6eHG-5UFiwj-3rXHK-aZWiH-4CmaD2-6vWgnX-3bai1p-c3CSTq-3PChVM-7hdnBS-2iYPPt-8Vx4Eo-4Cmav8-6P8qMy-jfddWn-4RoQjt-5ZrohQ-eQikQL-dGWiLV-4C7epr-dH2HeL-4C7eve-bnpqbW-4CmavB-8Nvnmc-8SfZR6-3ppzd-7PEzCG-FLPq-9gXmeE-dGWi5t-8Sg3sF-7h9qon-8EWHyq-dGWhC6-buGn9s-c1AukG-7VSc8B-dRCTcZ&#34;&gt;Cas&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Parsing data couldn&#39;t be easier with XML::Dataset</title>
-      <link>http://perltricks.com/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</link>
-      <pubDate>Fri, 09 May 2014 03:14:01 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/87/2014/5/9/Parsing-data-couldn-t-be-easier-with-XML--Dataset/</guid>
-      <description>
-
-&lt;p&gt;&lt;em&gt;It&amp;rsquo;s hard to believe that when it comes to XML parsing CPAN hasn&amp;rsquo;t already got you covered, but &lt;a href=&#34;https://metacpan.org/pod/XML::Dataset&#34;&gt;XML::Dataset&lt;/a&gt; is a new module that fills a useful void. XML::Dataset let&amp;rsquo;s you declare a plaintext data collection schema, and then goes and extracts the data for you, super fast. Read on to see how it works.&lt;/em&gt;&lt;/p&gt;
-
-&lt;h3 id=&#34;requirements:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;Requirements&lt;/h3&gt;
-
-&lt;p&gt;The CPAN Testers results &lt;a href=&#34;http://matrix.cpantesters.org/?dist=XML-Dataset+0.006&#34;&gt;show&lt;/a&gt; that XML::Dataset v0.06 will run on any platform with Perl (down to 5.8.9). To install the module with CPAN, open up the terminal and type:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ cpan XML::Dataset
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;your-data-extracted:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;Your data, extracted&lt;/h3&gt;
-
-&lt;p&gt;To use XML::Dataset you&amp;rsquo;ll need some stringified XML source data and a data profile. A profile is just a plaintext schema which specifies the data you&amp;rsquo;d like to extract. Let&amp;rsquo;s look at an example:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
-use warnings;
-use XML::Dataset;
-use Data::Printer;
-
-my $sample_data = q(&amp;lt;?xml version=&amp;quot;1.0&amp;quot;?&amp;gt;
-&amp;lt;colleagues&amp;gt;
-    &amp;lt;colleague&amp;gt;
-        &amp;lt;title&amp;gt;The Boss&amp;lt;/title&amp;gt;
-        &amp;lt;phone&amp;gt;+1 202-663-9108&amp;lt;/phone&amp;gt;
-    &amp;lt;/colleague&amp;gt;
-    &amp;lt;colleague&amp;gt;
-        &amp;lt;title&amp;gt;Admin Assistant&amp;lt;/title&amp;gt;
-        &amp;lt;phone&amp;gt;+1 347-999-5454&amp;lt;/phone&amp;gt;
-        &amp;lt;email&amp;gt;inbox@the_company.com&amp;lt;/email&amp;gt;
-    &amp;lt;/colleague&amp;gt;
-    &amp;lt;colleague&amp;gt;
-        &amp;lt;title&amp;gt;Minion&amp;lt;/title&amp;gt;
-        &amp;lt;phone&amp;gt;+1 792-123-4109&amp;lt;/phone&amp;gt;
-    &amp;lt;/colleague&amp;gt;
-&amp;lt;/colleagues&amp;gt;);
-
-my $sample_data_profile
-    = q(colleagues
-            colleague
-                title   = dataset:colleagues
-                email   = dataset:colleagues
-                phone   = dataset:colleagues);
-
-p parse_using_profile($sample_data, $sample_data_profile);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The code above declares a simple XML dataset ($sample_data) and a data profile to extract the required data ($sample_data_profile). XML::Dataset requires every indented newline in the data profile to map to another nested level of the data set. Once we reach the data attributes we want to extract, we simply assign a dataset to them (dataset:colleagues).&lt;/p&gt;
-
-&lt;p&gt;XML::Dataset exports the &amp;ldquo;parse_using_profile&amp;rdquo; function which extracts the data using our data profile and returns a Perl data structure. We use &lt;a href=&#34;https://metacpan.org/pod/Data::Printer&#34;&gt;Data::Printer&lt;/a&gt; to print out the results. Running this code we get this output:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ {
-    colleagues   [
-        [0] {
-            phone   &amp;quot;+1 202-663-9108&amp;quot;,
-            title   &amp;quot;The Boss&amp;quot;
-        },
-        [1] {
-            email   &amp;quot;inbox@the_company.com&amp;quot;,
-            phone   &amp;quot;+1 347-999-5454&amp;quot;,
-            title   &amp;quot;Admin Assistant&amp;quot;
-        },
-        [2] {
-            phone   &amp;quot;+1 792-123-4109&amp;quot;,
-            title   &amp;quot;Minion&amp;quot;
-        },
-    ]
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Note that XML::Dataset had no problem extracting the one email address that was present in the data, even though the other colleagues did not have that attribute. What if we wanted to collect emails and phone numbers, but in separate datasets? All we need to do is update $sample_data_profile with two datasets:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $sample_data_profile
-    = q(colleagues
-            colleague
-                title   = dataset:emails dataset:phones
-                email   = dataset:emails
-                phone   = dataset:phones);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Re-running the code, XML::Dataset now produces two datasets for us:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ {
-    emails   [
-        [0] {
-            title   &amp;quot;The Boss&amp;quot;
-        },
-        [1] {
-            email   &amp;quot;inbox@the_company.com&amp;quot;,
-            title   &amp;quot;Admin Assistant&amp;quot;
-        },
-        [2] {
-            title   &amp;quot;Minion&amp;quot;
-        }
-    ],
-    phones   [
-        [0] {
-            phone   &amp;quot;+1 202-663-9108&amp;quot;,
-            title   &amp;quot;The Boss&amp;quot;
-        },
-        [1] {
-            phone   &amp;quot;+1 347-999-5454&amp;quot;,
-            title   &amp;quot;Admin Assistant&amp;quot;
-        },
-        [2] {
-            phone   &amp;quot;+1 792-123-4109&amp;quot;,
-            title   &amp;quot;Minion&amp;quot;
-        }
-    ]
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;a-real-example:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;A real example&lt;/h3&gt;
-
-&lt;p&gt;Let&amp;rsquo;s write a program to parse a a more realistic data set. Many websites provide a sitemap that lists all of the content on the website, and when it was last updated. This information is used by search engines to optimize their crawling routines. The sitemap has a defined xml format, so it&amp;rsquo;s a cinch to parse it with XML::Dataset:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use strict;
-use warnings;
-use XML::Dataset;
-use Data::Printer;
-use HTTP::Tiny;
-
-my $url = &#39;http://perltricks.com/sitemap.xml&#39;;
-
-my $sitemap_data 
-    = HTTP::Tiny-&amp;gt;new-&amp;gt;get($url)-&amp;gt;{content};
-
-my $sitemap_data_profile
-    = q(urlset
-            url
-                loc     = dataset:sitemap_locations_modified
-                lastmod = dataset:sitemap_locations_modified);
-
-p parse_using_profile($sitemap_data, $sitemap_data_profile);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The code above downloads the PerlTricks.com sitemap using &lt;a href=&#34;https://metacpan.org/pod/HTTP::Tiny&#34;&gt;HTTP::Tiny&lt;/a&gt; and extracts every URL and last modified timestamp from the sitemap. Running the code, we get this output:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;\ {
-    sitemap_locations_modified   [
-        [0]  {
-            lastmod   &amp;quot;2014-05-09&amp;quot;,
-            loc       &amp;quot;http://perltricks.com/&amp;quot;
-        },
-        [1]  {
-            lastmod   &amp;quot;2013-03-24&amp;quot;,
-            loc       &amp;quot;http://perltricks.com/article/1/2013/3/24/3-quick-ways-to-find-out-the-version-number-of-an-installed-Perl-module-from-the-terminal&amp;quot;
-        },
-        [2]  {
-            lastmod   &amp;quot;2013-03-27&amp;quot;,
-            loc       &amp;quot;http://perltricks.com/article/3/2013/3/27/How-to-cleanly-uninstall-a-Perl-module&amp;quot;
-        },
-        ...
-    ]
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;No problem! We could re-use that same program to download and parse any sitemap on the Internet.&lt;/p&gt;
-
-&lt;h3 id=&#34;conclusion:2f6e0c408059a4f921b8d668bba7c6d3&#34;&gt;Conclusion&lt;/h3&gt;
-
-&lt;p&gt;XML::Dataset is fantastic for extracting fixed data schemas from XML. The plaintext data profiles are so easy to use, a non-programmer could write them. XML::Dataset is also fast: under the hood it uses XML::LibXML (and a few optimizations) and could be adapted for well-formatted HTML. It has great &lt;a href=&#34;https://metacpan.org/pod/XML::Dataset&#34;&gt;documentation&lt;/a&gt; and offers some advanced features like partial dataset parse dispatching. Module author James Spurin deserves credit for producing a quality module and a welcome addition to CPAN&amp;rsquo;s XML namespace.&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;Do you have a much-loved CPAN module that you&amp;rsquo;d like us to cover? Drop us an &lt;a href=&#34;mailto:perltricks.com@gmail.com&#34;&gt;email&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;https://creativecommons.org/licenses/by/2.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/dullhunk/3948166814/in/photolist-71TorC-5RcLVC-5RcLk1-5R8vpe-5RcMC9-5R8w7D-5R8v7e-5RcM9Q-5RcLeL-5R8upk-5RcMso-5RcL7J-72QCEU-7KoKym-72QCsE-6FtTJ-6m6pyB-5AJCpY-6FvjN-6FuLy-6FtQL-6Fv4J-5BHeXd-6FuUe-6FtXH-6Fu9t-6FuAs-5AJCs3-5AJCsd-5AJCro-tS2dS-6kzkkD-6kDvjQ-6kDAtY-6kDvzS-6kD45L-6kzqYM-6kDvsE-6kDuys-6kDvcE-6m6prT-6kDupU-6kDuWw-6kDv6j-6kzkd2-6kDALo-5AJCsA-CJhVy-5AJCrN-5MzAkw&#34;&gt;Duncun Hull&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 </description>
     </item>
     

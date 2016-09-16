@@ -6,8 +6,107 @@
     <description>Recent content in Bitmask on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 02 Aug 2016 08:47:57 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 15 Sep 2016 17:40:12 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/tags/bitmask/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Using bit arrays with large integers</title>
+      <link>http://perltricks.com/article/using-bitmasks-with-large-integers/</link>
+      <pubDate>Thu, 15 Sep 2016 17:40:12 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/using-bitmasks-with-large-integers/</guid>
+      <description>
+
+&lt;p&gt;A few weeks ago I wrote &lt;a href=&#34;http://perltricks.com/article/save-space-with-bit-arrays/&#34;&gt;Save space with bit arrays&lt;/a&gt; and employed some hand-waving around maximum bitmask lengths. Specifically, I said:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;using a module like bigint may not work because of addressable memory limitations&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Now I&amp;rsquo;m not sure exactly where the &amp;ldquo;addressable memory limitation&amp;rdquo; line is, but this was something that I&amp;rsquo;d read elsewhere, and believed to be true, but didn&amp;rsquo;t have time to research. The more I thought about it, the less sense that sentence made. The amount of memory a system can address is controlled by &lt;a href=&#34;https://superuser.com/questions/168114/how-much-memory-can-a-64bit-machine-address-at-a-time#168121&#34;&gt;many factors&lt;/a&gt;, but I don&amp;rsquo;t believe you&amp;rsquo;d ever want to create a bit array using all the addressable memory just for storing bitmasks. I decided to test bit arrays with large integers and see if they behaved correctly under &lt;a href=&#34;https://metacpan.org/pod/bigint&#34;&gt;bigint&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;testing-large-bitmasks:45b406225733c523a87ffdfd363b9d74&#34;&gt;Testing large bitmasks&lt;/h3&gt;
+
+&lt;p&gt;For these tests I wanted to check the typical operations that a bit array would be used for: setting / unsetting a bitmask and converting the bit array into a binary string. I came up with the follow test script:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use bigint;
+use Test::More tests =&amp;gt; 60;
+
+for my $shift_size (8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096) {
+  my $bitmask  = 1 &amp;lt;&amp;lt; ($shift_size - 1);
+  my $bit_array = 0;
+
+  ok !($bit_array &amp;amp; $bitmask),  &#39;bitmask is not set&#39;;
+  ok $bit_array |= $bitmask,    &#39;set bitmask&#39;;
+  ok $bit_array  &amp;amp; $bitmask,    &#39;bitmask is set&#39;;
+  ok !($bit_array &amp;amp;= ~$bitmask),&#39;bitmask is unset&#39;;
+  ok !($bit_array &amp;amp; $bitmask),  &#39;bitmask is not set&#39;;
+
+  cmp_ok length(sprintf &amp;quot;%b&amp;quot;, $bitmask), &#39;==&#39;, $shift_size,
+    &#39;bitmask string is correct length&#39;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This script loops over numbers of increasing size, creating bitmasks with them, and then testing the bit array against the bitmask. The bitwise operations were explained in my previous &lt;a href=&#34;http://perltricks.com/article/save-space-with-bit-arrays/&#34;&gt;article&lt;/a&gt;. Finally the script uses &lt;code&gt;sprintf&lt;/code&gt; to convert the bitmask to a binary string, and check its length is correct. Running this script I got some interesting failures. Here&amp;rsquo;s a snippet of the output:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;...
+not ok 24 - bitmask string is correct length
+#   Failed test &#39;bitmask string is correct length&#39;
+#   at ./bigint-test line 18.
+#          got: 64
+#     expected: 128
+ok 25 - bitmask is not set
+ok 26 - set bitmask
+ok 27 - bitmask is set
+ok 28 - bitmask is unset
+ok 29 - bitmask is not set
+not ok 30 - bitmask string is correct length
+#   Failed test &#39;bitmask string is correct length&#39;
+#   at ./bigint-test line 18.
+#          got: 64
+#     expected: 256
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Whilst all of the bitwise operations passed, the string length test failed as soon as the bitmask size was larger than 64 bits (my machine is 64 bit, I expect on a 32 bit compiled Perl it would fail after 32 bits). So what to do about this? Is it that &lt;code&gt;sprintf&lt;/code&gt; cannot print integers larger than 64 bit? After trying a bunch of different functions, I tried the simplest: including a length argument to &lt;code&gt;sprintf&lt;/code&gt;. So this line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cmp_ok length(sprintf &amp;quot;%b&amp;quot;, $bitmask), &#39;==&#39;, $shift_size,
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Became:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;cmp_ok length(sprintf &amp;quot;%0${shift_size}b&amp;quot;, $bitmask), &#39;==&#39;, $shift_size,
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;m pleased to report that the change worked, and all tests passed (on Perl 5.10 and higher). Here is the finished script:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/bin/env perl
+use strict;
+use warnings;
+use bigint;
+use Test::More tests =&amp;gt; 60;
+
+for my $shift_size (8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096) {
+  my $bitmask  = 1 &amp;lt;&amp;lt; ($shift_size - 1);
+  my $bit_array = 0;
+
+  ok !($bit_array &amp;amp; $bitmask),  &#39;bitmask is not set&#39;;
+  ok $bit_array |= $bitmask,    &#39;set bitmask&#39;;
+  ok $bit_array  &amp;amp; $bitmask,    &#39;bitmask is set&#39;;
+  ok !($bit_array &amp;amp;= ~$bitmask),&#39;bitmask is unset&#39;;
+  ok !($bit_array &amp;amp; $bitmask),  &#39;bitmask is not set&#39;;
+
+  cmp_ok length(sprintf &amp;quot;%0${shift_size}b&amp;quot;, $bitmask), &#39;==&#39;, $shift_size,
+    &#39;bitmask string is correct length&#39;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I&amp;rsquo;m not sure at what point you would hit &amp;ldquo;addressable memory limitations&amp;rdquo;, but a 4096 bit integer is a huge number. This suggests to me that you &lt;em&gt;could&lt;/em&gt; use a 4096 bit array with Perl, although whether you &lt;em&gt;should&lt;/em&gt; is another question, TIMTOWTDI.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Building a UTF-8 encoder in Perl</title>
