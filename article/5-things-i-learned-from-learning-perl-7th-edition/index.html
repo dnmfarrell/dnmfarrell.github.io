@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+  <title> 5 things I learned from Learning Perl 7th Edition </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A surprisingly in-depth book for beginners"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container-fluid full-wdith antonio">
+ <div class="row">
+  <div class="navbar-inverse" style="border-radius:none !important" role="navigation">
+    <div class="container-fluid">
+      <ul id="follow-buttons" class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+          <li><a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+ </div>
+</div>
+
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <div class="row">
+              <article>
+              
+              
+              <h1 class="blog-post-title">5 things I learned from Learning Perl 7th Edition</h1>
+              <p class="blog-post-meta">Sep 23, 2016 by <a href="#author-bio">David Farrell</a></p>
+              <img alt="" src="/images/5-things-i-learned-from-learning-perl-7th-ed/learning-perl-7-front.jpg"/>
+                
+
+<p>The 7th edition of Learning Perl is due to be released later this month. I was one of the technical reviewers of the book - I hadn&rsquo;t read it since the 3rd edition where it was a course text at my University (and Perl was described as a &ldquo;text parsing language&rdquo;!). Reviewing the book, I was struck by how much detail it contained. If you&rsquo;re looking for a thorough introduction to Perl, it&rsquo;s a great place to start. I picked up (or re-learned) a few tricks along the way, that I thought were worth sharing.</p>
+
+<h3 id="1-stacked-file-test-operators:20798fba47491e24e703587c4db3eaa3">1. Stacked file test operators</h3>
+
+<p>You probably know that Perl supports a bunch of <a href="http://perldoc.perl.org/functions/-X.html">file test operators</a> that do useful things like check if a file exists, if it&rsquo;s readable and so on:</p>
+
+<pre><code class="language-prettyprint">  if (-e $filepath &amp;&amp; -r $filepath) {
+    ... 
+  }
+</code></pre>
+
+<p>But did you know that since version 5.10, you can stack file test operators?</p>
+
+<pre><code class="language-prettyprint">  if (-e -r $filepath) {
+    ...
+  }
+</code></pre>
+
+<p>This way is cleaner and shorter. Oh and bonus! file test operators work on filehandles too. Stacked file operators are not part of the <a href="http://perldoc.perl.org/feature.html">feature</a> pragma, so an explicit <code>use 5.10.0;</code> is not required, although if your code is going to be shared, you should probably include it.</p>
+
+<h3 id="2-glob-s-checkered-past:20798fba47491e24e703587c4db3eaa3">2. Glob&rsquo;s checkered past</h3>
+
+<p>Learning Perl has a lot of anecdotes about Perl history in it. You might have used the <code>glob</code> function before:</p>
+
+<pre><code class="language-prettyprint">my @json_files = glob '*.json';
+</code></pre>
+
+<p>This returns all file names ending in <code>.json</code> in the current working directory. Glob takes a string of patterns separated by whitespace, so you can provide multiple patterns:</p>
+
+<pre><code class="language-prettyprint">  my @config_files = glob '*.json *.toml *.ini';
+</code></pre>
+
+<p>Instead of using the word <code>glob</code> you can use angle brackets:</p>
+
+<pre><code class="language-prettyprint">  my @json_files = &lt;*.json&gt;;
+</code></pre>
+
+<p>These angle brackets treat the text between them like a double-quoted string. One thing I learned was that ancient versions of Perl (pre 5.6) simply called <code>/bin/csh</code> every time they encountered <code>glob</code>! This made globbing slow, and directory handles were preferred over <code>glob</code>.</p>
+
+<h3 id="3-perl-supports-inline-binary-notation:20798fba47491e24e703587c4db3eaa3">3. Perl supports inline binary notation</h3>
+
+<p>In many C-based languages you can write numbers in hexadecimal and octal notation, and you can in Perl too:</p>
+
+<pre><code class="language-prettyprint">  my $byte_max = 0xff;
+  my $permissions = 0755;
+</code></pre>
+
+<p>In Perl though, you can also write binary numbers inline, with the prefix <code>0b</code>:</p>
+
+<pre><code class="language-prettyprint">  my $bits = 0b10111000;
+</code></pre>
+
+<p>This can make it easier to work with binary data; instead of using hexadecimal notation and doing the mental arithmetic to calculate values, you can write binary data inline. For example, let&rsquo;s say you are reviewing some code:</p>
+
+<pre><code class="language-prettyprint">  if ($bit_array &amp; 0x40) {
+    ...
+  }
+</code></pre>
+
+<p>To understand this example in hexadecimal, you have to calculate that 4 * 16 = 64, and then either just know, or convert that number to binary to find out that the 7th bit is flipped, and understand that this is testing whether <code>$bit_array</code> has that bit flipped too. Here&rsquo;s the same code with inline binary:</p>
+
+<pre><code class="language-prettyprint">  if ($bit_array &amp; 0b1000000) {
+    ...
+  }
+</code></pre>
+
+<p>In this example, you can just see that the 7th bit is flipped, and the intent of the if statement becomes obvious. If you&rsquo;re interested in understanding bit arrays and bitwise operators, I recently wrote an <a href="http://perltricks.com/article/save-space-with-bit-arrays/">introduction</a> to them.</p>
+
+<h3 id="4-check-an-installed-module-is-up-to-date:20798fba47491e24e703587c4db3eaa3">4. Check an installed module is up to date</h3>
+
+<p>These days we have so many advanced Perl package installers like <a href="https://metacpan.org/pod/App::cpanminus">cpanm</a> and <a href="https://metacpan.org/pod/distribution/App-cpm/script/cpm">cpm</a> it&rsquo;s easy to forget that the basic CPAN client can do a lot too. For instance, the <code>-D</code> option checks the installed version of a module and compares it to the latest version on CPAN. So to check if the <code>Test::More</code> module is up to date, at the terminal I can enter:</p>
+
+<pre><code>$ cpan -D Test::More
+
+CPAN: Storable loaded ok (v2.53)
+Reading '/home/dfarrell/.local/share/.cpan/Metadata'
+  Database was generated on Thu, 22 Sep 2016 21:53:30 GMT
+Test::More
+-------------------------------------------------------------------------
+      (no description)
+      E/EX/EXODIST/Test-Simple-1.302056.tar.gz
+      /home/dfarrell/.plenv/versions/5.22.0/lib/perl5/5.22.0/Test/More.pm
+      Installed: 1.001014
+      CPAN:      1.302056  Not up to date
+      Chad Granum (EXODIST)
+      exodist7@gmail.com
+</code></pre>
+
+<p>Woah, mine is pretty out of date. I should upgrade &hellip;</p>
+
+<h3 id="5-avoiding-the-shell-for-system-commands:20798fba47491e24e703587c4db3eaa3">5. Avoiding the shell for system commands</h3>
+
+<p>The Perl built-in functions <a href="http://perldoc.perl.org/functions/exec.html">exec</a> and <a href="http://perldoc.perl.org/functions/system.html">system</a> <em>may</em> invoke the shell when running a system command. Generally you want to avoid this as invoking the shell is slower than executing the command directly. Perl looks at the first argument passed to <code>exec</code> or <code>system</code> and if it contains shell <a href="http://faculty.salina.k-state.edu/tim/unix_sg/shell/metachar.html">metacharacters</a> invokes the shell.</p>
+
+<pre><code class="language-prettyprint">my $command = join &quot; &quot;, $program, $arg1, $arg2;
+system $command; # may invoke shell
+</code></pre>
+
+<p>So let&rsquo;s say you need to invoke a system command, and you&rsquo;re not sure whether the command arguments will contain metacharacters or not. If they do, the shell will be invoked and any metacharacters will be interpolated. One way to avoid the shell interpolating metacharacters is to escape them. But shell escape sequences are rarely simple (e.g. <a href="https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings#1250279">escaping a single quote</a>). Learning Perl shows a better way: passing a list.</p>
+
+<pre><code class="language-prettyprint">system $program, $arg1, $arg2; # never invokes the shell
+</code></pre>
+
+<p>This will never invoke the shell, and avoid metacharacter interpolation.</p>
+
+<h3 id="pre-order-learning-perl-now:20798fba47491e24e703587c4db3eaa3">Pre-order Learning Perl now</h3>
+
+<p>Learning Perl 7th Edition has nearly 400 pages describing the Perl syntax, and how to accomplish important tasks like file IO, process management and module installations. It&rsquo;s available for pre-order now on <a href="https://goo.gl/DvCB14">Amazon</a> (that&rsquo;s an affiliate link for brian d foy, the author of this edition). You can also get it from the publisher, <a href="http://shop.oreilly.com/product/0636920049517.do">O&rsquo;Reilly</a>.</p>
+
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                <div class="category"><a href="/categories/community">community</a></div>
+                
+                  <div class="tag"><a href="/tags/learning-perl">learning-perl</a></div>
+                
+                  <div class="tag"><a href="/tags/oreilly">oreilly</a></div>
+                
+                  <div class="tag"><a href="/tags/brian-d-foy">brian-d-foy</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
+              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+              </div>
+              <div class="col-sm-10" style="margin:0 0 50px 0">
+                <h3>David Farrell</h3>
+                <p>David is the founder and editor of PerlTricks.com. An organizer of the <a href="http://www.meetup.com/The-New-York-Perl-Meetup-Group/">New York Perl Meetup</a>, he works as a technology consultant in New York City.</p>
+                <h5><a href="/authors/david-farrell">Browse their articles</a></h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/5-things-i-learned-from-learning-perl-7th-edition/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/5-things-i-learned-from-learning-perl-7th-ed/learning-perl-7-front.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>5 things I learned from Learning Perl 7th Edition</h6>
+        <p style="line-height:1"><small>A surprisingly in-depth book for beginners</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/using-bitmasks-with-large-integers/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Using bit arrays with large integers</h6>
+        <p style="line-height:1"><small>Testing huge bit arrays with Perl</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/what-s-new-on-cpan---august-2016/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/192/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - August 2016</h6>
+        <p style="line-height:1"><small>A curated look at August&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/the-history-of-the-schwartzian-transform/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/brian.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>The History of the Schwartzian Transform</h6>
+        <p style="line-height:1"><small>A complex sort with a complex history</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/save-space-with-bit-arrays/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/save-space-with-bit-arrays/binary-msg.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Save space with bit arrays</h6>
+        <p style="line-height:1"><small>An old school data structure that efficiently stores data</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <script async src="/widgets/toplinks/toplinks.js" type="text/javascript"></script>
+    <div id="toplinks"></div>
+  </div>
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <script src="https://www.reddit.com/r/perl/hot/.embed?limit=10&t=all" type="text/javascript"></script>
+  </div>
+</div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<script>
+ 
+var tables, i;
+tables = document.getElementsByTagName('table');
+for (i=0;i<tables.length;i++) {
+  tables[i].className = 'table table-striped';
+}
+</script>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+          <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a>
+          <a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

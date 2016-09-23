@@ -6,8 +6,127 @@
     <description>Recent content in Community on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 02 Sep 2016 11:18:55 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 23 Sep 2016 08:12:54 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/categories/community/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>5 things I learned from Learning Perl 7th Edition</title>
+      <link>http://perltricks.com/article/5-things-i-learned-from-learning-perl-7th-edition/</link>
+      <pubDate>Fri, 23 Sep 2016 08:12:54 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/5-things-i-learned-from-learning-perl-7th-edition/</guid>
+      <description>
+
+&lt;p&gt;The 7th edition of Learning Perl is due to be released later this month. I was one of the technical reviewers of the book - I hadn&amp;rsquo;t read it since the 3rd edition where it was a course text at my University (and Perl was described as a &amp;ldquo;text parsing language&amp;rdquo;!). Reviewing the book, I was struck by how much detail it contained. If you&amp;rsquo;re looking for a thorough introduction to Perl, it&amp;rsquo;s a great place to start. I picked up (or re-learned) a few tricks along the way, that I thought were worth sharing.&lt;/p&gt;
+
+&lt;h3 id=&#34;1-stacked-file-test-operators:20798fba47491e24e703587c4db3eaa3&#34;&gt;1. Stacked file test operators&lt;/h3&gt;
+
+&lt;p&gt;You probably know that Perl supports a bunch of &lt;a href=&#34;http://perldoc.perl.org/functions/-X.html&#34;&gt;file test operators&lt;/a&gt; that do useful things like check if a file exists, if it&amp;rsquo;s readable and so on:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  if (-e $filepath &amp;amp;&amp;amp; -r $filepath) {
+    ... 
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But did you know that since version 5.10, you can stack file test operators?&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  if (-e -r $filepath) {
+    ...
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This way is cleaner and shorter. Oh and bonus! file test operators work on filehandles too. Stacked file operators are not part of the &lt;a href=&#34;http://perldoc.perl.org/feature.html&#34;&gt;feature&lt;/a&gt; pragma, so an explicit &lt;code&gt;use 5.10.0;&lt;/code&gt; is not required, although if your code is going to be shared, you should probably include it.&lt;/p&gt;
+
+&lt;h3 id=&#34;2-glob-s-checkered-past:20798fba47491e24e703587c4db3eaa3&#34;&gt;2. Glob&amp;rsquo;s checkered past&lt;/h3&gt;
+
+&lt;p&gt;Learning Perl has a lot of anecdotes about Perl history in it. You might have used the &lt;code&gt;glob&lt;/code&gt; function before:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @json_files = glob &#39;*.json&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This returns all file names ending in &lt;code&gt;.json&lt;/code&gt; in the current working directory. Glob takes a string of patterns separated by whitespace, so you can provide multiple patterns:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  my @config_files = glob &#39;*.json *.toml *.ini&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Instead of using the word &lt;code&gt;glob&lt;/code&gt; you can use angle brackets:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  my @json_files = &amp;lt;*.json&amp;gt;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;These angle brackets treat the text between them like a double-quoted string. One thing I learned was that ancient versions of Perl (pre 5.6) simply called &lt;code&gt;/bin/csh&lt;/code&gt; every time they encountered &lt;code&gt;glob&lt;/code&gt;! This made globbing slow, and directory handles were preferred over &lt;code&gt;glob&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;3-perl-supports-inline-binary-notation:20798fba47491e24e703587c4db3eaa3&#34;&gt;3. Perl supports inline binary notation&lt;/h3&gt;
+
+&lt;p&gt;In many C-based languages you can write numbers in hexadecimal and octal notation, and you can in Perl too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  my $byte_max = 0xff;
+  my $permissions = 0755;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In Perl though, you can also write binary numbers inline, with the prefix &lt;code&gt;0b&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  my $bits = 0b10111000;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This can make it easier to work with binary data; instead of using hexadecimal notation and doing the mental arithmetic to calculate values, you can write binary data inline. For example, let&amp;rsquo;s say you are reviewing some code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  if ($bit_array &amp;amp; 0x40) {
+    ...
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To understand this example in hexadecimal, you have to calculate that 4 * 16 = 64, and then either just know, or convert that number to binary to find out that the 7th bit is flipped, and understand that this is testing whether &lt;code&gt;$bit_array&lt;/code&gt; has that bit flipped too. Here&amp;rsquo;s the same code with inline binary:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  if ($bit_array &amp;amp; 0b1000000) {
+    ...
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In this example, you can just see that the 7th bit is flipped, and the intent of the if statement becomes obvious. If you&amp;rsquo;re interested in understanding bit arrays and bitwise operators, I recently wrote an &lt;a href=&#34;http://perltricks.com/article/save-space-with-bit-arrays/&#34;&gt;introduction&lt;/a&gt; to them.&lt;/p&gt;
+
+&lt;h3 id=&#34;4-check-an-installed-module-is-up-to-date:20798fba47491e24e703587c4db3eaa3&#34;&gt;4. Check an installed module is up to date&lt;/h3&gt;
+
+&lt;p&gt;These days we have so many advanced Perl package installers like &lt;a href=&#34;https://metacpan.org/pod/App::cpanminus&#34;&gt;cpanm&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/distribution/App-cpm/script/cpm&#34;&gt;cpm&lt;/a&gt; it&amp;rsquo;s easy to forget that the basic CPAN client can do a lot too. For instance, the &lt;code&gt;-D&lt;/code&gt; option checks the installed version of a module and compares it to the latest version on CPAN. So to check if the &lt;code&gt;Test::More&lt;/code&gt; module is up to date, at the terminal I can enter:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ cpan -D Test::More
+
+CPAN: Storable loaded ok (v2.53)
+Reading &#39;/home/dfarrell/.local/share/.cpan/Metadata&#39;
+  Database was generated on Thu, 22 Sep 2016 21:53:30 GMT
+Test::More
+-------------------------------------------------------------------------
+      (no description)
+      E/EX/EXODIST/Test-Simple-1.302056.tar.gz
+      /home/dfarrell/.plenv/versions/5.22.0/lib/perl5/5.22.0/Test/More.pm
+      Installed: 1.001014
+      CPAN:      1.302056  Not up to date
+      Chad Granum (EXODIST)
+      exodist7@gmail.com
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Woah, mine is pretty out of date. I should upgrade &amp;hellip;&lt;/p&gt;
+
+&lt;h3 id=&#34;5-avoiding-the-shell-for-system-commands:20798fba47491e24e703587c4db3eaa3&#34;&gt;5. Avoiding the shell for system commands&lt;/h3&gt;
+
+&lt;p&gt;The Perl built-in functions &lt;a href=&#34;http://perldoc.perl.org/functions/exec.html&#34;&gt;exec&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/functions/system.html&#34;&gt;system&lt;/a&gt; &lt;em&gt;may&lt;/em&gt; invoke the shell when running a system command. Generally you want to avoid this as invoking the shell is slower than executing the command directly. Perl looks at the first argument passed to &lt;code&gt;exec&lt;/code&gt; or &lt;code&gt;system&lt;/code&gt; and if it contains shell &lt;a href=&#34;http://faculty.salina.k-state.edu/tim/unix_sg/shell/metachar.html&#34;&gt;metacharacters&lt;/a&gt; invokes the shell.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $command = join &amp;quot; &amp;quot;, $program, $arg1, $arg2;
+system $command; # may invoke shell
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So let&amp;rsquo;s say you need to invoke a system command, and you&amp;rsquo;re not sure whether the command arguments will contain metacharacters or not. If they do, the shell will be invoked and any metacharacters will be interpolated. One way to avoid the shell interpolating metacharacters is to escape them. But shell escape sequences are rarely simple (e.g. &lt;a href=&#34;https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings#1250279&#34;&gt;escaping a single quote&lt;/a&gt;). Learning Perl shows a better way: passing a list.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;system $program, $arg1, $arg2; # never invokes the shell
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will never invoke the shell, and avoid metacharacter interpolation.&lt;/p&gt;
+
+&lt;h3 id=&#34;pre-order-learning-perl-now:20798fba47491e24e703587c4db3eaa3&#34;&gt;Pre-order Learning Perl now&lt;/h3&gt;
+
+&lt;p&gt;Learning Perl 7th Edition has nearly 400 pages describing the Perl syntax, and how to accomplish important tasks like file IO, process management and module installations. It&amp;rsquo;s available for pre-order now on &lt;a href=&#34;https://goo.gl/DvCB14&#34;&gt;Amazon&lt;/a&gt; (that&amp;rsquo;s an affiliate link for brian d foy, the author of this edition). You can also get it from the publisher, &lt;a href=&#34;http://shop.oreilly.com/product/0636920049517.do&#34;&gt;O&amp;rsquo;Reilly&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>The History of the Schwartzian Transform</title>
@@ -1568,60 +1687,6 @@ Result: PASS
 &lt;p&gt;So if you work for a company that uses Perl or sponsors Perl events, consider asking them to support this year&amp;rsquo;s &lt;a href=&#34;http://act.qa-hackathon.org/qa2015/sponsors.html&#34;&gt;QA Hackathon&lt;/a&gt;. The event itself is free; sponsorship goes towards the supporting the travel and accommodation costs of attendees. The organizers are also accepting individual &lt;a href=&#34;http://act.qa-hackathon.org/qa2015/donate.html&#34;&gt;donations&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;Cover image © &lt;a href=&#34;http://www.dagolden.com/&#34;&gt;David Golden&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Introducing 3 new Perl Glyphs</title>
-      <link>http://perltricks.com/article/146/2015/1/23/Introducing-3-new-Perl-Glyphs/</link>
-      <pubDate>Fri, 23 Jan 2015 13:55:03 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/146/2015/1/23/Introducing-3-new-Perl-Glyphs/</guid>
-      <description>
-
-&lt;p&gt;Recently I changed our site&amp;rsquo;s menu links from bitmap images to glyphs. A glyph (or &amp;ldquo;font icon&amp;rdquo;) is an svg file which can be packaged in a font file. Glyphs hold several advantages over bitmaps as icons: they look smooth at any resolution, can be colored and aligned just like text, and usually occupy less disk space than a regular bitmap.&lt;/p&gt;
-
-&lt;p&gt;PerlTricks.com uses bootstrap, which comes with &lt;a href=&#34;http://getbootstrap.com/components/&#34;&gt;many&lt;/a&gt; stock glyphs, but alas! no Perl ones. Seeing as Perl culture has some pretty powerful iconography, it seemed high time the community had some ready-made glyphs to use. So over the holidays, I learned how to make svgs, and have created 3 new Perl glyphs to share.&lt;/p&gt;
-
-&lt;p&gt;First a couple of Perl 5 classics, colored:&lt;/p&gt;
-
-&lt;p&gt;image/svg+xml&lt;/p&gt;
-
-&lt;p&gt;image/svg+xml&lt;/p&gt;
-
-&lt;p&gt;And a black-and-white Camelia for Perl 6:&lt;/p&gt;
-
-&lt;p&gt;image/svg+xml&lt;/p&gt;
-
-&lt;p&gt;Of course, being svg you can color them however you like.&lt;/p&gt;
-
-&lt;h3 id=&#34;creating-font-icon-sets:365f506fd2ded6f68e2b691499a8484b&#34;&gt;Creating font icon sets&lt;/h3&gt;
-
-&lt;p&gt;These svg files are nice, but they&amp;rsquo;re easier to use in a font file. I like to use IcoMoon.io&amp;rsquo;s app for compiling font files. It&amp;rsquo;s free, simple and fast. To create your own font Perl icon set, first download the svg &lt;a href=&#34;https://github.com/dnmfarrell/Perl-Icons/tree/master/Icons&#34;&gt;files&lt;/a&gt; or clone the &lt;a href=&#34;https://github.com/dnmfarrell/Perl-Icons&#34;&gt;repo&lt;/a&gt;. Now point your browser at the IcoMoon.io app &lt;a href=&#34;http://icomoon.io/app&#34;&gt;page&lt;/a&gt;. Click the &amp;ldquo;import&amp;rdquo; button, and select the Perl svg files you downloaded.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;https://farm8.staticflickr.com/7543/16158980357_1b37c2a633.jpg&#34; alt=&#34;icomoon\_app&#34; /&gt;&lt;/p&gt;
-
-&lt;p&gt;You should see the icons appear as an &amp;ldquo;untitled set&amp;rdquo;. Click each icon so that it is selected for inclusion in the font file.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;https://farm8.staticflickr.com/7567/15724931783_ff9a3cbf19.jpg&#34; alt=&#34;icomoon\_import&#34; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Click the &amp;ldquo;Generate Font&amp;rdquo; button in the bottom-right corner of the screen. This will load the download font window. The window should show the 3 Perl glyph, and a unicode identifier for each glyph (like &amp;ldquo;e600&amp;rdquo; etc). Remember these unicode ids as you&amp;rsquo;ll need them to use the font icons.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;https://farm9.staticflickr.com/8660/16318921836_8ce352635b.jpg&#34; alt=&#34;icomoon\_download&#34; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Finally, click the &amp;ldquo;download&amp;rdquo; button to download the fonts archive. Inside the archive you&amp;rsquo;ll find the font files in eot, ttf, woff and svg formats, along with examples of how to use them. The easiest way to test the icons is by opening &lt;code&gt;demo.html&lt;/code&gt; that comes with the IcoMoon fonts archive. Test out the glyphs by typing into the &amp;ldquo;Font Test Drive&amp;rdquo; editor. To type a glyph in HTML just type: &lt;code&gt;&lt;/code&gt; replacing &amp;ldquo;e600&amp;rdquo; with the unicode id of the glyph, for example:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;https://farm8.staticflickr.com/7494/16161405249_fc513e7389.jpg&#34; alt=&#34;icomoon\_demo\_html&#34; /&gt;&lt;/p&gt;
-
-&lt;p&gt;When you go to use the fonts on the web, make sure you use the bulletproof @font-face &lt;a href=&#34;http://www.paulirish.com/2009/bulletproof-font-face-implementation-syntax/&#34;&gt;syntax&lt;/a&gt;. Another benefit of using IcoMoon.io&amp;rsquo;s app: the &lt;code&gt;style.css&lt;/code&gt; file in the archive includes the bulletproof syntax.&lt;/p&gt;
-
-&lt;p&gt;If you want lower-level access to font files, check out &lt;a href=&#34;http://sourceforge.net/projects/fontforge/&#34;&gt;FontForge&lt;/a&gt;. Using FontForge you can create or edit font files in a variety of formats. You can set the font metadata (creator, name etc), and specify the alignment of individual glyphs more precisely than with IcoMoon.io&amp;rsquo;s free app.&lt;/p&gt;
-
-&lt;h3 id=&#34;licensing:365f506fd2ded6f68e2b691499a8484b&#34;&gt;Licensing&lt;/h3&gt;
-
-&lt;p&gt;I&amp;rsquo;ve released these files under the FreeBSD license, but keep in mind that there may be additional restrictions on use, which is out of my hands. Check out the repo &lt;a href=&#34;https://github.com/dnmfarrell/Perl-Icons/blob/master/README.pod&#34;&gt;README&lt;/a&gt; for the specifics.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Update&lt;/strong&gt; &lt;em&gt;I&amp;rsquo;ve added a fourth glyph to the repo, the Perl 5 Raptor! Thanks to Marcus Smith for the suggestion. 2015-01-23&lt;/em&gt;&lt;/p&gt;
 </description>
     </item>
     

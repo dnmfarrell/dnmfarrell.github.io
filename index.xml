@@ -6,8 +6,127 @@
     <description>Recent content on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 15 Sep 2016 17:40:12 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 23 Sep 2016 08:12:54 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>5 things I learned from Learning Perl 7th Edition</title>
+      <link>http://perltricks.com/article/5-things-i-learned-from-learning-perl-7th-edition/</link>
+      <pubDate>Fri, 23 Sep 2016 08:12:54 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/5-things-i-learned-from-learning-perl-7th-edition/</guid>
+      <description>
+
+&lt;p&gt;The 7th edition of Learning Perl is due to be released later this month. I was one of the technical reviewers of the book - I hadn&amp;rsquo;t read it since the 3rd edition where it was a course text at my University (and Perl was described as a &amp;ldquo;text parsing language&amp;rdquo;!). Reviewing the book, I was struck by how much detail it contained. If you&amp;rsquo;re looking for a thorough introduction to Perl, it&amp;rsquo;s a great place to start. I picked up (or re-learned) a few tricks along the way, that I thought were worth sharing.&lt;/p&gt;
+
+&lt;h3 id=&#34;1-stacked-file-test-operators:20798fba47491e24e703587c4db3eaa3&#34;&gt;1. Stacked file test operators&lt;/h3&gt;
+
+&lt;p&gt;You probably know that Perl supports a bunch of &lt;a href=&#34;http://perldoc.perl.org/functions/-X.html&#34;&gt;file test operators&lt;/a&gt; that do useful things like check if a file exists, if it&amp;rsquo;s readable and so on:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  if (-e $filepath &amp;amp;&amp;amp; -r $filepath) {
+    ... 
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But did you know that since version 5.10, you can stack file test operators?&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  if (-e -r $filepath) {
+    ...
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This way is cleaner and shorter. Oh and bonus! file test operators work on filehandles too. Stacked file operators are not part of the &lt;a href=&#34;http://perldoc.perl.org/feature.html&#34;&gt;feature&lt;/a&gt; pragma, so an explicit &lt;code&gt;use 5.10.0;&lt;/code&gt; is not required, although if your code is going to be shared, you should probably include it.&lt;/p&gt;
+
+&lt;h3 id=&#34;2-glob-s-checkered-past:20798fba47491e24e703587c4db3eaa3&#34;&gt;2. Glob&amp;rsquo;s checkered past&lt;/h3&gt;
+
+&lt;p&gt;Learning Perl has a lot of anecdotes about Perl history in it. You might have used the &lt;code&gt;glob&lt;/code&gt; function before:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my @json_files = glob &#39;*.json&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This returns all file names ending in &lt;code&gt;.json&lt;/code&gt; in the current working directory. Glob takes a string of patterns separated by whitespace, so you can provide multiple patterns:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  my @config_files = glob &#39;*.json *.toml *.ini&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Instead of using the word &lt;code&gt;glob&lt;/code&gt; you can use angle brackets:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  my @json_files = &amp;lt;*.json&amp;gt;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;These angle brackets treat the text between them like a double-quoted string. One thing I learned was that ancient versions of Perl (pre 5.6) simply called &lt;code&gt;/bin/csh&lt;/code&gt; every time they encountered &lt;code&gt;glob&lt;/code&gt;! This made globbing slow, and directory handles were preferred over &lt;code&gt;glob&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;3-perl-supports-inline-binary-notation:20798fba47491e24e703587c4db3eaa3&#34;&gt;3. Perl supports inline binary notation&lt;/h3&gt;
+
+&lt;p&gt;In many C-based languages you can write numbers in hexadecimal and octal notation, and you can in Perl too:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  my $byte_max = 0xff;
+  my $permissions = 0755;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In Perl though, you can also write binary numbers inline, with the prefix &lt;code&gt;0b&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  my $bits = 0b10111000;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This can make it easier to work with binary data; instead of using hexadecimal notation and doing the mental arithmetic to calculate values, you can write binary data inline. For example, let&amp;rsquo;s say you are reviewing some code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  if ($bit_array &amp;amp; 0x40) {
+    ...
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To understand this example in hexadecimal, you have to calculate that 4 * 16 = 64, and then either just know, or convert that number to binary to find out that the 7th bit is flipped, and understand that this is testing whether &lt;code&gt;$bit_array&lt;/code&gt; has that bit flipped too. Here&amp;rsquo;s the same code with inline binary:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;  if ($bit_array &amp;amp; 0b1000000) {
+    ...
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In this example, you can just see that the 7th bit is flipped, and the intent of the if statement becomes obvious. If you&amp;rsquo;re interested in understanding bit arrays and bitwise operators, I recently wrote an &lt;a href=&#34;http://perltricks.com/article/save-space-with-bit-arrays/&#34;&gt;introduction&lt;/a&gt; to them.&lt;/p&gt;
+
+&lt;h3 id=&#34;4-check-an-installed-module-is-up-to-date:20798fba47491e24e703587c4db3eaa3&#34;&gt;4. Check an installed module is up to date&lt;/h3&gt;
+
+&lt;p&gt;These days we have so many advanced Perl package installers like &lt;a href=&#34;https://metacpan.org/pod/App::cpanminus&#34;&gt;cpanm&lt;/a&gt; and &lt;a href=&#34;https://metacpan.org/pod/distribution/App-cpm/script/cpm&#34;&gt;cpm&lt;/a&gt; it&amp;rsquo;s easy to forget that the basic CPAN client can do a lot too. For instance, the &lt;code&gt;-D&lt;/code&gt; option checks the installed version of a module and compares it to the latest version on CPAN. So to check if the &lt;code&gt;Test::More&lt;/code&gt; module is up to date, at the terminal I can enter:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ cpan -D Test::More
+
+CPAN: Storable loaded ok (v2.53)
+Reading &#39;/home/dfarrell/.local/share/.cpan/Metadata&#39;
+  Database was generated on Thu, 22 Sep 2016 21:53:30 GMT
+Test::More
+-------------------------------------------------------------------------
+      (no description)
+      E/EX/EXODIST/Test-Simple-1.302056.tar.gz
+      /home/dfarrell/.plenv/versions/5.22.0/lib/perl5/5.22.0/Test/More.pm
+      Installed: 1.001014
+      CPAN:      1.302056  Not up to date
+      Chad Granum (EXODIST)
+      exodist7@gmail.com
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Woah, mine is pretty out of date. I should upgrade &amp;hellip;&lt;/p&gt;
+
+&lt;h3 id=&#34;5-avoiding-the-shell-for-system-commands:20798fba47491e24e703587c4db3eaa3&#34;&gt;5. Avoiding the shell for system commands&lt;/h3&gt;
+
+&lt;p&gt;The Perl built-in functions &lt;a href=&#34;http://perldoc.perl.org/functions/exec.html&#34;&gt;exec&lt;/a&gt; and &lt;a href=&#34;http://perldoc.perl.org/functions/system.html&#34;&gt;system&lt;/a&gt; &lt;em&gt;may&lt;/em&gt; invoke the shell when running a system command. Generally you want to avoid this as invoking the shell is slower than executing the command directly. Perl looks at the first argument passed to &lt;code&gt;exec&lt;/code&gt; or &lt;code&gt;system&lt;/code&gt; and if it contains shell &lt;a href=&#34;http://faculty.salina.k-state.edu/tim/unix_sg/shell/metachar.html&#34;&gt;metacharacters&lt;/a&gt; invokes the shell.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;my $command = join &amp;quot; &amp;quot;, $program, $arg1, $arg2;
+system $command; # may invoke shell
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So let&amp;rsquo;s say you need to invoke a system command, and you&amp;rsquo;re not sure whether the command arguments will contain metacharacters or not. If they do, the shell will be invoked and any metacharacters will be interpolated. One way to avoid the shell interpolating metacharacters is to escape them. But shell escape sequences are rarely simple (e.g. &lt;a href=&#34;https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings#1250279&#34;&gt;escaping a single quote&lt;/a&gt;). Learning Perl shows a better way: passing a list.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;system $program, $arg1, $arg2; # never invokes the shell
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will never invoke the shell, and avoid metacharacter interpolation.&lt;/p&gt;
+
+&lt;h3 id=&#34;pre-order-learning-perl-now:20798fba47491e24e703587c4db3eaa3&#34;&gt;Pre-order Learning Perl now&lt;/h3&gt;
+
+&lt;p&gt;Learning Perl 7th Edition has nearly 400 pages describing the Perl syntax, and how to accomplish important tasks like file IO, process management and module installations. It&amp;rsquo;s available for pre-order now on &lt;a href=&#34;https://goo.gl/DvCB14&#34;&gt;Amazon&lt;/a&gt; (that&amp;rsquo;s an affiliate link for brian d foy, the author of this edition). You can also get it from the publisher, &lt;a href=&#34;http://shop.oreilly.com/product/0636920049517.do&#34;&gt;O&amp;rsquo;Reilly&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Using bit arrays with large integers</title>
@@ -1783,111 +1902,6 @@ my $encoding = uri_encode($some_string); # super fast
 &lt;p&gt;&lt;a href=&#34;https://stackoverflow.com/questions/tagged/perl&#34;&gt;StackOverflow.com&lt;/a&gt; has excellent Perl answers that are regularly updated; this is a great resource for Perl programmers. &lt;a href=&#34;http://perlweekly.com&#34;&gt;PerlWeekly&lt;/a&gt; is a fantastic newsletter that links to the best Perl content of the week, subscribe if you haven&amp;rsquo;t already. &lt;a href=&#34;http://perlmonks.org&#34;&gt;PerlMonks&lt;/a&gt; has tonnes of in-depth Perl guides and resources.&lt;/p&gt;
 
 &lt;p&gt;&lt;br/&gt;&lt;em&gt;Cover image by &lt;a href=&#34;http://newspaper.jaguarpaw.co.uk/&#34;&gt;jaguarpaw&lt;/a&gt;&lt;/em&gt;&lt;br/&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Displaying the Git branch in the terminal prompt with and without Perl</title>
-      <link>http://perltricks.com/article/displaying-the-git-branch-in-the-terminal-prompt-with-perl/</link>
-      <pubDate>Fri, 13 May 2016 07:57:42 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/displaying-the-git-branch-in-the-terminal-prompt-with-perl/</guid>
-      <description>
-
-&lt;p&gt;One way to evolve as a programmer is to pay attention to things you do repeatedly, and replace that action with an efficient alternative. It took me a shamefully long time to realize I was typing &lt;code&gt;git branch&lt;/code&gt; many times a day to check which branch I was committing code to. A more efficient way is to display the current branch name in the terminal prompt. Ideally I&amp;rsquo;d like to see something like this:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;~/some/path [master]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;the-branch-command:c52c5eee374941349f46a20f31a4a0be&#34;&gt;The branch command&lt;/h3&gt;
-
-&lt;p&gt;With Git version control, code changes are committed to branches. The active branch is the context for work. For example I might be working on a new feature, so I create a new branch called &amp;ldquo;new-feature-x&amp;rdquo; and start writing code. Any changes I make to the code whilst in this branch, do not affect the master branch of code. This makes knowing the active branch really important - I don&amp;rsquo;t want to commit code to the wrong branch.&lt;/p&gt;
-
-&lt;p&gt;The &lt;code&gt;branch&lt;/code&gt; command displays a list of all local branches and places an asterisk next to the active one. So in my fictional example, it might look like this:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ git branch
-  master
-* new-feature-x
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Git prepends an asterisk to highlight the active branch name. Sometimes I use this to remind myself which branches are available locally, but most of the time I&amp;rsquo;m checking it to see which branch I&amp;rsquo;m currently working on. The Git &lt;a href=&#34;https://git-scm.com/docs/git-branch&#34;&gt;branch documentation&lt;/a&gt; has more information on the ins and outs of &lt;code&gt;branch&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;parsing-git-branch-with-perl:c52c5eee374941349f46a20f31a4a0be&#34;&gt;Parsing git branch with Perl&lt;/h3&gt;
-
-&lt;p&gt;This is the one liner I want to use:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ git branch 2&amp;gt; /dev/null | perl -ne &#39;print &amp;quot; [$_]&amp;quot; if s/^\*\s+// &amp;amp;&amp;amp; chomp&#39;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;It runs &lt;code&gt;git branch&lt;/code&gt; redirecting error messages to the netherworld. That means if the current working directory is not a git repository, the ensuing error message will be ignored. We pipe the list of git branches to Perl, which uses the &lt;code&gt;-n&lt;/code&gt; option to loop through each line of input, running the quoted code.&lt;/p&gt;
-
-&lt;p&gt;The code operates on the default variable &lt;code&gt;$_&lt;/code&gt; which is the line of output from &lt;code&gt;git branch&lt;/code&gt; being looped over. The active branch name always begins with an asterisk, So &lt;code&gt;s/^\*\s+//&lt;/code&gt; tries to substitute the leading asterisk and whitespace from the branch name. Substitute returns the number of characters it replaced, so for all lines except the active branch, that will be zero and evaluate to false. If it&amp;rsquo;s true, the code then chomps the trailing newline character from the branch name and prints it.&lt;/p&gt;
-
-&lt;p&gt;I can add this as a function to my &lt;code&gt;.bashrc&lt;/code&gt; file:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;function current_git_branch {
-  git branch 2&amp;gt; /dev/null | perl -ne &#39;print &amp;quot; [$_]&amp;quot; if s/^\*\s+// &amp;amp;&amp;amp; chomp&#39;
-}
-PS1=&amp;quot;\w\$(current_git_branch) &amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The &lt;code&gt;PS1&lt;/code&gt; variable defines the terminal prompt content and style. Here I&amp;rsquo;ve defined it as follows: &lt;code&gt;\w&lt;/code&gt; is the current working directory path, e.g. &lt;code&gt;~/Projects/work/&lt;/code&gt; or whatever. This is followed by the call to &lt;code&gt;current_git_branch&lt;/code&gt;. Once those edits are saved in my &lt;code&gt;.bashrc&lt;/code&gt;, I need to save the file and reload it:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ . ~/.bashrc
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Now my terminal prompt looks like this:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;~/Projects/work [new-feature-x]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;And if I checkout a different branch it will change:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;~/Projects/work [new-feature-x] git checkout master
-~/Projects/work [master]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;some-other-ways:c52c5eee374941349f46a20f31a4a0be&#34;&gt;Some other ways&lt;/h3&gt;
-
-&lt;p&gt;One easy alternative would be to use Perl 6:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ git branch 2&amp;gt; /dev/null | perl6 -ne &#39;print &amp;quot; [$_]&amp;quot; if s/^\*\s+// &amp;amp;&amp;amp; .chomp&#39;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The code is almost the same as before, only &lt;code&gt;chomp&lt;/code&gt; has been changed to a method call. A regex capture could be used instead too:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ git branch 2&amp;gt; /dev/null | perl -ne &#39;print &amp;quot; [$1]&amp;quot; if /^\*\s+(\S+)/&#39;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;I&amp;rsquo;ve also seen &lt;a href=&#34;https://askubuntu.com/questions/730754/how-do-i-show-the-git-branch-with-colours-in-bash-prompt&#34;&gt;examples&lt;/a&gt; using &lt;code&gt;sed&lt;/code&gt; to parse the output instead of Perl.&lt;/p&gt;
-
-&lt;h3 id=&#34;bash-only:c52c5eee374941349f46a20f31a4a0be&#34;&gt;Bash only&lt;/h3&gt;
-
-&lt;p&gt;Perhaps a more efficient approach is to have Git emit only the active branch name, and then we don&amp;rsquo;t need another program to parse the output at all, we can just use bash. Credit goes to &lt;a href=&#34;http://randalschwartz.com&#34;&gt;Randal Schwartz&lt;/a&gt; for showing me this:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ git rev-parse --abbrev-ref HEAD
-new-feature-x
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This emits the active branch only. So now the code in my &lt;code&gt;.bashrc&lt;/code&gt; becomes:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;function current_git_branch {
-  local branch=$(git rev-parse --abbrev-ref HEAD 2&amp;gt;/dev/null);
-  if [[ -n $branch ]];then
-    echo &amp;quot; [$branch]&amp;quot;;
-  fi
-}
-PS1=&amp;quot;\w\$(current_git_branch) &amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This code assigns the output of the git command to the variable &lt;code&gt;branch&lt;/code&gt;. It then echoes the branch name as long as it&amp;rsquo;s not a zero length string (which happens when the current working directory is not a git repository). But wait a second, what happened to that newline at the end of the branch name? Bash has some interesting behavior with nested &lt;code&gt;echo&lt;/code&gt; commands. Check this out:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ echo -n $(echo -e &amp;quot;\n\n\n\n&amp;quot;)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If you run that command at the terminal you should get no output, even though it includes 4 newline characters, plus another newline appended by the &lt;code&gt;echo&lt;/code&gt; subcommand. The outer &lt;code&gt;echo&lt;/code&gt; ignores all newlines returned by the subcommand, and the &lt;code&gt;-n&lt;/code&gt; option suppresses its own newline append (thanks to Ben Grimm for the explanation).&lt;/p&gt;
-
-&lt;p&gt;I&amp;rsquo;m going with the bash variant, but whichever method you use, displaying the branch name in the terminal is a nice time saver.&lt;/p&gt;
 </description>
     </item>
     
