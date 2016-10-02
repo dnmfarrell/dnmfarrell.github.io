@@ -6,8 +6,85 @@
     <description>Recent content in Perl on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 02 Sep 2016 11:18:55 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 02 Oct 2016 10:51:01 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/tags/perl/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Hacktoberfest is here</title>
+      <link>http://perltricks.com/article/hacktoberfest-is-here/</link>
+      <pubDate>Sun, 02 Oct 2016 10:51:01 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/hacktoberfest-is-here/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://hacktoberfest.digitalocean.com/&#34;&gt;Hacktoberfest&lt;/a&gt; is here, and you can be part of the effort to make Perl the most popular language in the month long festival of patches and pull requests.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.digitalocean.com/&#34;&gt;DigitalOcean&lt;/a&gt; and &lt;a href=&#34;https://www.github.com/&#34;&gt;GitHub&lt;/a&gt; have teamed up to encourage new users to participate in open source. Make four pull requests to any GitHub project and they&amp;rsquo;ll give you a limited-edition Hacktoberfest t-shirt. It might not sound like much, but consider what you get besides the shirt: you&amp;rsquo;re in the commit logs of four projects and your profile has some history. That&amp;rsquo;s the first step in building your open source résumé.&lt;/p&gt;
+
+&lt;p&gt;The sponsors suggest that projects that want to participate label their issues with &amp;ldquo;Hacktoberfest&amp;rdquo;. That&amp;rsquo;s not strictly necessary, but you can &lt;a href=&#34;https://github.com/search?q=state%3Aopen+label%3Ahacktoberfest&amp;amp;type=Issues&#34;&gt;search&lt;/a&gt; for issues that projects think are suitable for new users. I think all of my projects are suitable (I may be optimistic), so I wanted a way to label all of my issues across all of my projects.&lt;/p&gt;
+
+&lt;p&gt;I found out about this as I was building some other GitHub tools. I looked at &lt;a href=&#34;https://www.metacpan.org/module/Net::GitHub&#34;&gt;Net::GitHub&lt;/a&gt; and &lt;a href=&#34;https://www.metacpan.org/module/Pithub&#34;&gt;Pithub&lt;/a&gt;, but I wanted to iterate through long lists of paged results and process each item as I received them. The &lt;a href=&#34;https://developer.github.com/v3/&#34;&gt;GitHub Developer API&lt;/a&gt; is quite nice and even if you are re-inventing the wheel you&amp;rsquo;re learning about wheels, making this a fun night of work.&lt;/p&gt;
+
+&lt;p&gt;The result is &lt;a href=&#34;https://github.com/briandfoy/ghojo/blob/master/examples/hacktoberfest.pl&#34;&gt;hacktoberfest.pl&lt;/a&gt; in my &lt;a href=&#34;https://github.com/briandfoy/ghojo&#34;&gt;ghojo&lt;/a&gt; repo. It will log in, list all of my repos (there are a couple hundred), create the &amp;ldquo;Hacktoberfest&amp;rdquo; label in each, and then apply the label to each open issue.&lt;/p&gt;
+
+&lt;p&gt;The ghojo project is still very much in its infancy (which means there&amp;rsquo;s all sorts of pull request opportunities). But I allow quite a bit of flexibility by accepting a callback for things I expect to return many items:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Ghojo;
+
+my $ghojo = Ghojo-&amp;gt;new( { token =&amp;gt; ... } );
+
+my $callback = sub {
+  my $item = shift;
+  ...
+  };
+
+$ghojo-&amp;gt;repos( $repo_callback );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Each time I find a repo—and you don&amp;rsquo;t have to know how I do that—I run that callback. It&amp;rsquo;s a little bit like &lt;a href=&#34;https://www.metacpan.org/module/File::Find&#34;&gt;File::Find&lt;/a&gt;&amp;rsquo;s use of the &lt;code&gt;wanted&lt;/code&gt; coderef. You don&amp;rsquo;t see the very nice API paging going on either; &lt;code&gt;repos&lt;/code&gt; keeps fetching more results as long as there are more results.&lt;/p&gt;
+
+&lt;p&gt;That callback deals with a repo, but each repo has a list of issues. I want to process this list of issues as I run into them. So what I need is a callback to process a repo with a nested callback for the issues:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.24;
+
+use Ghojo;
+
+my $ghojo = Ghojo-&amp;gt;new( { token =&amp;gt; ... } );
+
+my $label_name = &#39;Hacktoberfest&#39;;
+
+my $callback = sub ( $item ) {
+  my( $user, $repo ) = split m{/}, $item-&amp;gt;{full_name};
+
+  my $repo = $ghojo-&amp;gt;get_repo_object( $owner, $repo );
+
+  # get the labels for that repo
+  my %labels = map { $_-&amp;gt;@{ qw(name color) } } $repo-&amp;gt;labels-&amp;gt;@*;
+
+  unless( exists $labels{$label_name} ) {
+    my $rc = $repo-&amp;gt;create_label( $label_name, &#39;ff5500&#39; );
+    say &amp;quot;\tCreated $label_name label&amp;quot; if $rc;
+    }
+
+  my $callback = sub ( $item ) {
+    $repo-&amp;gt;add_labels_to_issue( $item-&amp;gt;{number}, $label_name );
+    return $item;
+    };
+
+  my $issues = $repo-&amp;gt;issues( $callback );
+
+  return $repo;
+  };
+
+
+$ghojo-&amp;gt;repos( $repo_callback );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Curiously, within a couple of hours of uploading the program, I received my first Hacktoberfest &lt;a href=&#34;https://github.com/briandfoy/ghojo/pull/14&#34;&gt;pull request&lt;/a&gt;. &lt;a href=&#34;https://github.com/haydenty&#34;&gt;haydenty&lt;/a&gt; added the &lt;a href=&#34;https://github.com/briandfoy/ghojo/blob/master/CONTRIBUTING.md&#34;&gt;CONTRIBUTING.md&lt;/a&gt; file to my ghojo repo. It&amp;rsquo;s something I&amp;rsquo;ve been meaning to add to all of my repos. Now I&amp;rsquo;m considering adding an issue to each repo to note that and label each one &amp;ldquo;Hacktoberfest&amp;rdquo;. Or someone who wants to get started with something simple can create the issues for me, or send the pull requests right off.&lt;/p&gt;
+
+&lt;p&gt;If you have lots of repos, label your issues to help push Perl up in &lt;a href=&#34;https://github.com/search?q=state%3Aopen+label%3Ahacktoberfest&amp;amp;type=Issues&#34;&gt;the rankings&lt;/a&gt;. By the time we reach the end of the month, I&amp;rsquo;ll have a program to reverse the labeling.&lt;/p&gt;
+
+&lt;p&gt;Some of this I&amp;rsquo;m doing for fun, and some of this I&amp;rsquo;m doing because some organizations want better GitHub tools. Somehow how October is when all of that is coming together. If you&amp;rsquo;d like me to work on this sort of stuff for you, &lt;a href=&#34;mailto:brian.d.foy@gmail.com&#34;&gt;let me know&lt;/a&gt;! But submit those pull requests first so you get that t-shirt.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>The History of the Schwartzian Transform</title>
@@ -2227,81 +2304,6 @@ Hello, World!
 &lt;h3 id=&#34;conclusion:f134c951b57c0f63005d49172b15ce32&#34;&gt;Conclusion&lt;/h3&gt;
 
 &lt;p&gt;This article was adapted from my open source &lt;a href=&#34;https://github.com/sillymoose/Perl6-One-Liners&#34;&gt;book&lt;/a&gt;, which has lots of example Perl 6 one liners, many of which were contributed by the Perl 6 community. If you&amp;rsquo;re interested in learning more Perl 6, I&amp;rsquo;d recommend visiting the official &lt;a href=&#34;http://perl6.org/&#34;&gt;website&lt;/a&gt;, which has links to the IRC channel and official documentation.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Boost your Perl productivity with auto-compile checking</title>
-      <link>http://perltricks.com/article/133/2014/11/10/Boost-your-Perl-productivity-with-auto-compile-checking/</link>
-      <pubDate>Mon, 10 Nov 2014 14:01:51 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/133/2014/11/10/Boost-your-Perl-productivity-with-auto-compile-checking/</guid>
-      <description>
-
-&lt;p&gt;The Perl command line option &lt;code&gt;-c&lt;/code&gt; causes Perl to check the syntax of the program, but not execute it (apart from code in BEGIN, CHECK and UNITCHECK blocks - watch out for those). For example:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ perl -c lib/Devel/DidYouMean.pm
-lib/Devel/DidYouMean.pm syntax OK
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This is useful but it&amp;rsquo;s kind of clunky to type it every time you want to check the syntax of a program or file.&lt;/p&gt;
-
-&lt;h3 id=&#34;continuous-syntax-checking:8b44f8b5a95c23d489bedfd99622b8bb&#34;&gt;Continuous syntax checking&lt;/h3&gt;
-
-&lt;p&gt;One of my favourite &lt;a href=&#34;https://metacpan.org/pod/Catalyst::Manual::Tutorial::02_CatalystBasics#The-Simplest-Way&#34;&gt;features&lt;/a&gt; when developing Catalyst web apps is using the test server to automatically check the syntax of the web app as I develop it. This saves me time as I know immediately if the web app compiles or not and don&amp;rsquo;t waste time opening up a browser only to get an error. if you&amp;rsquo;re working on a Unix-based operating system you can achieve a similar effect for any Perl program (not just web apps). The &lt;code&gt;watch&lt;/code&gt; program can automatically run the check command. Just start a new terminal, and enter:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;$ watch &#39;perl -c lib/Devel/DidYouMean.pm&#39;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Giving this output:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Every 2s perl -c lib/Devel/DidYouMean.pm           Sat Nov  8 2014
-
-lib/Devel/DidYouMean.pm syntax OK
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;In this case I&amp;rsquo;m watching the file &lt;code&gt;lib/Devel/DidYouMean.pm&lt;/code&gt; but you can provide any path to a Perl file that you want to check for syntax errors. By default &lt;code&gt;watch&lt;/code&gt; will run the command every 2 seconds. So if I save a bad update to the file, the watching terminal window will show the error:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;Every 2.0s: perl -c lib/Devel/DidYouMean.pm           Sat Nov  8 2014
-
-syntax error at lib/Devel/DidYouMean.pm line 122, near &amp;quot;} keys&amp;quot;
-
-lib/Devel/DidYouMean.pm had compilation errors.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This enables me to catch the error before running the program, saving time.&lt;/p&gt;
-
-&lt;h3 id=&#34;checking-syntax-in-a-text-editor:8b44f8b5a95c23d489bedfd99622b8bb&#34;&gt;Checking syntax in a text-editor&lt;/h3&gt;
-
-&lt;p&gt;Using &lt;code&gt;watch&lt;/code&gt; is useful, but I find it can be annoying to have to check a separate terminal window to know if my program compiles or not. Another way to do this is to run the command from within your text-editor. I&amp;rsquo;ll show how you how to do this in vim, but it should be possible to do this in any text-editor that has save events which you can hook in to (e.g. examples for &lt;a href=&#34;http://www.klaascuvelier.be/2013/06/sublime-command-on-save/&#34;&gt;Sublime Text&lt;/a&gt; and &lt;a href=&#34;http://flycheck.readthedocs.org/en/latest/&#34;&gt;Emacs&lt;/a&gt;).&lt;/p&gt;
-
-&lt;p&gt;Add the following line to your .vimrc file:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;autocmd BufWritePost *.pm,*.t,*.pl echom system(&amp;quot;perl -Ilib -c &amp;quot; . &#39;&amp;quot;&#39; . expand(&amp;quot;%:p&amp;quot;). &#39;&amp;quot;&#39; )
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;What this command does is every time a file ending in .pm, .t, or.pl is saved, vim will run the check syntax command on the file, echoing the results to the current window. Reload your .vimrc with this vim command: &lt;code&gt;:so $MYVIMRC&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;Now you don&amp;rsquo;t have to bother setting up a separate terminal window and watching the file; vim will notify you immediately if any Perl file is saved with compilation errors. Much more convenient!&lt;/p&gt;
-
-&lt;h3 id=&#34;alternative-methods-in-vim:8b44f8b5a95c23d489bedfd99622b8bb&#34;&gt;Alternative Methods in Vim&lt;/h3&gt;
-
-&lt;p&gt;Several readers got in touch to recommend the Syntastic &lt;a href=&#34;https://github.com/scrooloose/syntastic&#34;&gt;plugin&lt;/a&gt; for Vim (&lt;a href=&#34;https://github.com/scrooloose/syntastic&#34;&gt;manual&lt;/a&gt;). One nice thing about Syntastic is you can chain compile checks: first run &lt;code&gt;perl -c&lt;/code&gt;, if it passes, then run &lt;a href=&#34;https://metacpan.org/pod/Perl::Critic&#34;&gt;Perl::Critic&lt;/a&gt; and so on. Syntastic also integrates syntax checkers for many other languages, so if Vim is your editor of choice, you might want to check it out.&lt;/p&gt;
-
-&lt;p&gt;A simpler alternative to Syntastic is to use Vim&amp;rsquo;s built-in compiler support. With a Perl file in the current buffer, type:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;:compiler perl
-:make
-:cope
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This will run Perl&amp;rsquo;s syntax checks checks on the current buffer. Vim reads the output into an error list, which the &lt;code&gt;:cope&lt;/code&gt; command displays. You can jump to the line referenced by a specific error by pressing the enter key (&lt;a href=&#34;http://vimdoc.sourceforge.net/htmldoc/quickfix.html#quickfix-window&#34;&gt;manual&lt;/a&gt;).&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Updates:&lt;/strong&gt; &lt;em&gt;BEGIN, CHECK, UNITCHECK blocks caution added. Emacs link and addition Vim methods added. 2014-11-10&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;Vim autocmd example updated to handle filepaths containing spaces. Thanks to Henry An for the suggestion. 2015-01-22&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;Cover image &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;©&lt;/a&gt; &lt;a href=&#34;https://www.flickr.com/photos/runneralan/10092757714/in/photolist--88qSeT-88u7R1-dqTSLE-atoyrp-bD3QaN-93yNyq-8QYfKX-diG9h4-bD3NV9-88u847-gnS2f3-55QWyu-dqTHcF-9AJTkV-88qSdr-7h39AP-7nPgCT-88qSfv-5MyRfE-bRXxYv-bD3PXU-88u7pC-imjBX2-8xz38b-32eo27-a8YVvZ-8WJgFA-93ySDG-57KLMs-oYUnQ1-88qRL4-fturhH-88qRMx-cUx3nS-4GMFL2-88qSrv-5RhqjZ-ftuqAr-ehAoHf-ftJLsq-88u7fU-5R22Pk-5CNDM-bv2wve-9vnwcd-6dyA62-ejP2nf-329MpH-88u7ds&#34;&gt;Alan Kotok&lt;/a&gt; image has been digitally altered&lt;/em&gt;&lt;/p&gt;
 </description>
     </item>
     

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+  <title> Hacktoberfest is here </title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Send those Perl GitHub pull requests!"/>
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico">
+    
+</head>
+<body>
+
+<div class="container-fluid full-wdith antonio">
+ <div class="row">
+  <div class="navbar-inverse" style="border-radius:none !important" role="navigation">
+    <div class="container-fluid">
+      <ul id="follow-buttons" class="nav navbar-nav pull-right follow">
+          <li>FOLLOW US:</li>
+          <li><a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/header/twitter_20.png" alt="twitter"></a><li>
+          <li><a href="/index.xml" />
+              <img src="/images/header/rss_20.png" alt="rss"></a></li>
+          <li><a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+          <img src="/images/header/perltricks_logo.png" alt="PerlTricks" />
+          </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-home txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;HOME</a>
+          </li>
+          <li><a href="/authors">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-pencil txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;AUTHORS</a>
+          </li>
+          <li><a href="/about">
+              <div class="circle">
+                  <span class="glyphicon glyphicon-user txt-perltricks-blue" aria-hidden="true"></span>
+              </div>
+                  &nbsp;&nbsp;ABOUT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+ </div>
+</div>
+
+
+  <section id="content" role="main">
+    <section class="entry-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <div class="row">
+              <article>
+              
+              
+              <h1 class="blog-post-title">Hacktoberfest is here</h1>
+              <p class="blog-post-meta">Oct 2, 2016 by <a href="#author-bio">brian d foy</a></p>
+              <img alt="" src="/images/hacktoberfest-is-here/hacktoberfest-2016.png"/>
+                <p><a href="https://hacktoberfest.digitalocean.com/">Hacktoberfest</a> is here, and you can be part of the effort to make Perl the most popular language in the month long festival of patches and pull requests.</p>
+
+<p><a href="https://www.digitalocean.com/">DigitalOcean</a> and <a href="https://www.github.com/">GitHub</a> have teamed up to encourage new users to participate in open source. Make four pull requests to any GitHub project and they&rsquo;ll give you a limited-edition Hacktoberfest t-shirt. It might not sound like much, but consider what you get besides the shirt: you&rsquo;re in the commit logs of four projects and your profile has some history. That&rsquo;s the first step in building your open source résumé.</p>
+
+<p>The sponsors suggest that projects that want to participate label their issues with &ldquo;Hacktoberfest&rdquo;. That&rsquo;s not strictly necessary, but you can <a href="https://github.com/search?q=state%3Aopen+label%3Ahacktoberfest&amp;type=Issues">search</a> for issues that projects think are suitable for new users. I think all of my projects are suitable (I may be optimistic), so I wanted a way to label all of my issues across all of my projects.</p>
+
+<p>I found out about this as I was building some other GitHub tools. I looked at <a href="https://www.metacpan.org/module/Net::GitHub">Net::GitHub</a> and <a href="https://www.metacpan.org/module/Pithub">Pithub</a>, but I wanted to iterate through long lists of paged results and process each item as I received them. The <a href="https://developer.github.com/v3/">GitHub Developer API</a> is quite nice and even if you are re-inventing the wheel you&rsquo;re learning about wheels, making this a fun night of work.</p>
+
+<p>The result is <a href="https://github.com/briandfoy/ghojo/blob/master/examples/hacktoberfest.pl">hacktoberfest.pl</a> in my <a href="https://github.com/briandfoy/ghojo">ghojo</a> repo. It will log in, list all of my repos (there are a couple hundred), create the &ldquo;Hacktoberfest&rdquo; label in each, and then apply the label to each open issue.</p>
+
+<p>The ghojo project is still very much in its infancy (which means there&rsquo;s all sorts of pull request opportunities). But I allow quite a bit of flexibility by accepting a callback for things I expect to return many items:</p>
+
+<pre><code class="language-prettyprint">use Ghojo;
+
+my $ghojo = Ghojo-&gt;new( { token =&gt; ... } );
+
+my $callback = sub {
+  my $item = shift;
+  ...
+  };
+
+$ghojo-&gt;repos( $repo_callback );
+</code></pre>
+
+<p>Each time I find a repo—and you don&rsquo;t have to know how I do that—I run that callback. It&rsquo;s a little bit like <a href="https://www.metacpan.org/module/File::Find">File::Find</a>&rsquo;s use of the <code>wanted</code> coderef. You don&rsquo;t see the very nice API paging going on either; <code>repos</code> keeps fetching more results as long as there are more results.</p>
+
+<p>That callback deals with a repo, but each repo has a list of issues. I want to process this list of issues as I run into them. So what I need is a callback to process a repo with a nested callback for the issues:</p>
+
+<pre><code class="language-prettyprint">use v5.24;
+
+use Ghojo;
+
+my $ghojo = Ghojo-&gt;new( { token =&gt; ... } );
+
+my $label_name = 'Hacktoberfest';
+
+my $callback = sub ( $item ) {
+  my( $user, $repo ) = split m{/}, $item-&gt;{full_name};
+
+  my $repo = $ghojo-&gt;get_repo_object( $owner, $repo );
+
+  # get the labels for that repo
+  my %labels = map { $_-&gt;@{ qw(name color) } } $repo-&gt;labels-&gt;@*;
+
+  unless( exists $labels{$label_name} ) {
+    my $rc = $repo-&gt;create_label( $label_name, 'ff5500' );
+    say &quot;\tCreated $label_name label&quot; if $rc;
+    }
+
+  my $callback = sub ( $item ) {
+    $repo-&gt;add_labels_to_issue( $item-&gt;{number}, $label_name );
+    return $item;
+    };
+
+  my $issues = $repo-&gt;issues( $callback );
+
+  return $repo;
+  };
+
+
+$ghojo-&gt;repos( $repo_callback );
+</code></pre>
+
+<p>Curiously, within a couple of hours of uploading the program, I received my first Hacktoberfest <a href="https://github.com/briandfoy/ghojo/pull/14">pull request</a>. <a href="https://github.com/haydenty">haydenty</a> added the <a href="https://github.com/briandfoy/ghojo/blob/master/CONTRIBUTING.md">CONTRIBUTING.md</a> file to my ghojo repo. It&rsquo;s something I&rsquo;ve been meaning to add to all of my repos. Now I&rsquo;m considering adding an issue to each repo to note that and label each one &ldquo;Hacktoberfest&rdquo;. Or someone who wants to get started with something simple can create the issues for me, or send the pull requests right off.</p>
+
+<p>If you have lots of repos, label your issues to help push Perl up in <a href="https://github.com/search?q=state%3Aopen+label%3Ahacktoberfest&amp;type=Issues">the rankings</a>. By the time we reach the end of the month, I&rsquo;ll have a program to reverse the labeling.</p>
+
+<p>Some of this I&rsquo;m doing for fun, and some of this I&rsquo;m doing because some organizations want better GitHub tools. Somehow how October is when all of that is coming together. If you&rsquo;d like me to work on this sort of stuff for you, <a href="mailto:brian.d.foy@gmail.com">let me know</a>! But submit those pull requests first so you get that t-shirt.</p>
+
+              </article>
+              <p><strong>Tags</strong></p>
+              <div class="tags">
+                <div class="category"><a href="/categories/community">community</a></div>
+                
+                  <div class="tag"><a href="/tags/perl">perl</a></div>
+                
+                  <div class="tag"><a href="/tags/github">github</a></div>
+                
+                  <div class="tag"><a href="/tags/pull-request">pull-request</a></div>
+                
+                  <div class="tag"><a href="/tags/git">git</a></div>
+                
+                  <div class="tag"><a href="/tags/digitalocean">digitalocean</a></div>
+                
+                  <div class="tag"><a href="/tags/hacktoberfest">hacktoberfest</a></div>
+                
+                  <div class="tag"><a href="/tags/ghojo">ghojo</a></div>
+                
+              </div>
+            </div>
+            <div class="row" id="author-bio">
+              
+              <div class="col-sm-2">
+                <div class="circle-avatar" style="background-image:url(/images/author/brian.jpg)"></div>
+              </div>
+              <div class="col-sm-10" style="margin:0 0 50px 0">
+                <h3>brian d foy</h3>
+                <p><a href="http://www.pair.com/~comdog/">brian d foy</a> is a Perl trainer and writer. He&rsquo;s the author of Mastering Perl and co-author of Programming Perl, Learning Perl, Intermediate Perl and Effective Perl Programming.</p>
+                <h5><a href="/authors/brian-d-foy">Browse their articles</a></h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="latest-sidebar">
+
+  <div class="row">
+    <div class="col-sm-12 centering">
+      <span style="font-size:1.8em" class="antonio txt-perltricks-blue">OUR LATEST ARTICLES</span>
+    </div>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/hacktoberfest-is-here/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/hacktoberfest-is-here/hacktoberfest-2016.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Hacktoberfest is here</h6>
+        <p style="line-height:1"><small>Send those Perl GitHub pull requests!</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/don-t-forget-to--perl/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/don-t-forget-to--perl/perl_hashtag.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Don&#39;t forget to #Perl</h6>
+        <p style="line-height:1"><small>Help users find Perl related tweets more easily</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/5-things-i-learned-from-learning-perl-7th-edition/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/5-things-i-learned-from-learning-perl-7th-ed/learning-perl-7-front.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>5 things I learned from Learning Perl 7th Edition</h6>
+        <p style="line-height:1"><small>A surprisingly in-depth book for beginners</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/using-bitmasks-with-large-integers/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/author/david.jpg)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>Using bit arrays with large integers</h6>
+        <p style="line-height:1"><small>Testing huge bit arrays with Perl</small></p>
+    </div>
+      </a>
+  </div>
+  
+        
+        
+  <div class="row">
+      <a href="http://perltricks.com/article/what-s-new-on-cpan---august-2016/">
+    <div class="col-sm-3">
+      <div class="circle-avatar" style="background-image:url(/images/192/AF57B300-5234-11E5-B481-F86745487EAA.png)"></div>
+    </div>
+    <div class="col-sm-9">
+        <h6>What&#39;s new on CPAN - August 2016</h6>
+        <p style="line-height:1"><small>A curated look at August&#39;s new CPAN uploads</small></p>
+    </div>
+      </a>
+  </div>
+  
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/PerlTricks" data-widget-id="618973837762383879">Tweets by @PerlTricks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <script async src="/widgets/toplinks/toplinks.js" type="text/javascript"></script>
+    <div id="toplinks"></div>
+  </div>
+</div>
+
+            <div class="row" style="margin-top:20px">
+  <div class="col-sm-12 centering">
+    <script src="https://www.reddit.com/r/perl/hot/.embed?limit=10&t=all" type="text/javascript"></script>
+  </div>
+</div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+<script>
+ 
+var tables, i;
+tables = document.getElementsByTagName('table');
+for (i=0;i<tables.length;i++) {
+  tables[i].className = 'table table-striped';
+}
+</script>
+<div class="push"></div>
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <h5>Site Map</h5>
+        <ul>
+        <li><a href="/about">About</a></li>
+        <hr>
+        <li><a href="/">Articles</a></li>
+        <hr>
+        <li><a href="/authors">Authors</a></li>
+        <hr>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Us</h5>
+        <p>To get in touch, send an email to: editor@perltricks.com</p>
+        <p>Follow us:&nbsp;
+          <a href="https://twitter.com/intent/follow?screen_name=perltricks">
+              <img src="/images/footer/twitter_20_dark.png" alt="twitter"></a>
+          <a href="/index.xml" /><img src="/images/footer/rss_20_dark.png" alt="rss"></a>
+          <a href="https://github.com/dnmfarrell/perltricks-static/" />
+              <img src="/images/header/github_light_20.png" alt="GH"></a></p>
+          <p>&copy; <span id="year"></span> PerlTricks.com</p>
+      </div>
+      <div class="col-md-7">
+          <h5>Legal</h5>
+          <p>PerlTricks.com and the authors make no representations or warranties with respect to the accuracy or completeness of the contents of all work on this website and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended. The advice and strategies published on this website may not be suitable for every situation. All work on this website is provided with the understanding that PerlTricks.com and the authors are not engaged in rendering legal, accounting, or other professional services. Neither PerlTricks.com nor the authors shall be liable for damages arising herefrom.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/perltricks.css"/>
+<script src="/javascript/jquery.min.js"></script>
+<script src="/javascript/bootstrap.min.js"></script>
+<script src="/javascript/prettify.min.js"></script>
+<script>document.getElementById("year").innerHTML = (new Date()).getFullYear();prettyPrint();</script>
+</body>
+</html>
+

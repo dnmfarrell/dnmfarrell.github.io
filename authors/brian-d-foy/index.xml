@@ -6,8 +6,85 @@
     <description>Recent content in Brian D Foy on Perl programming news, code and culture</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 02 Sep 2016 11:18:55 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 02 Oct 2016 10:51:01 +0000</lastBuildDate>
     <atom:link href="http://perltricks.com/authors/brian-d-foy/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Hacktoberfest is here</title>
+      <link>http://perltricks.com/article/hacktoberfest-is-here/</link>
+      <pubDate>Sun, 02 Oct 2016 10:51:01 +0000</pubDate>
+      
+      <guid>http://perltricks.com/article/hacktoberfest-is-here/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://hacktoberfest.digitalocean.com/&#34;&gt;Hacktoberfest&lt;/a&gt; is here, and you can be part of the effort to make Perl the most popular language in the month long festival of patches and pull requests.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.digitalocean.com/&#34;&gt;DigitalOcean&lt;/a&gt; and &lt;a href=&#34;https://www.github.com/&#34;&gt;GitHub&lt;/a&gt; have teamed up to encourage new users to participate in open source. Make four pull requests to any GitHub project and they&amp;rsquo;ll give you a limited-edition Hacktoberfest t-shirt. It might not sound like much, but consider what you get besides the shirt: you&amp;rsquo;re in the commit logs of four projects and your profile has some history. That&amp;rsquo;s the first step in building your open source résumé.&lt;/p&gt;
+
+&lt;p&gt;The sponsors suggest that projects that want to participate label their issues with &amp;ldquo;Hacktoberfest&amp;rdquo;. That&amp;rsquo;s not strictly necessary, but you can &lt;a href=&#34;https://github.com/search?q=state%3Aopen+label%3Ahacktoberfest&amp;amp;type=Issues&#34;&gt;search&lt;/a&gt; for issues that projects think are suitable for new users. I think all of my projects are suitable (I may be optimistic), so I wanted a way to label all of my issues across all of my projects.&lt;/p&gt;
+
+&lt;p&gt;I found out about this as I was building some other GitHub tools. I looked at &lt;a href=&#34;https://www.metacpan.org/module/Net::GitHub&#34;&gt;Net::GitHub&lt;/a&gt; and &lt;a href=&#34;https://www.metacpan.org/module/Pithub&#34;&gt;Pithub&lt;/a&gt;, but I wanted to iterate through long lists of paged results and process each item as I received them. The &lt;a href=&#34;https://developer.github.com/v3/&#34;&gt;GitHub Developer API&lt;/a&gt; is quite nice and even if you are re-inventing the wheel you&amp;rsquo;re learning about wheels, making this a fun night of work.&lt;/p&gt;
+
+&lt;p&gt;The result is &lt;a href=&#34;https://github.com/briandfoy/ghojo/blob/master/examples/hacktoberfest.pl&#34;&gt;hacktoberfest.pl&lt;/a&gt; in my &lt;a href=&#34;https://github.com/briandfoy/ghojo&#34;&gt;ghojo&lt;/a&gt; repo. It will log in, list all of my repos (there are a couple hundred), create the &amp;ldquo;Hacktoberfest&amp;rdquo; label in each, and then apply the label to each open issue.&lt;/p&gt;
+
+&lt;p&gt;The ghojo project is still very much in its infancy (which means there&amp;rsquo;s all sorts of pull request opportunities). But I allow quite a bit of flexibility by accepting a callback for things I expect to return many items:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use Ghojo;
+
+my $ghojo = Ghojo-&amp;gt;new( { token =&amp;gt; ... } );
+
+my $callback = sub {
+  my $item = shift;
+  ...
+  };
+
+$ghojo-&amp;gt;repos( $repo_callback );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Each time I find a repo—and you don&amp;rsquo;t have to know how I do that—I run that callback. It&amp;rsquo;s a little bit like &lt;a href=&#34;https://www.metacpan.org/module/File::Find&#34;&gt;File::Find&lt;/a&gt;&amp;rsquo;s use of the &lt;code&gt;wanted&lt;/code&gt; coderef. You don&amp;rsquo;t see the very nice API paging going on either; &lt;code&gt;repos&lt;/code&gt; keeps fetching more results as long as there are more results.&lt;/p&gt;
+
+&lt;p&gt;That callback deals with a repo, but each repo has a list of issues. I want to process this list of issues as I run into them. So what I need is a callback to process a repo with a nested callback for the issues:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.24;
+
+use Ghojo;
+
+my $ghojo = Ghojo-&amp;gt;new( { token =&amp;gt; ... } );
+
+my $label_name = &#39;Hacktoberfest&#39;;
+
+my $callback = sub ( $item ) {
+  my( $user, $repo ) = split m{/}, $item-&amp;gt;{full_name};
+
+  my $repo = $ghojo-&amp;gt;get_repo_object( $owner, $repo );
+
+  # get the labels for that repo
+  my %labels = map { $_-&amp;gt;@{ qw(name color) } } $repo-&amp;gt;labels-&amp;gt;@*;
+
+  unless( exists $labels{$label_name} ) {
+    my $rc = $repo-&amp;gt;create_label( $label_name, &#39;ff5500&#39; );
+    say &amp;quot;\tCreated $label_name label&amp;quot; if $rc;
+    }
+
+  my $callback = sub ( $item ) {
+    $repo-&amp;gt;add_labels_to_issue( $item-&amp;gt;{number}, $label_name );
+    return $item;
+    };
+
+  my $issues = $repo-&amp;gt;issues( $callback );
+
+  return $repo;
+  };
+
+
+$ghojo-&amp;gt;repos( $repo_callback );
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Curiously, within a couple of hours of uploading the program, I received my first Hacktoberfest &lt;a href=&#34;https://github.com/briandfoy/ghojo/pull/14&#34;&gt;pull request&lt;/a&gt;. &lt;a href=&#34;https://github.com/haydenty&#34;&gt;haydenty&lt;/a&gt; added the &lt;a href=&#34;https://github.com/briandfoy/ghojo/blob/master/CONTRIBUTING.md&#34;&gt;CONTRIBUTING.md&lt;/a&gt; file to my ghojo repo. It&amp;rsquo;s something I&amp;rsquo;ve been meaning to add to all of my repos. Now I&amp;rsquo;m considering adding an issue to each repo to note that and label each one &amp;ldquo;Hacktoberfest&amp;rdquo;. Or someone who wants to get started with something simple can create the issues for me, or send the pull requests right off.&lt;/p&gt;
+
+&lt;p&gt;If you have lots of repos, label your issues to help push Perl up in &lt;a href=&#34;https://github.com/search?q=state%3Aopen+label%3Ahacktoberfest&amp;amp;type=Issues&#34;&gt;the rankings&lt;/a&gt;. By the time we reach the end of the month, I&amp;rsquo;ll have a program to reverse the labeling.&lt;/p&gt;
+
+&lt;p&gt;Some of this I&amp;rsquo;m doing for fun, and some of this I&amp;rsquo;m doing because some organizations want better GitHub tools. Somehow how October is when all of that is coming together. If you&amp;rsquo;d like me to work on this sort of stuff for you, &lt;a href=&#34;mailto:brian.d.foy@gmail.com&#34;&gt;let me know&lt;/a&gt;! But submit those pull requests first so you get that t-shirt.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>The History of the Schwartzian Transform</title>
@@ -2067,109 +2144,6 @@ p @module_list;
 &lt;h3 id=&#34;final-thoughts:8518d03148399efeae5968329e94e564&#34;&gt;Final thoughts&lt;/h3&gt;
 
 &lt;p&gt;Our advice is simple. Find something that you want to spend time working on, get advice before you start, and plan on doing most of the work yourself. Once you get going, settle in for the long term. You don&amp;rsquo;t need anyone&amp;rsquo;s permission for any of this.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Controlling Firefox from Perl</title>
-      <link>http://perltricks.com/article/138/2014/12/8/Controlling-Firefox-from-Perl/</link>
-      <pubDate>Mon, 08 Dec 2014 14:13:27 +0000</pubDate>
-      
-      <guid>http://perltricks.com/article/138/2014/12/8/Controlling-Firefox-from-Perl/</guid>
-      <description>
-
-&lt;p&gt;I&amp;rsquo;ve been playing with &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize::Firefox&#34;&gt;WWW::Mechanize::Firefox&lt;/a&gt;. It&amp;rsquo;s like the LWP-backended &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize&#34;&gt;WWW::Mechanize&lt;/a&gt;, but with a browser doing all the work. Instead of doing it all in Perl, I can use it as the glue language that it is.&lt;/p&gt;
-
-&lt;p&gt;Sometimes &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize&#34;&gt;WWW::Mechanize&lt;/a&gt;, &lt;a href=&#34;http://www.metacpan.org/module/LWP::UserAgent&#34;&gt;LWP::UserAgent&lt;/a&gt;, or &lt;a href=&#34;http://www.metacpan.org/module/Mojo::UserAgent&#34;&gt;Mojo::UserAgent&lt;/a&gt; aren&amp;rsquo;t enough. For basic web scraping and automation they work well, but fail miserably for anything that requires JavaScript. Some people have luck with SpiderMonkey (&lt;a href=&#34;https://metacpan.org/search?q=spidermonkey&amp;amp;&#34;&gt;with several Perl interfaces&lt;/a&gt;), but that still isn&amp;rsquo;t the whole browser environment.&lt;/p&gt;
-
-&lt;p&gt;Before you start, you need the &lt;a href=&#34;https://www.mozilla.org&#34;&gt;Firefox&lt;/a&gt; browser (or one of its forks) with the &lt;a href=&#34;https://addons.mozilla.org/en-us/firefox/addon/mozrepl/&#34;&gt;MozRepl&lt;/a&gt; add-on, which provides an interactive JavaScript console that you can telnet into. Once activated, you can connect to the console and can control the browser.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://farm8.staticflickr.com/7503/15324164413_0a43aeb932.jpg&#34; title=&#34;activate_mozrepl by brian d foy, on Flickr&#34;&gt;&lt;img src=&#34;https://farm8.staticflickr.com/7503/15324164413_0a43aeb932.jpg&#34; alt=&#34;activate\_mozrepl&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;I have to know JavaScript to control Firefox directly. I can telnet into the MozRepl server and issue commands. It&amp;rsquo;s a bit more work than I&amp;rsquo;d like to do.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://farm9.staticflickr.com/8680/15941835341_f064e9e2a3.jpg&#34; title=&#34;mozrepl_telnet by brian d foy, on Flickr&#34;&gt;&lt;img src=&#34;https://farm9.staticflickr.com/8680/15941835341_f064e9e2a3.jpg&#34; alt=&#34;mozrepl\_telnet&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;I&amp;rsquo;m not going to control Firefox directly, though, because I&amp;rsquo;m going to let some Perl modules do that for me. The basic interface of &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize::Firefox&#34;&gt;WWW::Mechanize::Firefox&lt;/a&gt; is the same as &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize&#34;&gt;WWW::Mechanize&lt;/a&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;#!/usr/local/perls/perl-5.20.0/bin/perl
-use v5.10;
-use WWW::Mechanize::Firefox;
-
-my $mech = WWW::Mechanize::Firefox-&amp;gt;new;
-$mech-&amp;gt;autoclose_tab( 0 );
-
-$mech-&amp;gt;get( &#39;http://www.perltricks.com&#39; );
-
-foreach my $link ( $mech-&amp;gt;links ) {
-    state $count = 0;
-    say $count++, &amp;quot;: &amp;quot;, $link-&amp;gt;url;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;I get a list of the links on the PerlTricks main page:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;0: http://perltricks.com/favicon.ico
-1: http://perltricks.com/feed/atom
-2: http://perltricks.com/feed/rss
-3: http://perltricks.com/css/bootstrap.min.css
-4: http://perltricks.com/css/carousel.css
-5: http://perltricks.com/css/perltricks.css
-6: https://twitter.com/intent/follow?screen_name=perltricks
-7: http://perltricks.com/feed/rss
-...
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;That&amp;rsquo;s not even the good part yet.&lt;/p&gt;
-
-&lt;h3 id=&#34;executing-javascript:b571cb2b36a22a2464e2b146c6144eec&#34;&gt;Executing JavaScript&lt;/h3&gt;
-
-&lt;p&gt;Since I&amp;rsquo;m connected to a JavaScript terminal, I can evaluate JavaScript code. The &lt;code&gt;eval&lt;/code&gt; returns the result and its type:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
-use WWW::Mechanize::Firefox;
-
-my $mech = WWW::Mechanize::Firefox-&amp;gt;new;
-$mech-&amp;gt;autoclose_tab( 0 );
-
-my( $result, $type ) = $mech-&amp;gt;eval( &#39;2+2&#39; );
-
-say &amp;quot;2+2 is $result (type $type)&amp;quot;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code&gt;2+2 is 4 (type number)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;That evaluates the JavaScript in its own context, which isn&amp;rsquo;t that interesting for me. I want to interact and control parts of a web page. To do that, I use the &lt;code&gt;eval_in_page&lt;/code&gt;. That runs the JavaScript with everything else going on in the current tab, including all the JavaScript code it has loaded. Here&amp;rsquo;s an example that uses the StackExchange JavaScript to change the view from the desktop mode to the mobile mode:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-prettyprint&#34;&gt;use v5.10;
-use WWW::Mechanize::Firefox;
-
-my $mech = WWW::Mechanize::Firefox-&amp;gt;new;
-$mech-&amp;gt;autoclose_tab( 0 );
-
-$mech-&amp;gt;get( &#39;http://www.stackoverflow.com/&#39; );
-sleep 5;
-$mech-&amp;gt;eval_in_page( &#39;StackExchange.switchMobile(&amp;quot;on&amp;quot;)&#39; );
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;When I run this, the screen changes from the full site to the mobile site.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://farm9.staticflickr.com/8640/15943126852_07692bfc09.jpg&#34; title=&#34;screenshots by brian d foy, on Flickr&#34;&gt;&lt;img src=&#34;https://farm9.staticflickr.com/8640/15943126852_07692bfc09.jpg&#34; alt=&#34;screenshots&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;h3 id=&#34;some-problems:b571cb2b36a22a2464e2b146c6144eec&#34;&gt;Some problems&lt;/h3&gt;
-
-&lt;p&gt;This approach has some problem though, almost none of which come from Perl. If I want to automate something that makes many requests or runs for a long time, Firefox is likely to have problems. Over time, &lt;a href=&#34;https://support.mozilla.org/en-US/kb/firefox-uses-too-much-memory-ram&#34;&gt;it&amp;rsquo;s memory footprint grows&lt;/a&gt;, leading to poor performance and crashes. Sometimes the connection to the console breaks, taking down my program with it.&lt;/p&gt;
-
-&lt;p&gt;Because of this, I limit my use of &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize::Firefox&#34;&gt;WWW::Mechanize::Firefox&lt;/a&gt; to the parts of my problem that require JavaScript. I can extract the information I need then use &lt;a href=&#34;http://www.metacpan.org/module/Mojo::UserAgent&#34;&gt;Mojo::UserAgent&lt;/a&gt; to handle the other parts.&lt;/p&gt;
-
-&lt;h3 id=&#34;similar-solutions:b571cb2b36a22a2464e2b146c6144eec&#34;&gt;Similar solutions&lt;/h3&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://www.metacpan.org/module/WWW::Mechanize::Firefox&#34;&gt;WWW::Mechanize::Firefox&lt;/a&gt; isn&amp;rsquo;t the only way to do this sort of thing. &lt;a href=&#34;http://blogs.perl.org/users/robhammond/2013/02/web-scraping-with-perl-phantomjs.html&#34;&gt;Rob Hammond posted on blogs.perl.org about PhantomJS&lt;/a&gt;, which received some comments about &lt;a href=&#34;http://www.metacpan.org/module/WWW::WebKit&#34;&gt;WWW::WebKit&lt;/a&gt;. There used to be a Win32::IE::Mechanize, but apparently it &lt;a href=&#34;http://www.perlmonks.org/?node_id=1061372&#34;&gt;doesn&amp;rsquo;t work in IE 8&lt;/a&gt;. &lt;a href=&#34;http://www.seleniumhq.org&#34;&gt;Selenium&lt;/a&gt; and &lt;a href=&#34;http://www.metacpan.org/module/Test::WWW::Selenium&#34;&gt;Test::WWW::Selenium&lt;/a&gt; is another tool that I could use, but that&amp;rsquo;s more geared to browser acceptance testing and replays.&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;Join the discussion on the Perl &lt;a href=&#34;http://www.reddit.com/r/perl/comments/2onaz4/controlling_firefox_from_perl_by_brian_d_foy/&#34;&gt;subreddit&lt;/a&gt; about this article!&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Update:&lt;/strong&gt; &lt;em&gt;last paragraph updated to include Selenium reference. 2014-12-09&lt;/em&gt;&lt;/p&gt;
 </description>
     </item>
     
