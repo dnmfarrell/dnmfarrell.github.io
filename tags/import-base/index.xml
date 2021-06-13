@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>import-base on Code Matters - a tech blog</title>
+    <link>https://blog.dnmfarrell.com/tags/import-base/</link>
+    <description>Recent content in import-base on Code Matters - a tech blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 30 Nov 2016 08:47:58 +0000</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/import-base/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>How To Build A Base Module</title>
+      <link>https://blog.dnmfarrell.com/post/how-to-build-a-base-module/</link>
+      <pubDate>Wed, 30 Nov 2016 08:47:58 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/how-to-build-a-base-module/</guid>
+      <description>When working on large Perl projects, a base module is a nice way to setup a standard set of imported routines for the other modules in the project. With a base module you can configure a logger, turn on pragmas and import any other useful routines. Instead of typing:
+use warnings; use strict; use Data::Dumper &amp;#39;Dumper&amp;#39;; use Log::Log4perl &amp;#39;get_logger&amp;#39;; ... and so on, you can type:
+use MyBase; This saves typing all those boilerplate use statements at the top of every module in the project, and it establishes a consistent base so that all modules all start by operating under the same pragmas and so on.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Inspecting Catalyst</title>
+  <meta name="description" content="What Routes Does Your Catalyst App Respond To?" />
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="16x16">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="32x32">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="96x96"> 
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>Inspecting Catalyst</h2>
+
+<em>November 11, 2019</em>
+
+<p>One of the convenient things about <a href="https://metacpan.org/pod/Catalyst">Catalyst</a> is it lets you register controller methods as actions, so you don&rsquo;t need a separate routing table of URIs to controller methods. A consequence of this though, is that when the web app gets large enough it can be tricky to keep track of all the different paths the app is responding to.</p>
+<p>Catalyst&rsquo;s <a href="https://metacpan.org/pod/Catalyst::DispatchType::Chained">chained dispatch</a> promotes code reuse, but exacerbates the issue by obfuscating route matching. Catalyst also permits declaring controller methods which match an unlimited number of paths after a prefix; another recipe for unpredictablity.</p>
+<p>Take a look at the MetaCPAN <a href="https://github.com/metacpan/metacpan-web">source code</a>. Can you tell all of the routes it responds to?</p>
+<p>As far as I know, the only way is to launch the app in debug mode and Catalyst will print a list of all the controller actions and their URIs. I suppose you could try parsing that output, but that feels like a hack. If we&rsquo;re programming a web app, surely we should be able to programmatically retrieve all the routes <em>we&rsquo;ve</em> created, without having to launch the app.</p>
+<h2 id="catalystpluginactionpaths">Catalyst::Plugin::ActionPaths</h2>
+<p>With that straw man sufficiently propped up, allow me to introduce <a href="https://metacpan.org/pod/Catalyst::Plugin::ActionPaths">Catalyst::Plugin::ActionPaths</a>. I wrote it a while ago to sanity-check Catalyst routes.</p>
+<p>The plugin adds the <code>get_action_paths</code> method to the Catalyst context object. The method returns an arrayref of the application&rsquo;s <a href="https://metacpan.org/pod/Catalyst::Action">Catalyst::Action</a> objects. The way Catalyst&rsquo;s routing works is it loops through every action object until it finds one that matches the request, or returns in failure.</p>
+<p>To use the ActionPaths plugin on the MetaCPAN app I forked and cloned the <a href="https://github.com/dnmfarrell/metacpan-web/commit/08d9a4929887c6bfb39271378415f6190a1a010a">repo</a>, and added the ActionPaths plugin to the application <a href="https://github.com/dnmfarrell/metacpan-web/commit/08d9a4929887c6bfb39271378415f6190a1a010a">class</a>.</p>
+<p>After installing <a href="https://metacpan.org/pod/Carton">Carton</a> from the root project directory I ran:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ carton install
+</code></pre></div><p>Which installed of the applications dependencies into the <code>./local</code> directory. This is a nice way to avoid clobbering your system or user-installed modules with the application&rsquo;s dependencies.</p>
+<p>I also had to install the libxml2-dev and node-less Ubuntu packages to provide all of the app&rsquo;s dependencies.</p>
+<p>Finally I wrote this <a href="https://github.com/dnmfarrell/metacpan-web/commit/d17066f41945692a960ba80ed1865f22286efb78">script</a>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="ch">#!/usr/bin/env perl</span>
+<span class="k">use</span> <span class="nn">v5</span><span class="mf">.16</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Cwd</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">File::Basename</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">File::Spec</span><span class="p">;</span>
+
+<span class="k">my</span> <span class="nv">$root_dir</span><span class="p">;</span>
+<span class="k">BEGIN</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="nv">$bin_dir</span> <span class="o">=</span> <span class="nn">File::Basename::</span><span class="n">dirname</span><span class="p">(</span><span class="n">__FILE__</span><span class="p">);</span>
+  <span class="nv">$root_dir</span> <span class="o">=</span> <span class="nn">Cwd::</span><span class="n">abs_path</span><span class="p">(</span><span class="nn">File::Spec</span><span class="o">-&gt;</span><span class="n">catdir</span><span class="p">(</span><span class="nv">$bin_dir</span><span class="p">,</span> <span class="nn">File::Spec</span><span class="o">-&gt;</span><span class="n">updir</span><span class="p">));</span>
+<span class="p">}</span>
+<span class="k">use</span> <span class="nn">lib</span> <span class="s">&#34;$root_dir/local/lib/perl5&#34;</span><span class="p">;</span> <span class="c1"># carton installed deps</span>
+<span class="k">use</span> <span class="nn">lib</span> <span class="s">&#34;$root_dir/lib&#34;</span><span class="p">;</span>             <span class="c1"># root application dir</span>
+<span class="k">use</span> <span class="nn">Catalyst::Test</span> <span class="s">&#39;MetaCPAN::Web&#39;</span><span class="p">;</span>
+
+<span class="k">my</span><span class="p">(</span><span class="nv">$res</span><span class="p">,</span> <span class="nv">$c</span><span class="p">)</span> <span class="o">=</span> <span class="n">ctx_request</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">);</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="nv">@</span><span class="p">{</span><span class="nv">$c</span><span class="o">-&gt;</span><span class="n">get_action_paths</span><span class="p">})</span> <span class="p">{</span>
+  <span class="n">say</span> <span class="nb">join</span> <span class="s">&#34;\t&#34;</span><span class="p">,</span> <span class="nv">$_</span><span class="o">-&gt;</span><span class="p">{</span><span class="n">class</span><span class="p">},</span> <span class="nv">$_</span><span class="o">-&gt;</span><span class="p">{</span><span class="n">name</span><span class="p">},</span> <span class="nv">$_</span><span class="o">-&gt;</span><span class="p">{</span><span class="n">path</span><span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div><p>It begins by figuring out the root application directory, and adding the paths to the local Carton-installed and the MetaCPAN project modules (it uses <a href="https://metacpan.org/pod/lib">lib</a> to catch architecture specific nested paths).</p>
+<p>It uses <a href="https://metacpan.org/pod/Catalyst::Test">Catalyst::Test</a> to load the MetaCPAN::Web application. Catalyst::Test exports the <code>ctx_request</code> method, which returns the Catalyst context object <code>$c</code>. From there I can call <code>get_action_paths</code> and print out all the routes served by MetaCPAN.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ bin/dump-catalyst-paths
+MetaCPAN::Web::Controller::Root   index           /
+MetaCPAN::Web::Controller::Root   default         /...
+MetaCPAN::Web::Controller::About  about           /about/
+MetaCPAN::Web::Controller::About  contact         /about/contact/
+MetaCPAN::Web::Controller::About  contributors    /about/contributors/
+MetaCPAN::Web::Controller::About  development     /about/development/
+MetaCPAN::Web::Controller::About  faq             /about/faq/
+MetaCPAN::Web::Controller::About  meta_hack       /about/meta_hack/
+MetaCPAN::Web::Controller::About  metadata        /about/metadata/
+MetaCPAN::Web::Controller::About  missing_modules /about/missing_modules/
+MetaCPAN::Web::Controller::About  resources       /about/resources/
+MetaCPAN::Web::Controller::About  sponsors        /about/sponsors/
+MetaCPAN::Web::Controller::About  stats           /about/stats/
+MetaCPAN::Web::Controller::Author index           /author/*
+<span class="c1"># output truncated</span>
+</code></pre></div><p>An asterisk in the path is a placeholder. An ellipses means the path accepts unlimited(!) placeholders.</p>
+<p>In this case I&rsquo;m just printing the controller methods and URIs they match, but you could implement all kinds of checks on the Catalyst::Action objects to detect violations of agreed upon development best practices.</p>
+<h2 id="a-better-way">A better way</h2>
+<p>The solution above works, but it feels a bit gross. I&rsquo;ve added a plugin to the Catalyst app which the app doesn&rsquo;t actually use. The script fakes a request to the app <em>just</em> to get <code>$c</code>. I&rsquo;m using a test module but running no tests. Surely there is a better way.</p>
+<p>Typically, Catalyst applications call the <code>setup</code> method in the application module (for MetaCPAN that&rsquo;s <a href="https://github.com/dnmfarrell/metacpan-web/blob/7866904ca299701bfa850c10a9e0456f73109bc4/lib/MetaCPAN/Web.pm">MetaCPAN::Web</a>). The <code>setup</code> method bootstraps the web application, doing things like configuring directories, initializing the logger, loading plugins and building the request dispatcher. These are stored in the application package which is a singleton.</p>
+<p><code>Catalyst::Plugin::ActionPaths::get_action_paths</code> uses the Catalyst context to get the dispatcher object, which is all it needs to extract the paths from the Catalyst app. So instead of using <code>request_ctx</code> to get the context to get the dispatcher, I can just stand up the application myself and pluck the dispatcher out of the application package:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">require</span> <span class="nn">MetaCPAN::Web</span><span class="p">;</span> <span class="c1"># calls setup()</span>
+<span class="k">my</span> <span class="nv">$dispatcher</span> <span class="o">=</span> <span class="nn">MetaCPAN::Web</span><span class="o">-&gt;</span><span class="n">dispatcher</span><span class="p">;</span>
+</code></pre></div><p>Now if I re-write the <code>get_action_paths</code> method to just use the dispatcher object directly, I can extract all the paths from the app without using <code>request_ctx</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">my</span> <span class="nv">$actions</span> <span class="o">=</span> <span class="n">get_action_paths</span><span class="p">(</span><span class="nv">$dispatcher</span><span class="p">);</span>
+<span class="k">for</span> <span class="p">(</span><span class="nv">@</span><span class="p">{</span><span class="nv">$actions</span><span class="p">})</span> <span class="p">{</span>
+  <span class="n">say</span> <span class="nb">join</span> <span class="s">&#34;\t&#34;</span><span class="p">,</span> <span class="nv">$_</span><span class="o">-&gt;</span><span class="p">{</span><span class="n">class</span><span class="p">},</span> <span class="nv">$_</span><span class="o">-&gt;</span><span class="p">{</span><span class="n">name</span><span class="p">},</span> <span class="nv">$_</span><span class="o">-&gt;</span><span class="p">{</span><span class="n">path</span><span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div><p>This works. Of course if I can dynamically load the MetaCPAN app and extract its routes, then I can do that for any Catalyst app. That&rsquo;s what <a href="https://gist.github.com/dnmfarrell/cad2c6f6395850cb1ceca48b3ba05b7c">dump-catalyst-paths</a> does. To dump a Catalyst app&rsquo;s routes just provide the package name and any additional paths to include:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ./dump-catalyst-routes MetaCPAN::Web lib local/lib/perl5
+</code></pre></div><h2 id="postscript">Postscript</h2>
+<p>We&rsquo;re just a couple of months past the 10th anniversary of the publication of <a href="https://www.apress.com/gp/book/9781430223658">Catalyst: The Definitive Guide</a>. Two of our core applications at work are Catalyst apps. As one of Perl&rsquo;s premier MVC apps, it&rsquo;s remarkable how resilient it&rsquo;s been. That&rsquo;s a testament to the implementation (which got a lot of things right) and more recently the work done by its maintainer <a href="https://metacpan.org/author/JJNAPIORK">John Napiorkowski</a>. Thanks John!</p>
+<p>If you&rsquo;re considering web application programming with Perl, the <a href="https://metacpan.org/pod/Dancer2">Dancer2</a>, <a href="https://metacpan.org/pod/Mojolicious">Mojolicious</a> and <a href="https://metacpan.org/pod/Kelp">Kelp</a> frameworks are modern alternatives to Catalyst.</p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/catalyst/>catalyst</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/metacpan/>metacpan</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/perl/>perl</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+  <ul>
+    
+  </ul>
+ </footer>
+
+  </body>
+</html>

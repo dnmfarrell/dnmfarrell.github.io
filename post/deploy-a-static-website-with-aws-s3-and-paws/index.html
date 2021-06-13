@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Deploy a Static Website With AWS S3 And Paws</title>
+  <meta name="description" content="Paws is a comprehensive Perl distribution for AWS services" />
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="16x16">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="32x32">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="96x96"> 
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>Deploy a Static Website With AWS S3 And Paws</h2>
+
+<em>February 21, 2017</em>
+
+<p>Amazon Web Services (AWS) is Amazon&rsquo;s cloud services platform and S3 is the AWS file storage service. S3 is commonly used to host static websites. With Perl we have many modules for using AWS, but I like <a href="https://metacpan.org/pod/Paws">Paws</a>, developed by <a href="https://metacpan.org/author/JLMARTIN">Jose Luis Martinez</a> which supports many AWS services, including S3. In this article I&rsquo;ll walk you through a Perl script I developed to upload and maintain a static website using S3 and Paws.</p>
+<h3 id="aws-setup">AWS setup</h3>
+<p>To use AWS from the command line you&rsquo;ll need a to generate a key id and secret key for your account which you can get from the <a href="https://aws.amazon.com/">AWS website</a>. Once you login with your Amazon credentials, click on your account name and go to &ldquo;My Security Credentials&rdquo;. Once you have a key id and secret key, you need to create the credentials files as used by <a href="http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html">awscli</a>. You can either install awscli and run <code>aws configure</code>, else create:</p>
+<pre><code>~/.aws/default:
+[default]
+output = JSON
+region = us-east
+
+~/.aws/config:
+[default]
+aws_access_key_id = XXXXXXXXXXXX
+aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+</code></pre><p>Change the region value to the <a href="http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html">AWS region</a> you want to use, and replace the &ldquo;XXX&rdquo; values with your own key id and secret key values. These files are stored in a different <a href="http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#config-settings-and-precedence">location</a> on Windows.</p>
+<h3 id="create-an-s3-bucket">Create an S3 bucket</h3>
+<p>S3 organizes files by bucket. Every bucket has URI-like name, which is unique across AWS. So if you&rsquo;re going to host a website on S3, you&rsquo;ll need to create a bucket for the website. This can be done via the AWS <a href="https://aws.amazon.com/">web interface</a>, the command-line <a href="http://docs.aws.amazon.com/cli/latest/reference/s3/mb.html">app</a> or with Paws:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">use</span> <span class="nn">Paws</span><span class="p">;</span>
+<span class="k">my</span> <span class="nv">$s3</span> <span class="o">=</span> <span class="nn">Paws</span><span class="o">-&gt;</span><span class="n">service</span><span class="p">(</span><span class="s">&#39;S3&#39;</span><span class="p">,</span> <span class="n">region</span> <span class="o">=&gt;</span> <span class="s">&#39;us-east-1&#39;</span><span class="p">);</span>
+<span class="nv">$s3</span><span class="o">-&gt;</span><span class="n">CreateBucket</span><span class="p">(</span><span class="n">Bucket</span> <span class="o">=&gt;</span> <span class="s">&#39;mystaticwebsite.com&#39;</span><span class="p">,</span> <span class="n">ACL</span> <span class="o">=&gt;</span> <span class="s">&#39;public-read&#39;</span><span class="p">);</span>
+</code></pre></div><p>The <code>ACL</code> argument specifies that the bucket can be read publicly, but not edited, which makes sense for website files. At some point, you&rsquo;ll need to enable the &ldquo;static web hosting&rdquo; <a href="https://console.aws.amazon.com/s3/buckets/">option</a> for the bucket, but that&rsquo;s not necessary to upload files to it.</p>
+<h3 id="upload-files-to-s3">Upload files to S3</h3>
+<p>S3 files are stored as objects in buckets. Every file has a key, which is similar to the filename. I&rsquo;ve developed a <a href="https://github.com/dnmfarrell/Paws-tools/blob/master/s3-upload">script</a> called <code>s3-upload</code> which uses Paws to upload files to S3 buckets. It uses <a href="https://metacpan.org/pod/Getopt::Long">Getopt::Long</a> to parse command line options. It requires <code>--bucket</code> for the S3 bucket name, <code>--region</code> for the AWS region, and <code>--files</code> for the directory filepath:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="ch">#!/usr/bin/env perl</span>
+<span class="k">use</span> <span class="nn">Getopt::Long</span> <span class="s">&#39;GetOptions&#39;</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Paws</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Path::Tiny</span> <span class="s">&#39;path&#39;</span><span class="p">;</span>
+
+<span class="n">GetOptions</span><span class="p">(</span>
+  <span class="s">&#39;bucket=s&#39;</span>     <span class="o">=&gt;</span> <span class="o">\</span><span class="k">my</span> <span class="nv">$BUCKET</span><span class="p">,</span>
+  <span class="s">&#39;files=s&#39;</span>      <span class="o">=&gt;</span> <span class="o">\</span><span class="k">my</span> <span class="nv">$BASEPATH</span><span class="p">,</span>
+  <span class="s">&#39;region=s&#39;</span>     <span class="o">=&gt;</span> <span class="o">\</span><span class="k">my</span> <span class="nv">$REGION</span><span class="p">,</span>
+  <span class="s">&#39;delete-stale&#39;</span> <span class="o">=&gt;</span> <span class="o">\</span><span class="k">my</span> <span class="nv">$DELETE_STALE</span><span class="p">,</span>
+<span class="p">)</span> <span class="ow">or</span> <span class="nb">die</span> <span class="s">&#39;unrecognized arguments&#39;</span><span class="p">;</span>
+
+<span class="nb">die</span> <span class="s">&#39;must provide --bucket --region --files&#39;</span>
+  <span class="k">unless</span> <span class="nv">$BUCKET</span> <span class="o">&amp;&amp;</span> <span class="nv">$REGION</span> <span class="o">&amp;&amp;</span> <span class="nv">$BASEPATH</span><span class="p">;</span>
+
+<span class="nb">die</span> <span class="s">&#34;directory $BASEPATH not found&#34;</span> <span class="k">unless</span> <span class="o">-</span><span class="n">d</span> <span class="nv">$BASEPATH</span><span class="p">;</span>
+
+<span class="k">my</span> <span class="nv">$s3</span>             <span class="o">=</span> <span class="nn">Paws</span><span class="o">-&gt;</span><span class="n">service</span><span class="p">(</span><span class="s">&#39;S3&#39;</span><span class="p">,</span> <span class="n">region</span> <span class="o">=&gt;</span> <span class="nv">$REGION</span><span class="p">);</span>
+<span class="k">my</span> <span class="nv">$remote_objects</span> <span class="o">=</span> <span class="n">get_remote_objects</span><span class="p">(</span><span class="nv">$s3</span><span class="p">);</span>
+<span class="k">my</span> <span class="nv">$local_objects</span>  <span class="o">=</span> <span class="n">upload</span><span class="p">(</span><span class="nv">$s3</span><span class="p">,</span> <span class="nv">$remote_objects</span><span class="p">);</span>
+
+<span class="n">delete_stale_objects</span><span class="p">(</span><span class="nv">$s3</span><span class="p">,</span> <span class="nv">$remote_objects</span><span class="p">,</span> <span class="nv">$local_objects</span><span class="p">)</span> <span class="k">if</span> <span class="nv">$DELETE_STALE</span><span class="p">;</span>
+</code></pre></div><p>I&rsquo;ve omitted the subroutine definitions for brevity (see the <a href="https://github.com/dnmfarrell/Paws-tools/blob/master/s3-upload">source</a> for details). The script begins by validating the input options, then creates an <code>$s3</code> object. It calls <code>get_remote_objects</code> which returns a hashref of keys (files) and their last modified time currently in the bucket. It passes this to <code>upload</code> which only uploads files that have been modified since being uploaded to S3 (you don&rsquo;t want to upload the entire website if only one file has changed). <code>upload</code> does many things, but essentially, it uses <a href="https://metacpan.org/pod/Paws::S3::PutObject">PutObject</a> to upload files:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">sub</span> <span class="nf">upload</span> <span class="p">{</span>
+  <span class="o">...</span>
+  <span class="nv">$s3</span><span class="o">-&gt;</span><span class="n">PutObject</span><span class="p">(</span>
+    <span class="n">Bucket</span>  <span class="o">=&gt;</span> <span class="nv">$BUCKET</span><span class="p">,</span>
+    <span class="n">Key</span>     <span class="o">=&gt;</span> <span class="nv">$key</span><span class="p">,</span>
+    <span class="n">ACL</span>     <span class="o">=&gt;</span> <span class="s">&#39;public-read&#39;</span><span class="p">,</span>
+    <span class="n">Body</span>    <span class="o">=&gt;</span> <span class="nv">$path</span><span class="o">-&gt;</span><span class="n">slurp_raw</span><span class="p">,</span>
+  <span class="p">);</span>
+  <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></div><p>Here <code>Key</code> is the filename and <code>Body</code> the raw bytes of the file. The <code>upload</code> subroutine also returns a hashref of local keys and their last modified time. Optionally, the script can call <code>delete_stale_objects</code> which deletes files from S3 which do not exist in the local tree.</p>
+<p>The script can be run like this:</p>
+<pre><code>$ ./s3-upload --bucket mystaticwebsite.com --region us-east-1 --files mywebsite/static --delete-stale
+static/index.html
+static/about.html
+static/news.html
+static/products.html
+static/css/styles.css
+</code></pre><p>The script will print any files uploaded to STDOUT and all other output to STDERR. The intention is to make it possible to pipe the filenames uploaded to other programs. A useful one might be a Cloudfront script which invalidates the cache for any files uploaded.</p>
+<h3 id="more-features">More features</h3>
+<p>Whilst the above script does the job, there are some features missing that are useful for static websites. Firstly, you might want to specify the MIME type of the files being uploaded. This is so when browsers fetch the files, S3 responds with the correct content type <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type">header</a>. Otherwise, HTML files may not be displayed as websites, images may be downloaded instead of displayed, and so on. I use <a href="https://metacpan.org/pod/Media::Type::Simple">Media::Type::Simple</a> for this:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">use</span> <span class="nn">Media::Type::Simple</span><span class="p">;</span>
+<span class="o">...</span>
+<span class="c1"># setup mime types, add missing</span>
+<span class="nb">open</span> <span class="k">my</span> <span class="nv">$mime_types</span><span class="p">,</span> <span class="s">&#39;&lt;&#39;</span><span class="p">,</span> <span class="nv">$MIME_TYPES</span> <span class="ow">or</span> <span class="nb">die</span> <span class="s">&#34;Can&#39;t find $MIME_TYPES $!&#34;</span><span class="p">;</span>
+<span class="k">my</span> <span class="nv">$media</span> <span class="o">=</span> <span class="nn">Media::Type::Simple</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span><span class="nv">$mime_types</span><span class="p">);</span>
+<span class="nv">$media</span><span class="o">-&gt;</span><span class="n">add_type</span><span class="p">(</span><span class="s">&#39;application/font-woff2&#39;</span><span class="p">,</span> <span class="s">&#39;woff2&#39;</span><span class="p">);</span>
+<span class="o">...</span>
+<span class="k">my</span> <span class="nv">@ext</span>  <span class="o">=</span> <span class="nv">$path</span> <span class="o">=~</span><span class="sr"> /\.(\w+)$/</span><span class="p">;</span>
+<span class="k">my</span> <span class="nv">$mime</span> <span class="o">=</span> <span class="nb">eval</span> <span class="p">{</span> <span class="nv">@ext</span> <span class="p">?</span> <span class="nv">$media</span><span class="o">-&gt;</span><span class="n">type_from_ext</span><span class="p">(</span><span class="nv">$ext</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">:</span> <span class="nb">undef</span> <span class="p">};</span>
+<span class="k">print</span> <span class="bp">STDERR</span> <span class="vg">$@</span> <span class="k">if</span> <span class="vg">$@</span><span class="p">;</span>
+</code></pre></div><p>I&rsquo;ve uploaded a copy of <code>mime.types</code> to the <a href="https://github.com/dnmfarrell/Paws-tools/blob/master/mime.types">repo</a>, and added a <code>--mime-types</code> option for the filepath to a mime.types file (defaulting to <code>/etc/mime.types</code>). Also not all media types are defined, so the code adds a custom definition for <code>woff2</code>. The mime type is passed to <code>PutObject</code> when a file is uploaded.</p>
+<p>Other useful options supported by the script:</p>
+<ul>
+<li><code>--strip</code>- it seems cleaner to visit: <code>/home</code> than <code>/home.html</code>. The <code>--strip</code> option can be used to specify any extensions to strip from filenames</li>
+<li><code>--max-age</code> - set a cache control header to have browsers cache files instead of downloading them on every page</li>
+<li><code>--force</code> - override the default behavior and upload all files, regardless of whether they already exist in the S3 bucket</li>
+</ul>
+<p>These options can be used like this:</p>
+<pre><code>$ ./s3-upload --bucket mystaticwebsite.com --region us-east-1 --files mywebsite/static --delete-stale --mime-types mime.types --strip html --max-age 31536000 --force
+static/index.html
+static/about.html
+static/news.html
+static/products.html
+static/css/styles.css
+</code></pre><p>The script <a href="https://github.com/dnmfarrell/Paws-tools/blob/master/s3-upload">source</a> is on GitHub. If you need help configuring a static website for AWS, Amazon have provided a good <a href="http://docs.aws.amazon.com/gettingstarted/latest/swh/website-hosting-intro.html">guide</a>.</p>
+<p><br>
+<em>This article was originally posted on <a href="http://perltricks.com">PerlTricks.com</a>.</em></p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/aws/>aws</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/paws/>paws</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/s3/>s3</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/static-website/>static-website</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/perl/>perl</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+  <ul>
+    
+  </ul>
+ </footer>
+
+  </body>
+</html>

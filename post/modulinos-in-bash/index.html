@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Modulinos In Bash</title>
+  <meta name="description" content="How to make a shell script behave like a library" />
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="16x16">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="32x32">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="96x96"> 
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>Modulinos In Bash</h2>
+
+<em>June 12, 2021</em>
+
+<p>A modulino is a file which behaves like a library when it is imported, and like a script when executed. I first read about them in <a href="https://www.oreilly.com/library/view/mastering-perl-2nd/9781449364946/">Mastering Perl</a>, but you can create them in other languages too. Here&rsquo;s how to do it in Bash.</p>
+<p>Let&rsquo;s say you have a simple script:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#!/bin/bash
+</span><span class="cp"></span>
+<span class="nb">echo</span> <span class="s2">&#34;Hello, World!&#34;</span>
+</code></pre></div><p>A common refactor with scripts is to encapsulate all the code behavior in functions. As this script only does one thing, it&rsquo;s a small change:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#!/bin/bash
+</span><span class="cp"></span>
+<span class="k">function</span> hello <span class="o">{</span>
+  <span class="nb">echo</span> <span class="s2">&#34;Hello, World!&#34;</span>
+<span class="o">}</span>
+hello
+</code></pre></div><p>Now instead of printing &ldquo;Hello, World!&rdquo;, I can make it greet whatever name it is given instead.</p>
+<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#!/bin/bash
+</span><span class="cp"></span>
+<span class="k">function</span> hello <span class="o">{</span>
+  <span class="k">if</span> <span class="o">[[</span> -n <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">]]</span><span class="p">;</span><span class="k">then</span>
+    <span class="nv">name</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span>
+  <span class="k">else</span>
+    <span class="nv">name</span><span class="o">=</span><span class="s2">&#34;World!&#34;</span>
+  <span class="k">fi</span>
+  <span class="nb">echo</span> <span class="s2">&#34;Hello, </span><span class="nv">$name</span><span class="s2">!&#34;</span>
+<span class="o">}</span>
+hello <span class="s2">&#34;</span><span class="nv">$@</span><span class="s2">&#34;</span>
+</code></pre></div><p>The line <code>hello &quot;$@&quot;</code> calls the hello function, passing any command line arguments the script received. To make this script behave like a library, I just add a condition to the <code>hello</code> function call:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#!/bin/bash
+</span><span class="cp"></span>
+<span class="k">function</span> hello <span class="o">{</span>
+  <span class="k">if</span> <span class="o">[[</span> -n <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">]]</span><span class="p">;</span><span class="k">then</span>
+    <span class="nv">name</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span>
+  <span class="k">else</span>
+    <span class="nv">name</span><span class="o">=</span><span class="s2">&#34;World&#34;</span>
+  <span class="k">fi</span>
+  <span class="nb">echo</span> <span class="s2">&#34;Hello, </span><span class="nv">$name</span><span class="s2">!&#34;</span>
+<span class="o">}</span>
+<span class="o">[[</span> <span class="s2">&#34;</span><span class="nv">$BASH_SOURCE</span><span class="s2">&#34;</span> <span class="o">==</span> <span class="s2">&#34;</span><span class="nv">$0</span><span class="s2">&#34;</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> hello <span class="s2">&#34;</span><span class="nv">$@</span><span class="s2">&#34;</span>
+</code></pre></div><p>This checks that the <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html#index-BASH_005fSOURCE">BASH_SOURCE</a> variable (the script name) equals <a href="https://www.gnu.org/software/bash/manual/html_node/Special-Parameters.html#index-0">$0</a> which is the name of the file invoking the code. These values match when the script is invoked like a program: <code>./hello.bash</code>. But when the script is <em>sourced</em> <code>$0</code> evaluates to <code>/bin/bash</code>.</p>
+<p>This can be useful if you&rsquo;d like to be able to import your script code into other scripts via <code>source</code>. One reason to do that is unit testing your scripts:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#!/bin/bash
+</span><span class="cp"></span>
+<span class="nv">PASS</span><span class="o">=</span><span class="m">0</span>
+
+<span class="k">function</span> fail <span class="o">{</span>
+  <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span>
+  <span class="nv">PASS</span><span class="o">=</span><span class="m">1</span>
+<span class="o">}</span>
+
+<span class="nb">source</span> <span class="s2">&#34;./hello.bash&#34;</span>
+
+<span class="nv">def</span><span class="o">=</span><span class="k">$(</span>hello<span class="k">)</span>
+<span class="o">[[</span> <span class="s2">&#34;</span><span class="nv">$def</span><span class="s2">&#34;</span> <span class="o">==</span> <span class="s2">&#34;Hello, World!&#34;</span> <span class="o">]]</span> <span class="o">||</span> fail <span class="s2">&#34;wrong default greeting: </span><span class="nv">$def</span><span class="s2">&#34;</span>
+
+<span class="nv">arg</span><span class="o">=</span><span class="k">$(</span>hello David<span class="k">)</span>
+<span class="o">[[</span> <span class="s2">&#34;</span><span class="nv">$arg</span><span class="s2">&#34;</span> <span class="o">==</span> <span class="s2">&#34;Hello, David!&#34;</span> <span class="o">]]</span> <span class="o">||</span> fail <span class="s2">&#34;wrong arg greeting: </span><span class="nv">$arg</span><span class="s2">&#34;</span>
+
+<span class="nb">exit</span> <span class="s2">&#34;</span><span class="nv">$PASS</span><span class="s2">&#34;</span>
+</code></pre></div>
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/bash/>bash</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/shell/>shell</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/library/>library</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+  <ul>
+    
+  </ul>
+ </footer>
+
+  </body>
+</html>

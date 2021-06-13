@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Identify Slow Code With Devel::Timer</title>
+  <meta name="description" content="How timing statements can help you pinpoint bottlenecks" />
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="16x16">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="32x32">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="96x96"> 
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>Identify Slow Code With Devel::Timer</h2>
+
+<em>August 17, 2016</em>
+
+<p>Program speed is an important factor in programming. No one wants their program to execute more slowly. As a general purpose programming language, Perl is usually fast enough for most things, and when it isn&rsquo;t, we have some great tools to help us make it faster. We can use the <a href="https://metacpan.org/pod/Benchmark">Benchmark</a> module to compare code and <a href="https://metacpan.org/pod/Devel::NYTProf">Devel::NYTProf</a> to produce detailed analyses of our programs.</p>
+<p>This article is about <a href="https://metacpan.org/pod/Devel::Timer">Devel::Timer</a>, another module I like to use when I want to optimize an existing subroutine, and I&rsquo;m not sure how long each statement within the subroutine takes to execute. It&rsquo;s very easy to setup, so if you haven&rsquo;t used it before, once you&rsquo;ve read this article you&rsquo;ll have another tool in your toolbox for optimizing code.</p>
+<h3 id="use-develtimer-to-get-a-timing-report">Use Devel::Timer to get a timing report</h3>
+<p>Let&rsquo;s say I have a subroutine which is far too slow, but I&rsquo;m not sure what&rsquo;s slowing it down. The (fictional) subroutine looks like this:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">sub</span> <span class="nf">foo</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="nv">$args</span> <span class="o">=</span> <span class="nb">shift</span><span class="p">;</span>
+
+  <span class="nb">die</span> <span class="s">&#39;foo() requires an hashref of args&#39;</span>
+    <span class="k">unless</span> <span class="nv">$args</span> <span class="o">&amp;&amp;</span> <span class="nb">ref</span> <span class="nv">$args</span> <span class="ow">eq</span> <span class="s">&#39;HASH&#39;</span><span class="p">;</span>
+
+  <span class="k">my</span> <span class="nv">%parsed_args</span> <span class="o">=</span> <span class="n">validate_args</span><span class="p">(</span><span class="nv">$args</span><span class="p">);</span>
+
+  <span class="k">my</span> <span class="nv">$user</span>        <span class="o">=</span> <span class="n">find_user</span><span class="p">(</span><span class="nv">$parsed_args</span><span class="p">{</span><span class="n">username</span><span class="p">});</span>
+
+  <span class="k">my</span> <span class="nv">$location</span>    <span class="o">=</span> <span class="n">get_location</span><span class="p">(</span><span class="nv">$parsed_args</span><span class="p">{</span><span class="n">req_address</span><span class="p">});</span>
+
+  <span class="k">my</span> <span class="nv">$bar</span>         <span class="o">=</span> <span class="n">register_request</span><span class="p">(</span><span class="nv">$user</span><span class="p">,</span> <span class="nv">$location</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="nv">$bar</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>I can use Devel::Timer to time each statement in the subroutine, and tell me how long each one took:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">use</span> <span class="nn">Devel::Timer</span><span class="p">;</span>
+
+<span class="k">sub</span> <span class="nf">foo</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="nv">$args</span> <span class="o">=</span> <span class="nb">shift</span><span class="p">;</span>
+  <span class="k">my</span> <span class="nv">$timer</span> <span class="o">=</span> <span class="nn">Devel::Timer</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">();</span>
+
+  <span class="nb">die</span> <span class="s">&#39;foo() requires an hashref of args&#39;</span>
+    <span class="k">unless</span> <span class="nv">$args</span> <span class="o">&amp;&amp;</span> <span class="nb">ref</span> <span class="nv">$args</span> <span class="ow">eq</span> <span class="s">&#39;HASH&#39;</span><span class="p">;</span>
+  <span class="nv">$timer</span><span class="o">-&gt;</span><span class="n">mark</span><span class="p">(</span><span class="s">&#39;check $args is hashref&#39;</span><span class="p">);</span>
+
+  <span class="k">my</span> <span class="nv">%parsed_args</span> <span class="o">=</span> <span class="n">validate_args</span><span class="p">(</span><span class="nv">$args</span><span class="p">);</span>
+  <span class="nv">$timer</span><span class="o">-&gt;</span><span class="n">mark</span><span class="p">(</span><span class="s">&#39;validate_args()&#39;</span><span class="p">);</span>
+
+  <span class="k">my</span> <span class="nv">$user</span>        <span class="o">=</span> <span class="n">find_user</span><span class="p">(</span><span class="nv">$parsed_args</span><span class="p">{</span><span class="n">username</span><span class="p">});</span>
+  <span class="nv">$timer</span><span class="o">-&gt;</span><span class="n">mark</span><span class="p">(</span><span class="s">&#39;find_user()&#39;</span><span class="p">);</span>
+
+  <span class="k">my</span> <span class="nv">$location</span>    <span class="o">=</span> <span class="n">get_location</span><span class="p">(</span><span class="nv">$parsed_args</span><span class="p">{</span><span class="n">req_address</span><span class="p">});</span>
+  <span class="nv">$timer</span><span class="o">-&gt;</span><span class="n">mark</span><span class="p">(</span><span class="s">&#39;get_location()&#39;</span><span class="p">);</span>
+
+  <span class="k">my</span> <span class="nv">$bar</span>         <span class="o">=</span> <span class="n">register_request</span><span class="p">(</span><span class="nv">$user</span><span class="p">,</span> <span class="nv">$location</span><span class="p">);</span>
+  <span class="nv">$timer</span><span class="o">-&gt;</span><span class="n">mark</span><span class="p">(</span><span class="s">&#39;register_request()&#39;</span><span class="p">);</span>
+
+  <span class="nv">$timer</span><span class="o">-&gt;</span><span class="n">report</span><span class="p">();</span>
+  <span class="k">return</span> <span class="nv">$bar</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>I&rsquo;ve updated the code to import Devel::Timer and construct a new <code>$timer</code> object. After every statement I want to time, I call the <code>mark</code> method which adds an entry to the timer, like recording split times on a stopwatch. Finally I call <code>report</code> which prints out a table listing the time spent between every <code>mark</code> call.</p>
+<pre><code>Devel::Timer Report -- Total time: 0.0515 secs
+Interval  Time    Percent
+----------------------------------------------
+02 -&gt; 03  0.0328  63.68%  validate_args() -&gt; find_user()
+04 -&gt; 05  0.0095  18.44%  get_location() -&gt; register_request()
+03 -&gt; 04  0.0081  15.72%  find_user() -&gt; get_location()
+06 -&gt; 07  0.0010   0.19%  register_request() -&gt; END
+01 -&gt; 02  0.0001   0.00%  check $args is hashref -&gt; validate_args()
+00 -&gt; 01  0.0000   0.00%  INIT -&gt; check $args is hashref
+</code></pre>
+<p>By default the table is printed in descending order of duration. The output shows that the subroutine took 515ms to execute, and the time between the <code>validate_args()</code> mark and the <code>find_user()</code> mark took a whopping 63.68% of the runtime. So if I was going to refactor this subroutine, I would start with the <code>find_user()</code> function.</p>
+<p>In my experience, this is a typical distribution of timings. It&rsquo;s rare to find every statement in a subroutine takes the same amount of time. Usually there just are one or two culprits, and if you can refactor those, the subroutine runtime can improve by an order of magnitude or more.</p>
+<h3 id="a-common-pitfall">A common pitfall</h3>
+<p>One thing to watch out for with Devel::Timer is lazy evaluation. This is when code is written to only execute when it&rsquo;s required. Sometimes the first call to a subroutine may be slow, as objects are created, caches initialized or whatever. But subsequent calls are much faster. An easy way to check for this is to call the subroutine multiple times in the same process, and check the Devel::Timer reports to confirm the timings.</p>
+<h3 id="references">References</h3>
+<ul>
+<li>This article is about <a href="https://metacpan.org/pod/Devel::Timer">Devel::Timer</a></li>
+<li><a href="https://metacpan.org/pod/Benchmark::Stopwatch">Benchmark::Stopwatch</a> is another timer module, similar to Devel::Timer</li>
+<li><a href="https://metacpan.org/pod/Devel::NYTProf">Devel::NYTProf</a> is a code profiler for Perl. Tim Bunce regularly gives <a href="https://www.youtube.com/watch?v=SDWoCQf53Ck">talks</a> about it</li>
+<li>The <a href="https://metacpan.org/pod/Benchmark">Benchmark</a> module comes with Perl</li>
+</ul>
+<p><br>
+<em>This article was originally posted on <a href="http://perltricks.com">PerlTricks.com</a>.</em></p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/devel-timer/>devel-timer</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/benchmark/>benchmark</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/refactor/>refactor</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/optimize/>optimize</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/speed/>speed</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/perl/>perl</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+  <ul>
+    
+  </ul>
+ </footer>
+
+  </body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How To Build A Base Module</title>
+  <meta name="description" content="Establish consistency and reduce boilerplate across your project" />
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="16x16">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="32x32">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="96x96"> 
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>How To Build A Base Module</h2>
+
+<em>November 30, 2016</em>
+
+<p>When working on large Perl projects, a base module is a nice way to setup a standard set of imported routines for the other modules in the project. With a base module you can configure a logger, turn on pragmas and import any other useful routines. Instead of typing:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">use</span> <span class="nn">warnings</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">strict</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Data::Dumper</span> <span class="s">&#39;Dumper&#39;</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Log::Log4perl</span> <span class="s">&#39;get_logger&#39;</span><span class="p">;</span>
+<span class="o">...</span>
+</code></pre></div><p>and so on, you can type:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">use</span> <span class="nn">MyBase</span><span class="p">;</span>
+</code></pre></div><p>This saves typing all those boilerplate <code>use</code> statements at the top of every module in the project, and it establishes a consistent base so that all modules all start by operating under the same pragmas and so on. And it also provides a central location to configure application paths and other global compile-time essentials.</p>
+<h3 id="building-your-own-base-module">Building your own base module</h3>
+<p>I&rsquo;ll write an example base module called <code>MyBase.pm</code> to show you how I do it. There are three basic cases I need to be able to export: pragmas, symbols defined in the MyBase namespace and symbols from other namespaces. In Perl a symbol is usually a reference to a variable or a subroutine. This is my starting code:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">package</span> <span class="nn">MyBase</span><span class="p">;</span>
+
+<span class="k">sub</span> <span class="nf">import</span> <span class="p">{}</span>
+
+<span class="mi">1</span><span class="p">;</span>
+</code></pre></div><p>In Perl the <code>import</code> subroutine is important: it&rsquo;s called every time the module is imported via <code>use</code>, so that will be my trigger for importing the pragmas and code I want from the base module.</p>
+<h3 id="handling-pragmas">Handling pragmas</h3>
+<p>Take a look at the <a href="https://metacpan.org/pod/Modern::Perl">Modern::Perl</a> <a href="https://metacpan.org/source/CHROMATIC/Modern-Perl-1.20150127/lib/Modern/Perl.pm#L30">source</a>. The <code>import</code> subroutine just calls <code>import</code> on the pragmas <em>it</em> wants to import. Clever and easy!</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">package</span> <span class="nn">MyBase</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">v5</span><span class="mf">.10.0</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">warnings</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">strict</span><span class="p">;</span>
+
+<span class="k">sub</span> <span class="nf">import</span> <span class="p">{</span>
+  <span class="nn">warnings</span><span class="o">-&gt;</span><span class="nb">import</span><span class="p">;</span>
+  <span class="nn">strict</span><span class="o">-&gt;</span><span class="nb">import</span><span class="p">;</span>
+  <span class="nn">feature</span><span class="o">-&gt;</span><span class="nb">import</span><span class="p">(</span><span class="s">&#39;:5.10&#39;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="mi">1</span><span class="p">;</span>
+</code></pre></div><p>Now any module that includes <code>use MyBase;</code> will get warnings, strict and all of the Perl 5.10 features imported (e.g. <code>say</code>, <code>state</code> and so on).</p>
+<h3 id="handling-foreign-symbols">Handling foreign symbols</h3>
+<p>By foreign symbols I mean subroutines and variables declared in other modules, like <code>Data::Dumper::Dumper</code>. That&rsquo;s a subroutine that&rsquo;s always handy to have available:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">package</span> <span class="nn">MyBase</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">v5</span><span class="mf">.10.0</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">warnings</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">strict</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Data::Dumper</span><span class="p">;</span>
+
+<span class="k">sub</span> <span class="nf">import</span> <span class="p">{</span>
+  <span class="nn">warnings</span><span class="o">-&gt;</span><span class="nb">import</span><span class="p">;</span>
+  <span class="nn">strict</span><span class="o">-&gt;</span><span class="nb">import</span><span class="p">;</span>
+  <span class="nn">feature</span><span class="o">-&gt;</span><span class="nb">import</span><span class="p">(</span><span class="s">&#39;:5.10&#39;</span><span class="p">);</span>
+
+  <span class="c1"># get the importing package name</span>
+  <span class="k">my</span> <span class="nv">$caller</span> <span class="o">=</span> <span class="nb">caller</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+  <span class="k">do</span> <span class="p">{</span>
+    <span class="k">no</span> <span class="nn">strict</span> <span class="s">&#39;refs&#39;</span><span class="p">;</span>
+    <span class="o">*</span><span class="p">{</span><span class="s">&#34;$caller\:\:Dumper&#34;</span><span class="p">}</span>  <span class="o">=</span> <span class="o">*</span><span class="p">{</span><span class="s">&#34;Data\:\:Dumper\:\:Dumper&#34;</span><span class="p">};</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+
+<span class="mi">1</span><span class="p">;</span>
+</code></pre></div><p>Here I&rsquo;ve added <code>use Data::Dumper;</code> to import the module. Later within <code>import()</code> I save the calling package name in <code>$caller</code>, and then within a <code>do</code> block I copy the <code>Dumper</code> subroutine from Data::Dumper into the caller&rsquo;s namespace. I escape the semicolons in the package reference because some versions of Perl might need that, but I can&rsquo;t remember which ones - modern Perls don&rsquo;t. If you find the symbol table copying syntax confusing, chapters 7 &amp; 8 of <a href="https://www.amazon.com/Mastering-Perl-Creating-Professional-Programs/dp/144939311X">Mastering Perl</a> has an in-depth explanation of how it works.</p>
+<h3 id="handling-local-symbols">Handling local symbols</h3>
+<p>There are many types of local symbols that might be useful to export: global config hashrefs (maybe one for dev and another for production), accessors for singletons like loggers and queues and so on. My application uses <a href="https://metacpan.org/pod/Log::Log4perl">Log::Log4perl</a>, so I&rsquo;ll export a subroutine to get the logger:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">package</span> <span class="nn">MyBase</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">v5</span><span class="mf">.10.0</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">warnings</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">strict</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Data::Dumper</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Log::Log4perl</span><span class="p">;</span>
+
+<span class="k">BEGIN</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="nv">$default_conf</span> <span class="o">=</span> <span class="sx">q(
+</span><span class="sx">    log4perl.logger.Root           = DEBUG, Root
+</span><span class="sx">    log4perl.appender.Root         = Log::Log4perl::Appender::Screen
+</span><span class="sx">    log4perl.appender.Root.stderr  = 1
+</span><span class="sx">    log4perl.appender.Root.utf8    = 1
+</span><span class="sx">    log4perl.appender.Root.layout  = PatternLayout
+</span><span class="sx">    log4perl.appender.Root.layout.ConversionPattern = %C %m%n
+</span><span class="sx">  )</span><span class="p">;</span>
+  <span class="nn">Log::Log4perl</span><span class="o">-&gt;</span><span class="n">init</span><span class="p">(</span><span class="o">\</span><span class="nv">$default_conf</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">logger</span> <span class="p">{</span> <span class="nn">Log::Log4perl</span><span class="o">-&gt;</span><span class="n">get_logger</span><span class="p">(</span><span class="s">&#39;Root&#39;</span><span class="p">)</span> <span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">import</span> <span class="p">{</span>
+  <span class="nn">warnings</span><span class="o">-&gt;</span><span class="nb">import</span><span class="p">;</span>
+  <span class="nn">strict</span><span class="o">-&gt;</span><span class="nb">import</span><span class="p">;</span>
+  <span class="nn">feature</span><span class="o">-&gt;</span><span class="nb">import</span><span class="p">(</span><span class="s">&#39;:5.10&#39;</span><span class="p">);</span>
+
+  <span class="c1"># get the importing package name</span>
+  <span class="k">my</span> <span class="nv">$caller</span> <span class="o">=</span> <span class="nb">caller</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+  <span class="k">do</span> <span class="p">{</span>
+    <span class="k">no</span> <span class="nn">strict</span> <span class="s">&#39;refs&#39;</span><span class="p">;</span>
+    <span class="o">*</span><span class="p">{</span><span class="s">&#34;$caller\:\:Dumper&#34;</span><span class="p">}</span>  <span class="o">=</span> <span class="o">*</span><span class="p">{</span><span class="s">&#34;Data\:\:Dumper\:\:Dumper&#34;</span><span class="p">};</span>
+    <span class="o">*</span><span class="p">{</span><span class="s">&#34;$caller\:\:logger&#34;</span><span class="p">}</span>  <span class="o">=</span> <span class="o">*</span><span class="p">{</span><span class="s">&#34;MyBase\:\:logger&#34;</span><span class="p">};</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+
+<span class="mi">1</span><span class="p">;</span>
+</code></pre></div><p>I&rsquo;ve imported the Log::Log4perl module, and initialized it within a <code>BEGIN</code> block (so it happens at compile time). I&rsquo;ve added a new subroutine, <code>logger</code> which is later copied into the symbol table of caller within the <code>import</code> sub. Now any module which uses <code>MyBase</code> can simply call <code>logger</code> to get the Log4perl object.</p>
+<p>One thing to consider when adding functionality like this is to do the initialization outside of <code>import</code> if possible. That&rsquo;s because the module code is loaded once, but <code>import</code> is called every time <code>MyBase</code> is used. So keep the code inside <code>import</code> to the minimum required - you don&rsquo;t want to initialize Log4perl over and over!</p>
+<p>Scalars are easy too, here&rsquo;s how I might export the project version:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="nv">$</span><span class="p">{</span><span class="s">&#34;$caller\:\:VERSION&#34;</span><span class="p">}</span>  <span class="o">=</span> <span class="o">*</span><span class="p">{</span><span class="s">&#34;MyBase\:\:VERSION&#34;</span><span class="p">};</span>
+</code></pre></div><p>Notice that the first character of that line has changed from an asterisk (for typeglob) to a dollar sign (for scalar).</p>
+<h3 id="enable-stack-traces">Enable stack traces</h3>
+<p>Perl has pretty helpful error messages, but I like to see stack traces to figure out what caused an exception. This is easy to add to a base module using the <code>confess</code> subroutine from the <a href="https://metacpan.org/pod/Carp">Carp</a> module:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">package</span> <span class="nn">MyBase</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">v5</span><span class="mf">.10.0</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">warnings</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">strict</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Data::Dumper</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Log::Log4perl</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Carp</span> <span class="s">&#39;confess&#39;</span><span class="p">;</span>
+
+<span class="k">BEGIN</span> <span class="p">{</span>
+  <span class="nv">$SIG</span><span class="p">{</span><span class="s">&#39;__DIE__&#39;</span><span class="p">}</span> <span class="o">=</span> <span class="k">sub</span> <span class="p">{</span> <span class="n">confess</span><span class="p">(</span><span class="nv">@_</span><span class="p">)</span> <span class="p">};</span>
+  <span class="k">my</span> <span class="nv">$default_conf</span> <span class="o">=</span> <span class="sx">q(
+</span><span class="sx">    log4perl.logger.Root           = DEBUG, Root
+</span><span class="sx">    log4perl.appender.Root         = Log::Log4perl::Appender::Screen
+</span><span class="sx">    log4perl.appender.Root.stderr  = 1
+</span><span class="sx">    log4perl.appender.Root.utf8    = 1
+</span><span class="sx">    log4perl.appender.Root.layout  = PatternLayout
+</span><span class="sx">    log4perl.appender.Root.layout.ConversionPattern = %C %m%n
+</span><span class="sx">  )</span><span class="p">;</span>
+  <span class="nn">Log::Log4perl</span><span class="o">-&gt;</span><span class="n">init</span><span class="p">(</span><span class="o">\</span><span class="nv">$default_conf</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">logger</span> <span class="p">{</span> <span class="nn">Log::Log4perl</span><span class="o">-&gt;</span><span class="n">get_logger</span><span class="p">(</span><span class="s">&#39;Root&#39;</span><span class="p">)</span> <span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">import</span> <span class="p">{</span>
+  <span class="nn">warnings</span><span class="o">-&gt;</span><span class="nb">import</span><span class="p">;</span>
+  <span class="nn">strict</span><span class="o">-&gt;</span><span class="nb">import</span><span class="p">;</span>
+  <span class="nn">feature</span><span class="o">-&gt;</span><span class="nb">import</span><span class="p">(</span><span class="s">&#39;:5.10&#39;</span><span class="p">);</span>
+
+  <span class="c1"># get the importing package name</span>
+  <span class="k">my</span> <span class="nv">$caller</span> <span class="o">=</span> <span class="nb">caller</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+  <span class="k">do</span> <span class="p">{</span>
+    <span class="k">no</span> <span class="nn">strict</span> <span class="s">&#39;refs&#39;</span><span class="p">;</span>
+    <span class="o">*</span><span class="p">{</span><span class="s">&#34;$caller\:\:Dumper&#34;</span><span class="p">}</span>  <span class="o">=</span> <span class="o">*</span><span class="p">{</span><span class="s">&#34;Data\:\:Dumper\:\:Dumper&#34;</span><span class="p">};</span>
+    <span class="o">*</span><span class="p">{</span><span class="s">&#34;$caller\:\:logger&#34;</span><span class="p">}</span>  <span class="o">=</span> <span class="o">*</span><span class="p">{</span><span class="s">&#34;MyBase\:\:logger&#34;</span><span class="p">};</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+
+<span class="mi">1</span><span class="p">;</span>
+</code></pre></div><p>I&rsquo;ve added a line to import the Carp module, and within the <code>BEGIN</code> block I install a signal handler for the pseudo-signal <code>__DIE__</code>. This will be called any time the application throws an exception. The handler is an anonymous subroutine which calls <code>confess</code> on the exception. This prints a stack trace and exits.</p>
+<h3 id="consider-using-importbase">Consider using Import::Base</h3>
+<p>I&rsquo;m not sure my code handles all edge cases. It works for my needs, but if you&rsquo;re sharing the project code, consider using <a href="https://metacpan.org/pod/Import::Base">Import::Base</a> which can do all of this for you. Here&rsquo;s what my base module looks like, re-written to use Import::Base:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">package</span> <span class="nn">MyBase</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">base</span> <span class="s">&#39;Import::Base&#39;</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">v5</span><span class="mf">.10.0</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">warnings</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">strict</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Data::Dumper</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Log::Log4perl</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Carp</span> <span class="s">&#39;confess&#39;</span><span class="p">;</span>
+
+<span class="k">BEGIN</span> <span class="p">{</span>
+  <span class="nv">$SIG</span><span class="p">{</span><span class="s">&#39;__DIE__&#39;</span><span class="p">}</span> <span class="o">=</span> <span class="k">sub</span> <span class="p">{</span> <span class="n">confess</span><span class="p">(</span><span class="nv">@_</span><span class="p">)</span> <span class="p">};</span>
+  <span class="k">my</span> <span class="nv">$default_conf</span> <span class="o">=</span> <span class="sx">q(
+</span><span class="sx">    log4perl.logger.Root           = DEBUG, Root
+</span><span class="sx">    log4perl.appender.Root         = Log::Log4perl::Appender::Screen
+</span><span class="sx">    log4perl.appender.Root.stderr  = 1
+</span><span class="sx">    log4perl.appender.Root.utf8    = 1
+</span><span class="sx">    log4perl.appender.Root.layout  = PatternLayout
+</span><span class="sx">    log4perl.appender.Root.layout.ConversionPattern = %C %m%n
+</span><span class="sx">  )</span><span class="p">;</span>
+  <span class="nn">Log::Log4perl</span><span class="o">-&gt;</span><span class="n">init</span><span class="p">(</span><span class="o">\</span><span class="nv">$default_conf</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">logger</span> <span class="p">{</span> <span class="nn">Log::Log4perl</span><span class="o">-&gt;</span><span class="n">get_logger</span><span class="p">(</span><span class="s">&#39;Root&#39;</span><span class="p">)</span> <span class="p">}</span>
+
+<span class="k">our</span> <span class="nv">@IMPORT_MODULES</span> <span class="o">=</span> <span class="p">(</span>
+  <span class="s">&#39;warnings&#39;</span><span class="p">,</span>
+  <span class="s">&#39;strict&#39;</span><span class="p">,</span>
+  <span class="s">&#39;feature&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="s">&#39;:5.10&#39;</span><span class="p">],</span>
+  <span class="s">&#39;Data::Dumper&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="s">&#39;Dumper&#39;</span><span class="p">],</span>
+  <span class="s">&#39;MyBase&#39;</span><span class="p">,</span>
+<span class="p">);</span>
+
+<span class="k">our</span> <span class="nv">@EXPORT</span> <span class="o">=</span> <span class="p">(</span> <span class="s">&#39;logger&#39;</span> <span class="p">);</span>
+
+<span class="mi">1</span><span class="p">;</span>
+</code></pre></div><p><br>
+<em>This article was originally posted on <a href="http://perltricks.com">PerlTricks.com</a>.</em></p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/exporter/>exporter</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/import-base/>import-base</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/mastering-perl/>mastering-perl</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/perl/>perl</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+  <ul>
+    
+  </ul>
+ </footer>
+
+  </body>
+</html>

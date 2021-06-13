@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Untangling Perl&#39;s Subroutine Attributes</title>
+  <meta name="description" content="How they work and how to implement your own custom versions" />
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="16x16">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="32x32">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="96x96"> 
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>Untangling Perl&#39;s Subroutine Attributes</h2>
+
+<em>June 29, 2016</em>
+
+<p>Subroutine attributes are optional labels that can be included in a subroutine declaration. They&rsquo;re a curious feature with a clunky interface and minimal documentation. They seem underused, but it&rsquo;s hard to think of legitimate uses for them. In my opinion the coolest thing about subroutine attributes is that they run at compile time. This means you can execute custom code before the main program is run, and seeing as Perl gives you access to the symbol table, you can basically do wizardy things.</p>
+<h3 id="the-lvalue-trick">The lvalue trick</h3>
+<p>Perl has several subroutine attributes built-in. A useful one is <code>lvalue</code> which tells Perl that the subroutine refers to a variable that persists beyond individual calls. A common case is using them as method getter/setters:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">package</span> <span class="nn">Foo</span><span class="p">;</span>
+
+<span class="k">sub</span> <span class="nf">new</span> <span class="p">{</span> <span class="nb">bless</span> <span class="p">{},</span> <span class="nb">shift</span> <span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">bar</span> <span class="p">:lvalue {</span>
+  <span class="k">my</span> <span class="nv">$self</span> <span class="o">=</span> <span class="nb">shift</span><span class="p">;</span>
+
+  <span class="c1"># must return the variable for lvalue-ness</span>
+  <span class="nv">$self</span><span class="o">-&gt;</span><span class="p">{</span><span class="n">bar</span><span class="p">};</span>
+<span class="p">}</span>
+
+<span class="k">package</span> <span class="nn">main</span><span class="p">;</span>
+
+<span class="k">my</span> <span class="nv">$foo</span> <span class="o">=</span> <span class="nn">Foo</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">();</span>
+
+<span class="nv">$foo</span><span class="o">-&gt;</span><span class="n">bar</span> <span class="o">=</span> <span class="s">&#34;dogma&#34;</span><span class="p">;</span> <span class="c1"># not $foo-&gt;bar(&#34;dogma&#34;);</span>
+<span class="k">print</span> <span class="nv">$foo</span><span class="o">-&gt;</span><span class="n">bar</span><span class="p">;</span>
+</code></pre></div><p>By adding the attribute <code>:lvalue</code> to the <code>bar</code> subroutine, I can use it like a variable, getting, setting and substituting and so on.</p>
+<h3 id="custom-attributes">Custom attributes</h3>
+<p>To use custom attributes in a package, you must provide a subroutine called <code>MODIFY_CODE_ATTRIBUTES</code>. Perl will call this subroutine during compilation if it find any custom subroutine attributes. It&rsquo;s called once for every subroutine with custom attributes. <code>MODIFY_CODE_ATTRIBUTES</code> receives the package name, a coderef to the subroutine and a list of the attributes it declared:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">package</span> <span class="nn">Sub::Attributes</span><span class="p">;</span>
+
+<span class="k">sub</span> <span class="nf">MODIFY_CODE_ATTRIBUTES</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="p">(</span><span class="nv">$package</span><span class="p">,</span> <span class="nv">$coderef</span><span class="p">,</span> <span class="nv">@attributes</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+  <span class="k">return</span> <span class="p">();</span>
+<span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">_internal_function</span> <span class="p">:Private {</span>
+  <span class="o">...</span>
+<span class="p">}</span>
+<span class="mi">1</span><span class="p">;</span>
+</code></pre></div><p>I&rsquo;ve created a new package with the required subroutine - all it does is return an empty list. I&rsquo;ve then declared an empty subroutine called <code>_internal_function</code> which has a custom attribute, <code>Private</code>. I want to do the impossible and create truly private subroutines in Perl by making any subroutine with the <code>Private</code> attribute only callable by its own package. But what if I misspell <code>Private</code>?  If we received any attributes we didn&rsquo;t recognize, <code>MODIFY_CODE_ATTRIBUTES</code> can add them to a list and Perl will throw a compile time error:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">package</span> <span class="nn">Sub::Attributes</span><span class="p">;</span>
+
+<span class="k">sub</span> <span class="nf">MODIFY_CODE_ATTRIBUTES</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="p">(</span><span class="nv">$package</span><span class="p">,</span> <span class="nv">$coderef</span><span class="p">,</span> <span class="nv">@attributes</span><span class="p">,</span> <span class="nv">@disallowed</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+
+  <span class="nb">push</span> <span class="nv">@disallowed</span><span class="p">,</span> <span class="nb">grep</span> <span class="p">{</span> <span class="nv">$_</span> <span class="ow">ne</span> <span class="s">&#39;Private&#39;</span> <span class="p">}</span> <span class="nv">@attributes</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="nv">@disallowed</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">_internal_function</span> <span class="p">:Private {</span>
+  <span class="o">...</span>
+<span class="p">}</span>
+<span class="mi">1</span><span class="p">;</span>
+</code></pre></div><p>I&rsquo;ve updated to code to declare and return <code>@disallowed</code> - an array of any unrecognized subroutine attributes. Even though it&rsquo;s declared in the first line of the subroutine, it will always be empty because <code>@attributes</code> gobbles up all remaining arguments passed to the subroutine. Next I grep through the list of attributes received and if any don&rsquo;t match &ldquo;Private&rdquo;, I add them to the disallowed array.</p>
+<h3 id="adding-compile-time-behavior">Adding compile time behavior</h3>
+<p>Now any subroutine in the package can use the attribute <code>Private</code> but it doesn&rsquo;t do anything. I need to add some behavior!</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">package</span> <span class="nn">Sub::Attributes</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">B</span> <span class="s">&#39;svref_2object&#39;</span><span class="p">;</span>
+
+<span class="k">sub</span> <span class="nf">MODIFY_CODE_ATTRIBUTES</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="p">(</span><span class="nv">$package</span><span class="p">,</span> <span class="nv">$coderef</span><span class="p">,</span> <span class="nv">@attributes</span><span class="p">,</span> <span class="nv">@disallowed</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+
+  <span class="k">my</span> <span class="nv">$subroutine_name</span> <span class="o">=</span> <span class="n">svref_2object</span><span class="p">(</span><span class="nv">$coderef</span><span class="p">)</span><span class="o">-&gt;</span><span class="nn">GV</span><span class="o">-&gt;</span><span class="n">NAME</span><span class="p">;</span>
+
+  <span class="k">my</span> <span class="nv">%allowed</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Private</span> <span class="o">=&gt;</span> <span class="k">sub</span> <span class="p">{</span>
+        <span class="k">my</span> <span class="p">(</span><span class="nv">$coderef</span><span class="p">,</span> <span class="nv">@args</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+        <span class="k">my</span> <span class="p">(</span><span class="nv">$calling_package</span><span class="p">,</span> <span class="nv">$filename</span><span class="p">,</span> <span class="nv">$line</span><span class="p">,</span> <span class="nv">$sub</span><span class="p">)</span> <span class="o">=</span> <span class="nb">caller</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+        <span class="n">croak</span> <span class="s">&#39;Only the object may call this sub&#39;</span> <span class="k">unless</span> <span class="nv">$sub</span> <span class="o">&amp;&amp;</span> <span class="nv">$sub</span> <span class="o">=~</span><span class="sr"> /^Sub\:\:Attributes\:\:/</span><span class="p">;</span>
+        <span class="nv">$coderef</span><span class="o">-&gt;</span><span class="p">(</span><span class="nv">@args</span><span class="p">);</span>
+      <span class="p">},</span>
+  <span class="p">);</span>
+
+  <span class="k">for</span> <span class="k">my</span> <span class="nv">$attribute</span> <span class="p">(</span><span class="nv">@attributes</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1"># parse the attribute into name and value</span>
+
+    <span class="c1"># attribute not known, compile error</span>
+    <span class="nb">push</span><span class="p">(</span><span class="nv">@disallowed</span><span class="p">,</span> <span class="nv">$attribute</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="k">next</span> <span class="k">unless</span> <span class="nb">exists</span> <span class="nv">$allowed</span><span class="p">{</span><span class="nv">$attribute</span><span class="p">};</span>
+
+    <span class="c1"># override subroutine with attribute coderef</span>
+    <span class="k">my</span> <span class="nv">$overrider</span> <span class="o">=</span> <span class="nv">$allowed</span><span class="p">{</span><span class="nv">$attribute</span><span class="p">};</span>
+    <span class="k">my</span> <span class="nv">$old_coderef</span> <span class="o">=</span> <span class="nv">$coderef</span><span class="p">;</span>
+    <span class="nv">$coderef</span> <span class="o">=</span> <span class="k">sub</span> <span class="p">{</span> <span class="nv">$overrider</span><span class="o">-&gt;</span><span class="p">(</span><span class="nv">$old_coderef</span><span class="p">,</span> <span class="nv">@_</span><span class="p">)</span> <span class="p">};</span>
+    <span class="o">*</span><span class="p">{</span><span class="s">&#34;Sub:\:Attributes:\:$subroutine_name&#34;</span><span class="p">}</span> <span class="o">=</span> <span class="nv">$coderef</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nv">@disallowed</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">_internal_function</span> <span class="p">:Private {</span>
+  <span class="o">...</span>
+<span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">call_internal_function</span> <span class="p">{</span>
+  <span class="n">_internal_function</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="mi">1</span><span class="p">;</span>
+</code></pre></div><p>This code imports the <code>svref_2object</code> function from the <a href="https://metacpan.org/pod/B">B</a> module. This handy function takes a reference and returns an object with the data from Perl&rsquo;s internals. In this case, passing a coderef returns a <a href="https://metacpan.org/pod/B#B::CV-Methods">B::CV</a> object. I use this to get the subroutine name and overrride the subroutine later.</p>
+<p>I&rsquo;ve created a hash called <code>%allowed</code> which is where I can declare any permitted custom attributes and their associated code. For <code>Private</code> I made a coderef that checks the caller is in the same package and croaks if it&rsquo;s not, else it will call it.</p>
+<p>Next I loop through any attributes received, and check they exist in <code>%attributes</code>. If they don&rsquo;t, I push them into <code>@disallowed</code> and skip to the next attribute. If the attribute does exist, I assign the coderef to <code>$overrider</code> and declare a new coderef which will call <code>$overrider</code> passing the old coderef to be called.</p>
+<p>Finally I override the <code>Private</code> subroutine with the new coderef:</p>
+<pre><code>*{&quot;Sub:\:Attributes:\:$subroutine_name&quot;} = $coderef;
+</code></pre>
+<p>This is how you override subroutines using a <a href="http://perldoc.perl.org/perldata.html#Typeglobs-and-Filehandles">typeglob</a> (<a href="https://www.amazon.com/Mastering-Perl-brian-d-foy/dp/144939311X/">Mastering Perl</a> has a whole chapter dedicated to features like these, highly recommended). But what about that backslash in the middle of the colons <code>:\:</code>?. That escape is necessary for the code to run on Perl versions 5.16 through 5.18 (thanks to Andreas König for debugging this).</p>
+<p>If you&rsquo;re wondering why I bothered to create <code>$old_coderef</code> at all, it&rsquo;s so that a subroutine can have multiple attributes with new behaviors nested inside each other.</p>
+<p>Now any calls to <code>_internal_function</code> will croak unless they come from within Sub::Attributes:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">use</span> <span class="nn">Sub::Attributes</span><span class="p">;</span>
+
+<span class="nn">Sub::Attributes::</span><span class="n">call_internal_function</span><span class="p">();</span> <span class="c1"># ok</span>
+<span class="nn">Sub::Attributes::</span><span class="n">_internal_function</span><span class="p">();</span> <span class="c1"># croak!</span>
+</code></pre></div><h3 id="making-it-re-useable">Making it re-useable</h3>
+<p>If it seems dumb to create custom attributes and then elsewhere in the same code, validate those attributes, join the club. To get the most out of this system, you have to make your custom attributes re-usable. Fortunately, just a few changes are needed:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">package</span> <span class="nn">Sub::Attributes</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">B</span> <span class="s">&#39;svref_2object&#39;</span><span class="p">;</span>
+
+<span class="k">sub</span> <span class="nf">MODIFY_CODE_ATTRIBUTES</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="p">(</span><span class="nv">$package</span><span class="p">,</span> <span class="nv">$coderef</span><span class="p">,</span> <span class="nv">@attributes</span><span class="p">,</span> <span class="nv">@disallowed</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+
+  <span class="k">my</span> <span class="nv">$subroutine_name</span> <span class="o">=</span> <span class="n">svref_2object</span><span class="p">(</span><span class="nv">$coderef</span><span class="p">)</span><span class="o">-&gt;</span><span class="nn">GV</span><span class="o">-&gt;</span><span class="n">NAME</span><span class="p">;</span>
+
+  <span class="k">my</span> <span class="nv">%allowed</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Private</span> <span class="o">=&gt;</span>
+      <span class="k">sub</span> <span class="p">{</span>
+        <span class="k">my</span> <span class="nv">$package</span> <span class="o">=</span> <span class="nb">shift</span><span class="p">;</span>
+        <span class="k">return</span> <span class="k">sub</span> <span class="p">{</span>
+          <span class="k">my</span> <span class="p">(</span><span class="nv">$coderef</span><span class="p">,</span> <span class="nv">@args</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+          <span class="k">my</span> <span class="p">(</span><span class="nv">$calling_package</span><span class="p">,</span> <span class="nv">$filename</span><span class="p">,</span> <span class="nv">$line</span><span class="p">,</span> <span class="nv">$sub</span><span class="p">)</span> <span class="o">=</span> <span class="nb">caller</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+          <span class="n">croak</span> <span class="s">&#39;Only the object may call this sub&#39;</span> <span class="k">unless</span> <span class="nv">$sub</span> <span class="o">&amp;&amp;</span> <span class="nv">$sub</span> <span class="o">=~</span><span class="sr"> /^$package\:\:/</span><span class="p">;</span>
+          <span class="nv">$coderef</span><span class="o">-&gt;</span><span class="p">(</span><span class="nv">@args</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+  <span class="p">);</span>
+
+  <span class="k">for</span> <span class="k">my</span> <span class="nv">$attribute</span> <span class="p">(</span><span class="nv">@attributes</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1"># parse the attribute into name and value</span>
+
+    <span class="c1"># attribute not known, compile error</span>
+    <span class="nb">push</span><span class="p">(</span><span class="nv">@disallowed</span><span class="p">,</span> <span class="nv">$attribute</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="k">next</span> <span class="k">unless</span> <span class="nb">exists</span> <span class="nv">$allowed</span><span class="p">{</span><span class="nv">$attribute</span><span class="p">};</span>
+
+    <span class="c1"># execute compile time code</span>
+    <span class="k">my</span> <span class="nv">$overrider</span> <span class="o">=</span> <span class="nv">$allowed</span><span class="p">{</span><span class="nv">$attribute</span><span class="p">}</span><span class="o">-&gt;</span><span class="p">(</span><span class="nv">$package</span><span class="p">);</span>
+    <span class="k">next</span> <span class="k">unless</span> <span class="nv">$overrider</span><span class="p">;</span>
+
+    <span class="c1"># override the subroutine if necessary</span>
+    <span class="k">my</span> <span class="nv">$old_coderef</span> <span class="o">=</span> <span class="nv">$coderef</span><span class="p">;</span>
+    <span class="nv">$coderef</span> <span class="o">=</span> <span class="k">sub</span> <span class="p">{</span> <span class="nv">$overrider</span><span class="o">-&gt;</span><span class="p">(</span><span class="nv">$old_coderef</span><span class="p">,</span> <span class="nv">@_</span><span class="p">)</span> <span class="p">};</span>
+    <span class="o">*</span><span class="p">{</span><span class="s">&#34;$package:\:$subroutine_name&#34;</span><span class="p">}</span> <span class="o">=</span> <span class="nv">$coderef</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nv">$</span><span class="nn">Sub::Attributes::</span><span class="nv">attributes</span><span class="p">{</span><span class="nv">$package</span><span class="p">}{</span><span class="nv">$subroutine_name</span><span class="p">}</span> <span class="o">=</span> <span class="o">\</span><span class="nv">@attributes</span><span class="p">;</span>
+  <span class="k">return</span> <span class="nv">@disallowed</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="mi">1</span><span class="p">;</span>
+</code></pre></div><p>Rather than hardcoding the package name, I&rsquo;ve made it dynamic. The key change here is that the coderef for <code>Private</code> has been changed to a coderef that returns another coderef. Now I can execute some arbitrary code at compile time and optionally manufacture a new coderef that uses compile time information. In the case of <code>Private</code>, I want to pass the package name of the private subroutine, so I can check later that the caller is from within the same package.</p>
+<p>Why optionally return a coderef? Imagine if I created an attribute called <code>After</code> which behaved like the <code>after</code> function in <a href="https://metacpan.org/pod/Class::Method::Modifiers">Class::Method::Modifiers</a>. In this case the subroutine with the private attribute would be reference a <em>different</em> subroutine. That might look like this:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">sub</span> <span class="nf">foo</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">logger</span> <span class="p">:After(foo) {</span>
+  <span class="k">print</span> <span class="s">&#34;foo() was called!\n&#34;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>Here <code>logger</code> should be executed after <code>foo</code>. So logger itself never changes, and doesn&rsquo;t need to be overridden.</p>
+<p>I store the attributes for a subroutine under the package name in the symbol table for <code>Sub::Attributes</code>. I could add them to the package&rsquo;s symbol table, but I might inadvertently overwrite something else, so I keep the data within the <code>Sub::Attributes</code> namespace.</p>
+<p>$Sub::Attributes::attributes{$package}{$subroutine_name} = @attributes;</p>
+<h3 id="why-no-fetch_code_attributes">Why no FETCH_CODE_ATTRIBUTES?</h3>
+<p>The <code>attribute</code> <a href="http://perldoc.perl.org/attributes.html">docs</a> mention another subroutine, called <code>FETCH_CODE_ATTRIBUTES</code> that given a coderef, should return the attributes for the referenced subroutine. When <code>attributes::get</code> is called, it passes the class of the declaring package, which is <code>Sub::Attributes</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="c1"># $class == &#34;Sub::Attributes&#34;</span>
+<span class="k">sub</span> <span class="nf">FETCH_CODE_ATTRIBUTES</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="p">(</span><span class="nv">$class</span><span class="p">,</span> <span class="nv">$coderef</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+  <span class="k">my</span> <span class="nv">$cv</span> <span class="o">=</span> <span class="n">svref_2object</span><span class="p">(</span><span class="nv">$coderef</span><span class="p">);</span>
+  <span class="c1"># $class should be subclass name, not Sub::Attributes</span>
+  <span class="k">return</span> <span class="nv">@</span><span class="p">{</span><span class="nv">$</span><span class="nn">Sub::Attributes::</span><span class="nv">attributes</span><span class="p">{</span><span class="nv">$class</span><span class="p">}{</span> <span class="nv">$cv</span><span class="o">-&gt;</span><span class="nn">GV</span><span class="o">-&gt;</span><span class="n">NAME</span> <span class="p">}};</span>
+<span class="p">}</span>
+</code></pre></div><p>I don&rsquo;t see a way to find out the package name of the original subroutine. <code>FETCH_CODE_ATTRIBUTTES</code> is not required and if it&rsquo;s not there Perl won&rsquo;t throw an exception if <code>attributes::get</code> is called. Instead I provided the <code>sub_attributes</code> method which does work:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">sub</span> <span class="nf">sub_attributes</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="p">(</span><span class="nv">$package</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+  <span class="k">my</span> <span class="nv">$class_name</span> <span class="o">=</span> <span class="nb">ref</span> <span class="nv">$package</span> <span class="o">||</span> <span class="nv">$package</span><span class="p">;</span>
+  <span class="k">return</span> <span class="nv">$</span><span class="nn">Sub::Attributes::</span><span class="nv">attributes</span><span class="p">{</span> <span class="nv">$class_name</span> <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div><p>This returns the attributes stored for a package. This might be useful if other packages want to inspect the attributes for a package&rsquo;s subroutine. it can be called as an object method or class method:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">package</span> <span class="nn">Foo</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">base</span> <span class="s">&#39;Sub::Attributes&#39;</span><span class="p">;</span>
+
+<span class="o">...</span>
+
+<span class="nn">Foo</span><span class="o">-&gt;</span><span class="n">sub_attributes</span><span class="p">();</span> <span class="c1"># works</span>
+<span class="nv">$foo</span><span class="o">-&gt;</span><span class="n">sub_attributes</span><span class="p">();</span> <span class="c1"># works also</span>
+</code></pre></div><h3 id="squashing-warnings">Squashing warnings</h3>
+<p>It&rsquo;s generally good practice to use the <code>strict</code> and <code>warnings</code> pragmas to help detect issues with our code. However the code so far will emit some warnings and an exception if we add those pragmas as-is. This code will add the pragmas but make Perl ignore the violations:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">use</span> <span class="nn">strict</span><span class="p">;</span>
+<span class="k">no</span> <span class="nn">strict</span> <span class="s">&#39;refs&#39;</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">warnings</span><span class="p">;</span>
+<span class="k">no</span> <span class="nn">warnings</span> <span class="sx">qw(reserved redefine)</span><span class="p">;</span>
+</code></pre></div><p>The <code>reserved</code> warning is of particular interest here. This would be caused by using custom subroutine attributes, so no matter what, you&rsquo;d want to turn that off. Redefine is a warning emitted whenever a subroutine is over-written, strict references means no interpolating of variable names in symbol table lookups; we need these features so we can dynamically patch subroutines like this:</p>
+<pre><code>*{&quot;$class:\:$subroutine&quot;} = $coderef
+</code></pre>
+<h3 id="making-it-extensible">Making it extensible</h3>
+<p>If you&rsquo;ve gone to the hard work of setting up the code for inheritable custom attributes, why not make it extensible? That way consuming packages can add their own custom attributes.</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">package</span> <span class="nn">Sub::Attributes</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">strict</span><span class="p">;</span>
+<span class="k">no</span> <span class="nn">strict</span> <span class="s">&#39;refs&#39;</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">warnings</span><span class="p">;</span>
+<span class="k">no</span> <span class="nn">warnings</span> <span class="sx">qw(reserved redefine)</span><span class="p">;</span>
+
+<span class="k">use</span> <span class="nn">B</span> <span class="s">&#39;svref_2object&#39;</span><span class="p">;</span>
+
+<span class="k">BEGIN</span> <span class="p">{</span>
+  <span class="k">our</span> <span class="nv">%allowed</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Private</span> <span class="o">=&gt;</span>
+      <span class="k">sub</span> <span class="p">{</span>
+        <span class="k">my</span> <span class="nv">$package</span> <span class="o">=</span> <span class="nb">shift</span><span class="p">;</span>
+        <span class="k">return</span> <span class="k">sub</span> <span class="p">{</span>
+          <span class="k">my</span> <span class="p">(</span><span class="nv">$coderef</span><span class="p">,</span> <span class="nv">@args</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+          <span class="k">my</span> <span class="p">(</span><span class="nv">$calling_package</span><span class="p">,</span> <span class="nv">$filename</span><span class="p">,</span> <span class="nv">$line</span><span class="p">,</span> <span class="nv">$sub</span><span class="p">)</span> <span class="o">=</span> <span class="nb">caller</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+          <span class="n">croak</span> <span class="s">&#39;Only the object may call this sub&#39;</span> <span class="k">unless</span> <span class="nv">$sub</span> <span class="o">&amp;&amp;</span> <span class="nv">$sub</span> <span class="o">=~</span><span class="sr"> /^$package\:\:/</span><span class="p">;</span>
+          <span class="nv">$coderef</span><span class="o">-&gt;</span><span class="p">(</span><span class="nv">@args</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+    <span class="c1"># compile time override, run a coderef after running the subroutine</span>
+    <span class="n">After</span> <span class="o">=&gt;</span> <span class="k">sub</span> <span class="p">{</span>
+      <span class="k">my</span> <span class="p">(</span><span class="nv">$package</span><span class="p">,</span> <span class="nv">$value</span><span class="p">,</span> <span class="nv">$coderef</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+
+      <span class="c1"># full name of the sub to override</span>
+      <span class="k">my</span> <span class="nv">$fq_sub</span> <span class="o">=</span> <span class="s">&#34;$package:\:$value&#34;</span><span class="p">;</span>
+
+      <span class="k">my</span> <span class="nv">$target_coderef</span> <span class="o">=</span> <span class="o">\&amp;</span><span class="p">{</span><span class="nv">$fq_sub</span><span class="p">};</span>
+      <span class="o">*</span><span class="p">{</span><span class="nv">$fq_sub</span><span class="p">}</span> <span class="o">=</span> <span class="k">sub</span> <span class="p">{</span>
+        <span class="k">my</span> <span class="nv">@rv</span> <span class="o">=</span> <span class="nv">$target_coderef</span><span class="o">-&gt;</span><span class="p">(</span><span class="nv">@_</span><span class="p">);</span>
+        <span class="nv">$coderef</span><span class="o">-&gt;</span><span class="p">(</span><span class="nv">@_</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">wantarray</span> <span class="p">?</span> <span class="nv">@rv</span> <span class="p">:</span> <span class="nv">$rv</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+      <span class="p">};</span>
+
+      <span class="c1"># we didn&#39;t change the method with the attribute</span>
+      <span class="c1"># so we return undef as we have no runtime changes</span>
+      <span class="k">return</span> <span class="nb">undef</span><span class="p">;</span>
+    <span class="p">},</span>
+  <span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">MODIFY_CODE_ATTRIBUTES</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="p">(</span><span class="nv">$package</span><span class="p">,</span> <span class="nv">$coderef</span><span class="p">,</span> <span class="nv">@attributes</span><span class="p">,</span> <span class="nv">@disallowed</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+
+  <span class="k">my</span> <span class="nv">$subroutine_name</span> <span class="o">=</span> <span class="n">svref_2object</span><span class="p">(</span><span class="nv">$coderef</span><span class="p">)</span><span class="o">-&gt;</span><span class="nn">GV</span><span class="o">-&gt;</span><span class="n">NAME</span><span class="p">;</span>
+
+  <span class="k">for</span> <span class="k">my</span> <span class="nv">$attribute</span> <span class="p">(</span><span class="nv">@attributes</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1"># parse the attribute into name and value</span>
+    <span class="k">my</span> <span class="p">(</span><span class="nv">$name</span><span class="p">,</span> <span class="nv">$value</span><span class="p">)</span> <span class="o">=</span> <span class="nv">$attribute</span> <span class="o">=~</span> <span class="sx">qr/^ (\w+) (?:\((\S+?)\))? $/</span><span class="n">x</span><span class="p">;</span>
+
+    <span class="c1"># attribute not known, compile error</span>
+    <span class="nb">push</span><span class="p">(</span><span class="nv">@disallowed</span><span class="p">,</span> <span class="nv">$name</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="k">next</span> <span class="k">unless</span> <span class="nb">exists</span> <span class="nv">$</span><span class="nn">Sub::Attributes::</span><span class="nv">allowed</span><span class="p">{</span><span class="nv">$name</span><span class="p">};</span>
+
+    <span class="c1"># execute compile time code</span>
+    <span class="k">my</span> <span class="nv">$overrider</span> <span class="o">=</span> <span class="nv">$</span><span class="nn">Sub::Attributes::</span><span class="nv">allowed</span><span class="p">{</span><span class="nv">$name</span><span class="p">}</span><span class="o">-&gt;</span><span class="p">(</span><span class="nv">$package</span><span class="p">,</span> <span class="nv">$value</span><span class="p">,</span> <span class="nv">$coderef</span><span class="p">);</span>
+    <span class="k">next</span> <span class="k">unless</span> <span class="nv">$overrider</span><span class="p">;</span>
+
+    <span class="c1"># override the subroutine if necessary</span>
+    <span class="k">my</span> <span class="nv">$old_coderef</span> <span class="o">=</span> <span class="nv">$coderef</span><span class="p">;</span>
+    <span class="nv">$coderef</span> <span class="o">=</span> <span class="k">sub</span> <span class="p">{</span> <span class="nv">$overrider</span><span class="o">-&gt;</span><span class="p">(</span><span class="nv">$old_coderef</span><span class="p">,</span> <span class="nv">@_</span><span class="p">)</span> <span class="p">};</span>
+    <span class="o">*</span><span class="p">{</span><span class="s">&#34;$package:\:$subroutine_name&#34;</span><span class="p">}</span> <span class="o">=</span> <span class="nv">$coderef</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nv">$</span><span class="nn">Sub::Attributes::</span><span class="nv">attributes</span><span class="p">{</span><span class="nv">$package</span><span class="p">}{</span><span class="nv">$subroutine_name</span><span class="p">}</span> <span class="o">=</span> <span class="o">\</span><span class="nv">@attributes</span><span class="p">;</span>
+  <span class="k">return</span> <span class="nv">@disallowed</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">sub</span> <span class="nf">sub_attributes</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="p">(</span><span class="nv">$package</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+  <span class="k">my</span> <span class="nv">$class_name</span> <span class="o">=</span> <span class="nb">ref</span> <span class="nv">$package</span> <span class="o">||</span> <span class="nv">$package</span><span class="p">;</span>
+  <span class="k">return</span> <span class="nv">$</span><span class="nn">Sub::Attributes::</span><span class="nv">attributes</span><span class="p">{</span> <span class="nv">$class_name</span> <span class="p">};</span>
+<span class="p">}</span>
+<span class="mi">1</span><span class="p">;</span>
+</code></pre></div><p>I&rsquo;ve moved the <code>%allowed</code> hash into a <code>BEGIN</code> block - this has to be declared at compile time so it&rsquo;s available for <code>MODIFY_CODE_ATTRIBUTES</code>. Now new custom attributes can be added by modifying <code>%Sub::Attributes::attributes</code>. I also added a new custom attribute <code>After</code> which implements causes the subroutine to be called after another one, like this:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">sub</span> <span class="nf">foo</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">bar</span> <span class="p">:After(foo) {</span>
+  <span class="k">print</span> <span class="s">&#34;foo() was called!\n&#34;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>I added a regex which captures the attribute name and value when passing attributes (so for <code>After(foo)</code> &ldquo;After&rdquo; is the name and &ldquo;foo&rdquo; is the value). The <code>$value</code> and <code>$coderef</code> are now passed to the custom attribute&rsquo;s subroutine to allow compile-time overrides of other subroutines.</p>
+<h3 id="resources">Resources</h3>
+<ul>
+<li><a href="http://perldoc.perl.org/attributes.html">attributes</a> is the official documentation on attributes.</li>
+<li><a href="https://metacpan.org/pod/Sub::Attributes">Sub::Attributes</a> is my module which implements the above code, and adds a few more custom attributes.</li>
+<li><a href="http://perldoc.perl.org/perldata.html#Typeglobs-and-Filehandles">perldata</a> has an entry on typeglobs and the symbol table.</li>
+<li>Chapters 7 &amp; 8 of <a href="https://www.amazon.com/Mastering-Perl-brian-d-foy/dp/144939311X/">Mastering Perl</a> second edition cover the symbol table and overrriding subroutines in detail.</li>
+<li><a href="http://perldoc.perl.org/perlsub.html">perlsub</a> has information on lvalue subroutines.</li>
+<li>Two useful blog posts by mascip on <a href="http://blogs.perl.org/users/mascip/2014/02/subroutine-attributes-how-to-use-them-and-what-for.html">possible uses</a> and <a href="http://blogs.perl.org/users/mascip/2014/02/three-ways-to-introduce-othogonal-behavior-aspects-method-modifiers-and-subroutine-attributes.html">when to use</a> subroutine attributes.</li>
+<li><a href="https://metacpan.org/pod/Attribute::Handlers">Attribute::Handlers</a> provides a mechanism for calling subroutines via attributes.</li>
+</ul>
+<p><br>
+<em>This article was originally posted on <a href="http://perltricks.com">PerlTricks.com</a>.</em></p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/symbol_table/>symbol_table</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/typeglob/>typeglob</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/lvalue/>lvalue</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/perl/>perl</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+  <ul>
+    
+  </ul>
+ </footer>
+
+  </body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>An Introduction To Tmux</title>
+  <meta name="description" content="How to get started with the open source terminal multiplexer " />
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="16x16">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="32x32">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="96x96"> 
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>An Introduction To Tmux</h2>
+
+<em>February 24, 2016</em>
+
+<p><a href="https://tmux.github.io/">Tmux</a> is a terminal multiplexer: it&rsquo;s like a power-up for terminal programming. You can manage several terminals under a session, split terminal screens, detach and re-attach sessions and much more. If you do most of your programming at the command line, you&rsquo;ll find using a terminal multiplexer invaluable.</p>
+<h3 id="setup">Setup</h3>
+<p>First you&rsquo;ll need to install Tmux via your package manager or <a href="https://tmux.github.io/">download</a> it. Tmux is highly configurable but the first change I&rsquo;d recommend is to ssh, not Tmux. Make ssh &ldquo;keep alive&rdquo; for all connections by adding this to <code>~/.ssh/config</code>:</p>
+<pre><code>host *
+   ServerAliveInterval 300
+   ServerAliveCountMax 3
+</code></pre>
+<p>If the file doesn&rsquo;t exist, create it. This configuration instructs your local machine for all user ssh sessions to send a server alive message every 300 seconds to keep the ssh session alive. If the local machine sends 3 unanswered messages, it will disconnect the session. You should tweak these settings to suit your needs: for instance by restricting the <code>host</code> to specific domains you can have different settings per domain. If you have a slow or unreliable internet connection, consider changing <code>ServerAliveInterval</code> to a lower number to send more frequent messages.</p>
+<p>If you have permission on the servers you use, you can update them with a similar configuration, in <code>/etc/ssh/sshd_config</code>:</p>
+<pre><code>ClientAliveInterval 300
+ClientAliveCountMax 3
+</code></pre>
+<h3 id="the-prefix-and-one-true-commandtrade">The Prefix and One True Command™</h3>
+<p>Once Tmux is installed, start a new Tmux session from the command line:</p>
+<pre><code>$ tmux
+</code></pre>
+<p><code>Ctrl-b</code> is the <strong>prefix</strong> combination. Press the Ctrl key AND the letter b at the same time. When inside a Tmux session, the prefix is nearly always pressed before the shortcut key to trigger a command.</p>
+<p>The prefix combination is really important. Once you get the hang of the prefix combination, you can pretty much bootstrap yourself into learning Tmux with just one command. To display a list of Tmux commands, type: <code>Ctrl-b ?</code></p>
+<p>That means press <code>Control</code> and <code>b</code> together, release, then press <code>?</code>. Tmux should display:</p>
+<pre><code>bind-key        C-b send-prefix
+bind-key        C-o rotate-window
+bind-key        C-z suspend-client
+bind-key      Space next-layout
+bind-key          ! break-pane
+bind-key          &quot; split-window
+bind-key          # list-buffers
+bind-key          $ command-prompt -I #S &quot;rename-session '%%'&quot;
+bind-key          % split-window -h
+bind-key          &amp; confirm-before -p &quot;kill-window #W? (y/n)&quot; kill-window
+bind-key          ' command-prompt -p index &quot;select-window -t ':%%'&quot;
+bind-key          ( switch-client -p
+bind-key          ) switch-client -n
+bind-key          , command-prompt -I #W &quot;rename-window '%%'&quot;
+bind-key          - delete-buffer
+bind-key          . command-prompt &quot;move-window -t '%%'&quot;
+bind-key          0 select-window -t :0
+bind-key          1 select-window -t :1
+bind-key          2 select-window -t :2
+bind-key          3 select-window -t :3
+bind-key          4 select-window -t :4
+bind-key          5 select-window -t :5
+bind-key          6 select-window -t :6
+bind-key          7 select-window -t :7
+bind-key          8 select-window -t :8
+bind-key          9 select-window -t :9
+bind-key          : command-prompt
+bind-key          ; last-pane
+bind-key          = choose-buffer
+bind-key          ? list-keys
+bind-key          D choose-client
+bind-key          L switch-client -l
+bind-key          [ copy-mode
+bind-key          ] paste-buffer
+bind-key          c new-window
+bind-key          d detach-client
+bind-key          f command-prompt &quot;find-window '%%'&quot;
+bind-key          i display-message
+bind-key          l last-window
+bind-key          n next-window
+bind-key          o select-pane -t :.+
+</code></pre>
+<p>You can also change the prefix combination (see the Config options section). If you do that, remember to use your prefix combination instead of <code>Ctrl-b</code> in the examples below.</p>
+<h3 id="window-control">Window control</h3>
+<p>Let&rsquo;s look at a key Tmux feature: windows. They&rsquo;re similar to tabs in browsers. Each one is a different terminal from where you can run different commands at the same time. To create a new window press<code>Ctrl-b c</code>. You can cycle between windows: <code>Ctrl-b n</code> for the next window and <code>Ctrl-b p</code> takes you to the prior window. <code>Ctrl-b w</code> lists all windows in a session and lets you select which one to make active (using the arrow keys and enter).</p>
+<p>If you know the window number you can also jump straight to it with <code>Ctrl-b #</code> replacing &ldquo;#&rdquo; with the window number. By default they begin at 0, not 1!</p>
+<p>You might be wondering what&rsquo;s the benefit of using Tmux windows over tabbed terminals. First, with regular terminals if the window manager crashes, you&rsquo;ll lose the terminals as well. This won&rsquo;t happen with Tmux: it will keep the terminals running in the background and you can re-attach a new terminal to them at any time. Windows can also be subdivided into panes, all running pseudo-terminals. Let&rsquo;s look at them now.</p>
+<h3 id="pane-control">Pane control</h3>
+<p>Panes are great. You can split a window horizontally, vertically and with any dimensions you like. Have you ever wanted to quickly look up a man page whilst coding? Instead of dropping back to the terminal, looking up the man page and then foregrounding your editor, just open a new vertical pane, like this:</p>
+<p><img src="/images/an-introduction-to-tmux/tmux-split-screen.png" alt="Tmux Panes"></p>
+<p>Now you can read the man page and code at the same time; you can even copy and paste between the two panes. Much more convenient!</p>
+<p>Recently I was processing a huge set of data; I arranged my Tmux window with 3 panes running the data processing and 1 pane monitoring the server resources with <a href="http://hisham.hm/htop/">htop</a>. This server is almost overloaded:</p>
+<p><img src="/images/an-introduction-to-tmux/tmux-panes.png" alt="Tmux Panes"></p>
+<p>These are the key pane controls:</p>
+<pre><code>Ctrl-b &quot;      split pane horizontally
+Ctrl-b %      split pane vertically
+Ctrl-b o      next pane
+Ctrl-b ;      prior pane
+Ctrl-b ←↑→↓   jump to pane
+Ctrl-b Ctrl-o swap panes
+Ctrl-b space  arrange panes
+Ctrl-b-←↑→↓   change pane size
+Ctrl-b !      pop a pane into a new window
+</code></pre>
+<p>The arrows <code>←↑→↓</code> represent the arrow keys, just use one of these. For example to jump to a pane on the right, you&rsquo;d press <code>Ctrl-b →</code>. The change pane size controls are a little different. To make that work you first have to have more than one pane. Next press <code>Ctrl-b</code> and keep the control key held down. Now you can repeatedly press an arrow key to change the pane size.</p>
+<p><code>Ctrl-b !</code> is one of my favorite features. It pops the current pane out of the window and moves it to its own window. This is wonderful if you find yourself doing some unrelated activity in one pane and want to re-organize your setup.</p>
+<h3 id="scrolling-and-copypaste">Scrolling and copy/paste</h3>
+<p>If you can master scrolling and copy/paste in Tmux, you can master anything. I won&rsquo;t lie, this is the clunkiest feature. But it&rsquo;s really useful. The interface is modal, so start by entering scroll mode by typing <code>Ctrl-b [</code>.</p>
+<p>Pressing <code>esc</code> will exit scroll mode. You should know you&rsquo;re in scroll mode because an orange line count appears in the top-right corner of the pane.</p>
+<p>Once you&rsquo;re in scroll mode, you can move the cursor using the arrow keys and page up and down. By default Tmux doesn&rsquo;t retain much history, but you can change that (see the Config options section).</p>
+<p>You can copy and paste in scroll mode. This is useful when you have split screens as a regular highlight and copy using the mouse won&rsquo;t work across vertically split panes.</p>
+<p><img src="/images/an-introduction-to-tmux/tmux-copy-fail.png" alt="copy fail"></p>
+<p>To copy, position the cursor where you want to start copying. Press <code>Ctrl-space</code> to begin highlighting the text to copy. Press <code>Alt-w</code> to copy the highlighted text. Pressing <code>Ctrl-b ]</code> will paste the copied text. There are ways to make copy and paste easier: Tmux has a &ldquo;vim like&rdquo; copy mode (see the Config options section and the <a href="http://man.openbsd.org/OpenBSD-current/man1/tmux.1">man</a> page for details).</p>
+<p><img src="/images/an-introduction-to-tmux/tmux-copy-win.png" alt="copy win"></p>
+<p><strong>Shortcut</strong> You can jump into scroll mode and page up in one fell swoop with <code>Ctrl-b PgUp</code> (thanks to Ludovic Tolhurst for the tip).</p>
+<h4 id="bonus-feature---search">Bonus feature - search</h4>
+<p>If you took the time to learn scroll mode, you deserve something extra, something special. Here is your prize: you can search the Tmux buffer! Just enter scroll mode with <code>Ctrl-b [</code> and then press <code>Ctrl-r</code>. Type your search text and press enter. Tmux will jump to the last match it finds. You can press <code>n</code> to jump to the next match or <code>Shift-n</code> to jump back one match.</p>
+<p>There is also <code>Ctrl-s</code> to search down the buffer, but I hardly ever use it.</p>
+<h3 id="session-control">Session control</h3>
+<p>Sessions are one of the most useful features of Tmux. They let you group multiple terminal processes into a single Tmux session which can be worked on (attached), put into the background (detached) and discarded as you see fit. Programmers will often have different sessions for different projects. Because Tmux operates under a client-server architecture, even if the original terminal that started Tmux dies or your desktop GUI crashes, the Tmux session will be preserved, along with all of the terminal sessions in it.</p>
+<p>Detach your Tmux session with <code>Ctrl-b d</code>. This will return you to a regular terminal prompt.</p>
+<p>To list existing Tmux sessions just use the <code>ls</code> command:</p>
+<pre><code>$ tmux ls
+0: 1 windows (created Thu Jan 28 08:15:20 2016) [190x50] (attached)
+2: 2 windows (created Thu Jan 28 09:11:59 2016) [190x50]
+</code></pre>
+<p>This shows that I have two Tmux sessions running, one of which is attached to a terminal window already. To attach to a session just use the <code>attach</code> command at the terminal prompt:</p>
+<pre><code>$ tmux attach
+</code></pre>
+<p>By default Tmux attaches to the next unattached session (&ldquo;2&rdquo;) in this case. If I have many different sessions and want to attach to a particular one, I can specify it with <code>-t</code> for target:</p>
+<pre><code>$ tmux attach -t 2
+</code></pre>
+<h3 id="config-options">Config options</h3>
+<p>The file <code>~/.tmux.conf</code> is a plaintext file used by Tmux for local config. This is what mine looks like:</p>
+<pre><code># set scroll history to 10,000 lines
+set -g history-limit 10000
+
+# modern encoding and colors
+set -g utf8 on set-window-option -g utf8 on
+set -g default-terminal screen-256color
+
+# don't use a login shell
+set -g default-command /bin/bash
+
+# unbind the prefix and bind it to Ctrl-a like screen
+unbind C-b set -g prefix C-a bind C-a send-prefix
+</code></pre>
+<p>Tmux starts with a tiny scroll history, so I like to bump that up. The modern encoding and colors are there to jive with my terminal setup - they may even be the default Tmux settings by now. By default Tmux uses a login shell, so every new pane will execute <code>.bash_profile</code>. I prefer to disable that behavior and just launch regular non-login shells.</p>
+<p>Tmux has hundreds more options: many users will switch to a different shell like zsh, enable pane switching with the trackpad, display custom data in the Tmux footer (like weather info!) and so on. Copying other programmers' <a href="https://github.com/search?utf8=%E2%9C%93&amp;q=.tmux.conf">conf files</a> is a great way to learn and experiment.</p>
+<p>To reload your <code>.tmux.conf</code> within a Tmux session, type: <code>Ctrl-b :</code> then <code>source-file ~/.tmux.conf</code>.</p>
+<h3 id="tmux-resources">Tmux resources</h3>
+<p>The official Tmux <a href="https://tmux.github.io/">website</a> is a good starting point with summary information, a changelog, downloads and a link to the extensive <a href="http://man.openbsd.org/OpenBSD-current/man1/tmux.1">man page</a>. The Arch Linux <a href="https://wiki.archlinux.org/index.php/Tmux">tmux documentation</a> covers advanced features and troubleshooting tips. The book <a href="https://pragprog.com/book/bhtmux/tmux">tmux - Productive Mouse-Free Development</a> by Pragmatic Bookshelf is thorough introduction to Tmux.</p>
+<p><a href="http://perltricks.com/article/153/2015/2/16/Get-to-grips-with-GNU-Screen/">GNU Screen</a> is another terminal multiplexer program. It&rsquo;s older than Tmux and a little bit crufty, but it has most of the features Tmux has. The controls for Screen and Tmux are similar enough that if you know one of them you can get by using the other. The Tmux <a href="https://raw.githubusercontent.com/tmux/tmux/master/FAQ">FAQ</a> lists the differences between them.</p>
+<p><br>
+<em>This article was originally posted on <a href="http://perltricks.com">PerlTricks.com</a>.</em></p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/command-line/>command-line</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/multiplexer/>multiplexer</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/screen/>screen</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/sysadmin/>sysadmin</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/terminal/>terminal</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/terminator/>terminator</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/tmux/>tmux</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+  <ul>
+    
+  </ul>
+ </footer>
+
+  </body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AWS Cloudfront Cache Invalidation With Paws</title>
+  <meta name="description" content="Another useful AWS script built with Paws" />
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="16x16">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="32x32">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="96x96"> 
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>AWS Cloudfront Cache Invalidation With Paws</h2>
+
+<em>April 3, 2017</em>
+
+<p>In <a href="/post/deploy-a-static-website-with-aws-s3-and-paws/">Deploy a static website with Paws</a>, I developed a simple script to upload files to AWS S3, using <a href="https://metacpan.org/pod/Paws">Paws</a>. In this article I&rsquo;ll describe a script to invalidate CloudFront caches: this can be used to force CloudFront to re-cache files which have changed on S3.</p>
+<h3 id="aws-cloudfront">AWS CloudFront</h3>
+<p>CloudFront is Amazon&rsquo;s Content Delivery Network service. It&rsquo;s used to cache local versions of files so that they can be delivered to requests faster; for example if you used S3 to host your website in Amazon&rsquo;s US East region, files on the website might load faster for East Coast customers than those on the West Coast. With a CDN like CloudFront however, copies of the website files can be saved all over the World, so that visitor&rsquo;s browsers fetch the website files from closer geographic locations, improving the website speed.</p>
+<p>When cached website files are updated on S3, they need to be invalidated from the CloudFront cache. This forces CloudFront to fetch fresh copies of invalidated files.</p>
+<h3 id="the-code">The code</h3>
+<p>Using CloudFront with Paws is pretty easy. For cache invalidation all you really need is a CloudFront distribution id, and a list of files to be invalidated. This is the script:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="ch">#!/usr/bin/env perl</span>
+<span class="k">use</span> <span class="nn">strict</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">warnings</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Paws</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Getopt::Long</span> <span class="s">&#39;GetOptions&#39;</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Time::HiRes</span> <span class="s">&#39;gettimeofday&#39;</span><span class="p">;</span>
+
+<span class="n">GetOptions</span><span class="p">(</span>
+  <span class="s">&#39;distribution-id=s&#39;</span> <span class="o">=&gt;</span> <span class="o">\</span><span class="k">my</span> <span class="nv">$DISTRIBUTION_ID</span><span class="p">,</span>
+  <span class="s">&#39;keys=s&#39;</span>            <span class="o">=&gt;</span> <span class="o">\</span><span class="k">my</span> <span class="nv">@KEYS</span><span class="p">,</span>
+  <span class="s">&#39;region=s&#39;</span>          <span class="o">=&gt;</span> <span class="o">\</span><span class="k">my</span> <span class="nv">$REGION</span><span class="p">,</span>
+<span class="p">)</span> <span class="ow">or</span> <span class="nb">die</span> <span class="s">&#39;unrecognized arguments&#39;</span><span class="p">;</span>
+
+<span class="nb">die</span> <span class="s">&#39;--distribution-id and --region are required&#39;</span>
+  <span class="k">unless</span> <span class="nv">$DISTRIBUTION_ID</span> <span class="o">&amp;&amp;</span> <span class="nv">$REGION</span><span class="p">;</span>
+
+<span class="c1"># don&#39;t block on empty STDIN</span>
+<span class="bp">STDIN</span><span class="o">-&gt;</span><span class="n">blocking</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="nv">@KEYS</span> <span class="o">=</span> <span class="nb">map</span> <span class="p">{</span> <span class="nb">chomp</span><span class="p">;</span><span class="s">&#34;/$_&#34;</span> <span class="p">}</span> <span class="nv">@KEYS</span><span class="p">,</span> <span class="sr">&lt;STDIN&gt;</span><span class="p">;</span>
+<span class="nb">die</span> <span class="s">&#39;no objects to invalidate!&#39;</span> <span class="k">unless</span> <span class="nv">@KEYS</span><span class="p">;</span>
+<span class="nb">printf</span> <span class="s">&#34;Invalidating cached keys: %s\n&#34;</span><span class="p">,</span> <span class="nb">join</span> <span class="s">&#39;, &#39;</span><span class="p">,</span> <span class="nv">@KEYS</span><span class="p">;</span>
+
+<span class="k">my</span> <span class="nv">$cfront</span> <span class="o">=</span> <span class="nn">Paws</span><span class="o">-&gt;</span><span class="n">service</span><span class="p">(</span><span class="s">&#39;CloudFront&#39;</span><span class="p">,</span> <span class="n">region</span> <span class="o">=&gt;</span> <span class="nv">$REGION</span><span class="p">);</span>
+<span class="k">my</span> <span class="nv">$uid</span>    <span class="o">=</span> <span class="nb">join</span> <span class="s">&#39;-&#39;</span><span class="p">,</span> <span class="n">gettimeofday</span><span class="p">();</span>
+
+<span class="nv">$cfront</span><span class="o">-&gt;</span><span class="n">CreateInvalidation</span><span class="p">(</span>
+  <span class="n">DistributionId</span>    <span class="o">=&gt;</span> <span class="nv">$DISTRIBUTION_ID</span><span class="p">,</span>
+  <span class="n">InvalidationBatch</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="n">CallerReference</span> <span class="o">=&gt;</span> <span class="nv">$uid</span><span class="p">,</span>
+      <span class="n">Paths</span>           <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="n">Quantity</span> <span class="o">=&gt;</span> <span class="nb">scalar</span> <span class="nv">@KEYS</span><span class="p">,</span>
+        <span class="n">Items</span>    <span class="o">=&gt;</span> <span class="o">\</span><span class="nv">@KEYS</span><span class="p">,</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">);</span>
+</code></pre></div><p>As before, I use <a href="https://metacpan.org/pod/Getopt::Long">Getopt::Long</a> to process the command line options. The script requires a CloudFront distribution id and an AWS region string. The <code>--keys</code> switch is optional as the script also reads keys from <code>STDIN</code>. This snippet is curious:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="c1"># don&#39;t block on empty STDIN</span>
+<span class="bp">STDIN</span><span class="o">-&gt;</span><span class="n">blocking</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="nv">@KEYS</span> <span class="o">=</span> <span class="nb">map</span> <span class="p">{</span> <span class="nb">chomp</span><span class="p">;</span><span class="s">&#34;/$_&#34;</span> <span class="p">}</span> <span class="nv">@KEYS</span><span class="p">,</span> <span class="sr">&lt;STDIN&gt;</span><span class="p">;</span>
+</code></pre></div><p>It sets the <code>STDIN</code> filehandle to non-blocking mode. That way, if STDIN is empty when the script tries to read from it, it won&rsquo;t block. On the next line, <code>map</code> is used to prepend a slash to every key. This is required by CloudFront.</p>
+<p>The script then creates a Paws CloudFront object, and the <a href="https://metacpan.org/pod/Time::HiRes">Time::HiRes</a> <code>gettimeofday</code> function is used to calculate a cheap unique id (it returns the current epoch seconds and microseconds).</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">my</span> <span class="nv">$cfront</span> <span class="o">=</span> <span class="nn">Paws</span><span class="o">-&gt;</span><span class="n">service</span><span class="p">(</span><span class="s">&#39;CloudFront&#39;</span><span class="p">,</span> <span class="n">region</span> <span class="o">=&gt;</span> <span class="nv">$REGION</span><span class="p">);</span>
+<span class="k">my</span> <span class="nv">$uid</span>    <span class="o">=</span> <span class="nb">join</span> <span class="s">&#39;-&#39;</span><span class="p">,</span> <span class="n">gettimeofday</span><span class="p">();</span>
+</code></pre></div><p>Finally, the script calls the <code>CreateInvalidation</code> method to send the data to AWS CloudFront:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="nv">$cfront</span><span class="o">-&gt;</span><span class="n">CreateInvalidation</span><span class="p">(</span>
+  <span class="n">DistributionId</span>    <span class="o">=&gt;</span> <span class="nv">$DISTRIBUTION_ID</span><span class="p">,</span>
+  <span class="n">InvalidationBatch</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="n">CallerReference</span> <span class="o">=&gt;</span> <span class="nv">$uid</span><span class="p">,</span>
+      <span class="n">Paths</span>           <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="n">Quantity</span> <span class="o">=&gt;</span> <span class="nb">scalar</span> <span class="nv">@KEYS</span><span class="p">,</span>
+        <span class="n">Items</span>    <span class="o">=&gt;</span> <span class="o">\</span><span class="nv">@KEYS</span><span class="p">,</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">);</span>
+</code></pre></div><h3 id="combining-tools">Combining tools</h3>
+<p>The <code>s3-upload</code> script prints the keys it updated on STDOUT, and <code>cf-invalid</code> can read keys from STDIN. This makes for convenient chaining:</p>
+<pre><code>./s3-upload --files static --bucket example.com --region us-east-1 \
+| ./cf-invalid --distribution-id e9d4922bd9120 --region us-east-1
+</code></pre><p>And because the scripts use Getopt::Long, the option names can be shortened:</p>
+<pre><code>./s3-upload -f static -b example.com -r us-east-1 | ./cf-invalid -d e9d4922bd9120 -r us-east-1
+</code></pre><p>Alternatively, keys (filenames) can be specified as arguments:</p>
+<pre><code>./cf-invalid -d e9d4922bd9120 -r us-east-1 -k index.html -k about.html -k contact.html
+</code></pre><p>Both scripts are available on <a href="https://github.com/dnmfarrell/Paws-tools">Github</a>.</p>
+<p><br>
+<em>This article was originally posted on <a href="http://perltricks.com">PerlTricks.com</a>.</em></p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/aws/>aws</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/cloudfront/>cloudfront</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/s3/>s3</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/paws/>paws</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/perl/>perl</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+  <ul>
+    
+  </ul>
+ </footer>
+
+  </body>
+</html>

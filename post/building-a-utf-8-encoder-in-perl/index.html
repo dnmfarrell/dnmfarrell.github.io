@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Building A UTF-8 Encoder In Perl</title>
+  <meta name="description" content="Learn UTF-8 by encoding it yourself" />
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="16x16">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="32x32">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="96x96"> 
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>Building A UTF-8 Encoder In Perl</h2>
+
+<em>August 2, 2016</em>
+
+<p>This week I wrote a UTF-8 encoder/decoder. Perl already comes with UTF-8 encoding features built-in, so this wasn&rsquo;t necessary, but sometimes it&rsquo;s nice to understand how things work. The UTF-8 scheme is defined in <a href="https://tools.ietf.org/html/rfc3629">RFC 3629</a>.</p>
+<h3 id="what-does-a-utf-8-encoder-do">What does a UTF-8 encoder do?</h3>
+<p>UTF-8 is a scheme for encoding <a href="https://en.wikipedia.org/wiki/Unicode">Unicode</a> sequences of codepoints as bytes/octets. A codepoint is just a number, that identifies the Unicode entry (such as 0x24 which is a dollar sign).</p>
+<p>Unicode defines codepoints in the range 0x0000..0x10FFFF, so the encoder must take a codepoint and convert it to bytes according to the UTF-8 scheme, which looks like this:</p>
+<pre><code>Char. number range  |     UTF-8 bytes/octets sequence
+   (hexadecimal)    |              (binary)
+--------------------+------------------------------------
+0000 0000-0000 007F | 0xxxxxxx
+0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+</code></pre>
+<p>This has some interesting properties. First of all, codepoints in the range 0x00..0x7F (0-127) will have the same bytes as with ASCII encoding, which is convenient. Second it&rsquo;s a <em>variable width</em> encoding, which means that a single codepoint can be 1-4 bytes long.</p>
+<p>Decoding is simply the process in reverse: converting a sequence of bytes back into a codepoint.</p>
+<h3 id="encoding-utf-8">Encoding UTF-8</h3>
+<p>To encode UTF-8, I need to convert a codepoint (which is just a number), into a sequence of bytes. As there are four different byte sequences defined in the UTF-8 table, there are four scenarios to handle:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">sub</span> <span class="nf">codepoint_to_bytes</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="nv">$codepoint</span> <span class="o">=</span> <span class="nb">shift</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nv">$codepoint</span> <span class="o">&lt;</span> <span class="mh">0x80</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">pack</span> <span class="s">&#39;C&#39;</span><span class="p">,</span> <span class="nv">$codepoint</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">elsif</span> <span class="p">(</span><span class="nv">$codepoint</span> <span class="o">&lt;</span> <span class="mh">0x800</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">pack</span> <span class="s">&#39;CC&#39;</span><span class="p">,</span>
+           <span class="nv">$codepoint</span> <span class="o">&gt;&gt;</span>  <span class="mi">6</span> <span class="o">|</span> <span class="mb">0b11000000</span><span class="p">,</span>
+           <span class="nv">$codepoint</span>       <span class="o">&amp;</span> <span class="mb">0b00111111</span> <span class="o">|</span> <span class="mb">0b10000000</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">elsif</span> <span class="p">(</span><span class="nv">$codepoint</span> <span class="o">&lt;</span> <span class="mh">0x10000</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">pack</span> <span class="s">&#39;CCC&#39;</span><span class="p">,</span>
+           <span class="nv">$codepoint</span> <span class="o">&gt;&gt;</span> <span class="mi">12</span> <span class="o">|</span> <span class="mb">0b11100000</span><span class="p">,</span>
+           <span class="nv">$codepoint</span> <span class="o">&gt;&gt;</span>  <span class="mi">6</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span> <span class="o">|</span> <span class="mb">0b10000000</span><span class="p">,</span>
+           <span class="nv">$codepoint</span>       <span class="o">&amp;</span> <span class="mb">0b00111111</span> <span class="o">|</span> <span class="mb">0b10000000</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">pack</span> <span class="s">&#39;CCCC&#39;</span><span class="p">,</span>
+           <span class="nv">$codepoint</span> <span class="o">&gt;&gt;</span> <span class="mi">18</span> <span class="o">|</span> <span class="mb">0b11110000</span><span class="p">,</span>
+           <span class="nv">$codepoint</span> <span class="o">&gt;&gt;</span> <span class="mi">12</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span> <span class="o">|</span> <span class="mb">0b10000000</span><span class="p">,</span>
+           <span class="nv">$codepoint</span> <span class="o">&gt;&gt;</span>  <span class="mi">6</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span> <span class="o">|</span> <span class="mb">0b10000000</span><span class="p">,</span>
+           <span class="nv">$codepoint</span>       <span class="o">&amp;</span> <span class="mb">0b00111111</span> <span class="o">|</span> <span class="mb">0b10000000</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>The first is the easiest: if the codepoint is between 0x00 and 0x7F, no transformation is required, so I just <a href="http://perldoc.perl.org/functions/pack.html">pack</a> the codepoint as-is. The byte value of a character is the same as the codepoint (e.g. <code>'U' == 56 == 0x38 == 00111000</code>).</p>
+<p>For the second scenario I have to populate the bitmask <code>110xxxxx 10xxxxxx</code> with the codepoint, which means I need to return two bytes. This is how I do it:</p>
+<ol>
+<li>For the first byte, bitshift the codepoint 6 places to the right (as the second byte will get those 6 bits).</li>
+<li>Use bitwise OR to set the two most significant bits to one (<code>xxxxxxxx | 11000000 == 11xxxxxx</code>). I&rsquo;m using Perl&rsquo;s inline binary notation (<code>0b...</code>) which makes it easy to compare the binary numbers with the bitmask.</li>
+<li>For the second byte use bitwise AND to set the two most significant bits to zero (<code>xxxxxxxx &amp; 00111111 == 00xxxxxx</code>).</li>
+<li>Use bitwise OR to set the most significant bit to 1 (<code>xxxxxxxx | 10000000 == 1xxxxxxx</code>).</li>
+<li>Use <a href="http://perldoc.perl.org/functions/pack.html">pack</a> to combine the bytes into a scalar and return it.</li>
+</ol>
+<p>The process for three byte and four byte encoding follows the same approach, with the rules updated according to the UTF-8 scheme.</p>
+<p>If I wanted to get UTF-8 encoded bytes for the <a href="http://www.fileformat.info/info/unicode/char/1f4fa/fontsupport.htm">Television</a> codepoint (U+1F4FA) I could use the code like so:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">my</span> <span class="nv">$bytes</span> <span class="o">=</span> <span class="n">codepoint_to_bytes</span><span class="p">(</span><span class="mh">0x1F4FA</span><span class="p">);</span>
+</code></pre></div><h3 id="decoding-utf-8">Decoding UTF-8</h3>
+<p>To decode UTF-8 bytes, we need to reverse the encoding process to get back to the original Unicode codepoint number. The decoder must check how many bytes it received, extract the appropriate bits and add them together.</p>
+<p>Perl tries &ldquo;to make the easy things easy, and the hard things possible&rdquo; as the saying goes, but sometimes it makes easy things harder than they are in simpler languages like C. Binary data is one such area: Perl needs to be told to turn off its character features before you can safely work with the data.</p>
+<p>There are two ways to do that. The old, discouraged way is to use the <a href="https://metacpan.org/pod/bytes">bytes pragma</a>. The newer way is to use the <a href="https://metacpan.org/pod/Encode#SYNOPSIS">Encode</a> module to encode the scalar as bytes and remove its UTF-8 flag. After that, Perl&rsquo;s functions will treat the scalar as a sequence of bytes instead of characters:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">use</span> <span class="nn">Encode</span> <span class="s">&#39;encode&#39;</span><span class="p">;</span>
+
+<span class="k">sub</span> <span class="nf">bytes_to_codepoint</span> <span class="p">{</span>
+  <span class="c1"># treat the scalar as bytes/octets</span>
+  <span class="k">my</span> <span class="nv">$input</span>    <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="s">&#39;UTF-8&#39;</span><span class="p">,</span> <span class="nb">shift</span><span class="p">);</span>
+
+  <span class="c1"># length returns number of bytes</span>
+  <span class="k">my</span> <span class="nv">$len</span>      <span class="o">=</span> <span class="nb">length</span> <span class="nv">$input</span><span class="p">;</span>
+  <span class="k">my</span> <span class="nv">$template</span> <span class="o">=</span> <span class="s">&#39;C&#39;</span> <span class="n">x</span> <span class="nv">$len</span><span class="p">;</span>
+  <span class="k">my</span> <span class="nv">@bytes</span>    <span class="o">=</span> <span class="nb">unpack</span> <span class="nv">$template</span><span class="p">,</span> <span class="nv">$input</span><span class="p">;</span>
+
+  <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></div><p>In the subroutine <code>bytes_to_codepoint</code> I use <code>encode()</code> to populate <code>$input</code> with the bytes passed to it. Next I use the <code>length</code> function to return the number of bytes in <code>$input</code> - this is different from its usual behavior which returns the number of characters; this is the effect of using <code>encode()</code> to convert the scalar to bytes. Finally I use <a href="http://perldoc.perl.org/functions/unpack.html">unpack</a> to extract the bytes from <code>$input</code>.</p>
+<p>Now I know the number of bytes passed to <code>bytes_to_codepoint</code>, it&rsquo;s just a matter of reversing the binary operations from the encoding process:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">if</span> <span class="p">(</span><span class="nv">$len</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nv">$bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="k">elsif</span> <span class="p">(</span><span class="nv">$len</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">((</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00011111</span><span class="p">)</span> <span class="o">&lt;&lt;</span>  <span class="mi">6</span><span class="p">)</span> <span class="o">+</span>
+          <span class="p">(</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">elsif</span> <span class="p">(</span><span class="nv">$len</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">((</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00001111</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">+</span>
+         <span class="p">((</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span><span class="p">)</span> <span class="o">&lt;&lt;</span>  <span class="mi">6</span><span class="p">)</span> <span class="o">+</span>
+         <span class="p">(</span> <span class="nv">$bytes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">((</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00000111</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">18</span><span class="p">)</span> <span class="o">+</span>
+         <span class="p">((</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">+</span>
+         <span class="p">((</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span><span class="p">)</span> <span class="o">&lt;&lt;</span>  <span class="mi">6</span><span class="p">)</span> <span class="o">+</span>
+          <span class="p">(</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><p>If there is just one byte, I return it as-is because the codepoint number is the same as the byte value. As with encoding, it gets interesting with two bytes:</p>
+<ol>
+<li>Remove the bitmask from the first byte with bitwise AND. Remember bitwise AND returns any bits as zero which are zero in the right operand (<code>xxxxxxxx &amp; 00011111 == 000xxxxx</code>).</li>
+<li>Bit shift the resulting number 6 places to the left to get the original value. So <code>00000010</code> would become <code>10000000</code>.</li>
+<li>Remove the bitmask from the second byte with bitwise AND (<code>xxxxxxxx &amp; 00111111 == 00xxxxxx</code>).</li>
+<li>Add the numbers together.</li>
+</ol>
+<p>The same logic applies to three byte and four byte sequences, I just update the bitwise operations to match the UTF-8 scheme. The final code looks like this:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">use</span> <span class="nn">Encode</span> <span class="s">&#39;encode&#39;</span><span class="p">;</span>
+
+<span class="k">sub</span> <span class="nf">bytes_to_codepoint</span> <span class="p">{</span>
+  <span class="c1"># treat the scalar as bytes/octets</span>
+  <span class="k">my</span> <span class="nv">$input</span>    <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="s">&#39;UTF-8&#39;</span><span class="p">,</span> <span class="nb">shift</span><span class="p">);</span>
+
+  <span class="c1"># length returns number of bytes</span>
+  <span class="k">my</span> <span class="nv">$len</span>      <span class="o">=</span> <span class="nb">length</span> <span class="nv">$input</span><span class="p">;</span>
+  <span class="k">my</span> <span class="nv">$template</span> <span class="o">=</span> <span class="s">&#39;C&#39;</span> <span class="n">x</span> <span class="nv">$len</span><span class="p">;</span>
+  <span class="k">my</span> <span class="nv">@bytes</span>    <span class="o">=</span> <span class="nb">unpack</span> <span class="nv">$template</span><span class="p">,</span> <span class="nv">$input</span><span class="p">;</span>
+
+  <span class="c1"># reverse encoding</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nv">$len</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nv">$bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="k">elsif</span> <span class="p">(</span><span class="nv">$len</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">((</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00011111</span><span class="p">)</span> <span class="o">&lt;&lt;</span>  <span class="mi">6</span><span class="p">)</span> <span class="o">+</span>
+            <span class="p">(</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">elsif</span> <span class="p">(</span><span class="nv">$len</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">((</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00001111</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">+</span>
+           <span class="p">((</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span><span class="p">)</span> <span class="o">&lt;&lt;</span>  <span class="mi">6</span><span class="p">)</span> <span class="o">+</span>
+           <span class="p">(</span> <span class="nv">$bytes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">((</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00000111</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">18</span><span class="p">)</span> <span class="o">+</span>
+           <span class="p">((</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">+</span>
+           <span class="p">((</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span><span class="p">)</span> <span class="o">&lt;&lt;</span>  <span class="mi">6</span><span class="p">)</span> <span class="o">+</span>
+            <span class="p">(</span><span class="nv">$bytes</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mb">0b00111111</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>Let&rsquo;s say I wanted to get the codepoint for the <a href="http://www.fileformat.info/info/unicode/char/1f5fc/index.htm">Tokyo Tower</a> I can call the code like this:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">use</span> <span class="nn">utf8</span><span class="p">;</span>
+<span class="k">my</span> <span class="nv">$codepoint</span> <span class="o">=</span> <span class="n">bytes_to_codepoint</span><span class="p">(</span><span class="s">&#39;🗼&#39;</span><span class="p">);</span>
+</code></pre></div><h3 id="notes">Notes</h3>
+<ol>
+<li>This is a naive implementation - it doesn&rsquo;t handle UTF-16 reserved characters (U+D800..U+DFFF), noncharacters and only encodes/decodes one codepoint at a time.</li>
+<li>Take a look at <a href="https://metacpan.org/pod/Unicode::UTF8">Unicode::UTF8</a> if you need a fast UTF-8 encoder and don&rsquo;t want to use Perl&rsquo;s builtin tools.</li>
+<li>UTF-8 is by far the most popular Unicode encoding. It was created by Ken Thompson and Rob Pike in <a href="http://doc.cat-v.org/bell_labs/utf-8_history">just a few days</a>.</li>
+<li>Building your own UTF-8 encoder? Check out Markus Kuhn&rsquo;s <a href="https://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt">decoder test file</a> which contains several difficult or edge case tests for UTF-8 decoding. Markus also wrote a comprehensive <a href="https://www.cl.cam.ac.uk/~mgk25/unicode.html">UTF-8 and Unicode FAQ for Unix/Linux</a>.</li>
+</ol>
+<p><br>
+<em>This article was originally posted on <a href="http://perltricks.com">PerlTricks.com</a>.</em></p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/unicode/>unicode</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/utf8/>utf8</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/encode/>encode</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/decode/>decode</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/binary/>binary</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/bitmask/>bitmask</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/codepoint/>codepoint</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/perl/>perl</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+  <ul>
+    
+  </ul>
+ </footer>
+
+  </body>
+</html>

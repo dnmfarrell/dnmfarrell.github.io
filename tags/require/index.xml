@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>require on Code Matters - a tech blog</title>
+    <link>https://blog.dnmfarrell.com/tags/require/</link>
+    <description>Recent content in require on Code Matters - a tech blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 23 Jul 2018 09:01:37 +0000</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/require/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Patching Perl: Loading Modules That Return False</title>
+      <link>https://blog.dnmfarrell.com/post/patching-perl-loading-modules-that-return-false/</link>
+      <pubDate>Mon, 23 Jul 2018 09:01:37 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/patching-perl-loading-modules-that-return-false/</guid>
+      <description>[Update: this is now an issue for Perl 7]
+If you&amp;rsquo;ve been programming Perl for a while, you&amp;rsquo;ve probably run into this exception: Foo.pm did not return a true value. This is a peculiar quirk of the require function: modules must return a true value else Perl interprets it as a failure:
+ The file must return true as the last statement to indicate successful execution of any initialization code, so it&amp;rsquo;s customary to end such a file with &amp;ldquo;1;&amp;rdquo; unless you&amp;rsquo;re sure it&amp;rsquo;ll return true otherwise.</description>
+    </item>
+    
+  </channel>
+</rss>

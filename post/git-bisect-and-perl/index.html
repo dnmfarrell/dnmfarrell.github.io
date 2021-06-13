@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Git Bisect And Perl</title>
+  <meta name="description" content="Bisecting Perl commits doesn&#39;t always work by itself" />
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="16x16">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="32x32">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="96x96"> 
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>Git Bisect And Perl</h2>
+
+<em>August 8, 2017</em>
+
+<p>At <a href="https://ziprecruiter.com">work</a> we have many developers committing code to a large Git repo, and a huge test suite which runs to check the software builds and operates correctly. Inevitably, developers push commits which break a test or two, and in particularly hectic moments, it can be difficult to figure out &ldquo;who broke the build&rdquo;.</p>
+<p>Enter Git&rsquo;s bisect <a href="https://git-scm.com/docs/git-bisect">command</a>. I feed it the SHA of the earliest bad commit I know of (or &ldquo;HEAD&rdquo;) and the SHA of the last working commit:</p>
+<pre><code>$ git bisect start HEAD b507d1a
+Bisecting: 41 revisions left to test after this (roughly 5 steps)
+</code></pre>
+<p>Then I set it running, using the failing test script:</p>
+<pre><code>$ git bisect run t/foo.t
+</code></pre>
+<p>Git will checkout a commit between <code>HEAD</code> to <code>b507d1a</code> and run <code>t/foo.t</code> to determine if it is good or not. It will then select a subset of those commits, checkout one of them and run the test again. Git will keep going, subdividing commits into groups and testing them, until it&rsquo;s found the earliest commit which the test fails on. It&rsquo;s kind of fun:</p>
+<!-- raw HTML omitted -->
+<p>Eventually it will output:</p>
+<pre><code>6717e8dd92ccc6b8f1a058799e895a716bbbb3fd is the first bad commit
+commit 6717e8dd92ccc6b8f1a058799e895a716bbbb3fd
+Author: Spider &lt;spider@example.com&gt;
+Date:   Mon Jul 24 10:56:41 2017 -0700
+
+    Add some feature
+</code></pre>
+<p>And I know who to contact about the broken build, so I can exit the bisect process:</p>
+<pre><code>$ git bisect reset
+</code></pre>
+<h3 id="bisect-and-exit-values">Bisect and exit values</h3>
+<p>Bisect run treats certain exit values specially: 125 means the code cannot be tested, and 128 or higher will abort the bisect process. If Perl throws an exception it exits with 255 (instead of 0 for a pass and 1 for a test fail), aborting the bisect altogether:</p>
+<pre><code>bisect run failed:
+exit code 141 from 't/foo.t' is &lt; 0 or &gt;= 128
+</code></pre>
+<p>To fix this, wrap the call to <code>t/foo.t</code> in a shell script which caps the return value of the test script at 127:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="ch">#!/bin/sh</span>
+<span class="s">&#34;$@&#34;</span>
+<span class="n">rv</span><span class="o">=</span><span class="vg">$?</span>
+<span class="k">if</span> <span class="p">[</span> <span class="nv">$rv</span> <span class="o">-</span><span class="ow">gt</span> <span class="mi">127</span> <span class="p">];</span> <span class="k">then</span>
+  <span class="nb">exit</span> <span class="mi">127</span>
+<span class="k">else</span>
+  <span class="nb">exit</span> <span class="nv">$rv</span>
+<span class="n">fi</span>
+</code></pre></div><p>The variable <code>&quot;$@&quot;</code> is a string of the commands passed to the shell script, with spaces within each argument preserved, so it literally executes whatever arguments are passed to it (unlike <code>$*</code> which would split each argument up with spaces before executing). Just like in Perl, <code>$?</code> is the exit value of the last run command, which here I assign to <code>rv</code>. Then the script exits either with 127 or the value of <code>rv</code>. I save the script as <code>cap-exit-value</code>, and use it like this:</p>
+<pre><code>$ git bisect start HEAD b507d1a
+Bisecting: 41 revisions left to test after this (roughly 5 steps)
+$ git bisect run ./cap-exit-value t/foo.t
+</code></pre>
+<p>Now when Git is bisecting, if the test fails or Perl throws an exception, it will be treated as a failure and bisect can continue.</p>
+<p>Hat tip to my colleague Frew, who first explained this issue and solution to me. If you like articles like these, you might enjoy his <a href="https://blog.afoolishmanifesto.com/">blog</a>.</p>
+<p><br>
+<em>This article was originally posted on <a href="http://perltricks.com">PerlTricks.com</a>.</em></p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/git/>git</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/perl/>perl</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/bisect/>bisect</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+  <ul>
+    
+  </ul>
+ </footer>
+
+  </body>
+</html>

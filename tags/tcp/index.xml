@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>tcp on Code Matters - a tech blog</title>
+    <link>https://blog.dnmfarrell.com/tags/tcp/</link>
+    <description>Recent content in tcp on Code Matters - a tech blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 28 Feb 2018 10:40:29 +0000</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/tcp/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>How Does Traceroute Work?</title>
+      <link>https://blog.dnmfarrell.com/post/how-does-traceroute-work-/</link>
+      <pubDate>Wed, 28 Feb 2018 10:40:29 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/how-does-traceroute-work-/</guid>
+      <description>Lately I&amp;rsquo;ve been reading Interconnections by Radia Perlman (great lastname!). It&amp;rsquo;s an old, but still relevant book which describes how low-level networking technologies work, such as ethernet. The book contains many insights and anecdotes. On page 236 I came across this gem:
+ The traceroute utility is a clever hack designed to force each router along the path, in turn, to return an error report. It works by setting the TTL first to 1 (causing the first router to send an error report back to the source) and then setting it to 2 (causing the next router to send an error report) and so forth until the packet reaches the destination.</description>
+    </item>
+    
+  </channel>
+</rss>

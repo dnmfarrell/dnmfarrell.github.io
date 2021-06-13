@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>binary on Code Matters - a tech blog</title>
+    <link>https://blog.dnmfarrell.com/tags/binary/</link>
+    <description>Recent content in binary on Code Matters - a tech blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 23 Aug 2016 08:58:54 +0000</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/binary/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Save Space With Bit Arrays</title>
+      <link>https://blog.dnmfarrell.com/post/save-space-with-bit-arrays/</link>
+      <pubDate>Tue, 23 Aug 2016 08:58:54 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/save-space-with-bit-arrays/</guid>
+      <description>&amp;ldquo;Big data&amp;rdquo; is an overused term, but when you&amp;rsquo;re actually working with big data, every bit can count. Shaving several bits from data structure used billions of times can save a lot of space. A few months ago I was working on a job distribution system; it would send millions of jobs out every day. We wanted to capture every decision made by the system, so that a user could later query the system to understand why a job had or hadn&amp;rsquo;t been sent to a partner.</description>
+    </item>
+    
+    <item>
+      <title>Building A UTF-8 Encoder In Perl</title>
+      <link>https://blog.dnmfarrell.com/post/building-a-utf-8-encoder-in-perl/</link>
+      <pubDate>Tue, 02 Aug 2016 08:47:57 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/building-a-utf-8-encoder-in-perl/</guid>
+      <description>This week I wrote a UTF-8 encoder/decoder. Perl already comes with UTF-8 encoding features built-in, so this wasn&amp;rsquo;t necessary, but sometimes it&amp;rsquo;s nice to understand how things work. The UTF-8 scheme is defined in RFC 3629.
+What does a UTF-8 encoder do? UTF-8 is a scheme for encoding Unicode sequences of codepoints as bytes/octets. A codepoint is just a number, that identifies the Unicode entry (such as 0x24 which is a dollar sign).</description>
+    </item>
+    
+    <item>
+      <title>How to parse binary data with Perl</title>
+      <link>https://blog.dnmfarrell.com/post/how-to-parse-binary-data-with-perl/</link>
+      <pubDate>Mon, 18 Apr 2016 19:56:47 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/how-to-parse-binary-data-with-perl/</guid>
+      <description>Parsing binary data is one of those tasks that seems to come up rarely, but is useful to know. Many common file types like images, music, timestamps, network packets and auth logs all come in binary flavors. Unfortunately it&amp;rsquo;s nowhere near as exciting as the fictitious depictions from Hackers. The good news though is parsing binary data with Perl is easy using the unpack function. I&amp;rsquo;m going to walk you through the three steps you&amp;rsquo;ll need when working with binary data.</description>
+    </item>
+    
+  </channel>
+</rss>

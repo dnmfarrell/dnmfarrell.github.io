@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Save Space With Bit Arrays</title>
+  <meta name="description" content="An old school data structure that efficiently stores data" />
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="16x16">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="32x32">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="96x96"> 
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>Save Space With Bit Arrays</h2>
+
+<em>August 23, 2016</em>
+
+<p>&ldquo;Big data&rdquo; is an overused term, but when you&rsquo;re actually working with big data, every bit can count. Shaving several bits from data structure used billions of times can save a lot of space. A few months ago I was working on a job distribution system; it would send millions of jobs out every day. We wanted to capture every decision made by the system, so that a user could later query the system to understand <em>why</em> a job had or hadn&rsquo;t been sent to a partner.</p>
+<p>The problem was that the system was making billions of decisions a day, so we needed a way to pack those decisions as efficiently as possible. A colleague of mine had the bright idea to use a <a href="https://en.wikipedia.org/wiki/Bit_array">bit array</a>, and it worked very well - we were able to compress the data by a factor of 18 or more. If you&rsquo;re not familiar with bit arrays, or a little rusty on the code, keep reading and I&rsquo;ll show you how to use them with Perl.</p>
+<h3 id="bit-array-basics">Bit array basics</h3>
+<p>Bit arrays are a way of storing multiple booleans in single number. Consider the number 0 as a byte/octet represented as bits:</p>
+<pre><code>00000000
+</code></pre>
+<p>Instead of treating it like a number, using <a href="https://en.wikipedia.org/wiki/Bitwise_operation">bitwise operators</a> we can treat each bit as a separate column. As this is an 8 bit number, we can store up to 8 booleans in it:</p>
+<pre><code>0|0|0|0|0|0|0|0
+</code></pre>
+<p>To store a boolean in the first bit of the array, we can use bitwise or equals (<code>|=</code>). Here&rsquo;s how that looks in C pseudocode:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="n">short</span> <span class="n">bit_array</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">bit_array</span> <span class="o">|=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">6</span><span class="p">;</span>
+</code></pre></div><p>Let&rsquo;s take this one step at a time. First I initialize an 8 bit integer called <code>bit_array</code>. Next, I create a binary number with the bit set that I wish to set in <code>bit_array</code>. I do this with the left bitshift code <code>1 &lt;&lt; 6</code>. This means, &ldquo;shift the bits in the number on the left, 6 places to the left&rdquo;, which does this:</p>
+<pre><code>00000001 &lt;&lt; 6;
+01000000
+</code></pre>
+<p>This is called a bitmask. Next I use or equals to update <code>bit_array</code> with the bitmask <code>01000000</code>. Bitwise or (<code>|</code>) works by setting any bit to 1 in its left operand that is set to 1 in its right operand. Adding a equals sign on the end simply assigns the resulting value to <code>bit_array</code>.</p>
+<p>If we wanted to store a boolean in the fourth bit, we&rsquo;d do this:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="n">bit_array</span> <span class="o">|=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">;</span>
+</code></pre></div><p>So now the <code>bit_array</code> looks like this:</p>
+<pre><code>01001000
+</code></pre>
+<p>To test if a particular bit is set, I can use bitwise and (<code>&amp;</code>):</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">if</span> <span class="p">(</span><span class="n">bit_array</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">6</span><span class="p">))</span> <span class="p">{</span>
+  <span class="sr">/* the seventh column is true */</span>
+<span class="p">}</span>
+</code></pre></div><p>Bitwise and returns a number with every bit set to 0 in its left operand which is 0 in its right operand. So the code <code>1 &lt;&lt; 6</code> bitshifts a number that only has one particular bit set to 1 (<code>01000000</code>). This is the bitmask. If the bit array has that bit set to 1, it will return non-zero (true), else it returns zero (false).</p>
+<h3 id="bit-arrays-in-perl">Bit arrays in Perl</h3>
+<p>I&rsquo;m going to use a contrived example to show how bit arrays work in Perl. Imagine we&rsquo;re working on an ordering system at a pizza restaurant. We need to store all the toppings required for the pizza. In Perl we store numbers in scalars, which are usually 32 or 64 bits long; that&rsquo;s a lot of toppings we can pack into a single number!</p>
+<p>Here is the class:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">package</span> <span class="nn">Pizza::Order</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">utf8</span><span class="p">;</span>
+
+<span class="k">my</span> <span class="nv">%toppings</span> <span class="o">=</span> <span class="p">(</span>
+  <span class="n">tomato</span>        <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="n">cheese</span>        <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="n">onion</span>         <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="n">sausage</span>       <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="n">pepperoni</span>     <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">,</span>
+  <span class="n">ham</span>           <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">,</span>
+  <span class="n">chicken</span>       <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">6</span><span class="p">,</span>
+  <span class="n">bbq_chicken</span>   <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">7</span><span class="p">,</span>
+  <span class="n">olives</span>        <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">,</span>
+  <span class="n">vegetables</span>    <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">9</span><span class="p">,</span>
+  <span class="n">jalapeńo</span>      <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">10</span><span class="p">,</span>
+  <span class="n">ranch</span>         <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">11</span><span class="p">,</span>
+  <span class="n">eggplant</span>      <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">,</span>
+  <span class="n">garlic</span>        <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">13</span><span class="p">,</span>
+<span class="p">);</span>
+
+<span class="k">sub</span> <span class="nf">new</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="nv">$class</span> <span class="o">=</span> <span class="nb">shift</span><span class="p">;</span>
+  <span class="k">my</span> <span class="nv">$self</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">return</span> <span class="nb">bless</span> <span class="o">\</span><span class="nv">$self</span><span class="p">,</span> <span class="nv">$class</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">print_state</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="nv">$self</span> <span class="o">=</span> <span class="nb">shift</span><span class="p">;</span>
+  <span class="nb">printf</span> <span class="s">&#34;%014b\n&#34;</span><span class="p">,</span> <span class="nv">$$self</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">available_toppings</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nb">keys</span> <span class="nv">%toppings</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">add_topping</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="p">(</span><span class="nv">$self</span><span class="p">,</span> <span class="nv">$topping</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+  <span class="c1"># bitwise OR equals to set a bit field</span>
+  <span class="k">return</span> <span class="nv">$$self</span> <span class="o">|=</span> <span class="nv">$toppings</span><span class="p">{</span> <span class="nv">$topping</span> <span class="p">};</span>
+<span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">remove_topping</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="p">(</span><span class="nv">$self</span><span class="p">,</span> <span class="nv">$topping</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+  <span class="c1"># bitwise NOT to invert a field and bitwise AND equals to unset it</span>
+  <span class="k">return</span> <span class="nv">$$self</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="nv">$toppings</span><span class="p">{</span> <span class="nv">$topping</span> <span class="p">};</span>
+<span class="p">}</span>
+
+<span class="k">sub</span> <span class="nf">get_toppings</span> <span class="p">{</span>
+  <span class="k">my</span> <span class="nv">$self</span> <span class="o">=</span> <span class="nb">shift</span><span class="p">;</span>
+  <span class="k">my</span> <span class="nv">@ordered_toppings</span> <span class="o">=</span> <span class="p">();</span>
+  <span class="k">for</span> <span class="k">my</span> <span class="nv">$topping</span> <span class="p">(</span><span class="nb">keys</span> <span class="nv">%toppings</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">push</span> <span class="nv">@ordered_toppings</span><span class="p">,</span> <span class="nv">$topping</span>
+      <span class="c1"># bitwise AND to test if this bit is set</span>
+      <span class="k">if</span> <span class="nv">$$self</span> <span class="o">&amp;</span> <span class="nv">$toppings</span><span class="p">{</span> <span class="nv">$topping</span> <span class="p">};</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nv">@ordered_toppings</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="mi">1</span><span class="p">;</span>
+</code></pre></div><p>I create a class called <code>Pizza::Order</code>. The <code>%toppings</code> hash stores names of pizza toppings and their associated bitmask. I could only think of 14 toppings, leaving 18 spare slots for the future (if we want to stick to 32 bit integers). The <code>new</code> subroutine is a constructor which creates a blessed scalar as the <code>Pizza::Order</code> object.</p>
+<p>The <code>print_state</code> method uses <a href="http://perldoc.perl.org/functions/printf.html">printf</a> to print the Pizza::Order object state as a binary number. This is a really useful feature of <code>printf</code> which many other languages don&rsquo;t have (C &amp; Python for example). Both <code>add_topping</code> and <code>get_toppings</code> use the techniques described earlier to set and check for set bits.</p>
+<p>More interesting perhaps, is the <code>remove_topping</code> method. This uses bitwise not (<code>~</code>) to invert a bitmask and then bitwise and (<code>&amp;</code>) equals to unset it. Pretty nifty, huh? Here&rsquo;s a quick script to test it:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="ch">#!/usr/bin/perl</span>
+<span class="k">use</span> <span class="nn">Pizza::Order</span><span class="p">;</span>
+
+<span class="k">my</span> <span class="nv">$order</span> <span class="o">=</span> <span class="nn">Pizza::Order</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">();</span>
+<span class="nv">$order</span><span class="o">-&gt;</span><span class="n">add_topping</span><span class="p">(</span><span class="s">&#39;cheese&#39;</span><span class="p">);</span>
+<span class="nv">$order</span><span class="o">-&gt;</span><span class="n">add_topping</span><span class="p">(</span><span class="s">&#39;eggplant&#39;</span><span class="p">);</span>
+<span class="nv">$order</span><span class="o">-&gt;</span><span class="n">remove_topping</span><span class="p">(</span><span class="s">&#39;cheese&#39;</span><span class="p">);</span>
+<span class="nv">$order</span><span class="o">-&gt;</span><span class="n">add_topping</span><span class="p">(</span><span class="s">&#39;tomato&#39;</span><span class="p">);</span>
+<span class="nv">$order</span><span class="o">-&gt;</span><span class="n">print_state</span><span class="p">();</span>
+<span class="k">print</span> <span class="s">&#34;$_\n&#34;</span> <span class="k">for</span> <span class="nv">$order</span><span class="o">-&gt;</span><span class="n">get_toppings</span><span class="p">();</span>
+</code></pre></div><p>This prints:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="mo">01000000000001</span>
+<span class="n">eggplant</span>
+<span class="n">tomato</span>
+</code></pre></div><p>The first line is the current state of the <code>$order</code> object. It shows the first, and second-to-last bits set, which correspond to the tomato and eggplant bitmasks. It then prints out those toppings. Yay, it works!</p>
+<h3 id="bit-array-limitations">Bit array limitations</h3>
+<p>One thing to watch out for when storing bit arrays on disk is code change. Imagine if I had several years' worth of pizza orders saved in a database. Then one day, we stopped offering bbq chicken. It would be tempting to update the toppings hash like this:</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">my</span> <span class="nv">%toppings</span> <span class="o">=</span> <span class="p">(</span>
+  <span class="n">tomato</span>        <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="n">cheese</span>        <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="n">onion</span>         <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="n">sausage</span>       <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="n">pepperoni</span>     <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">,</span>
+  <span class="n">ham</span>           <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">,</span>
+  <span class="n">chicken</span>       <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">6</span><span class="p">,</span>
+  <span class="n">olives</span>        <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">7</span><span class="p">,</span> <span class="c1"># deleted bbq_chicken</span>
+  <span class="n">vegetables</span>    <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">,</span>
+  <span class="n">jalapeńo</span>      <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">9</span><span class="p">,</span>
+  <span class="n">ranch</span>         <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">10</span><span class="p">,</span>
+  <span class="n">eggplant</span>      <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">11</span><span class="p">,</span>
+  <span class="n">garlic</span>        <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">,</span>
+<span class="p">);</span>
+</code></pre></div><p>I deleted the <code>bbq_chicken</code> entry and bumped up the remaining toppings bitmasks. The problem is compatibility: in all the historical pizza orders, <code>olives</code> (for example) had a bitmask of <code>00000010000000</code> but in the new code, its bitmask is one lower. So if I tried to load a historical order with this class, the toppings data would be wrong. One way to handle this is remove, but not reuse, the bitmask for the deleted entry.</p>
+<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">my</span> <span class="nv">%toppings</span> <span class="o">=</span> <span class="p">(</span>
+  <span class="n">tomato</span>        <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="n">cheese</span>        <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="n">onion</span>         <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="n">sausage</span>       <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="n">pepperoni</span>     <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">,</span>
+  <span class="n">ham</span>           <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">,</span>
+  <span class="n">chicken</span>       <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">6</span><span class="p">,</span>
+  <span class="c1"># reserved</span>
+  <span class="n">olives</span>        <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">,</span>
+  <span class="n">vegetables</span>    <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">9</span><span class="p">,</span>
+  <span class="n">jalapeńo</span>      <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">10</span><span class="p">,</span>
+  <span class="n">ranch</span>         <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">11</span><span class="p">,</span>
+  <span class="n">eggplant</span>      <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">,</span>
+  <span class="n">garlic</span>        <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">13</span><span class="p">,</span>
+<span class="p">);</span>
+</code></pre></div><p>This limitation makes bitmasks less useful for long-term storage of data, unless the existing bitmasks are unlikely to change. Note that it&rsquo;s fine to add additional toppings and bitmasks, it&rsquo;s just re-using existing bitmasks that causes issues.</p>
+<p>Another thing to consider is upper limits (update - see <a href="http://perltricks.com/article/using-bitmasks-with-large-integers/">using bit arrays with large integers</a>). If you want your Perl code to be compatible with 32 bit and 64 bit Perls, you should probably stick to a maximum of 32 bitmasks (using a module like <a href="https://metacpan.org/pod/bigint">bigint</a> may <em>not</em> work because of addressable memory limitations). You can see the settings your Perl has been compiled with by typing <code>perl -V | grep longsize</code> at the command line. The longsize value is the number of bytes your Perl can store in an integer natively.</p>
+<p>Finally, in order to get the data back out of a bit array it needs to be tested with all the available bitmasks. Consider the <code>get_toppings</code> method in <code>Pizza::Order</code>. To find out what toppings are set, the code has to check every topping&rsquo;s bitmask. This is pretty inefficient. So bitmasks are good for compact data storage, but not fast access.</p>
+<h3 id="references">References</h3>
+<ul>
+<li>Wikipedia has useful entries on <a href="https://en.wikipedia.org/wiki/Bit_array">bit arrays</a> and <a href="https://en.wikipedia.org/wiki/Bitwise_operation">bitwise operators</a></li>
+<li>Perl&rsquo;s official <a href="http://perldoc.perl.org/perlop.html">operator documentation</a> covers the bitwise operators. You can read it in the terminal with the command <code>perldoc perlop</code></li>
+<li>Use Perl&rsquo;s builtin functions <a href="http://perldoc.perl.org/functions/sprintf.html">sprintf</a> (<code>perldoc -f sprintf</code>) and <a href="http://perldoc.perl.org/functions/printf.html">printf</a> (<code>perldoc -f printf</code>) to inspect binary values</li>
+<li>Stringifying / printing numbers as binary isn&rsquo;t the only nice binary feature Perl has over other languages. Another is the ability to write binary numbers inline, just like octal and hexadecimal numbers, for example: <code>0b00001000</code>. This is great for comparing binary numbers</li>
+<li><a href="https://metacpan.org/pod/bigint">bigint</a> is one of several modules on CPAN for working with large integers, see <a href="http://perltricks.com/article/using-bitmasks-with-large-integers/">using bit arrays with large integers</a></li>
+</ul>
+<p><br>
+<em>This article was originally posted on <a href="http://perltricks.com">PerlTricks.com</a>.</em></p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/bit-array/>bit-array</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/bitwise/>bitwise</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/binary/>binary</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/boolean/>boolean</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/bigint/>bigint</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/integer/>integer</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/perl/>perl</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+  <ul>
+    
+  </ul>
+ </footer>
+
+  </body>
+</html>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>baseball on Code Matters - a tech blog</title>
+    <link>https://blog.dnmfarrell.com/tags/baseball/</link>
+    <description>Recent content in baseball on Code Matters - a tech blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 21 Jan 2019 15:41:39 +0000</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/baseball/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Find Relationships Quickly In Data With Chart::Plot</title>
+      <link>https://blog.dnmfarrell.com/post/find-relationships-quickly-in-data-with-chart-plot/</link>
+      <pubDate>Mon, 21 Jan 2019 15:41:39 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/find-relationships-quickly-in-data-with-chart-plot/</guid>
+      <description>Last week I was analyzing server log data at work, and my boss asked me to plot it on a scatter chart. &amp;ldquo;No problem!&amp;rdquo; I thought, firing up Google Sheets. But Sheets slowed to a crawl when I uploaded 250,000 records to plot. Using CPAN I found something better: Chart::Plot. It has a simple interface and is really fast. Here&amp;rsquo;s how you use it.
+A scatter plot script #!/usr/bin/env perl use Chart::Plot; open my $mlb, &amp;#39;&amp;lt;&amp;#39;, &amp;#39;2017-so-hr.</description>
+    </item>
+    
+  </channel>
+</rss>

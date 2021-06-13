@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Code Matters - a tech blog</title>
+    <link>https://blog.dnmfarrell.com/post/</link>
+    <description>Recent content in Posts on Code Matters - a tech blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 12 Jun 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Modulinos In Bash</title>
+      <link>https://blog.dnmfarrell.com/post/modulinos-in-bash/</link>
+      <pubDate>Sat, 12 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/modulinos-in-bash/</guid>
+      <description>A modulino is a file which behaves like a library when it is imported, and like a script when executed. I first read about them in Mastering Perl, but you can create them in other languages too. Here&amp;rsquo;s how to do it in Bash.
+Let&amp;rsquo;s say you have a simple script:
+#!/bin/bash  echo &amp;#34;Hello, World!&amp;#34; A common refactor with scripts is to encapsulate all the code behavior in functions. As this script only does one thing, it&amp;rsquo;s a small change:</description>
+    </item>
+    
+    <item>
+      <title>The Trouble with Reference Counting</title>
+      <link>https://blog.dnmfarrell.com/post/the-trouble-with-reference-counting/</link>
+      <pubDate>Mon, 25 Jan 2021 12:05:23 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/the-trouble-with-reference-counting/</guid>
+      <description>Perl uses a simple form of garbage collection (GC) called reference counting. Every variable created by a Perl program has a refcnt associated with it. If the program creates a reference to the variable, Perl increments its refcnt. Whenever Perl exits a block it reclaims any variables that belong to the block scope. If any are references, their referenced values&#39; refcnt are either decremented or they&amp;rsquo;re reclaimed as well if no other references to them remain.</description>
+    </item>
+    
+    <item>
+      <title>Perl Closures As Objects</title>
+      <link>https://blog.dnmfarrell.com/post/closures-as-objects/</link>
+      <pubDate>Sun, 13 Dec 2020 12:57:03 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/closures-as-objects/</guid>
+      <description>Perl&amp;rsquo;s object system is not one of its most admired qualities. Included in the 1993 Perl 5.0 release, objects were a bolt-on. A big improvement at the time, in today&amp;rsquo;s context the Perl 5 object system requires too much boilerplate and is under-powered compared to other language offerings (no private state, no type checking, no traits, no multimethods). Perl programmers have been trying to upgrade it for years (Cor is a recent example).</description>
+    </item>
+    
+    <item>
+      <title>Inspecting Catalyst</title>
+      <link>https://blog.dnmfarrell.com/post/inspecting-catalyst/</link>
+      <pubDate>Mon, 11 Nov 2019 10:34:07 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/inspecting-catalyst/</guid>
+      <description>One of the convenient things about Catalyst is it lets you register controller methods as actions, so you don&amp;rsquo;t need a separate routing table of URIs to controller methods. A consequence of this though, is that when the web app gets large enough it can be tricky to keep track of all the different paths the app is responding to.
+Catalyst&amp;rsquo;s chained dispatch promotes code reuse, but exacerbates the issue by obfuscating route matching.</description>
+    </item>
+    
+    <item>
+      <title>Creating IP Address Tools From Scratch</title>
+      <link>https://blog.dnmfarrell.com/post/creating-ip-address-tools-from-scratch/</link>
+      <pubDate>Thu, 19 Sep 2019 11:00:07 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/creating-ip-address-tools-from-scratch/</guid>
+      <description>Recently I&amp;rsquo;ve been researching how the Internet is organized, and working with whois data. I&amp;rsquo;ve been creating simple tools that process IP addresses without any help from CPAN. At work we tend to use Net::IP::XS for these tasks, but sometimes it&amp;rsquo;s fun to figure out how things work under the hood.
+Converting to decimal I&amp;rsquo;m sure you&amp;rsquo;re familiar with the IPv4 address format; the &amp;ldquo;dotted quad&amp;rdquo; consists of four numbers between 0 and 255 separated by periods.</description>
+    </item>
+    
+    <item>
+      <title>Find Relationships Quickly In Data With Chart::Plot</title>
+      <link>https://blog.dnmfarrell.com/post/find-relationships-quickly-in-data-with-chart-plot/</link>
+      <pubDate>Mon, 21 Jan 2019 15:41:39 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/find-relationships-quickly-in-data-with-chart-plot/</guid>
+      <description>Last week I was analyzing server log data at work, and my boss asked me to plot it on a scatter chart. &amp;ldquo;No problem!&amp;rdquo; I thought, firing up Google Sheets. But Sheets slowed to a crawl when I uploaded 250,000 records to plot. Using CPAN I found something better: Chart::Plot. It has a simple interface and is really fast. Here&amp;rsquo;s how you use it.
+A scatter plot script #!/usr/bin/env perl use Chart::Plot; open my $mlb, &amp;#39;&amp;lt;&amp;#39;, &amp;#39;2017-so-hr.</description>
+    </item>
+    
+    <item>
+      <title>Spidering websites with Headless Chrome and Selenium</title>
+      <link>https://blog.dnmfarrell.com/post/spidering-websites-with-headless-chrome-and-selenium/</link>
+      <pubDate>Sun, 13 Jan 2019 20:31:37 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/spidering-websites-with-headless-chrome-and-selenium/</guid>
+      <description>Over the holidays I was working on a project that needed to download content from different websites. I needed a web spider, but the typical Perl options like WWW:Mechanize wouldn&amp;rsquo;t cut it, as with JavaScript controlling the content on many websites, I needed a JavaScript-enabled browser. But browsers consume lots of memory - what to do?
+The answer was to use headless Chrome, which works exactly like normal except it has no graphical display, reducing its memory footprint.</description>
+    </item>
+    
+    <item>
+      <title>Validating Untrusted Input: Numbers</title>
+      <link>https://blog.dnmfarrell.com/post/validating-untrusted-input-numbers/</link>
+      <pubDate>Mon, 03 Dec 2018 09:10:38 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/validating-untrusted-input-numbers/</guid>
+      <description>Validating untrusted input safely is critical for application security: SQL injection, XSS and malicious file upload are common attacks which succeed because the user&amp;rsquo;s input is not vetted correctly.
+Numbers are problematic: negative numbers (&amp;ldquo;the sales price was -$500&amp;rdquo;), very large numbers (&amp;ldquo;my account balance is 9,223,372,036,854,775,807&amp;rdquo;) or not-a-number (&amp;ldquo;rm -rf /&amp;quot;) can all wreak havoc if not handled with care.
+Fortunately, Perl has robust capabilities for validating input but there are some edge cases to be aware of that make answering &amp;ldquo;is $x a number?</description>
+    </item>
+    
+    <item>
+      <title>Patching Perl: Loading Modules That Return False</title>
+      <link>https://blog.dnmfarrell.com/post/patching-perl-loading-modules-that-return-false/</link>
+      <pubDate>Mon, 23 Jul 2018 09:01:37 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/patching-perl-loading-modules-that-return-false/</guid>
+      <description>[Update: this is now an issue for Perl 7]
+If you&amp;rsquo;ve been programming Perl for a while, you&amp;rsquo;ve probably run into this exception: Foo.pm did not return a true value. This is a peculiar quirk of the require function: modules must return a true value else Perl interprets it as a failure:
+ The file must return true as the last statement to indicate successful execution of any initialization code, so it&amp;rsquo;s customary to end such a file with &amp;ldquo;1;&amp;rdquo; unless you&amp;rsquo;re sure it&amp;rsquo;ll return true otherwise.</description>
+    </item>
+    
+    <item>
+      <title>Writing New Testing Tools With Test2</title>
+      <link>https://blog.dnmfarrell.com/post/writing-new-testing-tools-with-test2/</link>
+      <pubDate>Tue, 12 Jun 2018 15:26:40 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/writing-new-testing-tools-with-test2/</guid>
+      <description>Perl has had great testing tools for a long time, but Test2 is the single biggest improvement to Perl testing in years. One of my favorite Test2 features is how easy it is to extend it with new tools, and today I&amp;rsquo;ll show you how I wrote my first tool.
+Dealing with known test failures Ideally when your tests fail, it means that something needs to be fixed, and that thing is fixable.</description>
+    </item>
+    
+    <item>
+      <title>How Does Traceroute Work?</title>
+      <link>https://blog.dnmfarrell.com/post/how-does-traceroute-work-/</link>
+      <pubDate>Wed, 28 Feb 2018 10:40:29 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/how-does-traceroute-work-/</guid>
+      <description>Lately I&amp;rsquo;ve been reading Interconnections by Radia Perlman (great lastname!). It&amp;rsquo;s an old, but still relevant book which describes how low-level networking technologies work, such as ethernet. The book contains many insights and anecdotes. On page 236 I came across this gem:
+ The traceroute utility is a clever hack designed to force each router along the path, in turn, to return an error report. It works by setting the TTL first to 1 (causing the first router to send an error report back to the source) and then setting it to 2 (causing the next router to send an error report) and so forth until the packet reaches the destination.</description>
+    </item>
+    
+    <item>
+      <title>Git Bisect And Perl</title>
+      <link>https://blog.dnmfarrell.com/post/git-bisect-and-perl/</link>
+      <pubDate>Tue, 08 Aug 2017 20:27:16 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/git-bisect-and-perl/</guid>
+      <description>At work we have many developers committing code to a large Git repo, and a huge test suite which runs to check the software builds and operates correctly. Inevitably, developers push commits which break a test or two, and in particularly hectic moments, it can be difficult to figure out &amp;ldquo;who broke the build&amp;rdquo;.
+Enter Git&amp;rsquo;s bisect command. I feed it the SHA of the earliest bad commit I know of (or &amp;ldquo;HEAD&amp;rdquo;) and the SHA of the last working commit:</description>
+    </item>
+    
+    <item>
+      <title>On Sigils</title>
+      <link>https://blog.dnmfarrell.com/post/on-sigils/</link>
+      <pubDate>Sun, 14 May 2017 15:45:24 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/on-sigils/</guid>
+      <description>One thing that distinguishes Perl from other languages is its use of sigils; the funny looking symbols placed in front of variable names. As experienced Perl programmers, we assume sigils are an essential part of Perl, but when I dream about my ideal version of Perl, I go back-and-forth as to how sigils would work, and even whether they&amp;rsquo;re required at all.
+Background First though, some background. In Perl there are 5 kinds of sigils:</description>
+    </item>
+    
+    <item>
+      <title>AWS Cloudfront Cache Invalidation With Paws</title>
+      <link>https://blog.dnmfarrell.com/post/aws-cloudfront-cache-invalidation-with-paws/</link>
+      <pubDate>Mon, 03 Apr 2017 08:12:14 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/aws-cloudfront-cache-invalidation-with-paws/</guid>
+      <description>In Deploy a static website with Paws, I developed a simple script to upload files to AWS S3, using Paws. In this article I&amp;rsquo;ll describe a script to invalidate CloudFront caches: this can be used to force CloudFront to re-cache files which have changed on S3.
+AWS CloudFront CloudFront is Amazon&amp;rsquo;s Content Delivery Network service. It&amp;rsquo;s used to cache local versions of files so that they can be delivered to requests faster; for example if you used S3 to host your website in Amazon&amp;rsquo;s US East region, files on the website might load faster for East Coast customers than those on the West Coast.</description>
+    </item>
+    
+    <item>
+      <title>Deploy a Static Website With AWS S3 And Paws</title>
+      <link>https://blog.dnmfarrell.com/post/deploy-a-static-website-with-aws-s3-and-paws/</link>
+      <pubDate>Tue, 21 Feb 2017 10:04:00 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/deploy-a-static-website-with-aws-s3-and-paws/</guid>
+      <description>Amazon Web Services (AWS) is Amazon&amp;rsquo;s cloud services platform and S3 is the AWS file storage service. S3 is commonly used to host static websites. With Perl we have many modules for using AWS, but I like Paws, developed by Jose Luis Martinez which supports many AWS services, including S3. In this article I&amp;rsquo;ll walk you through a Perl script I developed to upload and maintain a static website using S3 and Paws.</description>
+    </item>
+    
+    <item>
+      <title>Perl Module Names Are Filepaths - And That&#39;s All</title>
+      <link>https://blog.dnmfarrell.com/post/perl-module-names-are-filepaths-and-that-s-all/</link>
+      <pubDate>Wed, 14 Dec 2016 08:40:57 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/perl-module-names-are-filepaths-and-that-s-all/</guid>
+      <description>It&amp;rsquo;s common in Perl parlance to treat the words &amp;ldquo;module&amp;rdquo; and &amp;ldquo;package&amp;rdquo; as synonyms, and in practice they almost refer to the same thing. A module name is shorthand for a filepath, but a package name refers to a namespace within the Perl symbol table. It&amp;rsquo;s easy to forget this because module names and packages are written in the same colon-separated notation, and conventionally we give packages the same name as the module filepath.</description>
+    </item>
+    
+    <item>
+      <title>How To Build A Base Module</title>
+      <link>https://blog.dnmfarrell.com/post/how-to-build-a-base-module/</link>
+      <pubDate>Wed, 30 Nov 2016 08:47:58 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/how-to-build-a-base-module/</guid>
+      <description>When working on large Perl projects, a base module is a nice way to setup a standard set of imported routines for the other modules in the project. With a base module you can configure a logger, turn on pragmas and import any other useful routines. Instead of typing:
+use warnings; use strict; use Data::Dumper &amp;#39;Dumper&amp;#39;; use Log::Log4perl &amp;#39;get_logger&amp;#39;; ... and so on, you can type:
+use MyBase; This saves typing all those boilerplate use statements at the top of every module in the project, and it establishes a consistent base so that all modules all start by operating under the same pragmas and so on.</description>
+    </item>
+    
+    <item>
+      <title>Save Space With Bit Arrays</title>
+      <link>https://blog.dnmfarrell.com/post/save-space-with-bit-arrays/</link>
+      <pubDate>Tue, 23 Aug 2016 08:58:54 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/save-space-with-bit-arrays/</guid>
+      <description>&amp;ldquo;Big data&amp;rdquo; is an overused term, but when you&amp;rsquo;re actually working with big data, every bit can count. Shaving several bits from data structure used billions of times can save a lot of space. A few months ago I was working on a job distribution system; it would send millions of jobs out every day. We wanted to capture every decision made by the system, so that a user could later query the system to understand why a job had or hadn&amp;rsquo;t been sent to a partner.</description>
+    </item>
+    
+    <item>
+      <title>Identify Slow Code With Devel::Timer</title>
+      <link>https://blog.dnmfarrell.com/post/identify-slow-code-with-devel-timer/</link>
+      <pubDate>Wed, 17 Aug 2016 08:38:50 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/identify-slow-code-with-devel-timer/</guid>
+      <description>Program speed is an important factor in programming. No one wants their program to execute more slowly. As a general purpose programming language, Perl is usually fast enough for most things, and when it isn&amp;rsquo;t, we have some great tools to help us make it faster. We can use the Benchmark module to compare code and Devel::NYTProf to produce detailed analyses of our programs.
+This article is about Devel::Timer, another module I like to use when I want to optimize an existing subroutine, and I&amp;rsquo;m not sure how long each statement within the subroutine takes to execute.</description>
+    </item>
+    
+    <item>
+      <title>Building A UTF-8 Encoder In Perl</title>
+      <link>https://blog.dnmfarrell.com/post/building-a-utf-8-encoder-in-perl/</link>
+      <pubDate>Tue, 02 Aug 2016 08:47:57 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/building-a-utf-8-encoder-in-perl/</guid>
+      <description>This week I wrote a UTF-8 encoder/decoder. Perl already comes with UTF-8 encoding features built-in, so this wasn&amp;rsquo;t necessary, but sometimes it&amp;rsquo;s nice to understand how things work. The UTF-8 scheme is defined in RFC 3629.
+What does a UTF-8 encoder do? UTF-8 is a scheme for encoding Unicode sequences of codepoints as bytes/octets. A codepoint is just a number, that identifies the Unicode entry (such as 0x24 which is a dollar sign).</description>
+    </item>
+    
+    <item>
+      <title>Untangling Perl&#39;s Subroutine Attributes</title>
+      <link>https://blog.dnmfarrell.com/post/untangling-subroutine-attributes/</link>
+      <pubDate>Wed, 29 Jun 2016 08:37:20 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/untangling-subroutine-attributes/</guid>
+      <description>Subroutine attributes are optional labels that can be included in a subroutine declaration. They&amp;rsquo;re a curious feature with a clunky interface and minimal documentation. They seem underused, but it&amp;rsquo;s hard to think of legitimate uses for them. In my opinion the coolest thing about subroutine attributes is that they run at compile time. This means you can execute custom code before the main program is run, and seeing as Perl gives you access to the symbol table, you can basically do wizardy things.</description>
+    </item>
+    
+    <item>
+      <title>How to parse binary data with Perl</title>
+      <link>https://blog.dnmfarrell.com/post/how-to-parse-binary-data-with-perl/</link>
+      <pubDate>Mon, 18 Apr 2016 19:56:47 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/how-to-parse-binary-data-with-perl/</guid>
+      <description>Parsing binary data is one of those tasks that seems to come up rarely, but is useful to know. Many common file types like images, music, timestamps, network packets and auth logs all come in binary flavors. Unfortunately it&amp;rsquo;s nowhere near as exciting as the fictitious depictions from Hackers. The good news though is parsing binary data with Perl is easy using the unpack function. I&amp;rsquo;m going to walk you through the three steps you&amp;rsquo;ll need when working with binary data.</description>
+    </item>
+    
+    <item>
+      <title>An Introduction To Tmux</title>
+      <link>https://blog.dnmfarrell.com/post/an-introduction-to-tmux/</link>
+      <pubDate>Wed, 24 Feb 2016 09:29:18 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/an-introduction-to-tmux/</guid>
+      <description>Tmux is a terminal multiplexer: it&amp;rsquo;s like a power-up for terminal programming. You can manage several terminals under a session, split terminal screens, detach and re-attach sessions and much more. If you do most of your programming at the command line, you&amp;rsquo;ll find using a terminal multiplexer invaluable.
+Setup First you&amp;rsquo;ll need to install Tmux via your package manager or download it. Tmux is highly configurable but the first change I&amp;rsquo;d recommend is to ssh, not Tmux.</description>
+    </item>
+    
+  </channel>
+</rss>

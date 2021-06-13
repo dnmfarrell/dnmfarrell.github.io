@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>s3 on Code Matters - a tech blog</title>
+    <link>https://blog.dnmfarrell.com/tags/s3/</link>
+    <description>Recent content in s3 on Code Matters - a tech blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 03 Apr 2017 08:12:14 +0000</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/s3/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>AWS Cloudfront Cache Invalidation With Paws</title>
+      <link>https://blog.dnmfarrell.com/post/aws-cloudfront-cache-invalidation-with-paws/</link>
+      <pubDate>Mon, 03 Apr 2017 08:12:14 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/aws-cloudfront-cache-invalidation-with-paws/</guid>
+      <description>In Deploy a static website with Paws, I developed a simple script to upload files to AWS S3, using Paws. In this article I&amp;rsquo;ll describe a script to invalidate CloudFront caches: this can be used to force CloudFront to re-cache files which have changed on S3.
+AWS CloudFront CloudFront is Amazon&amp;rsquo;s Content Delivery Network service. It&amp;rsquo;s used to cache local versions of files so that they can be delivered to requests faster; for example if you used S3 to host your website in Amazon&amp;rsquo;s US East region, files on the website might load faster for East Coast customers than those on the West Coast.</description>
+    </item>
+    
+    <item>
+      <title>Deploy a Static Website With AWS S3 And Paws</title>
+      <link>https://blog.dnmfarrell.com/post/deploy-a-static-website-with-aws-s3-and-paws/</link>
+      <pubDate>Tue, 21 Feb 2017 10:04:00 +0000</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/deploy-a-static-website-with-aws-s3-and-paws/</guid>
+      <description>Amazon Web Services (AWS) is Amazon&amp;rsquo;s cloud services platform and S3 is the AWS file storage service. S3 is commonly used to host static websites. With Perl we have many modules for using AWS, but I like Paws, developed by Jose Luis Martinez which supports many AWS services, including S3. In this article I&amp;rsquo;ll walk you through a Perl script I developed to upload and maintain a static website using S3 and Paws.</description>
+    </item>
+    
+  </channel>
+</rss>
