@@ -38,13 +38,14 @@
 <p>Here are three ways to get the epoch time in Bash.</p>
 <h2 id="use-date">Use Date</h2>
 <p>You can use the <code>date</code> program to generate the epoch time by providing the <code>%s</code> formatting argument. Here I&rsquo;ve included <code>%N</code> to append nanoseconds:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ date +%s.%N
+<pre><code>$ date +%s.%N
 1623598897.598538943
-</code></pre></div><p>Two downsides here: the first is it requires the <code>date</code> program to be available on the system and it forks to run the program, which is slow. If you want to capture the result in a variable, you can use command substitution:</p>
+</code></pre><p>A few downsides here: the first is it requires the <code>date</code> program to be available on the system and it forks to run the program, which is slow. If you want to capture the result in a variable, you can use command substitution:</p>
 <div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="nv">epoch</span><span class="o">=</span><span class="k">$(</span>date +%s.%N<span class="k">)</span>
 </code></pre></div><p>But this is even <em>slower</em> as it starts a subshell first.</p>
+<p>GNU date is needed for the %N option. Even the %s option is not officially portable, as the POSIX <code>strftime</code> <a href="https://pubs.opengroup.org/onlinepubs/009695399/functions/strftime.html">standard</a> doesn&rsquo;t require it.</p>
 <h2 id="use-epochrealtime">Use EPOCHREALTIME</h2>
-<p>Bash version 5 and higher come with the global variable <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html#index-EPOCHREALTIME">EPOCHREALTIME</a> which includes microseconds:</p>
+<p>Bash versions 5 and higher come with the global variable <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html#index-EPOCHREALTIME">EPOCHREALTIME</a> which includes microseconds:</p>
 <pre><code>$ echo &quot;$EPOCHREALTIME&quot;
 1623598897.598538
 </code></pre><p>This is much faster than calling <code>date</code>, however you can&rsquo;t get nanosecond precision.</p>
@@ -52,12 +53,9 @@
 <p>Yet another way is use the <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Builtins.html#index-printf">printf</a> builtin command with a time formatting argument:</p>
 <pre><code>$ printf &quot;%(%s)T\n&quot;
 1623598897
-</code></pre><p>As a builtin command, this is faster than <code>date</code>, and works on older version of Bash that don&rsquo;t have <code>EPOCHREALTIME</code>. However <code>printf</code> doesn&rsquo;t support sub-second precision (presumably because time.h <code>strftime</code> doesn&rsquo;t). And if you want to store the epoch in a variable, you&rsquo;re back to using command substitution, and the subshell bottleneck¹.</p>
-<hr>
-<h2 id="footnotes">Footnotes</h2>
-<ol>
-<li>This isn&rsquo;t quite true; you can open a pipe buffer, redirect <code>printf</code> to the buffer and use <code>read</code> to capture the output, avoiding the subshell and getting fast, in-memory IO. But it&rsquo;s tricky to get right, and probably not worth it unless you&rsquo;re going to invoke <code>printf</code> over and over. See this <a href="https://unix.stackexchange.com/questions/334543/capture-the-output-of-a-shell-function-without-a-subshell/354609#354609">SO Answer</a> for a Linux-only example.</li>
-</ol>
+</code></pre><p>As a builtin command, this is faster than <code>date</code> (no fork) and works on older versions of Bash that don&rsquo;t have <code>EPOCHREALTIME</code>. However <code>printf</code> doesn&rsquo;t support sub-second precision (presumably because time.h <code>strftime</code> doesn&rsquo;t). It can output to a variable with the <code>-v</code> option though:</p>
+<pre><code>$ printf -v epoch &quot;%(%s)T&quot;
+</code></pre><p>This is much faster than command substitution as it avoids the subshell bottleneck.</p>
 
 
 <p>
