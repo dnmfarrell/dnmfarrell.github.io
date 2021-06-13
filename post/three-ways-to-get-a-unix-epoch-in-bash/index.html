@@ -45,14 +45,14 @@
 </code></pre></div><p>But this is even <em>slower</em> as it starts a subshell first.</p>
 <h2 id="use-epochrealtime">Use EPOCHREALTIME</h2>
 <p>Bash version 5 and higher come with the global variable <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html#index-EPOCHREALTIME">EPOCHREALTIME</a> which includes microseconds:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$EPOCHREALTIME</span><span class="s2">&#34;</span>
+<pre><code>$ echo &quot;$EPOCHREALTIME&quot;
 1623598897.598538
-</code></pre></div><p>This is much faster than calling <code>date</code>, however you can&rsquo;t get nanosecond precision.</p>
+</code></pre><p>This is much faster than calling <code>date</code>, however you can&rsquo;t get nanosecond precision.</p>
 <h2 id="use-printf">Use Printf</h2>
 <p>Yet another way is use the <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Builtins.html#index-printf">printf</a> builtin command with a time formatting argument:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nb">printf</span> <span class="s2">&#34;%(%s)T\n&#34;</span>
-<span class="m">1623598897</span>
-</code></pre></div><p>As a builtin command, this is faster than <code>date</code>, and works on older version of Bash that don&rsquo;t have <code>EPOCHREALTIME</code>. However <code>printf</code> doesn&rsquo;t support sub-second precision (presumably because time.h <code>strftime</code> doesn&rsquo;t). And if you want to store the epoch in a variable, you&rsquo;re back to using command substitution, and the subshell bottleneck¹.</p>
+<pre><code>$ printf &quot;%(%s)T\n&quot;
+1623598897
+</code></pre><p>As a builtin command, this is faster than <code>date</code>, and works on older version of Bash that don&rsquo;t have <code>EPOCHREALTIME</code>. However <code>printf</code> doesn&rsquo;t support sub-second precision (presumably because time.h <code>strftime</code> doesn&rsquo;t). And if you want to store the epoch in a variable, you&rsquo;re back to using command substitution, and the subshell bottleneck¹.</p>
 <hr>
 <h2 id="footnotes">Footnotes</h2>
 <ol>
