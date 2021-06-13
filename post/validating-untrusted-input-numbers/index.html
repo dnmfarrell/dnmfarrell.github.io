@@ -87,6 +87,8 @@ infinity
 <span class="p">}</span>
 </code></pre></div><p>I&rsquo;ve defined the sub <code>is_number</code> as a boolean function which accepts a value and returns true if it looks like a number to Perl, and isn&rsquo;t infinity or not-a-number. It copies the variable and does not change its type. This will work for a wide-range of number types, including the really-large numbers Perl converts to decimal string (of dubious benefit!).</p>
 <p>Your application&rsquo;s requirements determine which types of numbers you should accept, just keep in mind that the more varieties of number you accept, the more complicated the validation becomes. If you&rsquo;re familiar with these edge cases however, the task becomes a little easier.</p>
+<p><br>
+<em>This article was originally posted on Perl.com.</em></p>
 
 
 <p>

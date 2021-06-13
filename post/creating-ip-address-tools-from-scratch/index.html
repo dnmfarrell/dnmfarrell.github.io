@@ -145,6 +145,8 @@
 <div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">my</span> <span class="nv">$prefixlen</span> <span class="o">=</span> <span class="mi">32</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="nb">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">$end_decimal</span> <span class="o">-</span> <span class="nv">$start_decimal</span><span class="p">)</span> <span class="o">/</span> <span class="nb">log</span><span class="p">(</span><span class="mi">2</span><span class="p">));</span>
 </code></pre></div><p>It uses the <a href="https://perldoc.perl.org/log">log</a> function which uses the natural logarithm base <em>e</em> (like the <code>ln</code> button on a calculator), so it must be divided by <code>log(2)</code> to act like log<!-- raw HTML omitted -->2<!-- raw HTML omitted -->. Benchmarking this I was surprised to find that the <code>log</code> solution is only a few percent faster than using <code>sprintf</code>.</p>
 <p><strong>Edit</strong>: Dan Book posted an IP address to decimal <a href="https://www.reddit.com/r/perl/comments/d6kncb/creating_ip_address_tools_from_scratch/f0u1flu?utm_source=share&amp;utm_medium=web2x">solution</a> that uses <a href="https://metacpan.org/pod/Socket">Socket</a>.</p>
+<p><br>
+<em>This article was originally posted on Perl.com.</em></p>
 
 
 <p>

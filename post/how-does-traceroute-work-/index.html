@@ -80,6 +80,8 @@
 18 207.171.30.62     83.17 ms   72.52 ms   77.83 ms
 </code></pre><p>The first entry is my wifi router. I&rsquo;m guessing the second is my modem, which did not respond (hence the asterisks). You can see the succession of IP addresses for each router (technically, interface) that responded to the packets. The 18th entry is the last hop because Perl.com (207.171.7.45) sits on the same network (207.171.0.0/18).</p>
 <p><a href="https://metacpan.org/pod/Net::Traceroute::PurePerl">Net::Traceroute::PurePerl</a> currently lacks IPv6 support, and hasn&rsquo;t been updated in a while. The documentation lists IPv6 as a todo item, so if you&rsquo;re interested in traceroute programming, this might be a good opportunity to send a patch. If the author doesn&rsquo;t respond, you can always fork the distribution!</p>
+<p><br>
+<em>This article was originally posted on Perl.com.</em></p>
 
 
 <p>
