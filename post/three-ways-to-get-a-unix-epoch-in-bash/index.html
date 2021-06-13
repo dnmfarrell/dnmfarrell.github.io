@@ -42,7 +42,7 @@
 <p>Yet another way is use the <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Builtins.html#index-printf">printf</a> builtin command with a time formatting argument:</p>
 <div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nb">printf</span> <span class="s2">&#34;%(%s)T\n&#34;</span>
 <span class="m">1623598897</span>
-</code></pre></div><p>As a builtin command, this is faster than <code>date</code>, and works on older version of Bash that don&rsquo;t have <code>EPOCHREALTIME</code>. However <code>printf</code> doesn&rsquo;t support sub-second precision (presumably because time.h <code>strftime</code> doesn&rsquo;t). And if you want to store the epoch in a variable, your back to using command substitution, and the subshell bottleneck¹.</p>
+</code></pre></div><p>As a builtin command, this is faster than <code>date</code>, and works on older version of Bash that don&rsquo;t have <code>EPOCHREALTIME</code>. However <code>printf</code> doesn&rsquo;t support sub-second precision (presumably because time.h <code>strftime</code> doesn&rsquo;t). And if you want to store the epoch in a variable, you&rsquo;re back to using command substitution, and the subshell bottleneck¹.</p>
 <hr>
 <h2 id="footnotes">Footnotes</h2>
 <ol>
