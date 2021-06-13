@@ -43,12 +43,13 @@ hello
   <span class="k">if</span> <span class="o">[[</span> -n <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">]]</span><span class="p">;</span><span class="k">then</span>
     <span class="nv">name</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span>
   <span class="k">else</span>
-    <span class="nv">name</span><span class="o">=</span><span class="s2">&#34;World!&#34;</span>
+    <span class="nv">name</span><span class="o">=</span><span class="s2">&#34;World&#34;</span>
   <span class="k">fi</span>
   <span class="nb">echo</span> <span class="s2">&#34;Hello, </span><span class="nv">$name</span><span class="s2">!&#34;</span>
 <span class="o">}</span>
 hello <span class="s2">&#34;</span><span class="nv">$@</span><span class="s2">&#34;</span>
-</code></pre></div><p>The line <code>hello &quot;$@&quot;</code> calls the hello function, passing any command line arguments the script received. To make this script behave like a library, I just add a condition to the <code>hello</code> function call:</p>
+</code></pre></div><p>The line <code>hello &quot;$@&quot;</code> calls the hello function, passing any command line arguments the script received. I&rsquo;ve added an <code>if</code> clause to use the first function argument if it&rsquo;s not empty, else to default to &ldquo;World!&rdquo; and preserve the original behavior.</p>
+<p>To make this script behave like a library, I just add a condition to the <code>hello</code> function call:</p>
 <div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#!/bin/bash
 </span><span class="cp"></span>
 <span class="k">function</span> hello <span class="o">{</span>

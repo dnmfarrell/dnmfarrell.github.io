@@ -34,17 +34,17 @@
 <div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="nv">epoch</span><span class="o">=</span><span class="k">$(</span>date +%s.%N<span class="k">)</span>
 </code></pre></div><p>But this is even <em>slower</em> as it starts a subshell first.</p>
 <h2 id="use-epochrealtime">Use EPOCHREALTIME</h2>
-<p>Bash version 5 and higher come with the global variable <code>EPOCHREALTIME</code> which includes microseconds:</p>
+<p>Bash version 5 and higher come with the global variable <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html#index-EPOCHREALTIME">EPOCHREALTIME</a> which includes microseconds:</p>
 <div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$EPOCHREALTIME</span><span class="s2">&#34;</span>
 1623598897.598538
 </code></pre></div><p>This is much faster than calling <code>date</code>, however you can&rsquo;t get nanosecond precision.</p>
 <h2 id="use-printf">Use Printf</h2>
-<p>Yet another way is use the <code>printf</code> builtin command with a time formatting argument:</p>
+<p>Yet another way is use the <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Builtins.html#index-printf">printf</a> builtin command with a time formatting argument:</p>
 <div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nb">printf</span> <span class="s2">&#34;%(%s)T\n&#34;</span>
 <span class="m">1623598897</span>
-</code></pre></div><p>As a builtin command, this is faster than <code>date</code>, and works on older version of Bash that don&rsquo;t have <code>EPOCHREALTIME</code>. However <code>printf</code> doesn&rsquo;t support sub-second precision (presumably because time.h <code>strftime</code> doesn&rsquo;t). And if you want to store the epoch in a variable, your back to using command substitution, and the subshell bottleneck<!-- raw HTML omitted -->1<!-- raw HTML omitted -->.</p>
+</code></pre></div><p>As a builtin command, this is faster than <code>date</code>, and works on older version of Bash that don&rsquo;t have <code>EPOCHREALTIME</code>. However <code>printf</code> doesn&rsquo;t support sub-second precision (presumably because time.h <code>strftime</code> doesn&rsquo;t). And if you want to store the epoch in a variable, your back to using command substitution, and the subshell bottleneck¹.</p>
 <hr>
-<h2 id="references">References</h2>
+<h2 id="footnotes">Footnotes</h2>
 <ol>
 <li>This isn&rsquo;t quite true; you can open a pipe buffer, redirect <code>printf</code> to the buffer and use <code>read</code> to capture the output, avoiding the subshell and getting fast, in-memory IO. But it&rsquo;s tricky to get right, and probably not worth it unless you&rsquo;re going to invoke <code>printf</code> over and over. See this <a href="https://unix.stackexchange.com/questions/334543/capture-the-output-of-a-shell-function-without-a-subshell/354609#354609">SO Answer</a> for a Linux-only example.</li>
 </ol>
