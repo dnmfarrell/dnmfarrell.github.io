@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Three Ways to Get a Unix Epoch in Bash</title>
+  <meta name="description" content="And the pros &amp; cons of each" />
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="16x16">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="32x32">  
+  <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="96x96"> 
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>Three Ways to Get a Unix Epoch in Bash</h2>
+
+<em>June 13, 2021</em>
+
+<p>The Unix <a href="https://en.wikipedia.org/wiki/Unix_time">epoch time</a> is the number of elapsed seconds since January 1st, 1970. Epoch times are handy because they&rsquo;re not subject to timezone offsets, and they&rsquo;re numbers, unlike ISO 8601 timestamps for example (&ldquo;1970-01-01T00:00:00Z&rdquo;). That makes them memory efficient, and more importantly, easy to do math with.</p>
+<p>Here are three ways to get the epoch time in Bash.</p>
+<h2 id="use-date">Use Date</h2>
+<p>You can use the <code>date</code> program to generate the epoch time by providing the <code>%s</code> formatting argument. Here I&rsquo;ve included <code>%N</code> to append nanoseconds:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ date +%s.%N
+1623598897.598538943
+</code></pre></div><p>Two downsides here: the first is it requires the <code>date</code> program to be available on the system and it forks to run the program, which is slow. If you want to capture the result in a variable, you can use command substitution:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="nv">epoch</span><span class="o">=</span><span class="k">$(</span>date +%s.%N<span class="k">)</span>
+</code></pre></div><p>But this is even <em>slower</em> as it starts a subshell first.</p>
+<h2 id="use-epochrealtime">Use EPOCHREALTIME</h2>
+<p>Bash version 5 and higher come with the global variable <code>EPOCHREALTIME</code> which includes microseconds:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$EPOCHREALTIME</span><span class="s2">&#34;</span>
+1623598897.598538
+</code></pre></div><p>This is much faster than calling <code>date</code>, however you can&rsquo;t get nanosecond precision.</p>
+<h2 id="use-printf">Use Printf</h2>
+<p>Yet another way is use the <code>printf</code> builtin command with a time formatting argument:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ <span class="nb">printf</span> <span class="s2">&#34;%(%s)T\n&#34;</span>
+<span class="m">1623598897</span>
+</code></pre></div><p>As a builtin command, this is faster than <code>date</code>, and works on older version of Bash that don&rsquo;t have <code>EPOCHREALTIME</code>. However <code>printf</code> doesn&rsquo;t support sub-second precision (presumably because time.h <code>strftime</code> doesn&rsquo;t). And if you want to store the epoch in a variable, your back to using command substitution, and the subshell bottleneck<!-- raw HTML omitted -->1<!-- raw HTML omitted -->.</p>
+<hr>
+<h2 id="references">References</h2>
+<ol>
+<li>This isn&rsquo;t quite true; you can open a pipe buffer, redirect <code>printf</code> to the buffer and use <code>read</code> to capture the output, avoiding the subshell and getting fast, in-memory IO. But it&rsquo;s tricky to get right, and probably not worth it unless you&rsquo;re going to invoke <code>printf</code> over and over. See this <a href="https://unix.stackexchange.com/questions/334543/capture-the-output-of-a-shell-function-without-a-subshell/354609#354609">SO Answer</a> for a Linux-only example.</li>
+</ol>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/bash/>bash</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/datetime/>datetime</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/unixtime/>unixtime</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/epoch/>epoch</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/printf/>printf</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+  <ul>
+    
+  </ul>
+ </footer>
+
+  </body>
+</html>
