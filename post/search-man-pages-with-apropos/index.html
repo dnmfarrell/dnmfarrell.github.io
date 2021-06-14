@@ -18,6 +18,7 @@
   <meta property="og:article:tag" content="unix" />
   <meta property="og:article:tag" content="manual" />
   <meta property="og:article:tag" content="documentation" />
+  <meta property="og:article:tag" content="apropos" />
 </head>
 
   <body>
@@ -43,8 +44,10 @@ h_errno (3)          - get network host entry
 <pre><code>$ apropos -e errno
 errno (3)            - number of last error
 </code></pre><p>This output tells me I can read the errno man page via <code>man 3 errno</code>.</p>
-<p>You can also search man pages with <code>man -k</code>, which is easier to type but it does not support all the options that apropos does (like -e).</p>
-
+<p>You can also search man pages with <code>man -k</code>, which is easier to type but it does not support all the options that apropos does (like -e). I&rsquo;ve heard that some proprietary Unixes do not have the apropos program. If <code>man</code> is your only option, or if that&rsquo;s what you prefer to type, you can get an exact match by using an anchored regex:</p>
+<pre><code>$ man -k '^errno$'
+errno (3)            - number of last error
+</code></pre>
 
 <p>
 
@@ -74,6 +77,14 @@ errno (3)            - number of last error
   
 
   <a href=https://blog.dnmfarrell.com/tags/documentation/>documentation</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/apropos/>apropos</a>
 
 
 
