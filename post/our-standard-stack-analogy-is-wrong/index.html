@@ -32,9 +32,9 @@
 
 <em>October 7, 2021</em>
 
-<p>The most common way we introduce the stack data structure is by saying it&rsquo;s like a spring-loaded plate dispenser, the kind normally found in a cafeteria:</p>
+<p>The most common way we introduce the stack data structure is by saying it&rsquo;s like a spring-loaded plate dispenser, the kind found in a cafeteria:</p>
 <p><img src="/images/our-standard-stack-analogy-is-wrong/plate-dispenser.png" alt=""></p>
-<p>Indeed when I looked up an old computer architecture textbook¹ of mine I found:</p>
+<p>Indeed when I looked up stacks in an old computer architecture textbook¹ of mine I found:</p>
 <blockquote>
 <p>stacks are frequently described by the way plates are stored and used in a cafeteria. New plates are added to the top of the stack, or pushed, and plates already on the stack move down to make room for them.</p>
 </blockquote>
@@ -42,7 +42,7 @@
 <p><img src="/images/our-standard-stack-analogy-is-wrong/englander-stack-diagram.png" alt=""></p>
 <p>This is <em>not</em> how stacks work. If all the members moved each time we pushed or popped the stack, it would be very inefficient! Instead what happens is the members don&rsquo;t move but we update a stack <em>pointer</em> to point to the top of the stack. Perhaps a better analogy is a deck of cards, or a stack of papers:</p>
 <p><img src="/images/our-standard-stack-analogy-is-wrong/paper-stack.png" alt=""></p>
-<p>These seem ok, although the familiarity of the objects introduce other activities which don&rsquo;t apply to stacks, like taking a handful of papers at a time, or &ldquo;cutting&rdquo; a deck of cards.</p>
+<p>These seem ok, although the familiarity of the objects introduce other activities which don&rsquo;t apply to stacks, like &ldquo;cutting&rdquo; a deck of cards or grabbing wads of paper at a time to shred before the authorities arrive.</p>
 <p>Here&rsquo;s a tip I&rsquo;ve learned; when in need of a good computing metaphor, check Knuth. In this case³ he polishes up a Djikstra⁴:</p>
 <p><img src="/images/our-standard-stack-analogy-is-wrong/djikstra-shunting-yard.png" alt=""></p>
 <p><img src="/images/our-standard-stack-analogy-is-wrong/knuth-railroad-yard.png" alt=""></p>
@@ -54,7 +54,7 @@
 <p><img src="/images/our-standard-stack-analogy-is-wrong/pringles-can.jpg" alt=""></p>
 <p>But who removes one pringle at a time? And what kind of psycho puts pringles <em>back</em> in the can? A similar analogy that avoids gluttony is a tennis ball canister:</p>
 <p><img src="/images/our-standard-stack-analogy-is-wrong/tennis-ball-cannister.jpg" alt=""></p>
-<p>One objection might be that people frequently invert the canister to tip all the balls out onto the court; although they do fall out in order still. And tennis does have an air of elitism about it. How about a stack of shopping baskets?</p>
+<p>One objection might be that people frequently invert the canister to tip all of the balls out onto the court; although they do fall out in order still. And tennis does have an air of elitism about it. How about a stack of shopping baskets?</p>
 <p><img src="/images/our-standard-stack-analogy-is-wrong/green-shopping-basket-stack.jpg" alt=""></p>
 <p>This seems like a good candidate to me:</p>
 <ul>
