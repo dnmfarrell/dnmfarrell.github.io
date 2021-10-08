@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Our Standard Stack Analogy Is Wrong</title>
+  <meta name="description" content="In search of a better stack metaphor" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:site" content="@perltricks">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/our-standard-stack-analogy-is-wrong/" />
+  <meta property="og:title" content="Our Standard Stack Analogy Is Wrong" />
+  <meta property="og:description" content="In search of a better stack metaphor">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2021-10-07T09:50:21Z" />
+  <meta property="og:article:tag" content="data-structures" />
+  <meta property="og:article:tag" content="knuth" />
+  <meta property="og:article:tag" content="djikstra" />
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>Our Standard Stack Analogy Is Wrong</h2>
+
+<em>October 7, 2021</em>
+
+<p>The most common way we introduce the stack data structure is by saying it&rsquo;s like a spring-loaded plate dispenser, the kind normally found in a cafeteria:</p>
+<p><img src="/images/our-standard-stack-analogy-is-wrong/plate-dispenser.png" alt=""></p>
+<p>Indeed when I looked up an old computer architecture textbook¹ of mine I found:</p>
+<blockquote>
+<p>stacks are frequently described by the way plates are stored and used in a cafeteria. New plates are added to the top of the stack, or pushed, and plates already on the stack move down to make room for them.</p>
+</blockquote>
+<p>Often we augment the comparison with a diagram showing the members of the stack being pushed down or popped up²:</p>
+<p><img src="/images/our-standard-stack-analogy-is-wrong/englander-stack-diagram.png" alt=""></p>
+<p>This is <em>not</em> how stacks work. If all the members moved each time we pushed or popped the stack, it would be very inefficient! Instead what happens is the members don&rsquo;t move but we update a stack <em>pointer</em> to point to the top of the stack. Perhaps a better analogy is a deck of cards, or a stack of papers:</p>
+<p><img src="/images/our-standard-stack-analogy-is-wrong/paper-stack.png" alt=""></p>
+<p>These seem ok, although the familiarity of the objects introduce other activities which don&rsquo;t apply to stacks, like taking a handful of papers at a time, or &ldquo;cutting&rdquo; a deck of cards.</p>
+<p>Here&rsquo;s a tip I&rsquo;ve learned; when in need of a good computing metaphor, check Knuth. In this case³ he polishes up a Djikstra⁴:</p>
+<p><img src="/images/our-standard-stack-analogy-is-wrong/djikstra-shunting-yard.png" alt=""></p>
+<p><img src="/images/our-standard-stack-analogy-is-wrong/knuth-railroad-yard.png" alt=""></p>
+<p>A railroad yard is pretty good, perhaps a little dated and abstract for younger students though. Knuth goes on to write:</p>
+<blockquote>
+<p>Stacks have been called push-down-lists, reversion storages, cellars, nesting stores, piles, last-in-first-out (&ldquo;LIFO&rdquo;) lists and even yo-yo lists&hellip;This multiplicity of names is interesting in itself, since it is evidence for the importance of the concepts.</p>
+</blockquote>
+<p>I humbly submit that it&rsquo;s evidence that computer scientists proliferate bad metaphors. In searching for alternatives, I came across this fun one from Terry Su⁵:</p>
+<p><img src="/images/our-standard-stack-analogy-is-wrong/pringles-can.jpg" alt=""></p>
+<p>But who removes one pringle at a time? And what kind of psycho puts pringles <em>back</em> in the can? A similar analogy that avoids gluttony is a tennis ball canister:</p>
+<p><img src="/images/our-standard-stack-analogy-is-wrong/tennis-ball-cannister.jpg" alt=""></p>
+<p>One objection might be that people frequently invert the canister to tip all the balls out onto the court; although they do fall out in order still. And tennis does have an air of elitism about it. How about a stack of shopping baskets?</p>
+<p><img src="/images/our-standard-stack-analogy-is-wrong/green-shopping-basket-stack.jpg" alt=""></p>
+<p>This seems like a good candidate to me:</p>
+<ul>
+<li>Almost every student will have used one</li>
+<li>The baskets in the stack do not move up or down on push/pop</li>
+<li>In theory only one basket is removed or returned at one time</li>
+<li>In reality upon removal a basket will frequently stick to the one below it, making it hard to remove or bringing two baskets at a time. Thus introducing students to the concept of bugs</li>
+</ul>
+<h2 id="references">References</h2>
+<ol>
+<li>Englander; The Architecture of Computer Hardware and System Software: An Information Technology Approach, Fourth Edition.</li>
+<li>Ibid.</li>
+<li>Knuth; The Art of Computer Programming, Third Edition.</li>
+<li>Djikstra; ALGOL Bulletin Supplement Number 10. ALGOL-60 Translation</li>
+<li>Su; <a href="https://terry-su.github.io/OldBlog2/blog/detail/vivid-metaphor-of-data-structures.html">Vivid Metaphor of Data Structures</a></li>
+</ol>
+<h2 id="postscript">Postscript</h2>
+<p>Whilst searching for images of cafeteria plate dispensers I did find <a href="https://www.webstaurantstore.com/cres-cor-501-6-480-adjustable-dish-dolly-for-5-7-8-to-7-1-8-plates/2655016480.html">this beauty</a>, a &ldquo;dish dolly&rdquo; which is more like a stack than a spring-loaded plate dispenser. Unfortunately if we taught stacks as being &ldquo;like dish dollies&rdquo; I don&rsquo;t think anybody would know what we were talking about.</p>
+<p><img src="/images/our-standard-stack-analogy-is-wrong/dish-dolly.png" alt=""></p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/data-structures/>data-structures</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/knuth/>knuth</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/djikstra/>djikstra</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+    <p>Follow me on Twitter <a href="https://twitter.com/PerlTricks">@perltricks</a></p>
+ </footer>
+
+  </body>
+</html>
