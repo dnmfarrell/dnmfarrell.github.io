@@ -32,7 +32,7 @@
 
 <h2>Bash Function Names Can Be Almost Anything</h2>
 
-<em>June 20, 2021</em>
+<em class="date">June 20, 2021</em>
 
 <p>A common misconception about Bash is that function names must follow the same rules that variables do. The Bash <a href="https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#index-name">manual</a> even suggests this:</p>
 <blockquote>
@@ -80,7 +80,7 @@ done
 <p>Because variable naming rules are stricter, I prepend jp&rsquo;s global variables with <code>JP_</code>, but the idea is the same².</p>
 <p>Is this a good idea? Well if your code is going to be Bash-only, then it&rsquo;s fine. But it&rsquo;s not portable³. In particular, <a href="https://en.wikipedia.org/wiki/Almquist_shell">ash</a> will not run this code. That&rsquo;s bad news if you want to run it on <a href="https://busybox.net/">Busybox-based</a> Docker containers.</p>
 <p>Bash has a handy <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-POSIX-Mode.html">POSIX mode</a> which you can run your code under if you&rsquo;re not sure if it&rsquo;s portable or not. This also prevents user code from re-defining builtin commands defined in POSIX.</p>
-<hr>
+<h2 id="references">References</h2>
 <ol>
 <li>See <code>man 7 ascii</code> for a handy reference table</li>
 <li>I copied this convention from <a href="https://github.com/ingydotnet/git-hub/blob/master/ext/json-bash/lib/json.bash">JSON.bash</a></li>

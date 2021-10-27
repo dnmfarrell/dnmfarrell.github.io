@@ -33,7 +33,7 @@
 
 <h2>Perl Closures As Objects</h2>
 
-<em>December 13, 2020</em>
+<em class="date">December 13, 2020</em>
 
 <p>Perl&rsquo;s object system is not one of its most admired qualities. Included in the 1993 Perl 5.0 release, objects were a bolt-on. A big improvement at the time, in today&rsquo;s context the Perl 5 object system requires too much boilerplate and is under-powered compared to other language offerings (no private state, no type checking, no traits, no multimethods). Perl programmers have been trying to upgrade it for years (<a href="https://gist.github.com/Ovid/68b33259cb81c01f9a51612c7a294ede">Cor</a> is a recent example).</p>
 <p>Combining a few concepts can lead to great power; 60 years ago in the <a href="https://mitpress.mit.edu/books/lisp-15-programmers-manual">LISP Programmer&rsquo;s Manual</a> John McCarthy showed how a Lisp interpreter could be created from simple parsing rules, a few types and just five (!) elementary functions.</p>
@@ -276,9 +276,11 @@ moose-set   7886981/s         85%          0%          --
 <h2 id="future">Future</h2>
 <p>I&rsquo;ve uploaded this proof-of-concept to <a href="https://github.com/dnmfarrell/Class-Lambda">GitHub</a>. If you&rsquo;re interested in learning more about metaobjects, <a href="https://mitpress.mit.edu/books/art-metaobject-protocol">The Art of the Metaobject Protocol</a> is the definitive reference. For what it&rsquo;s worth, <a href="https://metacpan.org/pod/Moose">Moose</a> is Metaobject Protocol aware, battle-tested and remains the classiest (har) object system available for Perl today.</p>
 <p>Perl&rsquo;s evolution into a kitchen-sink of capabilities provides many tools: some powerful, some mediocre. The question is, where do we go from here? I&rsquo;m not convinced &ldquo;more OO&rdquo; is the right direction for Perl; the language is already huge, the interpreter a byzantine labyrinth of C macros, and Ruby cornered the market for expressive, object-oriented dynamic languages long-ago.</p>
-<p>One way to fight the bloat would be to distill the role of the Perl interpreter down to fewer, more powerful ideas. Objects are more powerful than subroutines, and a Metaobject Protocol more profound still. Yet beneath that, lexical scoping and a thoughtful type system could power them all<!-- raw HTML omitted -->†<!-- raw HTML omitted -->.</p>
-<hr>
-<p><!-- raw HTML omitted -->†<!-- raw HTML omitted --> Doug Hoyte writes in <a href="https://letoverlambda.com/index.cl/guest/chap2.html#sec_7">Let Over Lambda</a>: &ldquo;Let and lambda are fundamental; objects and classes are derivatives.&rdquo;</p>
+<p>One way to fight the bloat would be to distill the role of the Perl interpreter down to fewer, more powerful ideas. Objects are more powerful than subroutines, and a Metaobject Protocol more profound still. Yet beneath that, lexical scoping and a thoughtful type system could power them all¹.</p>
+<h2 id="references">References</h2>
+<ol>
+<li>Doug Hoyte writes in <a href="https://letoverlambda.com/index.cl/guest/chap2.html#sec_7">Let Over Lambda</a>: &ldquo;Let and lambda are fundamental; objects and classes are derivatives.&rdquo;</li>
+</ol>
 <p><br>
 <em>This article was originally posted on Perl.com.</em></p>
 

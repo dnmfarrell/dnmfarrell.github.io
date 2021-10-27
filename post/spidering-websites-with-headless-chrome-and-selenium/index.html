@@ -33,7 +33,7 @@
 
 <h2>Spidering websites with Headless Chrome and Selenium</h2>
 
-<em>January 13, 2019</em>
+<em class="date">January 13, 2019</em>
 
 <p>Over the holidays I was working on a project that needed to download content from different websites. I needed a web spider, but the typical Perl options like <a href="https://metacpan.org/pod/WWW:Mechanize">WWW:Mechanize</a> wouldn&rsquo;t cut it, as with JavaScript controlling the content on many websites, I needed a JavaScript-enabled browser. But browsers consume lots of memory - what to do?</p>
 <p>The answer was to use headless Chrome, which works exactly like normal except it has no graphical display, reducing its memory footprint. I can control it using <a href="https://metacpan.org/pod/Selenium::Remote::Driver">Selenium::Remote::Driver</a> and Selenium server. Here&rsquo;s how I did it.</p>

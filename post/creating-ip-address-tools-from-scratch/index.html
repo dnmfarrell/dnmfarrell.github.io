@@ -32,7 +32,7 @@
 
 <h2>Creating IP Address Tools From Scratch</h2>
 
-<em>September 19, 2019</em>
+<em class="date">September 19, 2019</em>
 
 <p>Recently I&rsquo;ve been researching how the Internet is organized, and working with <a href="https://en.wikipedia.org/wiki/WHOIS">whois</a> data. I&rsquo;ve been creating simple tools that process IP addresses without any help from CPAN. At work we tend to use <a href="https://metacpan.org/pod/Net::IP::XS">Net::IP::XS</a> for these tasks, but sometimes it&rsquo;s fun to figure out how things work under the hood.</p>
 <h2 id="converting-to-decimal">Converting to decimal</h2>
@@ -140,17 +140,17 @@ while (&lt;&lt;&gt;&gt;) {
 <p>The script reads input one line at a time. It splits the string up into the starting and ending IPv4 addresses, and uses that same pack-unpack routine to convert each to its decimal. It then calculates the prefix length by finding the difference between the start and end addresses, stringifying it to binary with <a href="https://perldoc.perl.org/sprintf">sprintf</a> and subtracting the number of bits from 32 (because IPv4 addresses are 32-bit integers).</p>
 <p>The trouble with the prefix length calculation is it uses stringification - sticking with numbers should be faster if there was a way to do it. Let&rsquo;s recap what we know:</p>
 <ol>
-<li>We can calculate the maximum (unsigned) 32-bit integer value using a base of 2: 2<!-- raw HTML omitted -->32<!-- raw HTML omitted --> - 1</li>
+<li>We can calculate the maximum (unsigned) 32-bit integer value using a base of 2: 2³² - 1</li>
 <li>IPv4 addresses are just another way of representing unsigned 32-bit integers</li>
 <li>With an input like <code>197.232.80.0 - 197.232.83.255</code> we can calculate the difference between the two values (1023)</li>
-<li>We know the base is 2 and the result is 1023; we just don&rsquo;t know what the exponent is: 2<!-- raw HTML omitted -->x<!-- raw HTML omitted --> - 1 = 1023</li>
-<li>To solve for <code>x</code>, we can use the logarithm function which is the inverse of exponentiation</li>
-<li>The solution is: x = log<!-- raw HTML omitted -->2<!-- raw HTML omitted --> ⋅ (1023 + 1)</li>
+<li>We know the base is 2 and the result is 1023; we just don&rsquo;t know what the exponent is: 2ⁿ - 1 = 1023</li>
+<li>To solve for <code>n</code>, we can use the logarithm function which is the inverse of exponentiation</li>
+<li>The solution is: n = log₂ ⋅ (1023 + 1)</li>
 </ol>
 <p>Here&rsquo;s the Perl solution:</p>
 <pre><code class="language-perl">my $prefixlen = 32 - int(log(1 + $end_decimal - $start_decimal) / log(2));
 </code></pre>
-<p>It uses the <a href="https://perldoc.perl.org/log">log</a> function which uses the natural logarithm base <em>e</em> (like the <code>ln</code> button on a calculator), so it must be divided by <code>log(2)</code> to act like log<!-- raw HTML omitted -->2<!-- raw HTML omitted -->. Benchmarking this I was surprised to find that the <code>log</code> solution is only a few percent faster than using <code>sprintf</code>.</p>
+<p>It uses the <a href="https://perldoc.perl.org/log">log</a> function which uses the natural logarithm base <em>e</em> (like the <code>ln</code> button on a calculator), so it must be divided by <code>log(2)</code> to act like log₂. Benchmarking this I was surprised to find that the <code>log</code> solution is only a few percent faster than using <code>sprintf</code>.</p>
 <p><strong>Edit</strong>: Dan Book posted an IP address to decimal <a href="https://www.reddit.com/r/perl/comments/d6kncb/creating_ip_address_tools_from_scratch/f0u1flu?utm_source=share&amp;utm_medium=web2x">solution</a> that uses <a href="https://metacpan.org/pod/Socket">Socket</a>.</p>
 <p><br>
 <em>This article was originally posted on Perl.com.</em></p>

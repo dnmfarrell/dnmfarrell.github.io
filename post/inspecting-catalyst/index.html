@@ -29,7 +29,7 @@
 
 <h2>Inspecting Catalyst</h2>
 
-<em>November 11, 2019</em>
+<em class="date">November 11, 2019</em>
 
 <p>One of the convenient things about <a href="https://metacpan.org/pod/Catalyst">Catalyst</a> is it lets you register controller methods as actions, so you don&rsquo;t need a separate routing table of URIs to controller methods. A consequence of this though, is that when the web app gets large enough it can be tricky to keep track of all the different paths the app is responding to.</p>
 <p>Catalyst&rsquo;s <a href="https://metacpan.org/pod/Catalyst::DispatchType::Chained">chained dispatch</a> promotes code reuse, but exacerbates the issue by obfuscating route matching. Catalyst also permits declaring controller methods which match an unlimited number of paths after a prefix; another recipe for unpredictablity.</p>
