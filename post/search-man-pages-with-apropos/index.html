@@ -6,7 +6,6 @@
   <title>Search Man Pages With Apropos</title>
   <meta name="description" content="How to find the docs you are looking for" />
   <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
-  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
   <meta property="twitter:card" content="summary">
   <meta property="twitter:site" content="@perltricks">
   <meta property="og:url" content="https://blog.dnmfarrell.com/post/search-man-pages-with-apropos/" />
@@ -39,15 +38,18 @@ clnt_perrno (3)      - library routines for remote procedure calls
 clnt_sperrno (3)     - library routines for remote procedure calls
 errno (3)            - number of last error
 h_errno (3)          - get network host entry
-</code></pre><p>This returns the man page name and section number (run <code>man man</code> for a list of section numbers and their meaning). In this case all the results are in section 3, Library calls.</p>
+</code></pre>
+<p>This returns the man page name and section number (run <code>man man</code> for a list of section numbers and their meaning). In this case all the results are in section 3, Library calls.</p>
 <p>It finds matches by looking for instances of the search term in the man page name and description. By default apropos treats the search term like a regex, which is why it returned substring matches like &ldquo;clnt_perrno&rdquo;. Use the -e flag for exact matches:</p>
 <pre><code>$ apropos -e errno
 errno (3)            - number of last error
-</code></pre><p>This output tells me I can read the errno man page via <code>man 3 errno</code>.</p>
+</code></pre>
+<p>This output tells me I can read the errno man page via <code>man 3 errno</code>.</p>
 <p>You can also search man pages with <code>man -k</code>, which is easier to type but it does not support all the options that apropos does (like -e). I&rsquo;ve heard that some proprietary Unixes do not have the apropos program. If <code>man</code> is your only option, or if that&rsquo;s what you prefer to type, you can get an exact match by using an anchored regex:</p>
 <pre><code>$ man -k '^errno$'
 errno (3)            - number of last error
 </code></pre>
+
 
 <p>
 

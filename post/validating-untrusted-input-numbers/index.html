@@ -6,7 +6,6 @@
   <title>Validating Untrusted Input: Numbers</title>
   <meta name="description" content="Common techniques and edge cases" />
   <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
-  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
   <meta property="twitter:card" content="summary">
   <meta property="twitter:site" content="@perltricks">
   <meta property="og:url" content="https://blog.dnmfarrell.com/post/validating-untrusted-input-numbers/" />
@@ -60,14 +59,15 @@ infinity
 </code></pre>
 <p>This is because <code>looks_like_number</code> is returning the Perl interpreter&rsquo;s C function return value which may include a binary ORing of several different flags Perl keeps for each variable (<a href="https://stackoverflow.com/questions/19201234/behavior-of-scalarutillooks-like-number-in-perl/19202153#19202153">stackoverflow</a>).</p>
 <p>All of these <em>are</em> true values, so it shouldn&rsquo;t be a problem if you don&rsquo;t write conditions expecting the return value to be 1:</p>
-<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">use</span> <span class="nn">Scalar::Util</span> <span class="s">&#39;looks_like_number&#39;</span><span class="p">;</span>
+<pre><code class="language-perl">use Scalar::Util 'looks_like_number';
 
-<span class="c1"># wrong</span>
-<span class="k">if</span> <span class="p">(</span><span class="n">looks_like_number</span><span class="p">(</span><span class="nv">$foo</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">...</span>
+# wrong
+if (looks_like_number($foo) == 1) ...
 
-<span class="c1"># right!</span>
-<span class="k">if</span> <span class="p">(</span><span class="n">looks_like_number</span><span class="p">(</span><span class="nv">$foo</span><span class="p">))</span> <span class="o">...</span>
-</code></pre></div><h2 id="the-observer-effect">The Observer Effect</h2>
+# right!
+if (looks_like_number($foo)) ...
+</code></pre>
+<h2 id="the-observer-effect">The Observer Effect</h2>
 <p>Another edge case in Perl is that the act of observing a scalar&rsquo;s value can change the scalar&rsquo;s type from number to string.</p>
 <p>Perl scalars can contain different types like strings, integers and floating point numbers. This is usually convenient: if you need to print a number, you don&rsquo;t have to cast it to a string first because Perl tries to Do the Right Thing™. Scalars are <a href="https://www.effectiveperlprogramming.com/2011/12/create-your-own-dualvars/">dualvars</a>, for efficiency, the Perl interpreter casts the number to a string and stores it in the scalar&rsquo;s struct string slot, so if the scalar is interpolated a second time, Perl doesn&rsquo;t need to cast it to a string again.</p>
 <p>A common way this issue manifests itself is when serializing a Perl data structure to JSON. Scalars which contain numbers when stringified, are then serialized to JSON as strings, instead of integers:</p>
@@ -79,13 +79,14 @@ infinity
 <p>Interpolating a number in a string or matching it against a regex both cause the number to string conversion. Depending on your requirements, this might not matter, but if it does, when validating number input, make a local copy of the variable first so that your validation routines don&rsquo;t subtly change the variable type.</p>
 <h2 id="combining-techniques">Combining techniques</h2>
 <p>Combining these ideas into a sub:</p>
-<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">use</span> <span class="nn">Scalar::Util</span> <span class="s">&#39;looks_like_number&#39;</span><span class="p">;</span>
+<pre><code class="language-perl">use Scalar::Util 'looks_like_number';
 
-<span class="k">sub</span> <span class="nf">is_number</span> <span class="p">{</span>
-  <span class="k">my</span> <span class="nv">$num</span> <span class="o">=</span> <span class="nb">shift</span><span class="p">;</span>
-  <span class="k">return</span> <span class="n">looks_like_number</span><span class="p">(</span><span class="nv">$num</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nv">$num</span> <span class="o">!~</span> <span class="sr">/inf|nan/i</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div><p>I&rsquo;ve defined the sub <code>is_number</code> as a boolean function which accepts a value and returns true if it looks like a number to Perl, and isn&rsquo;t infinity or not-a-number. It copies the variable and does not change its type. This will work for a wide-range of number types, including the really-large numbers Perl converts to decimal string (of dubious benefit!).</p>
+sub is_number {
+  my $num = shift;
+  return looks_like_number($num) &amp;&amp; $num !~ /inf|nan/i;
+}
+</code></pre>
+<p>I&rsquo;ve defined the sub <code>is_number</code> as a boolean function which accepts a value and returns true if it looks like a number to Perl, and isn&rsquo;t infinity or not-a-number. It copies the variable and does not change its type. This will work for a wide-range of number types, including the really-large numbers Perl converts to decimal string (of dubious benefit!).</p>
 <p>Your application&rsquo;s requirements determine which types of numbers you should accept, just keep in mind that the more varieties of number you accept, the more complicated the validation becomes. If you&rsquo;re familiar with these edge cases however, the task becomes a little easier.</p>
 <p><br>
 <em>This article was originally posted on Perl.com.</em></p>

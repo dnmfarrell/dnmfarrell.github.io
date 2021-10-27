@@ -6,7 +6,6 @@
   <title>The Trouble with Reference Counting</title>
   <meta name="description" content="Is tracing garbage collection a realistic alternative for Perl?" />
   <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
-  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
   <meta property="twitter:card" content="summary">
   <meta property="twitter:site" content="@perltricks">
   <meta property="og:url" content="https://blog.dnmfarrell.com/post/the-trouble-with-reference-counting/" />
@@ -40,11 +39,12 @@
 <p>Predictable and timely GC provides a useful mechanism for destructors. A popular example is that &ldquo;lexical&rdquo; filehandles are automatically closed when they go out scope; Perl programs do not need to call <a href="https://perldoc.perl.org/functions/close">close</a> on filehandles themselves, and because the filehandle is closed immediately, there is no risk of contention from a new filehandle being opened on the same file before the original is reclaimed.</p>
 <h2 id="how-expensive-is-reference-counting">How expensive is reference counting?</h2>
 <p>Different reference counting operations have different costs. Consider the following Perl subroutine:</p>
-<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">sub</span> <span class="nf">update_customer</span> <span class="p">{</span>
-  <span class="k">my</span> <span class="p">(</span><span class="nv">$customer</span><span class="p">,</span> <span class="nv">$values</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
-  <span class="o">...</span>
-<span class="p">}</span>
-</code></pre></div><p>It&rsquo;s called with two arguments; a customer object and a hashref of values. The <code>my</code> declaration causes Perl to add the lexical variables <code>$customer</code> and <code>$values</code> to the savestack (here it performs an optimization, adding them as one group entry instead of two). Each variable is initialized with a <code>refcnt</code> of 1. Each argument is then assigned to its corresponding lexical variable which increments the <code>refcnt</code> of the reference&rsquo;s corresponding value. This is cheap as the Perl interpreter just increments the value&rsquo;s <code>refcnt</code> in its header struct.</p>
+<pre><code class="language-perl">sub update_customer {
+  my ($customer, $values) = @_;
+  ...
+}
+</code></pre>
+<p>It&rsquo;s called with two arguments; a customer object and a hashref of values. The <code>my</code> declaration causes Perl to add the lexical variables <code>$customer</code> and <code>$values</code> to the savestack (here it performs an optimization, adding them as one group entry instead of two). Each variable is initialized with a <code>refcnt</code> of 1. Each argument is then assigned to its corresponding lexical variable which increments the <code>refcnt</code> of the reference&rsquo;s corresponding value. This is cheap as the Perl interpreter just increments the value&rsquo;s <code>refcnt</code> in its header struct.</p>
 <p>When the subroutine returns a scope exit occurs, and <code>$customer</code> and <code>$values</code> must be reclaimed. Their group is popped off the savestack. Perl fetches the <code>refcnt</code> of <code>$customer</code>, saves it to a local variable, and tests it to see if it is greater than 1. As the <code>refcnt</code> of <code>$customer</code> is 1, it must be reclaimed. Here Perl performs another optimization, essentially doing <code>undef $customer</code> leaving it ready to be reused next time the subroutine is called. As <code>$customer</code> is a reference, the referenced customer object&rsquo;s <code>refcnt</code> must also be fetched and tested. In this case it&rsquo;s greater than 1, so Perl decrements the local <code>refcnt</code> and stores it back in the customer object&rsquo;s header struct. Perl then performs the same decrement routine for <code>$values</code>. Decrement&rsquo;s multiple steps causes it to be slightly more expensive than increment, but scope management pushing and popping the savestack is relatively expensive.</p>
 <p>We don&rsquo;t have any data on how long each operation takes, or estimates of how long Perl spends on reference counting activities during the course of a program. Nor is such data available for other reference counting dynamic languages like Python and PHP. Some research has shown that reference counting increases GC runtime by 30% compared to tracing<!-- raw HTML omitted -->1, 2<!-- raw HTML omitted -->, but it&rsquo;s not clear how representative that is of Perl&rsquo;s optimized routines.</p>
 <h2 id="drawbacks">Drawbacks</h2>

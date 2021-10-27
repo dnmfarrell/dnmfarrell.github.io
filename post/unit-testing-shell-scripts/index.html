@@ -6,7 +6,6 @@
   <title>Unit Testing Shell Scripts</title>
   <meta name="description" content="(With the Test Anything Protocol)" />
   <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
-  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
   <meta property="twitter:card" content="summary">
   <meta property="twitter:site" content="@perltricks">
   <meta property="og:url" content="https://blog.dnmfarrell.com/post/unit-testing-shell-scripts/" />
@@ -40,62 +39,67 @@
 <p>For those reasons I like the <a href="https://testanything.org/">Test Anything Protocol</a>. TAP-compliant test code must emit a test plan with the number of tests to run, and for every test case either &ldquo;ok&rdquo; for passes or &ldquo;not ok&rdquo; for failures. So TAP parsers can verify that the right number of tests ran, and when tests do fail, programmers can inspect the output and see the context of the failure. To that end I wrote a minimalist <a href="https://github.com/dnmfarrell/tap.sh/">TAP library</a> for POSIX-compatible shells.</p>
 <h2 id="tutorial">Tutorial</h2>
 <p>Imagine we have written a shell library called <code>examples/hello/hello.sh</code>. It has one function, which by default prints &ldquo;Hello, World!&quot;:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">hello<span class="o">()</span> <span class="o">{</span>
-  <span class="nv">subject</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span>
-  <span class="o">[</span> -z <span class="s2">&#34;</span><span class="nv">$subject</span><span class="s2">&#34;</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nv">subject</span><span class="o">=</span><span class="s2">&#34;World!&#34;</span>
-  <span class="nb">echo</span> <span class="s2">&#34;Hello, </span><span class="nv">$subject</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-</code></pre></div><p>To test it, we want to call <code>hello</code> and check it prints the expected output. Here&rsquo;s our test-script, <code>examples/hello/hello-test.sh</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#!/bin/sh
-</span><span class="cp"></span>
-<span class="c1"># import our test functions and our hello function</span>
-. <span class="s2">&#34;</span><span class="nv">$PWD</span><span class="s2">/tap.sh&#34;</span>
-. <span class="s2">&#34;</span><span class="nv">$PWD</span><span class="s2">/examples/hello/hello.sh&#34;</span>
+<pre><code class="language-sh">hello() {
+  subject=&quot;$1&quot;
+  [ -z &quot;$subject&quot; ] &amp;&amp; subject=&quot;World!&quot;
+  echo &quot;Hello, $subject&quot;
+}
+</code></pre>
+<p>To test it, we want to call <code>hello</code> and check it prints the expected output. Here&rsquo;s our test-script, <code>examples/hello/hello-test.sh</code>:</p>
+<pre><code class="language-sh">#!/bin/sh
 
-<span class="c1"># test #1 does hello() print the expected output?</span>
-<span class="nv">hello_out</span><span class="o">=</span><span class="k">$(</span>hello<span class="k">)</span>
-<span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$hello_out</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;Hello, World!&#34;</span> <span class="o">]</span><span class="p">;</span><span class="k">then</span>
-  tap_pass <span class="s2">&#34;hello&#34;</span>
-<span class="k">else</span>
-  tap_fail <span class="s2">&#34;hello&#34;</span>
-<span class="k">fi</span>
+# import our test functions and our hello function
+. &quot;$PWD/tap.sh&quot;
+. &quot;$PWD/examples/hello/hello.sh&quot;
 
-<span class="c1"># print our test plan to ensure we got here</span>
+# test #1 does hello() print the expected output?
+hello_out=$(hello)
+if [ &quot;$hello_out&quot; = &quot;Hello, World!&quot; ];then
+  tap_pass &quot;hello&quot;
+else
+  tap_fail &quot;hello&quot;
+fi
+
+# print our test plan to ensure we got here
 tap_end
-</code></pre></div><p>We can run the test script from the command line:</p>
+</code></pre>
+<p>We can run the test script from the command line:</p>
 <pre><code>./examples/hello/hello-test.sh 
 ok 1 hello
 1..1
-</code></pre><p>This prints &ldquo;ok&rdquo; as our test passed! It also prints the number of tests run, so we can be sure all of our test script code was executed. However all this script does is emit TAP output. We can run it with a test harness which will interpret the output and tell us if the test passed or not. Perl&rsquo;s <a href="https://perldoc.perl.org/prove">prove</a> is an easy harness to run and usually comes with Perl. You might already have it installed.</p>
+</code></pre>
+<p>This prints &ldquo;ok&rdquo; as our test passed! It also prints the number of tests run, so we can be sure all of our test script code was executed. However all this script does is emit TAP output. We can run it with a test harness which will interpret the output and tell us if the test passed or not. Perl&rsquo;s <a href="https://perldoc.perl.org/prove">prove</a> is an easy harness to run and usually comes with Perl. You might already have it installed.</p>
 <pre><code>$ prove ./examples/hello/hello-test.sh
 ./examples/hello/hello-test.sh .. ok
 All tests successful.
 Files=1, Tests=1,  0 wallclock secs ( 0.01 usr +  0.00 sys =  0.01 CPU)
 Result: PASS
-</code></pre><p>Our <code>hello</code> function actually has two code paths: the default is to print &ldquo;Hello, World!&rdquo; but it also accepts an optional subject to greet instead. Let&rsquo;s expand our test script to check that path:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#!/bin/sh
-</span><span class="cp"></span>
-<span class="c1"># import our test functions and our hello function</span>
-. <span class="s2">&#34;</span><span class="nv">$PWD</span><span class="s2">/tap.sh&#34;</span>
-. <span class="s2">&#34;</span><span class="nv">$PWD</span><span class="s2">/examples/hello/hello.sh&#34;</span>
+</code></pre>
+<p>Our <code>hello</code> function actually has two code paths: the default is to print &ldquo;Hello, World!&rdquo; but it also accepts an optional subject to greet instead. Let&rsquo;s expand our test script to check that path:</p>
+<pre><code class="language-sh">#!/bin/sh
 
-<span class="c1"># test #1 does hello() print the expected output?</span>
-<span class="nv">hello_out</span><span class="o">=</span><span class="k">$(</span>hello<span class="k">)</span>
-<span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$hello_out</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;Hello, World!&#34;</span> <span class="o">]</span><span class="p">;</span><span class="k">then</span>
-  tap_pass <span class="s2">&#34;hello&#34;</span>
-<span class="k">else</span>
-  tap_fail <span class="s2">&#34;hello&#34;</span>
-<span class="k">fi</span>
+# import our test functions and our hello function
+. &quot;$PWD/tap.sh&quot;
+. &quot;$PWD/examples/hello/hello.sh&quot;
 
-<span class="c1"># test #2 does hello &#34;you&#34; print the expected output?</span>
-<span class="nv">hello_out</span><span class="o">=</span><span class="k">$(</span>hello <span class="s2">&#34;you&#34;</span><span class="k">)</span>
-<span class="nv">pass</span><span class="o">=</span><span class="m">0</span>
-<span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$hello_out</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;Hello, you!&#34;</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nv">pass</span><span class="o">=</span><span class="m">1</span>
-tap_ok <span class="s2">&#34;</span><span class="nv">$pass</span><span class="s2">&#34;</span> <span class="s2">&#34;hello \&#34;you\&#34;&#34;</span>
+# test #1 does hello() print the expected output?
+hello_out=$(hello)
+if [ &quot;$hello_out&quot; = &quot;Hello, World!&quot; ];then
+  tap_pass &quot;hello&quot;
+else
+  tap_fail &quot;hello&quot;
+fi
 
-<span class="c1"># print our test plan to ensure we ran 2 tests</span>
-tap_end <span class="s2">&#34;2&#34;</span>
-</code></pre></div><p>Test #2 checks that calling <code>hello</code> with &ldquo;you&rdquo; emits &ldquo;Hello, you!&rdquo; instead of the default. Instead of an if/else block, it calls <code>tap_ok</code> with a success flag to pass or fail the test. It also calls <code>tap_end</code> with the number of tests to ensure we ran both tests. Running it with <code>prove -v</code> shows us the individual tests run, as well as a summary:</p>
+# test #2 does hello &quot;you&quot; print the expected output?
+hello_out=$(hello &quot;you&quot;)
+pass=0
+[ &quot;$hello_out&quot; = &quot;Hello, you!&quot; ] &amp;&amp; pass=1
+tap_ok &quot;$pass&quot; &quot;hello \&quot;you\&quot;&quot;
+
+# print our test plan to ensure we ran 2 tests
+tap_end &quot;2&quot;
+</code></pre>
+<p>Test #2 checks that calling <code>hello</code> with &ldquo;you&rdquo; emits &ldquo;Hello, you!&rdquo; instead of the default. Instead of an if/else block, it calls <code>tap_ok</code> with a success flag to pass or fail the test. It also calls <code>tap_end</code> with the number of tests to ensure we ran both tests. Running it with <code>prove -v</code> shows us the individual tests run, as well as a summary:</p>
 <pre><code>$ prove -v examples/hello/hello-test.sh
 examples/hello/hello-test.sh ..
 ok 1 hello
@@ -109,24 +113,26 @@ examples/hello/hello-test.sh (Wstat: 0 Tests: 2 Failed: 1)
   Failed test:  2
 Files=1, Tests=2,  0 wallclock secs ( 0.01 usr +  0.00 sys =  0.01 CPU)
 Result: FAIL
-</code></pre><p>Uh oh, the second test case failed! It would be helpful if the test printed the mismatched variables to help us debug the issue. We can simplify our test cases to use the <code>tap_cmp_str</code> function to compare two strings and print them if they don&rsquo;t match:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#!/bin/sh
-</span><span class="cp"></span>
-<span class="c1"># import our test functions and our hello function</span>
-. <span class="s2">&#34;</span><span class="nv">$PWD</span><span class="s2">/tap.sh&#34;</span>
-. <span class="s2">&#34;</span><span class="nv">$PWD</span><span class="s2">/examples/hello/hello.sh&#34;</span>
+</code></pre>
+<p>Uh oh, the second test case failed! It would be helpful if the test printed the mismatched variables to help us debug the issue. We can simplify our test cases to use the <code>tap_cmp_str</code> function to compare two strings and print them if they don&rsquo;t match:</p>
+<pre><code class="language-sh">#!/bin/sh
 
-<span class="c1"># test #1 does hello print the expected output?</span>
-<span class="nv">hello_out</span><span class="o">=</span><span class="k">$(</span>hello<span class="k">)</span>
-tap_cmp_str <span class="s2">&#34;</span><span class="nv">$hello_out</span><span class="s2">&#34;</span> <span class="s2">&#34;Hello, World!&#34;</span> <span class="s2">&#34;hello&#34;</span>
+# import our test functions and our hello function
+. &quot;$PWD/tap.sh&quot;
+. &quot;$PWD/examples/hello/hello.sh&quot;
 
-<span class="c1"># test #2 does hello &#34;you&#34; print the expected output?</span>
-<span class="nv">hello_out</span><span class="o">=</span><span class="k">$(</span>hello <span class="s2">&#34;you&#34;</span><span class="k">)</span>
-tap_cmp_str <span class="s2">&#34;</span><span class="nv">$hello_out</span><span class="s2">&#34;</span> <span class="s2">&#34;Hello, you!&#34;</span> <span class="s2">&#34;hello \&#34;you\&#34;&#34;</span>
+# test #1 does hello print the expected output?
+hello_out=$(hello)
+tap_cmp_str &quot;$hello_out&quot; &quot;Hello, World!&quot; &quot;hello&quot;
 
-<span class="c1"># print our test plan to ensure we ran 2 tests</span>
-tap_end <span class="s2">&#34;2&#34;</span>
-</code></pre></div><p>Re-running the tests, now we get some actionable output:</p>
+# test #2 does hello &quot;you&quot; print the expected output?
+hello_out=$(hello &quot;you&quot;)
+tap_cmp_str &quot;$hello_out&quot; &quot;Hello, you!&quot; &quot;hello \&quot;you\&quot;&quot;
+
+# print our test plan to ensure we ran 2 tests
+tap_end &quot;2&quot;
+</code></pre>
+<p>Re-running the tests, now we get some actionable output:</p>
 <pre><code>$ prove -v examples/hello/hello-test.sh 
 examples/hello/hello-test.sh .. 
 ok 1 hello
@@ -140,13 +146,15 @@ examples/hello/hello-test.sh (Wstat: 0 Tests: 2 Failed: 1)
   Failed test:  2
 Files=1, Tests=2,  0 wallclock secs ( 0.01 usr +  0.00 sys =  0.01 CPU)
 Result: FAIL
-</code></pre><p>Our <code>hello</code> function is appending the &ldquo;!&rdquo; in the wrong place; we want to greet everybody with enthusiasm, not just the &ldquo;World&rdquo;!. Here&rsquo;s the fixed-up version, with the &ldquo;!&rdquo; moved to the <code>echo</code> argument:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">hello<span class="o">()</span> <span class="o">{</span>
-  <span class="nv">subject</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span>
-  <span class="o">[</span> -z <span class="s2">&#34;</span><span class="nv">$subject</span><span class="s2">&#34;</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nv">subject</span><span class="o">=</span><span class="s2">&#34;World&#34;</span>
-  <span class="nb">echo</span> <span class="s2">&#34;Hello, </span><span class="nv">$subject</span><span class="s2">!&#34;</span>
-<span class="o">}</span>
-</code></pre></div><p>And now the tests pass:</p>
+</code></pre>
+<p>Our <code>hello</code> function is appending the &ldquo;!&rdquo; in the wrong place; we want to greet everybody with enthusiasm, not just the &ldquo;World&rdquo;!. Here&rsquo;s the fixed-up version, with the &ldquo;!&rdquo; moved to the <code>echo</code> argument:</p>
+<pre><code class="language-sh">hello() {
+  subject=&quot;$1&quot;
+  [ -z &quot;$subject&quot; ] &amp;&amp; subject=&quot;World&quot;
+  echo &quot;Hello, $subject!&quot;
+}
+</code></pre>
+<p>And now the tests pass:</p>
 <pre><code>$ prove -v examples/hello/hello-test.sh
 examples/hello/hello-test.sh ..
 ok 1 hello
@@ -156,7 +164,8 @@ ok
 All tests successful.
 Files=1, Tests=2,  0 wallclock secs ( 0.01 usr +  0.00 sys =  0.01 CPU)
 Result: PASS
-</code></pre><p>If you download this repo you can run this code for yourself from the root project directory.</p>
+</code></pre>
+<p>If you download this repo you can run this code for yourself from the root project directory.</p>
 <p>Running tests with a test harness is useful as it can run multiple test files and tell us if the test suite passed or failed overall. It can execute tests concurrently so the test suite runs faster. And by default it limits output to only the summary, so the terminal isn&rsquo;t filled with noise. A few years ago I wrote an <a href="https://www.perl.com/article/177/2015/6/9/Get-to-grips-with-Prove-Perl-s-test-workhorse/">introduction to prove</a> which describes its main features.</p>
 <p>If prove isn&rsquo;t your jam, The TAP website has a <a href="https://testanything.org/consumers.html">list</a> of other TAP parsers that can be used in conjunction with a test harness. A test harness can be as simple as a one liner, here using <a href="https://gitlab.com/esr/tapview">tapview</a>:</p>
 <pre><code>$ res=&quot;PASS&quot;;for t in examples/hello/*test.sh;do echo &quot;$t&quot;; &quot;./$t&quot; | tapview || res=&quot;FAIL&quot;;done;echo &quot;$res&quot;
@@ -164,7 +173,8 @@ examples/hello/hello-test.sh
 ..
 2 tests, 0 failures.
 PASS
-</code></pre><h2 id="alternatives">Alternatives</h2>
+</code></pre>
+<h2 id="alternatives">Alternatives</h2>
 <ul>
 <li><a href="https://github.com/kward/shunit2">shunit2</a> is an xUnit-style unit test framework for Bourne-like shell code</li>
 <li><a href="https://github.com/mlafeldt/Sharness">sharness</a> is a TAP unit test shell library like <code>tap.sh</code> but with more features</li>

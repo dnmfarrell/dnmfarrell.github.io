@@ -6,7 +6,6 @@
   <title>Find Relationships Quickly In Data With Chart::Plot</title>
   <meta name="description" content="This lightweight module powers through data" />
   <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
-  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
   <meta property="twitter:card" content="summary">
   <meta property="twitter:site" content="@perltricks">
   <meta property="og:url" content="https://blog.dnmfarrell.com/post/find-relationships-quickly-in-data-with-chart-plot/" />
@@ -36,80 +35,83 @@
 
 <p>Last week I was analyzing server log data at work, and my boss asked me to plot it on a scatter chart. &ldquo;No problem!&rdquo; I thought, firing up Google Sheets. But Sheets slowed to a crawl when I uploaded 250,000 records to plot. Using CPAN I found something better: <a href="https://metacpan.org/pod/Chart::Plot">Chart::Plot</a>. It has a simple interface and is really fast. Here&rsquo;s how you use it.</p>
 <h2 id="a-scatter-plot-script">A scatter plot script</h2>
-<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="ch">#!/usr/bin/env perl</span>
-<span class="k">use</span> <span class="nn">Chart::Plot</span><span class="p">;</span>
+<pre><code class="language-perl">#!/usr/bin/env perl
+use Chart::Plot;
 
-<span class="nb">open</span> <span class="k">my</span> <span class="nv">$mlb</span><span class="p">,</span> <span class="s">&#39;&lt;&#39;</span><span class="p">,</span> <span class="s">&#39;2017-so-hr.csv&#39;</span> <span class="ow">or</span> <span class="nb">die</span> <span class="vg">$!</span><span class="p">;</span>
+open my $mlb, '&lt;', '2017-so-hr.csv' or die $!;
 
-<span class="k">my</span> <span class="nv">@series</span><span class="p">;</span>
-<span class="k">while</span> <span class="p">(</span><span class="sr">&lt;$mlb&gt;</span><span class="p">)</span> <span class="p">{</span>
-  <span class="nb">chomp</span><span class="p">;</span>
-  <span class="k">my</span> <span class="p">(</span><span class="nv">$x</span><span class="p">,</span> <span class="nv">$y</span><span class="p">)</span> <span class="o">=</span> <span class="nb">split</span> <span class="sr">/\t/</span><span class="p">;</span>
-  <span class="nb">push</span> <span class="nv">@series</span><span class="p">,</span> <span class="nv">$x</span><span class="p">,</span> <span class="nv">$y</span><span class="p">;</span>
-<span class="p">}</span>
+my @series;
+while (&lt;$mlb&gt;) {
+  chomp;
+  my ($x, $y) = split /\t/;
+  push @series, $x, $y;
+}
 
-<span class="k">my</span> <span class="nv">$img</span> <span class="o">=</span> <span class="nn">Chart::Plot</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span><span class="mi">640</span><span class="p">);</span>
-<span class="nv">$img</span><span class="o">-&gt;</span><span class="n">setData</span><span class="p">(</span><span class="o">\</span><span class="nv">@series</span><span class="p">,</span> <span class="s">&#39;Points Noline Blue&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">die</span> <span class="nv">$img</span><span class="o">-&gt;</span><span class="n">error</span><span class="p">;</span>
+my $img = Chart::Plot-&gt;new(800,640);
+$img-&gt;setData(\@series, 'Points Noline Blue') or die $img-&gt;error;
 
-<span class="nv">$img</span><span class="o">-&gt;</span><span class="n">setGraphOptions</span> <span class="p">(</span>
-  <span class="n">vertGraphOffset</span> <span class="o">=&gt;</span> <span class="mi">100</span><span class="p">,</span>
-  <span class="n">horGraphOffset</span>  <span class="o">=&gt;</span> <span class="mi">75</span><span class="p">,</span>
-  <span class="n">vertAxisLabel</span>   <span class="o">=&gt;</span> <span class="s">&#39;HR&#39;</span><span class="p">,</span>
-  <span class="n">horAxisLabel</span>    <span class="o">=&gt;</span> <span class="s">&#39;SO&#39;</span><span class="p">,</span>
-  <span class="n">title</span>           <span class="o">=&gt;</span> <span class="s">&#39;2017 MLB Strikeouts and Home Runs&#39;</span><span class="p">,</span>
-<span class="p">);</span>
+$img-&gt;setGraphOptions (
+  vertGraphOffset =&gt; 100,
+  horGraphOffset  =&gt; 75,
+  vertAxisLabel   =&gt; 'HR',
+  horAxisLabel    =&gt; 'SO',
+  title           =&gt; '2017 MLB Strikeouts and Home Runs',
+);
 
-<span class="nb">open</span> <span class="k">my</span> <span class="nv">$fh</span><span class="p">,</span> <span class="s">&#39;&gt;:raw&#39;</span><span class="p">,</span> <span class="s">&#39;2017-mlb-so-hr.png&#39;</span> <span class="ow">or</span> <span class="nb">die</span> <span class="vg">$!</span><span class="p">;</span>
-<span class="k">print</span> <span class="nv">$fh</span> <span class="nv">$img</span><span class="o">-&gt;</span><span class="n">draw</span><span class="p">();</span>
-</code></pre></div><p>To demo Chart::Plot, I&rsquo;ve extracted MLB 2017 pitching data from the <a href="http://www.seanlahman.com/baseball-archive/statistics/">Lahman database</a> for strikeouts and home runs given up to see if there&rsquo;s a relationship between them.</p>
+open my $fh, '&gt;:raw', '2017-mlb-so-hr.png' or die $!;
+print $fh $img-&gt;draw();
+</code></pre>
+<p>To demo Chart::Plot, I&rsquo;ve extracted MLB 2017 pitching data from the <a href="http://www.seanlahman.com/baseball-archive/statistics/">Lahman database</a> for strikeouts and home runs given up to see if there&rsquo;s a relationship between them.</p>
 <p>My script opens the csv (which is tab separated) and parses it, pushing the columns into <code>@series</code>. It creates a new 800x640 pixel Chart::Plot object and calls the <a href="https://metacpan.org/pod/Chart::Plot#Acquire-a-dataset:-setData()">setData</a> method, passing it an arrayref to <code>@series</code>, and a style string describing the shape and color to plot the series with. Here is the output file:</p>
 <p><img src="/images/find-relationships-quickly-in-data-with-chart-plot/2017-mlb-so-hr.png" alt=""></p>
 <p>A cursory look at this data would suggest there <em>is</em> a correlation between strikeouts and home runs, maybe hard-throwing pitchers throw more strikes, but the additional velocity gives up more home runs?</p>
 <h2 id="multiple-series">Multiple series</h2>
 <p>To display multiple series on the chart, simply call <code>setData</code> for each additional series to add. I&rsquo;ve updated the MLB data to include which league the pitcher was throwing in:</p>
-<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="ch">#!/usr/bin/env perl</span>
-<span class="k">use</span> <span class="nn">Chart::Plot</span><span class="p">;</span>
+<pre><code class="language-perl">#!/usr/bin/env perl
+use Chart::Plot;
 
-<span class="nb">open</span> <span class="k">my</span> <span class="nv">$mlb</span><span class="p">,</span> <span class="s">&#39;&lt;&#39;</span><span class="p">,</span> <span class="s">&#39;2017-so-hr-lg.csv&#39;</span> <span class="ow">or</span> <span class="nb">die</span> <span class="vg">$!</span><span class="p">;</span>
+open my $mlb, '&lt;', '2017-so-hr-lg.csv' or die $!;
 
-<span class="k">my</span> <span class="p">(</span><span class="nv">@nl</span><span class="p">,</span> <span class="nv">@al</span><span class="p">);</span>
-<span class="k">while</span> <span class="p">(</span><span class="sr">&lt;$mlb&gt;</span><span class="p">)</span> <span class="p">{</span>
-  <span class="nb">chomp</span><span class="p">;</span>
-  <span class="k">my</span> <span class="p">(</span><span class="nv">$x</span><span class="p">,</span> <span class="nv">$y</span><span class="p">,</span> <span class="nv">$league</span><span class="p">)</span> <span class="o">=</span> <span class="nb">split</span> <span class="sr">/\t/</span><span class="p">;</span>
+my (@nl, @al);
+while (&lt;$mlb&gt;) {
+  chomp;
+  my ($x, $y, $league) = split /\t/;
 
-  <span class="k">if</span> <span class="p">(</span><span class="nv">$league</span> <span class="ow">eq</span> <span class="s">&#39;NL&#39;</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nb">push</span> <span class="nv">@nl</span><span class="p">,</span> <span class="nv">$x</span><span class="p">,</span> <span class="nv">$y</span><span class="p">;</span>
-  <span class="p">}</span>
-  <span class="k">else</span> <span class="p">{</span>
-    <span class="nb">push</span> <span class="nv">@al</span><span class="p">,</span> <span class="nv">$x</span><span class="p">,</span> <span class="nv">$y</span><span class="p">;</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+  if ($league eq 'NL') {
+    push @nl, $x, $y;
+  }
+  else {
+    push @al, $x, $y;
+  }
+}
 
-<span class="k">my</span> <span class="nv">$img</span> <span class="o">=</span> <span class="nn">Chart::Plot</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span><span class="mi">640</span><span class="p">);</span>
-<span class="nv">$img</span><span class="o">-&gt;</span><span class="n">setData</span><span class="p">(</span><span class="o">\</span><span class="nv">@nl</span><span class="p">,</span> <span class="s">&#39;Points Noline Blue&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">die</span> <span class="nv">$img</span><span class="o">-&gt;</span><span class="n">error</span><span class="p">;</span>
-<span class="nv">$img</span><span class="o">-&gt;</span><span class="n">setData</span><span class="p">(</span><span class="o">\</span><span class="nv">@al</span><span class="p">,</span> <span class="s">&#39;Points Noline Red&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">die</span> <span class="nv">$img</span><span class="o">-&gt;</span><span class="n">error</span><span class="p">;</span>
+my $img = Chart::Plot-&gt;new(800,640);
+$img-&gt;setData(\@nl, 'Points Noline Blue') or die $img-&gt;error;
+$img-&gt;setData(\@al, 'Points Noline Red') or die $img-&gt;error;
 
-<span class="nv">$img</span><span class="o">-&gt;</span><span class="n">setGraphOptions</span> <span class="p">(</span>
-  <span class="n">vertGraphOffset</span> <span class="o">=&gt;</span> <span class="mi">100</span><span class="p">,</span>
-  <span class="n">horGraphOffset</span>  <span class="o">=&gt;</span> <span class="mi">75</span><span class="p">,</span>
-  <span class="n">vertAxisLabel</span>   <span class="o">=&gt;</span> <span class="s">&#39;HR&#39;</span><span class="p">,</span>
-  <span class="n">horAxisLabel</span>    <span class="o">=&gt;</span> <span class="s">&#39;SO&#39;</span><span class="p">,</span>
-  <span class="n">title</span>           <span class="o">=&gt;</span> <span class="s">&#39;2017 MLB Strikeouts and Home Runs&#39;</span><span class="p">,</span>
-<span class="p">);</span>
+$img-&gt;setGraphOptions (
+  vertGraphOffset =&gt; 100,
+  horGraphOffset  =&gt; 75,
+  vertAxisLabel   =&gt; 'HR',
+  horAxisLabel    =&gt; 'SO',
+  title           =&gt; '2017 MLB Strikeouts and Home Runs',
+);
 
-<span class="nb">open</span> <span class="k">my</span> <span class="nv">$fh</span><span class="p">,</span> <span class="s">&#39;&gt;:raw&#39;</span><span class="p">,</span> <span class="s">&#39;2017-mlb-so-hr-lg.png&#39;</span> <span class="ow">or</span> <span class="nb">die</span> <span class="vg">$!</span><span class="p">;</span>
-<span class="k">print</span> <span class="nv">$fh</span> <span class="nv">$img</span><span class="o">-&gt;</span><span class="n">draw</span><span class="p">();</span>
-</code></pre></div><p>I separate the input data into two series, one for the National League and one for the American League. I then call <code>setData</code> for each series, using blue and red styles. Here is the result:</p>
+open my $fh, '&gt;:raw', '2017-mlb-so-hr-lg.png' or die $!;
+print $fh $img-&gt;draw();
+</code></pre>
+<p>I separate the input data into two series, one for the National League and one for the American League. I then call <code>setData</code> for each series, using blue and red styles. Here is the result:</p>
 <p><img src="/images/find-relationships-quickly-in-data-with-chart-plot/2017-mlb-so-hr-lg.png" alt=""></p>
 <h2 id="non-transparent-charts">Non-transparent charts</h2>
 <p>By default, Chart::Plot produces charts with a transparent background. If you wanted to add a white background you could use <code>convert</code> at the command line:</p>
 <pre><code>$ convert -flatten 2017-mlb-so-hr.png 2017-mlb-so-hr-whitebg.png
 </code></pre>
 <p>But Chart::Plot gives you access to the underlying GD graphics object, so why not manipulate it directly in the script?</p>
-<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">my</span> <span class="nv">$gd</span> <span class="o">=</span> <span class="nv">$img</span><span class="o">-&gt;</span><span class="n">getGDobject</span><span class="p">();</span>
-<span class="k">my</span> <span class="nv">$white</span> <span class="o">=</span> <span class="nv">$gd</span><span class="o">-&gt;</span><span class="n">colorAllocate</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">);</span>
-<span class="nv">$gd</span><span class="o">-&gt;</span><span class="n">filledRectangle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">798</span><span class="p">,</span><span class="mi">638</span><span class="p">,</span><span class="nv">$white</span><span class="p">);</span>
-</code></pre></div><p>This snippet creates a new white color by calling <code>colorAllocate</code> with the RGB values for white, which creates the color and returns its <a href="https://en.wikipedia.org/wiki/Indexed_color">index</a>. Then it draws a white rectangle starting at the top-left pixel (plus 1 to avoid overwriting the border) and ending at the bottom-right pixel (minus 1).</p>
+<pre><code class="language-perl">my $gd = $img-&gt;getGDobject();
+my $white = $gd-&gt;colorAllocate(255,255,255);
+$gd-&gt;filledRectangle(1,1,798,638,$white);
+</code></pre>
+<p>This snippet creates a new white color by calling <code>colorAllocate</code> with the RGB values for white, which creates the color and returns its <a href="https://en.wikipedia.org/wiki/Indexed_color">index</a>. Then it draws a white rectangle starting at the top-left pixel (plus 1 to avoid overwriting the border) and ending at the bottom-right pixel (minus 1).</p>
 <h2 id="strikeouts-and-home-runs-revisited">Strikeouts and home runs revisited</h2>
 <p>If I divide each pitcher&rsquo;s strikeouts and home runs by the number of innings they pitched in 2017, the data tells a different story:</p>
 <p><img src="/images/find-relationships-quickly-in-data-with-chart-plot/2017-mlb-so-hr-ip.png" alt=""></p>

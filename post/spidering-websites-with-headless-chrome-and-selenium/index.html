@@ -6,7 +6,6 @@
   <title>Spidering websites with Headless Chrome and Selenium</title>
   <meta name="description" content="How I Setup And Controlled Headless Chrome With Perl" />
   <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
-  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
   <meta property="twitter:card" content="summary">
   <meta property="twitter:site" content="@perltricks">
   <meta property="og:url" content="https://blog.dnmfarrell.com/post/spidering-websites-with-headless-chrome-and-selenium/" />
@@ -65,26 +64,27 @@ sudo mv chromedriver /usr/bin/
 <p>This must be running in order for Perl to communicate with Chrome using Selenium.</p>
 <h2 id="a-basic-spider">A basic spider</h2>
 <p>I wrote a basic spider script, here&rsquo;s a simplified version:</p>
-<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="ch">#!/usr/bin/env perl</span>
-<span class="k">use</span> <span class="nn">Selenium::Remote::Driver</span><span class="p">;</span>
-<span class="k">use</span> <span class="nn">Encode</span> <span class="s">&#39;encode&#39;</span><span class="p">;</span>
+<pre><code class="language-perl">#!/usr/bin/env perl
+use Selenium::Remote::Driver;
+use Encode 'encode';
 
-<span class="k">my</span> <span class="nv">$driver</span> <span class="o">=</span> <span class="nn">Selenium::Remote::Driver</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span>
-  <span class="n">browser_name</span> <span class="o">=&gt;</span> <span class="s">&#39;chrome&#39;</span><span class="p">,</span>
-  <span class="n">extra_capabilities</span> <span class="o">=&gt;</span> <span class="p">{</span> <span class="n">chromeOptions</span> <span class="o">=&gt;</span> <span class="p">{</span><span class="n">args</span> <span class="o">=&gt;</span> <span class="p">[</span>
-    <span class="s">&#39;window-size=1920,1080&#39;</span><span class="p">,</span>
-    <span class="s">&#39;headless&#39;</span><span class="p">,</span>
-  <span class="p">]}},</span>
-<span class="p">);</span>
+my $driver = Selenium::Remote::Driver-&gt;new(
+  browser_name =&gt; 'chrome',
+  extra_capabilities =&gt; { chromeOptions =&gt; {args =&gt; [
+    'window-size=1920,1080',
+    'headless',
+  ]}},
+);
 
-<span class="k">my</span> <span class="nv">%visited</span> <span class="o">=</span> <span class="p">();</span>
-<span class="k">my</span> <span class="nv">$depth</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-<span class="k">my</span> <span class="nv">$url</span> <span class="o">=</span> <span class="s">&#39;https://example.com&#39;</span><span class="p">;</span>
+my %visited = ();
+my $depth = 1;
+my $url = 'https://example.com';
 
-<span class="n">spider_site</span><span class="p">(</span><span class="nv">$driver</span><span class="p">,</span> <span class="nv">$url</span><span class="p">,</span> <span class="nv">$depth</span><span class="p">);</span>
+spider_site($driver, $url, $depth);
 
-<span class="nv">$driver</span><span class="o">-&gt;</span><span class="n">quit</span><span class="p">();</span>
-</code></pre></div><p>This script initializes a <code>Selenium::Remote::Driver</code> object. Note how it passes options to Chrome: the <code>window-size</code> option is an example of a key-pair option, whereas <code>headless</code> is a boolean. Chrome accepts a <em>lot</em> of <a href="https://peter.sh/experiments/chromium-command-line-switches/">options</a>. Some others which were useful for me:</p>
+$driver-&gt;quit();
+</code></pre>
+<p>This script initializes a <code>Selenium::Remote::Driver</code> object. Note how it passes options to Chrome: the <code>window-size</code> option is an example of a key-pair option, whereas <code>headless</code> is a boolean. Chrome accepts a <em>lot</em> of <a href="https://peter.sh/experiments/chromium-command-line-switches/">options</a>. Some others which were useful for me:</p>
 <ul>
 <li><code>allow-running-insecure-content</code> - let Chrome load websites with invalid security certificates</li>
 <li><code>disable-infobars</code> - disable the &ldquo;Chrome is being controlled by software&rdquo; notification</li>
@@ -92,28 +92,29 @@ sudo mv chromedriver /usr/bin/
 </ul>
 <p>The script initializes a <code>%visited</code> hash to store URLs the browser visits, to avoid requesting the same URL twice. The <code>$depth</code> variable determines how many levels deep the spider should go: with a value of 1 it will visit all links on the first page it loads, but none after that. The <code>$url</code> variable determines the starting web page to visit.</p>
 <p>The <code>spider_site</code> function is recursive:</p>
-<div class="highlight"><pre class="chroma"><code class="language-perl" data-lang="perl"><span class="k">sub</span> <span class="nf">spider_site</span> <span class="p">{</span>
-  <span class="k">my</span> <span class="p">(</span><span class="nv">$driver</span><span class="p">,</span> <span class="nv">$url</span><span class="p">,</span> <span class="nv">$depth</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
-  <span class="nb">warn</span> <span class="s">&#34;fetching $url\n&#34;</span><span class="p">;</span>
-  <span class="nv">$driver</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
-  <span class="nv">$visited</span><span class="p">{</span><span class="nv">$url</span><span class="p">}</span><span class="o">++</span><span class="p">;</span>
+<pre><code class="language-perl">sub spider_site {
+  my ($driver, $url, $depth) = @_;
+  warn &quot;fetching $url\n&quot;;
+  $driver-&gt;get($url);
+  $visited{$url}++;
 
-  <span class="k">my</span> <span class="nv">$text</span> <span class="o">=</span> <span class="nv">$driver</span><span class="o">-&gt;</span><span class="n">get_body</span><span class="p">;</span>
-  <span class="k">print</span> <span class="n">encode</span><span class="p">(</span><span class="s">&#39;UTF-8&#39;</span><span class="p">,</span> <span class="nv">$text</span><span class="p">);</span>
+  my $text = $driver-&gt;get_body;
+  print encode('UTF-8', $text);
 
-  <span class="k">if</span> <span class="p">(</span><span class="nv">$depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">my</span> <span class="nv">@links</span> <span class="o">=</span> <span class="nv">$driver</span><span class="o">-&gt;</span><span class="n">find_elements</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;tag_name&#39;</span><span class="p">);</span>
-    <span class="k">my</span> <span class="nv">@urls</span> <span class="o">=</span> <span class="p">();</span>
-    <span class="k">for</span> <span class="k">my</span> <span class="nv">$l</span> <span class="p">(</span><span class="nv">@links</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">my</span> <span class="nv">$link_url</span> <span class="o">=</span> <span class="nb">eval</span> <span class="p">{</span> <span class="nv">$l</span><span class="o">-&gt;</span><span class="n">get_attribute</span><span class="p">(</span><span class="s">&#39;href&#39;</span><span class="p">)</span> <span class="p">};</span>
-      <span class="nb">push</span> <span class="nv">@urls</span><span class="p">,</span> <span class="nv">$link_url</span> <span class="k">if</span> <span class="nv">$link_url</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="k">for</span> <span class="k">my</span> <span class="nv">$u</span> <span class="p">(</span><span class="nv">@urls</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">spider_site</span><span class="p">(</span><span class="nv">$driver</span><span class="p">,</span> <span class="nv">$u</span><span class="p">,</span> <span class="nv">$depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">unless</span> <span class="p">(</span><span class="nv">$visited</span><span class="p">{</span><span class="nv">$u</span><span class="p">});</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div><p>It fetches the given <code>$url</code>, printing the text content of the webpage to STDOUT. It encodes the output before printing it: I found this was necessary to avoid multibyte encoding issues. If the spider hasn&rsquo;t reached full depth, it gets all links on the page, and spiders each one that it hasn&rsquo;t already visited. I wrapped the <code>get_attribute</code> method call in <code>eval</code> because it can fail if the link disappears from the website after it was found.</p>
+  if ($depth &gt; 0) {
+    my @links = $driver-&gt;find_elements('a', 'tag_name');
+    my @urls = ();
+    for my $l (@links) {
+      my $link_url = eval { $l-&gt;get_attribute('href') };
+      push @urls, $link_url if $link_url;
+    }
+    for my $u (@urls) {
+      spider_site($driver, $u, $depth - 1) unless ($visited{$u});
+    }
+  }
+}
+</code></pre>
+<p>It fetches the given <code>$url</code>, printing the text content of the webpage to STDOUT. It encodes the output before printing it: I found this was necessary to avoid multibyte encoding issues. If the spider hasn&rsquo;t reached full depth, it gets all links on the page, and spiders each one that it hasn&rsquo;t already visited. I wrapped the <code>get_attribute</code> method call in <code>eval</code> because it can fail if the link disappears from the website after it was found.</p>
 <h2 id="an-improved-spider">An improved spider</h2>
 <p>The spider script shown above is functional but rudimentary. I wrote a more <a href="https://gist.github.com/dnmfarrell/5dde6d3957bf9ae037e170cdb44f75a5">advanced</a> one that has some nice features:</p>
 <ul>

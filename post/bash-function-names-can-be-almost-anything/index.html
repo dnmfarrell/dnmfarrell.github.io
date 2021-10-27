@@ -6,7 +6,6 @@
   <title>Bash Function Names Can Be Almost Anything</title>
   <meta name="description" content="Freedom &gt; portability?" />
   <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
-  <link rel="stylesheet" href="/assets/css/syntax.css" type="text/css">
   <meta property="twitter:card" content="summary">
   <meta property="twitter:site" content="@perltricks">
   <meta property="og:url" content="https://blog.dnmfarrell.com/post/bash-function-names-can-be-almost-anything/" />
@@ -40,37 +39,45 @@
 <p>A word consisting solely of letters, numbers, and underscores, and beginning with a letter or underscore. Names are used as shell variable and function names. Also referred to as an identifier.</p>
 </blockquote>
 <p>In fact Bash function names can be almost any printable character. For instance I can define my own pre-increment unary function:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="k">function</span> ++ <span class="o">{</span> <span class="o">((</span> <span class="nv">$1</span>++ <span class="o">))</span><span class="p">;</span> <span class="o">}</span>
-</code></pre></div><p>The precise rules for function names are murky; mostly it seems like whatever Bash can parse unambiguously is allowed. This script prints all allowable single-character function names:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#!/bin/bash
-</span><span class="cp"></span><span class="k">for</span> n in <span class="o">{</span>33..126<span class="o">}</span><span class="p">;</span> <span class="k">do</span>
-  <span class="nb">printf</span> -v oct <span class="s2">&#34;%03o&#34;</span> <span class="s2">&#34;</span><span class="nv">$n</span><span class="s2">&#34;</span>
-  <span class="nb">printf</span> -v chr <span class="se">\\</span><span class="s2">&#34;</span><span class="nv">$oct</span><span class="s2">&#34;</span>
-  <span class="nb">eval</span> <span class="s2">&#34;function </span><span class="nv">$chr</span><span class="s2"> { echo -n &#39;</span><span class="nv">$chr</span><span class="s2">&#39;; }; </span><span class="nv">$chr</span><span class="s2">&#34;</span> 2&gt;/dev/null
-<span class="k">done</span>
-</code></pre></div><p>Its output:</p>
+<pre><code class="language-sh">function ++ { (( $1++ )); }
+</code></pre>
+<p>The precise rules for function names are murky; mostly it seems like whatever Bash can parse unambiguously is allowed. This script prints all allowable single-character function names:</p>
+<pre><code class="language-sh">#!/bin/bash
+for n in {33..126}; do
+  printf -v oct &quot;%03o&quot; &quot;$n&quot;
+  printf -v chr \\&quot;$oct&quot;
+  eval &quot;function $chr { echo -n '$chr'; }; $chr&quot; 2&gt;/dev/null
+done
+</code></pre>
+<p>Its output:</p>
 <pre><code>+,./:=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz
-</code></pre><p>The script uses <a href="https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Brace-Expansion">brace expansion</a> to get all the printable ASCII¹ decimal codes, and <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Builtins.html#index-printf">printf</a> to convert the number first to octal, and then to its character. Then it uses <code>eval</code> to try to declare a new function with the name of the character, and calls the function.</p>
+</code></pre>
+<p>The script uses <a href="https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Brace-Expansion">brace expansion</a> to get all the printable ASCII¹ decimal codes, and <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Builtins.html#index-printf">printf</a> to convert the number first to octal, and then to its character. Then it uses <code>eval</code> to try to declare a new function with the name of the character, and calls the function.</p>
 <p>The permissible characters in a function name changes if it contains a letter. Here&rsquo;s the list of permissible second characters when the function name begins with &ldquo;a&rdquo;:</p>
 <pre><code>!#%+,-./0123456789:?@ABCDEFGHIJKLMNOPQRSTUVWXYZ]^_abcdefghijklmnopqrstuvwxyz{}~
-</code></pre><p>The additional characters all possess some significance to the Bash parser which is disambiguated by the leading &ldquo;a&rdquo;. This is also true for the characters <em>missing</em> from the second group, like <code>=</code> which is fine by itself, but presumably <code>a=</code> looks like the start of a variable declaration, and <code>a[</code> an array access.</p>
+</code></pre>
+<p>The additional characters all possess some significance to the Bash parser which is disambiguated by the leading &ldquo;a&rdquo;. This is also true for the characters <em>missing</em> from the second group, like <code>=</code> which is fine by itself, but presumably <code>a=</code> looks like the start of a variable declaration, and <code>a[</code> an array access.</p>
 <p>And function names aren&rsquo;t limited to ASCII either. Here&rsquo;s my smiley function:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="k">function</span> 😃 <span class="o">{</span> <span class="nb">echo</span> <span class="s2">&#34;haha!&#34;</span><span class="p">;</span> <span class="o">}</span>
-</code></pre></div><h2 id="redefining-builtin-commands">Redefining Builtin Commands</h2>
+<pre><code class="language-sh">function 😃 { echo &quot;haha!&quot;; }
+</code></pre>
+<h2 id="redefining-builtin-commands">Redefining Builtin Commands</h2>
 <p>Beyond the names themselves, Bash will happily let you redefine any function name, including builtin commands. Watch me redefine <code>echo</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="k">function</span> <span class="nb">echo</span> <span class="o">{</span> <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$@</span><span class="s2">&#34;</span><span class="p">;</span> <span class="o">}</span>
-</code></pre></div><p>Oops don&rsquo;t do that, it will recurse until the process is killed. But if you do successfully redefine a builtin command, you can call the original with <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Builtins.html#index-command">command</a>. So this is fine:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="k">function</span> <span class="nb">echo</span> <span class="o">{</span> <span class="nb">command</span> <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$@</span><span class="s2">&#34;</span><span class="p">;</span> <span class="o">}</span>
-</code></pre></div><p>Unless you also redefine the <code>command</code> command, then you&rsquo;re really screwed. For what it&rsquo;s worth, <code>function</code> does not seem to be redefine-able. And I was <del>disappointed</del> relieved to find that redefining <code>exit</code> does not prevent shell processes from quitting, unless it is explicitly called.</p>
+<pre><code class="language-sh">function echo { echo &quot;$@&quot;; }
+</code></pre>
+<p>Oops don&rsquo;t do that, it will recurse until the process is killed. But if you do successfully redefine a builtin command, you can call the original with <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Builtins.html#index-command">command</a>. So this is fine:</p>
+<pre><code class="language-sh">function echo { command echo &quot;$@&quot;; }
+</code></pre>
+<p>Unless you also redefine the <code>command</code> command, then you&rsquo;re really screwed. For what it&rsquo;s worth, <code>function</code> does not seem to be redefine-able. And I was <del>disappointed</del> relieved to find that redefining <code>exit</code> does not prevent shell processes from quitting, unless it is explicitly called.</p>
 <h2 id="what-is-this-useful-for">What is this useful for?</h2>
 <p>My guess is Bash behaves this way to preserve backwards compatibility, so one benefit is that Bash will still run old shell code with weird function names. And obviously it makes code obfuscation a lot easier, which is fun until you have to debug it!</p>
 <p>As Bash only has global and functional scopes, imported code can redefine previously declared symbols, such as function names. So if you&rsquo;re writing a library or <a href="/post/modulinos-in-bash/">modulino</a>, you can prepend every function name with <code>$namespace.</code> and then anything which <a href="https://www.gnu.org/software/bash/manual/html_node/Bourne-Shell-Builtins.html#index-_002e">sources</a> it won&rsquo;t have its own symbols clobbered by the import (assuming they follow the same convention).</p>
 <p>For example here&rsquo;s an error-reporting function from <a href="https://github.com/dnmfarrell/jp/blob/6c2433fc8d86a6d05b71b0e59e6db6e867279865/jp#L12">jp</a>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="k">function</span> jp.error <span class="o">{</span>
-  <span class="nb">echo</span> <span class="s2">&#34;Error: </span><span class="nv">$1</span><span class="s2"> at line </span><span class="nv">$JP_LINE</span><span class="s2">, column </span><span class="nv">$JP_COL</span><span class="s2">&#34;</span> &gt;<span class="p">&amp;</span><span class="m">2</span>
-  <span class="k">return</span> <span class="m">1</span>
-<span class="o">}</span>
-</code></pre></div><p>Because variable naming rules are stricter, I prepend jp&rsquo;s global variables with <code>JP_</code>, but the idea is the same².</p>
+<pre><code class="language-sh">function jp.error {
+  echo &quot;Error: $1 at line $JP_LINE, column $JP_COL&quot; &gt;&amp;2
+  return 1
+}
+</code></pre>
+<p>Because variable naming rules are stricter, I prepend jp&rsquo;s global variables with <code>JP_</code>, but the idea is the same².</p>
 <p>Is this a good idea? Well if your code is going to be Bash-only, then it&rsquo;s fine. But it&rsquo;s not portable³. In particular, <a href="https://en.wikipedia.org/wiki/Almquist_shell">ash</a> will not run this code. That&rsquo;s bad news if you want to run it on <a href="https://busybox.net/">Busybox-based</a> Docker containers.</p>
 <p>Bash has a handy <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-POSIX-Mode.html">POSIX mode</a> which you can run your code under if you&rsquo;re not sure if it&rsquo;s portable or not. This also prevents user code from re-defining builtin commands defined in POSIX.</p>
 <hr>

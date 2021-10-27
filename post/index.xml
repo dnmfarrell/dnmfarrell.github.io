@@ -75,7 +75,7 @@ As I was researching the machine, I found several references to &amp;ldquo;The D
       
       <guid>https://blog.dnmfarrell.com/post/search-man-pages-with-apropos/</guid>
       <description>Unix man pages are a mixed bag, but they&amp;rsquo;re faster than Google if you know where to look. That&amp;rsquo;s where the apropos program comes in. E.G. to search for man pages for errno:
-$ apropos errno clnt_perrno (3) - library routines for remote procedure calls clnt_sperrno (3) - library routines for remote procedure calls errno (3) - number of last error h_errno (3) - get network host entry This returns the man page name and section number (run man man for a list of section numbers and their meaning).</description>
+$ apropos errno clnt_perrno (3) - library routines for remote procedure calls clnt_sperrno (3) - library routines for remote procedure calls errno (3) - number of last error h_errno (3) - get network host entry  This returns the man page name and section number (run man man for a list of section numbers and their meaning).</description>
     </item>
     
     <item>
@@ -97,7 +97,7 @@ Use Date You can use the date program to generate the epoch time by providing th
       <guid>https://blog.dnmfarrell.com/post/modulinos-in-bash/</guid>
       <description>A modulino is a file which behaves like a library when it is imported, and like a script when executed. I first read about them in Mastering Perl, but you can create them in other languages too. Here&amp;rsquo;s how to do it in Bash.
 Let&amp;rsquo;s say you have a simple script:
-#!/bin/bash  echo &amp;#34;Hello, World!&amp;#34; A common refactor with scripts is to encapsulate all the code behavior in functions. As this script only does one thing, it&amp;rsquo;s a small change:</description>
+#!/bin/bash echo &amp;quot;Hello, World!&amp;quot;  A common refactor with scripts is to encapsulate all the code behavior in functions. As this script only does one thing, it&amp;rsquo;s a small change:</description>
     </item>
     
     <item>
@@ -145,7 +145,7 @@ Converting to decimal I&amp;rsquo;m sure you&amp;rsquo;re familiar with the IPv4
       
       <guid>https://blog.dnmfarrell.com/post/find-relationships-quickly-in-data-with-chart-plot/</guid>
       <description>Last week I was analyzing server log data at work, and my boss asked me to plot it on a scatter chart. &amp;ldquo;No problem!&amp;rdquo; I thought, firing up Google Sheets. But Sheets slowed to a crawl when I uploaded 250,000 records to plot. Using CPAN I found something better: Chart::Plot. It has a simple interface and is really fast. Here&amp;rsquo;s how you use it.
-A scatter plot script #!/usr/bin/env perl use Chart::Plot; open my $mlb, &amp;#39;&amp;lt;&amp;#39;, &amp;#39;2017-so-hr.</description>
+A scatter plot script #!/usr/bin/env perl use Chart::Plot; open my $mlb, &#39;&amp;lt;&#39;, &#39;2017-so-hr.</description>
     </item>
     
     <item>
