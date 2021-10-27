@@ -35,7 +35,7 @@
 <p>Catalyst&rsquo;s <a href="https://metacpan.org/pod/Catalyst::DispatchType::Chained">chained dispatch</a> promotes code reuse, but exacerbates the issue by obfuscating route matching. Catalyst also permits declaring controller methods which match an unlimited number of paths after a prefix; another recipe for unpredictablity.</p>
 <p>Take a look at the MetaCPAN <a href="https://github.com/metacpan/metacpan-web">source code</a>. Can you tell all of the routes it responds to?</p>
 <p>As far as I know, the only way is to launch the app in debug mode and Catalyst will print a list of all the controller actions and their URIs. I suppose you could try parsing that output, but that feels like a hack. If we&rsquo;re programming a web app, surely we should be able to programmatically retrieve all the routes <em>we&rsquo;ve</em> created, without having to launch the app.</p>
-<h2 id="catalystpluginactionpaths">Catalyst::Plugin::ActionPaths</h2>
+<h3 id="catalystpluginactionpaths">Catalyst::Plugin::ActionPaths</h3>
 <p>With that straw man sufficiently propped up, allow me to introduce <a href="https://metacpan.org/pod/Catalyst::Plugin::ActionPaths">Catalyst::Plugin::ActionPaths</a>. I wrote it a while ago to sanity-check Catalyst routes.</p>
 <p>The plugin adds the <code>get_action_paths</code> method to the Catalyst context object. The method returns an arrayref of the application&rsquo;s <a href="https://metacpan.org/pod/Catalyst::Action">Catalyst::Action</a> objects. The way Catalyst&rsquo;s routing works is it loops through every action object until it finds one that matches the request, or returns in failure.</p>
 <p>To use the ActionPaths plugin on the MetaCPAN app I forked and cloned the <a href="https://github.com/dnmfarrell/metacpan-web/commit/08d9a4929887c6bfb39271378415f6190a1a010a">repo</a>, and added the ActionPaths plugin to the application <a href="https://github.com/dnmfarrell/metacpan-web/commit/08d9a4929887c6bfb39271378415f6190a1a010a">class</a>.</p>
@@ -87,7 +87,7 @@ MetaCPAN::Web::Controller::Author index           /author/*
 </code></pre>
 <p>An asterisk in the path is a placeholder. An ellipses means the path accepts unlimited(!) placeholders.</p>
 <p>In this case I&rsquo;m just printing the controller methods and URIs they match, but you could implement all kinds of checks on the Catalyst::Action objects to detect violations of agreed upon development best practices.</p>
-<h2 id="a-better-way">A better way</h2>
+<h3 id="a-better-way">A better way</h3>
 <p>The solution above works, but it feels a bit gross. I&rsquo;ve added a plugin to the Catalyst app which the app doesn&rsquo;t actually use. The script fakes a request to the app <em>just</em> to get <code>$c</code>. I&rsquo;m using a test module but running no tests. Surely there is a better way.</p>
 <p>Typically, Catalyst applications call the <code>setup</code> method in the application module (for MetaCPAN that&rsquo;s <a href="https://github.com/dnmfarrell/metacpan-web/blob/7866904ca299701bfa850c10a9e0456f73109bc4/lib/MetaCPAN/Web.pm">MetaCPAN::Web</a>). The <code>setup</code> method bootstraps the web application, doing things like configuring directories, initializing the logger, loading plugins and building the request dispatcher. These are stored in the application package which is a singleton.</p>
 <p><code>Catalyst::Plugin::ActionPaths::get_action_paths</code> uses the Catalyst context to get the dispatcher object, which is all it needs to extract the paths from the Catalyst app. So instead of using <code>request_ctx</code> to get the context to get the dispatcher, I can just stand up the application myself and pluck the dispatcher out of the application package:</p>
@@ -103,7 +103,7 @@ for (@{$actions}) {
 <p>This works. Of course if I can dynamically load the MetaCPAN app and extract its routes, then I can do that for any Catalyst app. That&rsquo;s what <a href="https://gist.github.com/dnmfarrell/cad2c6f6395850cb1ceca48b3ba05b7c">dump-catalyst-paths</a> does. To dump a Catalyst app&rsquo;s routes just provide the package name and any additional paths to include:</p>
 <pre><code class="language-bash">$ ./dump-catalyst-routes MetaCPAN::Web lib local/lib/perl5
 </code></pre>
-<h2 id="postscript">Postscript</h2>
+<h3 id="postscript">Postscript</h3>
 <p>We&rsquo;re just a couple of months past the 10th anniversary of the publication of <a href="https://www.apress.com/gp/book/9781430223658">Catalyst: The Definitive Guide</a>. Two of our core applications at work are Catalyst apps. As one of Perl&rsquo;s premier MVC apps, it&rsquo;s remarkable how resilient it&rsquo;s been. That&rsquo;s a testament to the implementation (which got a lot of things right) and more recently the work done by its maintainer <a href="https://metacpan.org/author/JJNAPIORK">John Napiorkowski</a>. Thanks John!</p>
 <p>If you&rsquo;re considering web application programming with Perl, the <a href="https://metacpan.org/pod/Dancer2">Dancer2</a>, <a href="https://metacpan.org/pod/Mojolicious">Mojolicious</a> and <a href="https://metacpan.org/pod/Kelp">Kelp</a> frameworks are modern alternatives to Catalyst.</p>
 <p><br>

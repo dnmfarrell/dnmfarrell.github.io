@@ -60,7 +60,7 @@ done
 <p>And function names aren&rsquo;t limited to ASCII either. Here&rsquo;s my smiley function:</p>
 <pre><code class="language-sh">function 😃 { echo &quot;haha!&quot;; }
 </code></pre>
-<h2 id="redefining-builtin-commands">Redefining Builtin Commands</h2>
+<h3 id="redefining-builtin-commands">Redefining Builtin Commands</h3>
 <p>Beyond the names themselves, Bash will happily let you redefine any function name, including builtin commands. Watch me redefine <code>echo</code>:</p>
 <pre><code class="language-sh">function echo { echo &quot;$@&quot;; }
 </code></pre>
@@ -68,7 +68,7 @@ done
 <pre><code class="language-sh">function echo { command echo &quot;$@&quot;; }
 </code></pre>
 <p>Unless you also redefine the <code>command</code> command, then you&rsquo;re really screwed. For what it&rsquo;s worth, <code>function</code> does not seem to be redefine-able. And I was <del>disappointed</del> relieved to find that redefining <code>exit</code> does not prevent shell processes from quitting, unless it is explicitly called.</p>
-<h2 id="what-is-this-useful-for">What is this useful for?</h2>
+<h3 id="what-is-this-useful-for">What is this useful for?</h3>
 <p>My guess is Bash behaves this way to preserve backwards compatibility, so one benefit is that Bash will still run old shell code with weird function names. And obviously it makes code obfuscation a lot easier, which is fun until you have to debug it!</p>
 <p>As Bash only has global and functional scopes, imported code can redefine previously declared symbols, such as function names. So if you&rsquo;re writing a library or <a href="/post/modulinos-in-bash/">modulino</a>, you can prepend every function name with <code>$namespace.</code> and then anything which <a href="https://www.gnu.org/software/bash/manual/html_node/Bourne-Shell-Builtins.html#index-_002e">sources</a> it won&rsquo;t have its own symbols clobbered by the import (assuming they follow the same convention).</p>
 <p>For example here&rsquo;s an error-reporting function from <a href="https://github.com/dnmfarrell/jp/blob/6c2433fc8d86a6d05b71b0e59e6db6e867279865/jp#L12">jp</a>:</p>

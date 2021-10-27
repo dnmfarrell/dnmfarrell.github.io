@@ -36,12 +36,12 @@
 <p>Validating untrusted input safely is critical for application security: SQL injection, XSS and malicious file upload are common attacks which succeed because the user&rsquo;s input is not vetted correctly.</p>
 <p>Numbers are problematic: negative numbers (&ldquo;the sales price was -$500&rdquo;), very large numbers (&ldquo;my account balance is 9,223,372,036,854,775,807&rdquo;) or not-a-number (&ldquo;rm -rf /&quot;) can all wreak havoc if not handled with care.</p>
 <p>Fortunately, Perl has robust capabilities for validating input but there are some edge cases to be aware of that make answering &ldquo;is $x a number?&rdquo; more difficult than you might think it would be.</p>
-<h2 id="pattern-matching">Pattern matching</h2>
+<h3 id="pattern-matching">Pattern matching</h3>
 <p>Part of the problem of course, is that numbers come in more varieties than we commonly assume there to be. Regexes are a natural fit for common cases like decimal integer validation: for example <code>/^\d+$/</code> would confirm the input contains only digits. That might be enough for your application but be aware that it doesn&rsquo;t handle all permutations of integers. What if you want to accept negative numbers?</p>
 <p>You could update the regex to accept an optional minus:  <code>/^-?\d+$/</code> or use a standardized regex from <a href="https://metacpan.org/pod/Regexp::Common::number">Regexp::Common::number</a>, which also has patterns for matching decimal places, thousands separators and other common-but-tricky things to match.</p>
 <p>Large integers may also fail to match <code>\d</code>. Perl has three different ways to store numbers: as native C integers, as 8 byte floating point, or as decimal strings in &ldquo;e&rdquo; notation (see <a href="https://perldoc.perl.org/perlnumber">perlnumber</a>). On my machine, Perl stores <code>123456789012345678905</code> as the decimal string <code>1.23456789012346e+20</code>, which doesn&rsquo;t match an integer-only regex. 8 byte floating point and decimal strings are imprecise, so if you need to accept integers larger than your machine architecture (32bit or 64 bit), you should use a module like <a href="https://metacpan.org/pod/Math::BigInt">Math::BigInt</a> instead.</p>
 <p>If you have Perl&rsquo;s <a href="https://perldoc.perl.org/perlsec">taint mode</a> enabled, regex captures are the correct way to &ldquo;de-taint&rdquo; input, in which case you&rsquo;ll have no choice but to use them.</p>
-<h2 id="looks-like-a-number">Looks like a number</h2>
+<h3 id="looks-like-a-number">Looks like a number</h3>
 <p>A complementary technique to using a regex is to use the function <code>looks_like_number</code> from <a href="https://metacpan.org/pod/Scalar::Util">Scalar::Util</a>. This is a boolean function which returns true if the variable looks like a number to the Perl interpreter.</p>
 <p>Unlike simple regexes, it recognizes negative numbers and decimal strings just fine, but it has its own quirks that you should know about. For example, all of these strings &ldquo;look like numbers&rdquo;:</p>
 <pre><code>NaN
@@ -67,7 +67,7 @@ if (looks_like_number($foo) == 1) ...
 # right!
 if (looks_like_number($foo)) ...
 </code></pre>
-<h2 id="the-observer-effect">The Observer Effect</h2>
+<h3 id="the-observer-effect">The Observer Effect</h3>
 <p>Another edge case in Perl is that the act of observing a scalar&rsquo;s value can change the scalar&rsquo;s type from number to string.</p>
 <p>Perl scalars can contain different types like strings, integers and floating point numbers. This is usually convenient: if you need to print a number, you don&rsquo;t have to cast it to a string first because Perl tries to Do the Right Thing™. Scalars are <a href="https://www.effectiveperlprogramming.com/2011/12/create-your-own-dualvars/">dualvars</a>, for efficiency, the Perl interpreter casts the number to a string and stores it in the scalar&rsquo;s struct string slot, so if the scalar is interpolated a second time, Perl doesn&rsquo;t need to cast it to a string again.</p>
 <p>A common way this issue manifests itself is when serializing a Perl data structure to JSON. Scalars which contain numbers when stringified, are then serialized to JSON as strings, instead of integers:</p>
@@ -77,7 +77,7 @@ if (looks_like_number($foo)) ...
 [&quot;1&quot;]
 </code></pre>
 <p>Interpolating a number in a string or matching it against a regex both cause the number to string conversion. Depending on your requirements, this might not matter, but if it does, when validating number input, make a local copy of the variable first so that your validation routines don&rsquo;t subtly change the variable type.</p>
-<h2 id="combining-techniques">Combining techniques</h2>
+<h3 id="combining-techniques">Combining techniques</h3>
 <p>Combining these ideas into a sub:</p>
 <pre><code class="language-perl">use Scalar::Util 'looks_like_number';
 

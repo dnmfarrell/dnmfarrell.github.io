@@ -37,7 +37,7 @@
 <p>So let&rsquo;s assume you have some shell code to test, now what? Well most shells have no built-in unit testing capabilities, so you need to write a script to load your code, and check it does the right thing and report the results.</p>
 <p>This could be as simple as using C-style <a href="https://en.wikipedia.org/wiki/Assert.h">assert statements</a>, but with interpreted code like shell, you don&rsquo;t get the same guarantees about the correctness of the code; so if your test program only fails on asserts, it will report success even if you didn&rsquo;t run all the tests you intended to. The other issue with some assert-style test code is when a test failure causes the test program to exit early, and report only one error, when it could have reported multiple test failures if only the test script had run to completion.</p>
 <p>For those reasons I like the <a href="https://testanything.org/">Test Anything Protocol</a>. TAP-compliant test code must emit a test plan with the number of tests to run, and for every test case either &ldquo;ok&rdquo; for passes or &ldquo;not ok&rdquo; for failures. So TAP parsers can verify that the right number of tests ran, and when tests do fail, programmers can inspect the output and see the context of the failure. To that end I wrote a minimalist <a href="https://github.com/dnmfarrell/tap.sh/">TAP library</a> for POSIX-compatible shells.</p>
-<h2 id="tutorial">Tutorial</h2>
+<h3 id="tutorial">Tutorial</h3>
 <p>Imagine we have written a shell library called <code>examples/hello/hello.sh</code>. It has one function, which by default prints &ldquo;Hello, World!&quot;:</p>
 <pre><code class="language-sh">hello() {
   subject=&quot;$1&quot;
@@ -174,7 +174,7 @@ examples/hello/hello-test.sh
 2 tests, 0 failures.
 PASS
 </code></pre>
-<h2 id="alternatives">Alternatives</h2>
+<h3 id="alternatives">Alternatives</h3>
 <ul>
 <li><a href="https://github.com/kward/shunit2">shunit2</a> is an xUnit-style unit test framework for Bourne-like shell code</li>
 <li><a href="https://github.com/mlafeldt/Sharness">sharness</a> is a TAP unit test shell library like <code>tap.sh</code> but with more features</li>

@@ -38,7 +38,7 @@
 <p>Perl&rsquo;s object system is not one of its most admired qualities. Included in the 1993 Perl 5.0 release, objects were a bolt-on. A big improvement at the time, in today&rsquo;s context the Perl 5 object system requires too much boilerplate and is under-powered compared to other language offerings (no private state, no type checking, no traits, no multimethods). Perl programmers have been trying to upgrade it for years (<a href="https://gist.github.com/Ovid/68b33259cb81c01f9a51612c7a294ede">Cor</a> is a recent example).</p>
 <p>Combining a few concepts can lead to great power; 60 years ago in the <a href="https://mitpress.mit.edu/books/lisp-15-programmers-manual">LISP Programmer&rsquo;s Manual</a> John McCarthy showed how a Lisp interpreter could be created from simple parsing rules, a few types and just five (!) elementary functions.</p>
 <p>Two things Perl 5 got right was its lexical scoping rules and support for anonymous functions (&ldquo;lambdas&rdquo;). Combine those features and you can make closures. And just what are closures good for? Well it turns out they&rsquo;re pretty damn powerful; powerful enough, in fact to make a better object system than Perl&rsquo;s built-in offering.</p>
-<h2 id="private-state">Private state</h2>
+<h3 id="private-state">Private state</h3>
 <p>Perl objects are &ldquo;blessed&rdquo; data structures, which means data plus its package subroutines. Here&rsquo;s a <code>Point</code> class:</p>
 <pre><code class="language-perl">package Point;
 
@@ -83,7 +83,7 @@ say $p-&gt;('y'); # 5
 say $p-&gt;('to_string'); # x: 1, y: 5
 </code></pre>
 <p>As its constructor does not provide any setter methods, its x y coordinates cannot change. It is immutable. The object also does not get its package subroutines, i.e. it has no <code>new</code> method, which stays where it belongs, in the Point package.</p>
-<h2 id="making-it-re-usable">Making it re-usable</h2>
+<h3 id="making-it-re-usable">Making it re-usable</h3>
 <p>So far so good. But what if I wanted to make other classes which work in the same way? If I have to copy-and-paste this pattern around, it&rsquo;s not buying me much. Instead I&rsquo;m going to introduce a new package which builds classes:</p>
 <pre><code class="language-perl">package Class::Lambda;
 
@@ -128,7 +128,7 @@ sub new_class {
     y =&gt; sub { $_[0]-&gt;{y} &gt;}});
 </code></pre>
 <p>One wrinkle here is the naive copying of constructor args into the object state. If the args themselves contain references, the caller could change the state of the references without using the object&rsquo;s interface (assuming they retained a reference to the data). To prevent that the code could be updated to deep-copy any references that have a refcount greater than 1.</p>
-<h2 id="inheritance">Inheritance</h2>
+<h3 id="inheritance">Inheritance</h3>
 <p>This wouldn&rsquo;t be much of an object system if it didn&rsquo;t support inheritance. I&rsquo;ve extended the <code>new_class</code> subroutine:</p>
 <pre><code class="language-perl">sub new_class {
   my ($class_name, $properties, $methods, $superclass) = @_;
@@ -183,7 +183,7 @@ sub _clone_method {
     z         =&gt; sub { shift-&gt;{z} },
   });
 </code></pre>
-<h2 id="traits">Traits</h2>
+<h3 id="traits">Traits</h3>
 <p>Single inheritance is quite limited; I could add support for multiple inheritance by accepting an arrayref of superclasses, and making method resolution more sophisticated. Instead I&rsquo;m going to support traits which avoid the complexity of multiple inheritance and allow class behavior to be extended in a more flexible way:</p>
 <p>First I&rsquo;ll add support for creating new traits:</p>
 <pre><code class="language-perl">sub new_trait {
@@ -231,7 +231,7 @@ sub _clone_method {
     ...
 </code></pre>
 <p>This isn&rsquo;t a precise implementation of traits; in the original <a href="http://web.cecs.pdx.edu/~black/publications/TR_CSE_02-012.pdf">paper</a> traits are not given access to the state of the object (except via its methods). That would require storing trait methods in a separate hashref, not passing the object state as an argument when the methods are called, and updating method dispatch to include searching the object&rsquo;s trait methods hashref.</p>
-<h2 id="metamethods">Metamethods</h2>
+<h3 id="metamethods">Metamethods</h3>
 <p>Whereas methods are concerned with object state, metamethods deal with object <em>structure</em>. Because function objects control their method dispatch, it&rsquo;s trivial to modify dispatch to support metamethods like <code>before</code> and <code>after</code> which run code before or after a method is called:</p>
 <pre><code class="language-perl">sub new_class {
   my ($class_name, $properties, $methods, $superclass) = @_;
@@ -257,7 +257,7 @@ sub _clone_method {
     ...
 </code></pre>
 <p>Whilst this works, it feels like the code is starting to get unwieldy. What I really need is a <a href="https://en.wikipedia.org/wiki/Metaobject#Metaobject_protocol">Metaobject Protocol</a>. Instead of defining methods in a hashref of anonymous functions, I could have a &ldquo;make_method&rdquo; metamethod, which registers a new method in a class. Method registration would provide the opportunity to do things like multiple-dispatch; that is, a class could have several methods with the same name, dispatched to based on the arguments received at runtime (aka <a href="https://en.wikipedia.org/wiki/Multiple_dispatch">multimethods</a>). This is one way of solving the <a href="https://craftinginterpreters.com/representing-code.html#the-expression-problem">Expression Problem</a>.</p>
-<h2 id="speed">Speed</h2>
+<h3 id="speed">Speed</h3>
 <p>By this point you might be wondering how fast function objects are; I ran some <a href="https://github.com/dnmfarrell/Class-Lambda/blob/master/bench/run.pl">benchmarks</a> to compare built-in OO, Moose and Class::Lambda objects. These show that function objects are at least <em>in the ballpark</em> of acceptable performance for construction, get and set methods. Once you add type constraints, error checking and deep-copies of arguments (Moose deep-copies its args), I don&rsquo;t think these differences would matter in most cases. For example if I add <code>isa =&gt; 'Int'</code> to the Moose Point class&rsquo;s x property, its setter benchmark is ~4x slower.</p>
 <pre><code>                 Rate   moose-new  lambda-new builtin-new
 moose-new    714757/s          --        -13%        -64%
@@ -273,7 +273,7 @@ builtin-set 7855213/s         84%          --         -0%
 moose-set   7886981/s         85%          0%          --
 </code></pre>
 <p>Point function objects did use about 3x more memory than their built-in and Moose style equivalents on my computer: 812 bytes compared to 266 bytes (I was surprised to find simple Moose objects are as memory efficient as built-in ones). This is because function objects carry around more data, but also because closures require more Perl internal data structures. I could save memory by not copying every class instance method as a key/value pair into every object, and resolve method calls with a recursive search of the object&rsquo;s class hierarchy instead. This trades memory for speed though.</p>
-<h2 id="future">Future</h2>
+<h3 id="future">Future</h3>
 <p>I&rsquo;ve uploaded this proof-of-concept to <a href="https://github.com/dnmfarrell/Class-Lambda">GitHub</a>. If you&rsquo;re interested in learning more about metaobjects, <a href="https://mitpress.mit.edu/books/art-metaobject-protocol">The Art of the Metaobject Protocol</a> is the definitive reference. For what it&rsquo;s worth, <a href="https://metacpan.org/pod/Moose">Moose</a> is Metaobject Protocol aware, battle-tested and remains the classiest (har) object system available for Perl today.</p>
 <p>Perl&rsquo;s evolution into a kitchen-sink of capabilities provides many tools: some powerful, some mediocre. The question is, where do we go from here? I&rsquo;m not convinced &ldquo;more OO&rdquo; is the right direction for Perl; the language is already huge, the interpreter a byzantine labyrinth of C macros, and Ruby cornered the market for expressive, object-oriented dynamic languages long-ago.</p>
 <p>One way to fight the bloat would be to distill the role of the Perl interpreter down to fewer, more powerful ideas. Objects are more powerful than subroutines, and a Metaobject Protocol more profound still. Yet beneath that, lexical scoping and a thoughtful type system could power them all¹.</p>

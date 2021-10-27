@@ -37,7 +37,7 @@
 
 <p>Over the holidays I was working on a project that needed to download content from different websites. I needed a web spider, but the typical Perl options like <a href="https://metacpan.org/pod/WWW:Mechanize">WWW:Mechanize</a> wouldn&rsquo;t cut it, as with JavaScript controlling the content on many websites, I needed a JavaScript-enabled browser. But browsers consume lots of memory - what to do?</p>
 <p>The answer was to use headless Chrome, which works exactly like normal except it has no graphical display, reducing its memory footprint. I can control it using <a href="https://metacpan.org/pod/Selenium::Remote::Driver">Selenium::Remote::Driver</a> and Selenium server. Here&rsquo;s how I did it.</p>
-<h2 id="non-perl-setup">Non-Perl Setup</h2>
+<h3 id="non-perl-setup">Non-Perl Setup</h3>
 <p>Obviously I needed to install the Chrome browser. On Linux that usually involves adding the Chrome repo, and then installing the Chrome package. On Fedora it was as easy as:</p>
 <pre><code>sudo dnf install fedora-workstation-repositories
 sudo dnf config-manager --set-enabled google-chrome
@@ -62,7 +62,7 @@ sudo mv chromedriver /usr/bin/
 <pre><code>java -Dwebdriver.chrome.driver=/usr/bin/chromedriver -jar selenium-server-standalone-3.14.0.jar
 </code></pre>
 <p>This must be running in order for Perl to communicate with Chrome using Selenium.</p>
-<h2 id="a-basic-spider">A basic spider</h2>
+<h3 id="a-basic-spider">A basic spider</h3>
 <p>I wrote a basic spider script, here&rsquo;s a simplified version:</p>
 <pre><code class="language-perl">#!/usr/bin/env perl
 use Selenium::Remote::Driver;
@@ -115,7 +115,7 @@ $driver-&gt;quit();
 }
 </code></pre>
 <p>It fetches the given <code>$url</code>, printing the text content of the webpage to STDOUT. It encodes the output before printing it: I found this was necessary to avoid multibyte encoding issues. If the spider hasn&rsquo;t reached full depth, it gets all links on the page, and spiders each one that it hasn&rsquo;t already visited. I wrapped the <code>get_attribute</code> method call in <code>eval</code> because it can fail if the link disappears from the website after it was found.</p>
-<h2 id="an-improved-spider">An improved spider</h2>
+<h3 id="an-improved-spider">An improved spider</h3>
 <p>The spider script shown above is functional but rudimentary. I wrote a more <a href="https://gist.github.com/dnmfarrell/5dde6d3957bf9ae037e170cdb44f75a5">advanced</a> one that has some nice features:</p>
 <ul>
 <li>Pings Selenium server on startup and quits if it&rsquo;s not responding</li>

@@ -35,7 +35,7 @@
 <em class="date">September 19, 2019</em>
 
 <p>Recently I&rsquo;ve been researching how the Internet is organized, and working with <a href="https://en.wikipedia.org/wiki/WHOIS">whois</a> data. I&rsquo;ve been creating simple tools that process IP addresses without any help from CPAN. At work we tend to use <a href="https://metacpan.org/pod/Net::IP::XS">Net::IP::XS</a> for these tasks, but sometimes it&rsquo;s fun to figure out how things work under the hood.</p>
-<h2 id="converting-to-decimal">Converting to decimal</h2>
+<h3 id="converting-to-decimal">Converting to decimal</h3>
 <p>I&rsquo;m sure you&rsquo;re familiar with the IPv4 address <a href="https://en.wikipedia.org/wiki/IPv4#Addressing">format</a>; the &ldquo;dotted quad&rdquo; consists of four numbers between 0 and 255 separated by periods. Your home wifi network probably starts at 192.168.0.0. The format is just another way of representing a 32-bit integer; here are the numbers and their equivalent in binary:</p>
 <pre><code>     192      168        0        0
 11000000 10101000 00000000 00000000
@@ -59,7 +59,7 @@ my $decimal = unpack 'N', pack 'CCCC', @bytes; # 3232235520
 </code></pre>
 <p>Using exponents or bit-shifting are both over 3x faster than my pack-unpack routine. That isn&rsquo;t unusual: aside from avoiding subroutine calls, compilers are optimized for base 2 operations.</p>
 <p>You might be wondering how this would work for an <a href="https://en.wikipedia.org/wiki/IPv6#Addressing">IPv6</a> address. In principle the steps are the same, but it&rsquo;s more complicated: IPv6 addresses are 128-bit integers, which is larger than Perl can natively handle. IPv6 addresses also have more involved representation <a href="https://en.wikipedia.org/wiki/IPv6_address#Representation">rules</a>. I&rsquo;ll tackle IPv6 in a future article.</p>
-<h2 id="changing-decimal-back-to-dotted-quad">Changing decimal back to dotted quad</h2>
+<h3 id="changing-decimal-back-to-dotted-quad">Changing decimal back to dotted quad</h3>
 <p>To get back from a decimal number to an IPv4 address, just reverse the process:</p>
 <pre><code class="language-perl">#!/usr/bin/perl
 my $decimal = 3232235776;
@@ -68,7 +68,7 @@ my $ipv4 = join '.', @bytes; # 192.168.1.0
 </code></pre>
 <p>Here I&rsquo;ve used the pack-unpack routine again. I&rsquo;m not sure if there&rsquo;s a exponent/bit-shift solution that&rsquo;s faster. I could right shift the decimal 24 bits to get 192, then left shift 192 24 bits and subtract it from the decimal, then shift the decimal 16 bits right and so on. But that seems like a lot of work.</p>
 <p><strong>Edit</strong>: Dave Cross posted a <a href="https://www.reddit.com/r/perl/comments/d6kncb/creating_ip_address_tools_from_scratch/f0vas6d?utm_source=share&amp;utm_medium=web2x">solution</a> using bitmaps.</p>
-<h2 id="extracting-a-range-from-cidr-notation">Extracting a range from CIDR notation</h2>
+<h3 id="extracting-a-range-from-cidr-notation">Extracting a range from CIDR notation</h3>
 <p><a href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing">CIDR</a> notation is shorthand way of describing a range of contiguous IP addresses belonging to a network. For instance your home network is commonly administered on <code>192.168.0.0/16</code>. This can be read as &ldquo;the network begins at 192.168.0.0 and the network mask is 16 bits long&rdquo;. In other words the network begins at <code>192.168.0.0</code> and ends at <code>192.168.255.255</code>.</p>
 <p>CIDR is powerful though because the network mask doesn&rsquo;t have to be a factor of 8; it&rsquo;s harder to read <code>105.201.192.0/19</code> and know where the network ends. And that&rsquo;s where Perl can help:</p>
 <pre><code class="language-perl">#!/usr/bin/perl
@@ -81,7 +81,7 @@ my @bytes = unpack 'CCCC', pack 'N', $end_decimal;
 my $end_ipv4 = join '.', @bytes; # 105.201.223.255
 </code></pre>
 <p>This code starts by splitting the network <code>105.201.192.0/19</code> into its starting IPv4 address and the network mask prefix length. I then use the same routine as before to obtain the decimal starting address. To figure out the last network address, I can use exponentiation again: 2 to the power of the remaining bits, minus 1 tells me how much larger the end address is than the start. To get the dotted quad I use pack-unpack to read the end decimal back into 4 bytes, and join them together again.</p>
-<h2 id="a-quick-note-on-scripting">A quick note on scripting</h2>
+<h3 id="a-quick-note-on-scripting">A quick note on scripting</h3>
 <p>All of my code examples so far have used fixed variables to keep things simple. But I don&rsquo;t actually write scripts like this. Text streams are the lingua franca of Unix systems; so it&rsquo;s much more useful to write scripts that read streams of text and print streams of text. Then you can pipe data in and out of the script, chaining programs together to get the transformation you need. Here&rsquo;s an example if what I&rsquo;m talking about:</p>
 <pre><code class="language-perl">#!/usr/bin/perl
 while (&lt;&lt;&gt;&gt;) {
@@ -125,7 +125,7 @@ while (&lt;&lt;&gt;&gt;) {
 102.32.0.8	102.32.0.0/15
 102.32.0.9	102.32.0.0/15
 </code></pre>
-<h2 id="representing-a-range-in-cidr-notation">Representing a range in CIDR notation</h2>
+<h3 id="representing-a-range-in-cidr-notation">Representing a range in CIDR notation</h3>
 <p>CIDR notation is compact and convenient; but the <a href="https://www.ripe.net/manage-ips-and-asns/db/support/documentation/ripe-database-documentation/rpsl-object-types/4-2-descriptions-of-primary-objects/4-2-4-description-of-the-inetnum-object">inetnum whois object</a> defines each netblock by its starting and ending IPv4 address, like this: &ldquo;197.232.80.0 - 197.232.83.255&rdquo;. So I wrote a script to convert that string back into a CIDR:</p>
 <pre><code class="language-perl">#!/usr/bin/perl
 while (&lt;&lt;&gt;&gt;) {
