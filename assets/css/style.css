@@ -1,6 +1,8 @@
 html,
 body {
   font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+  background-color: #FAFDFB;
+  color: #171219;
 }
 
 p.description {
@@ -16,10 +18,12 @@ h1 {
 h2 {
   margin-top: 16px;
   margin-bottom: 2px;
+  color: #171219;
 }
 
 h3 {
   margin-bottom: -14px;
+  color: #171219;
 }
 
 main {
@@ -81,25 +85,16 @@ a:visited { }
 em.date {
   color: #6B717E;
 }
-@media (prefers-color-scheme: light), (prefers-color-scheme: no-preference) {
-  body {
-    background-color: #FFFFFF;
-    color: #171219;
-  }
-  h2 {
-    color: #171219;
-  }
-}
+
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #171219;
-    color: #E6EFE9;
+    color: #FAFDFB;
   }
-  h2 {
-    color: #E6EFE9;
+  h2, h3 {
+    color: #FAFDFB;
   }
 }
-
 
 /* The styles below deal with the default Hugo theme content. */
 
