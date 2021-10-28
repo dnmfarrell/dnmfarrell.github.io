@@ -48,9 +48,9 @@ entity: 4 windows (created Tue Oct 19 09:13:11 2021)
 </code></pre>
 <h3 id="auto-naming-sessions">Auto-naming sessions</h3>
 <p>I sometimes forget to name new tmux sessions. This isn&rsquo;t calamitous: the key binding <code>&lt;prefix&gt;$</code> lets you rename the current session. But I&rsquo;ve largely solved that problem by adding a hook to my <code>.tmux.conf</code>:</p>
-<pre><code>set-hook -g session-created 'send-keys tmux Space rename-session Space $(basename Space $(pwd)) Space Enter clear Enter tput Space clear Enter'
+<pre><code>set-hook -g session-created 'send-keys tmux Space rename-session Space $(basename Space $(pwd)) Space Enter tput Space clear Enter'
 </code></pre>
-<p>Whenever a new tmux session is created, this hook renames the session to the basename of the current working directory, and then clears the screen. I use <code>send-keys</code> here because the rename-session command only accepts a string. And because send-keys ignores spaces, every space is passed by <a href="https://man7.org/linux/man-pages/man1/tmux.1.html#KEY_BINDINGS">key name</a>.</p>
+<p>Here&rsquo;s what that mouthful is doing: it adds a hook that executes whenever a new tmux session is created. The hook renames the session to the basename of the current working directory, and then clears the screen. I use <code>send-keys</code> here because the rename-session command only accepts a string. And because send-keys ignores spaces, every space is passed by <a href="https://man7.org/linux/man-pages/man1/tmux.1.html#KEY_BINDINGS">key name</a>.</p>
 <h3 id="switching-between-sessions">Switching between sessions</h3>
 <p>I&rsquo;ve already mentioned how you can list and attach to a given tmux session, but I usually don&rsquo;t do it that way. As my terminal is always in one tmux session or another, I can jump to the next session with <code>&lt;prefix&gt;)</code>. To jump to the previous session, use <code>&lt;prefix&gt;(</code>.</p>
 <p>If I have a lot of sessions, or trouble finding a particular session, I use the choose-tree interactive menu to pick the session (<code>&lt;prefix&gt;s</code>). An awesome feature is tmux displays a preview of all the windows in the session to help me find the session I&rsquo;m looking for:</p>

@@ -39,7 +39,7 @@
 <h3 id="test2-terminology-plugins-vs-tools">Test2 terminology: plugins vs tools</h3>
 <p>In Test2, a &ldquo;plugin&rdquo; is a package which overrides the behavior of existing Test2 features, whereas a &ldquo;tool&rdquo; is a package which provides new functions. In this case I was creating a new testing function which didn&rsquo;t already exist, so I needed to write a <a href="https://metacpan.org/pod/Test2::Tools">Test2::Tools</a>.</p>
 <h3 id="test2api-context">Test2::API context</h3>
-<p><a href="https://metacpan.org/pod/Test2::API">Test2::API</a> provides the <code>context</code> function to access the test context during runtime. The context object provides common test methods like <code>pass</code>, <code>fail</code> and <code>skip</code> etc, which let&rsquo;s you add custom test behavior. Here&rsquo;s how I use it to skip tests:</p>
+<p><a href="https://metacpan.org/pod/Test2::API">Test2::API</a> provides the <code>context</code> function to access the test context during runtime. The context object provides common test methods like <code>pass</code>, <code>fail</code> and <code>skip</code> etc, which lets you add custom test behavior. Here&rsquo;s how I use it to skip tests:</p>
 <pre><code class="language-perl">package Test2::Tools::SkipUntil;
 use Test2::API 'context';
 use Exporter 'import';
