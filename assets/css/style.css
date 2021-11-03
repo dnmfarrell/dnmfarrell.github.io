@@ -13,8 +13,8 @@ code {
   color: #6B717E;
 }
 
-code.language-nobreak {
-  white-space: pre;
+code.language-nowrap {
+  white-space: nowrap;
 
 }
 
@@ -89,21 +89,6 @@ a:visited { }
 
 em.date {
   color: #6B717E;
-}
-
-table {
-  table-layout: fixed;
-  width: 100%;
-  border-collapse: collapse;
-  border: 3px solid #6B717E;
-}
-
-th, td {
-  padding: 2px;
-  text-align:center;
-}
-tr td:nth-child(1) {
-  text-align: right;
 }
 
 @media (prefers-color-scheme: light), (prefers-color-scheme: no-preference) {

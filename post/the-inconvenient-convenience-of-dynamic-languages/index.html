@@ -44,7 +44,7 @@
 </code></pre>
 <p>Without additional context, it&rsquo;s impossible to know. This can be quite inconvenient, for example if I&rsquo;m reviewing a merge request with a diff like this, I&rsquo;ll have to checkout the full source to trace the origin of <code>foo</code>.</p>
 <p>Here&rsquo;s a tiny table of dynamic programming languages and common truthy/falsey values:</p>
-<pre><code class="language-nobreak">+---------------------------------------------------------------------------+
+<pre><code class="language-nowrap">+---------------------------------------------------------------------------+
 |               | Year | nil | 0 | 1 | NaN | Inf | &quot;&quot; | &quot;0&quot; | &quot;1&quot; | [] | {} |
 |---------------|------|-----|---|---|-----|-----|----|-----|-----|----|----|
 | Clojure       | 2007 |  ✘  | ✔ | ✔ |  ✔  |  ✔  | ✔  |  ✔  |  ✔  | ✔  | ✔  |
@@ -108,12 +108,12 @@ if (greeting == null || greeting.length == 0) { greeting = &quot;hey&quot; } // 
 <li>Elixir&rsquo;s short circuit operators <code>||</code>, <code>&amp;&amp;</code> and <code>!</code> use truthiness but its boolean operators <code>and</code>, <code>or</code> and <code>not</code> do not</li>
 <li>Perl doesn&rsquo;t have a boolean type. To support serialization into formats which do, modules provide special objects e.g. <code>JSON::true</code></li>
 <li>In Vimscript 0 is false and all other integers are true. It also has the bizarre behavior of coercing strings into integers by treating any leading digits in a string as its numerical value, else the string evaluates to 0. I.e. <code>:echom &quot;10hello&quot; + 5</code> equals 15`. But the <em>real</em> insult is Vimscript refuses to coerce floats to integers in boolean contexts 🙃</li>
-<li>Christiansen et al, 2012 <a href="https://www.oreilly.com/library/view/programming-perl-4th/9781449321451/">Programming Perl 4th edition</a></li>
-<li>Feldman; <a href="https://www.manning.com/books/elm-in-action">Elm in Action</a></li>
+<li>Christiansen et al, <a href="https://www.oreilly.com/library/view/programming-perl-4th/9781449321451/">Programming Perl 4th edition</a>, page 32</li>
+<li>Feldman, <a href="https://www.manning.com/books/elm-in-action">Elm in Action</a>, page 12</li>
 <li>JavaScript distinguishes between declared-but-unitialized variables (undefined) and the null object. Both are &ldquo;nullish&rdquo;</li>
 <li>The optional chaining operator <a href="https://github.com/TC39/proposal-optional-chaining">JavaScript proposal</a> provides a lot of background including edge cases</li>
 <li>Many languages support a <a href="https://en.wikipedia.org/wiki/Null_coalescing_operator">null coalescing operator</a></li>
-<li>Nystrom; <a href="https://craftinginterpreters.com/statements-and-state.html#design-note">Crafting Interpreters</a></li>
+<li>Nystrom, <a href="https://craftinginterpreters.com/statements-and-state.html#design-note">Crafting Interpreters</a></li>
 </ol>
 
 
