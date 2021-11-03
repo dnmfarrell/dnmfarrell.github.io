@@ -74,8 +74,8 @@
 <p>Let&rsquo;s review some use cases and see if he&rsquo;s right.</p>
 <h3 id="checking-if-a-value-is-present">Checking if a value is present</h3>
 <p>Imagine that we&rsquo;re writing a JavaScript program expecting a number, and want to take some action if it&rsquo;s provided:</p>
-<pre><code>if (num) { ... }                    // zero is falsey
-if (num != null &amp;&amp; num &gt; 0) { ... } // no truthiness
+<pre><code>if (num) { ... }
+if (num != null &amp;&amp; num &gt; 0) { ... }
 </code></pre>
 <p>This might be Exhibit A in defense of truthiness. The truthy version is much shorter, saving nullish⁶ and comparison checks. But the checks are implicit, risking bugs. For instance if <code>num</code> was <code>&quot;0&quot;</code> the condition would flip to true. Whereas the non-truthy expression will only be true if <code>num</code> is greater than zero, whether it&rsquo;s a string or not.</p>
 <p>If we only care about non-nullish values, both examples collapse to:</p>
@@ -83,16 +83,16 @@ if (num != null &amp;&amp; num &gt; 0) { ... } // no truthiness
 </code></pre>
 <h3 id="safely-calling-a-method">Safely calling a method</h3>
 <p>Truthiness can be used to avoid calling a method if the object isn&rsquo;t present, by relying on <code>&amp;&amp;</code> to short-circuit expression evaluation. Imagine if <code>name</code> was optional, but an empty name was an error:</p>
-<pre><code>if (name &amp;&amp; name.length == 0) { ... }         // not null is truthy
-if (name != null &amp;&amp; name.length == 0) { ... } // no truthiness
+<pre><code>if (name &amp;&amp; name.length == 0) { ... }
+if (name != null &amp;&amp; name.length == 0) { ... }
 </code></pre>
 <p>Here truthiness only saves 8 characters, and I&rsquo;d guess it&rsquo;s not faster either. But both versions are unnecessary if we use <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining">optional chaining</a>:</p>
-<pre><code>if (name?.length == 0) { ... } // call if not nullish
+<pre><code>if (name?.length == 0) { ... }
 </code></pre>
 <h3 id="assigning-default-values">Assigning default values</h3>
 <p>Another common use of truthiness is to assign default values:</p>
-<pre><code>greeting ||= &quot;hey&quot;                                                 // null or empty is falsey
-if (greeting == null || greeting.length == 0) { greeting = &quot;hey&quot; } // no truthiness
+<pre><code>greeting ||= &quot;hey&quot;
+if (greeting == null || greeting.length == 0) { greeting = &quot;hey&quot; }
 </code></pre>
 <p>The truthiness version is shorter and faster. But it also risks overwriting <code>false</code>, 0 and an empty string - which might mask caller issues. If <code>greeting</code> was a function parameter, it could be given a default value like this:</p>
 <pre><code>function sendMessage (greeting = &quot;hey&quot;) { ... }
