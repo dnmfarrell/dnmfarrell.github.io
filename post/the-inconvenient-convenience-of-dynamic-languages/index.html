@@ -47,18 +47,18 @@
 <pre><code class="language-pre">+---------------------------------------------------------------------------+
 |               | Year | nil | 0 | 1 | NaN | Inf | &quot;&quot; | &quot;0&quot; | &quot;1&quot; | [] | {} |
 |---------------|------|-----|---|---|-----|-----|----|-----|-----|----|----|
-| Clojure       | 2007 |  ✘  | ✔ | ✔ |  ✔  |  ✔  | ✔  |  ✔  |  ✔  | ✔  | ✔  |
-| Elixir¹       | 2012 |  ✘  | ✔ | ✔ |  ✔  |  ✔  | ✔  |  ✔  |  ✔  | ✔  | ✔  |
-| JavaScript    | 1995 |  ✘  | ✘ | ✔ |  ✘  |  ✔  | ✘  |  ✔  |  ✔  | ✔  | ✔  |
+| Clojure       | 2007 |  N  | Y | Y |  Y  |  Y  | Y  |  Y  |  Y  | Y  | Y  |
+| Elixir¹       | 2012 |  N  | Y | Y |  Y  |  Y  | Y  |  Y  |  Y  | Y  | Y  |
+| JavaScript    | 1995 |  N  | N | Y |  N  |  Y  | N  |  Y  |  Y  | Y  | Y  |
 | Julia         | 2012 |     |   |   |     |     |    |     |     |    |    |
-| Lisp          | 1958 |  ✘  | ✔ | ✔ |  ✔  |  ✔  | ✔  |  ✔  |  ✔  | ✘  | ✔  |
-| Lua 5         | 2003 |  ✘  | ✔ | ✔ |  ✔  |  ✔  | ✔  |  ✔  |  ✔  |    | ✔  |
-| Perl 5²       | 1994 |  ✘  | ✘ | ✔ |  ✔  |  ✔  | ✘  |  ✘  |  ✔  | ✘  | ✘  |
-| PHP           | 1995 |  ✘  | ✘ | ✔ |  ✔  |  ✔  | ✘  |  ✘  |  ✔  | ✘  | ✔  |
-| Python        | 1991 |  ✘  | ✘ | ✔ |  ✔  |  ✔  | ✘  |  ✔  |  ✔  | ✘  | ✘  |
-| Ruby          | 1995 |  ✘  | ✔ | ✔ |  ✔  |  ✔  | ✔  |  ✔  |  ✔  | ✔  | ✔  |
-| Tcl           | 1988 |     | ✘ | ✔ |     |     |    |  ✘  |  ✔  |    |    |
-| Vimscript³    | 1991 |  ✘  | ✘ | ✔ |     |     | ✘  |  ✘  |  ✔  |    |    |
+| Lisp          | 1958 |  N  | Y | Y |  Y  |  Y  | Y  |  Y  |  Y  | N  | Y  |
+| Lua 5         | 2003 |  N  | Y | Y |  Y  |  Y  | Y  |  Y  |  Y  |    | Y  |
+| Perl 5²       | 1994 |  N  | N | Y |  Y  |  Y  | N  |  N  |  Y  | N  | N  |
+| PHP           | 1995 |  N  | N | Y |  Y  |  Y  | N  |  N  |  Y  | N  | Y  |
+| Python        | 1991 |  N  | N | Y |  Y  |  Y  | N  |  Y  |  Y  | N  | N  |
+| Ruby          | 1995 |  N  | Y | Y |  Y  |  Y  | Y  |  Y  |  Y  | Y  | Y  |
+| Tcl           | 1988 |     | N | Y |     |     |    |  N  |  Y  |    |    |
+| Vimscript³    | 1991 |  N  | N | Y |     |     | N  |  N  |  Y  |    |    |
 +---------------------------------------------------------------------------+
 </code></pre>
 <p>Julia doesn&rsquo;t support truthiness. There is some recent convergence with Clojure, Elixir, Lua and Ruby only treating false and nil values as falsey. But overall there is no broad agreement; the programmer must keep the rules in their head when working with code.</p>
