@@ -75,11 +75,14 @@
 <h3 id="checking-if-a-value-is-present">Checking if a value is present</h3>
 <p>Imagine that we&rsquo;re writing a JavaScript program expecting a number, and want to take some action if it&rsquo;s provided:</p>
 <pre><code>if (num) { ... }
-if (num != null &amp;&amp; num &gt; 0) { ... }
+if (typeof(num) == &quot;number&quot; &amp;&amp; num &gt; 0){ ... }
 </code></pre>
-<p>This might be Exhibit A in defense of truthiness. The truthy version is much shorter, saving nullish⁶ and comparison checks. But the checks are implicit, risking bugs. For instance if <code>num</code> was <code>&quot;0&quot;</code> the condition would flip to true. Whereas the non-truthy expression will only be true if <code>num</code> is greater than zero, whether it&rsquo;s a string or not.</p>
-<p>If we only care about non-nullish values, both examples collapse to:</p>
+<p>This might be Exhibit A in defense of truthiness. The truthy version is much shorter, saving type and comparison checks. But the checks are implicit, risking bugs. Is it intentionally excluding <code>0</code>? On the other hand if <code>num</code> was <code>&quot;0&quot;</code> the condition would flip to true. Whereas the non-truthy expression will only be true if <code>num</code> is greater than zero.</p>
+<p>If we only care about non-nullish⁶ values, both examples collapse to:</p>
 <pre><code>if (num != null) { ... }
+</code></pre>
+<p>Or if we want to be sure <code>num</code> is a number:</p>
+<pre><code>if (typeof(num) == &quot;number&quot;) { ... }
 </code></pre>
 <h3 id="safely-calling-a-method">Safely calling a method</h3>
 <p>Truthiness can be used to avoid calling a method if the object isn&rsquo;t present, by relying on <code>&amp;&amp;</code> to short-circuit expression evaluation. Imagine if <code>name</code> was optional, but an empty name was an error:</p>
@@ -108,7 +111,7 @@ if (greeting == null || greeting.length == 0){
 <h2 id="references">References</h2>
 <ol>
 <li>Elixir&rsquo;s short circuit operators <code>||</code>, <code>&amp;&amp;</code> and <code>!</code> use truthiness but its boolean operators <code>and</code>, <code>or</code> and <code>not</code> do not</li>
-<li>Perl doesn&rsquo;t have a boolean type. To support serialization into formats which do, modules provide special objects e.g. <code>JSON::true</code></li>
+<li>Perl doesn&rsquo;t have a boolean type. To support serialization into formats which do, modules provide special objects e.g. <code>JSON::true</code>. The symbols <code>[]</code> and <code>{}</code> are references in Perl, which evaluate as true. But I&rsquo;m using them here to refer to ordinary arrays and hashes to be consistent in comparison with the rest of the table</li>
 <li>In Vimscript 0 is false and all other integers are true. It also has the bizarre behavior of coercing strings into integers by treating any leading digits in a string as its numerical value, else the string evaluates to 0. I.e. <code>:echom &quot;10hello&quot; + 5</code> equals 15`. But the <em>real</em> insult is Vimscript refuses to coerce floats to integers in boolean contexts 🙃</li>
 <li>Christiansen et al, <a href="https://www.oreilly.com/library/view/programming-perl-4th/9781449321451/">Programming Perl 4th edition</a>, page 32</li>
 <li>Feldman, <a href="https://www.manning.com/books/elm-in-action">Elm in Action</a>, page 12</li>
