@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>The Inconvenient Convenience Of Dynamic Languages</title>
+  <meta name="description" content="Truthiness probably isn&#39;t worth it anymore" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:site" content="@perltricks">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/the-inconvenient-convenience-of-dynamic-languages/" />
+  <meta property="og:title" content="The Inconvenient Convenience Of Dynamic Languages" />
+  <meta property="og:description" content="Truthiness probably isn&#39;t worth it anymore">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2021-11-03T08:38:21Z" />
+  <meta property="og:article:tag" content="truthiness" />
+  <meta property="og:article:tag" content="bugs" />
+  <meta property="og:article:tag" content="code-review" />
+  <meta property="og:article:tag" content="dynamic-languages" />
+  <meta property="og:article:tag" content="javascript" />
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>The Inconvenient Convenience Of Dynamic Languages</h2>
+
+<em class="date">November 3, 2021</em>
+
+<p>Truthiness is the behavior of interpreting non-boolean values as true or false in a conditional context. E.g. in this loop: <code>while 1 { ... }</code>, the 1 is interpreted as <code>true</code>. Dynamic programming languages provide this behavior as a convenience to save the programmer from typing more than they need to. However, this week I wasted a bunch of time tracking down a bug that had a several root causes:</p>
+<ol>
+<li>An integer stored in a database table as a float</li>
+<li>A database driver which returns floats as strings</li>
+<li>A language which treats 0, &ldquo;0&rdquo; and 0.00 as false but &ldquo;0.00&rdquo; as true</li>
+</ol>
+<p>I was burned by truthiness. The trouble is, as convenient as it may be, truthiness encourages ambiguity. Look at this code, can you tell me under what conditions <code>foo</code> will be true?</p>
+<pre><code>if (foo) { ... }
+</code></pre>
+<p>Without additional context, it&rsquo;s impossible to know. This can be quite inconvenient, for example if I&rsquo;m reviewing a merge request with a diff like this, I&rsquo;ll have to checkout the full source to trace the origin of <code>foo</code>.</p>
+<p>Here&rsquo;s a tiny table of dynamic programming languages and common truthy/falsey values:</p>
+<pre><code>+---------------------------------------------------------------------------+
+|               | Year | nil | 0 | 1 | NaN | Inf | &quot;&quot; | &quot;0&quot; | &quot;1&quot; | [] | {} |
+|---------------|------|-----|---|---|-----|-----|----|-----|-----|----|----|
+| Clojure       | 2007 |  ✘  | ✔ | ✔ |  ✔  |  ✔  | ✔  |  ✔  |  ✔  | ✔  | ✔  |
+| Elixir¹       | 2012 |  ✘  | ✔ | ✔ |  ✔  |  ✔  | ✔  |  ✔  |  ✔  | ✔  | ✔  |
+| JavaScript    | 1995 |  ✘  | ✘ | ✔ |  ✘  |  ✔  | ✘  |  ✔  |  ✔  | ✔  | ✔  |
+| Julia         | 2012 |     |   |   |     |     |    |     |     |    |    |
+| Lisp          | 1958 |  ✘  | ✔ | ✔ |  ✔  |  ✔  | ✔  |  ✔  |  ✔  | ✘  | ✔  |
+| Lua 5         | 2003 |  ✘  | ✔ | ✔ |  ✔  |  ✔  | ✔  |  ✔  |  ✔  |    | ✔  |
+| Perl 5²       | 1994 |  ✘  | ✘ | ✔ |  ✔  |  ✔  | ✘  |  ✘  |  ✔  | ✘  | ✘  |
+| PHP           | 1995 |  ✘  | ✘ | ✔ |  ✔  |  ✔  | ✘  |  ✘  |  ✔  | ✘  | ✔  |
+| Python        | 1991 |  ✘  | ✘ | ✔ |  ✔  |  ✔  | ✘  |  ✔  |  ✔  | ✘  | ✘  |
+| Ruby          | 1995 |  ✘  | ✔ | ✔ |  ✔  |  ✔  | ✔  |  ✔  |  ✔  | ✔  | ✔  |
+| Tcl           | 1988 |     | ✘ | ✔ |     |     |    |  ✘  |  ✔  |    |    |
+| Vimscript³    | 1991 |  ✘  | ✘ | ✔ |     |     | ✘  |  ✘  |  ✔  |    |    |
++---------------------------------------------------------------------------+
+</code></pre>
+<p>Julia doesn&rsquo;t support truthiness. There is some recent convergence with Clojure, Elixir, Lua and Ruby only treating false and nil values as falsey. But overall there is no broad agreement; the programmer must keep the rules in their head when working with code.</p>
+<p>On truthiness, Programming In Lua has <a href="https://www.lua.org/pil/2.2.html">this</a> to say:</p>
+<blockquote>
+<p>Conditionals (such as the ones in control structures) consider false and nil as false and anything else as true. <strong>Beware</strong> that, unlike some other scripting languages, Lua considers both zero and the empty string as true in conditional tests.</p>
+</blockquote>
+<p>Beware indeed! (emphasis mine). Programming Perl takes a whole page to explain its truthiness rules⁴. The Mozilla JavaScript documentation includes thirteen different examples of <a href="https://developer.mozilla.org/en-US/docs/Glossary/Truthy">truthy values</a>.</p>
+<p>In a popular Elm book⁵ Richard Feldman writes:</p>
+<blockquote>
+<p>JavaScript has a concept of “truthiness,” where conditionals can be values other than true and false. Elm doesn’t have truthiness. Conditions can be either True or False, and that’s it. Life is simpler this way.</p>
+</blockquote>
+<p>Let&rsquo;s review some use cases and see if he&rsquo;s right.</p>
+<h3 id="checking-if-a-value-is-present">Checking if a value is present</h3>
+<p>Imagine that we&rsquo;re writing a JavaScript program expecting a number, and want to take some action if it&rsquo;s provided:</p>
+<pre><code>if (num) { ... }                    // zero is falsey
+if (num != null &amp;&amp; num &gt; 0) { ... } // no truthiness
+</code></pre>
+<p>This might be Exhibit A in defense of truthiness. The truthy version is much shorter, saving nullish⁶ and comparison checks. But the checks are implicit, risking bugs. For instance if <code>num</code> was <code>&quot;0&quot;</code> the condition would flip to true. Whereas the non-truthy expression will only be true if <code>num</code> is greater than zero, whether it&rsquo;s a string or not.</p>
+<p>If we only care about non-nullish values, both examples collapse to:</p>
+<pre><code>if (num != null) { ... }
+</code></pre>
+<h3 id="safely-calling-a-method">Safely calling a method</h3>
+<p>Truthiness can be used to avoid calling a method if the object isn&rsquo;t present, by relying on <code>&amp;&amp;</code> to short-circuit expression evaluation. Imagine if <code>name</code> was optional, but an empty name was an error:</p>
+<pre><code>if (name &amp;&amp; name.length == 0) { ... }         // not null is truthy
+if (name != null &amp;&amp; name.length == 0) { ... } // no truthiness
+</code></pre>
+<p>Here truthiness only saves 8 characters, and I&rsquo;d guess it&rsquo;s not faster either. But both versions are unnecessary if we use <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining">optional chaining</a>:</p>
+<pre><code>if (name?.length == 0) { ... } // call if not nullish
+</code></pre>
+<h3 id="assigning-default-values">Assigning default values</h3>
+<p>Another common use of truthiness is to assign default values:</p>
+<pre><code>greeting ||= &quot;hey&quot;                                                 // null or empty is falsey
+if (greeting == null || greeting.length == 0) { greeting = &quot;hey&quot; } // no truthiness
+</code></pre>
+<p>The truthiness version is shorter and faster. But it also risks overwriting <code>false</code>, 0 and an empty string - which might mask caller issues. If <code>greeting</code> was a function parameter, it could be given a default value like this:</p>
+<pre><code>function sendMessage (greeting = &quot;hey&quot;) { ... }
+</code></pre>
+<p>But not all values are parameters, so what to do in the other cases? The answer is to use the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_nullish_assignment">logical nullish assignment</a>⁸:</p>
+<pre><code>greeting ??= &quot;hey&quot;
+</code></pre>
+<p>Both of these solutions leave the cases of <code>false</code>, 0 and the empty string explicitly unhandled.</p>
+<h3 id="conclusion">Conclusion</h3>
+<p>Programmers are generally more productive working with dynamic languages than static ones. But the trade off of prioritizing convenience over safety isn&rsquo;t always worth it. Implicit variable declaration has been a mess⁹. And whilst there are different definitions of truthiness, modern dynamic language features often provide the terseness of truthiness but with clearer, safer code.</p>
+<h2 id="references">References</h2>
+<ol>
+<li>Elixir&rsquo;s short circuit operators <code>||</code>, <code>&amp;&amp;</code> and <code>!</code> use truthiness but its boolean operators <code>and</code>, <code>or</code> and <code>not</code> do not</li>
+<li>Perl doesn&rsquo;t have a boolean type. To support serialization into formats which do, modules provide special objects e.g. <code>JSON::true</code></li>
+<li>In Vimscript 0 is false and all other integers are true. It also has the bizarre behavior of coercing strings into integers by treating any leading digits in a string as its numerical value, else the string evaluates to 0. I.e. <code>:echom &quot;10hello&quot; + 5</code> equals 15`. But the <em>real</em> insult is Vimscript refuses to coerce floats to integers in boolean contexts 🙃</li>
+<li>Christiansen et al, 2012 <a href="https://www.oreilly.com/library/view/programming-perl-4th/9781449321451/">Programming Perl 4th edition</a></li>
+<li>Feldman; <a href="https://www.manning.com/books/elm-in-action">Elm in Action</a></li>
+<li>JavaScript distinguishes between declared-but-unitialized variables (undefined) and the null object. Both are &ldquo;nullish&rdquo;</li>
+<li>The optional chaining operator <a href="https://github.com/TC39/proposal-optional-chaining">JavaScript proposal</a> provides a lot of background including edge cases</li>
+<li>Many languages support a <a href="https://en.wikipedia.org/wiki/Null_coalescing_operator">null coalescing operator</a></li>
+<li>Nystrom; <a href="https://craftinginterpreters.com/statements-and-state.html#design-note">Crafting Interpreters</a></li>
+</ol>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/truthiness/>truthiness</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/bugs/>bugs</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/code-review/>code-review</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/dynamic-languages/>dynamic-languages</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/javascript/>javascript</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+    <p>Follow me on Twitter <a href="https://twitter.com/PerlTricks">@perltricks</a></p>
+ </footer>
+
+  </body>
+</html>
