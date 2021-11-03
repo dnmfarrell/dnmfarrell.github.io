@@ -92,10 +92,12 @@ if (name != null &amp;&amp; name.length == 0) { ... }
 <h3 id="assigning-default-values">Assigning default values</h3>
 <p>Another common use of truthiness is to assign default values:</p>
 <pre><code>greeting ||= &quot;hey&quot;
-if (greeting == null || greeting.length == 0) { greeting = &quot;hey&quot; }
+if (greeting == null || greeting.length == 0){
+  greeting = &quot;hey&quot;;
+}
 </code></pre>
 <p>The truthiness version is shorter and faster. But it also risks overwriting <code>false</code>, 0 and an empty string - which might mask caller issues. If <code>greeting</code> was a function parameter, it could be given a default value like this:</p>
-<pre><code>function sendMessage (greeting = &quot;hey&quot;) { ... }
+<pre><code>function sendMessage(greeting = &quot;hey&quot;) { ... }
 </code></pre>
 <p>But not all values are parameters, so what to do in the other cases? The answer is to use the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_nullish_assignment">logical nullish assignment</a>⁸:</p>
 <pre><code>greeting ??= &quot;hey&quot;
