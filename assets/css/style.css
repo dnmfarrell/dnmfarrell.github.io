@@ -10,7 +10,6 @@ pre {
 
 code {
   font-weight: 600;
-  color: #6B717E;
 }
 
 code.language-pre {
@@ -98,6 +97,9 @@ em.date {
   h2, h3 {
     color: #171219;
   }
+  code {
+    color: #6B717E;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -106,6 +108,9 @@ em.date {
     color: #FAFDFB;
   }
   h2, h3 {
+    color: #FAFDFB;
+  }
+  code {
     color: #FAFDFB;
   }
 }
