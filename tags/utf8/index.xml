@@ -6,15 +6,14 @@
     <description>Recent content in utf8 on Code Matters - a tech blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 02 Aug 2016 08:47:57 +0000</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/utf8/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 12 Nov 2021 09:03:41 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/utf8/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Building A UTF-8 Encoder In Perl</title>
-      <link>https://blog.dnmfarrell.com/post/building-a-utf-8-encoder-in-perl/</link>
-      <pubDate>Tue, 02 Aug 2016 08:47:57 +0000</pubDate>
+      <title>How to Split a String in POSIX Shell</title>
+      <link>https://blog.dnmfarrell.com/post/how-to-split-a-string-in-posix-shell/</link>
+      <pubDate>Fri, 12 Nov 2021 09:03:41 -0500</pubDate>
       
-      <guid>https://blog.dnmfarrell.com/post/building-a-utf-8-encoder-in-perl/</guid>
-      <description>This week I wrote a UTF-8 encoder/decoder. Perl already comes with UTF-8 encoding features built-in, so this wasn&amp;rsquo;t necessary, but sometimes it&amp;rsquo;s nice to understand how things work. The UTF-8 scheme is defined in RFC 3629.
-What does a UTF-8 encoder do? UTF-8 is a scheme for encoding Unicode sequences of codepoints as bytes/octets. A codepoint is just a number, that identifies the Unicode entry (such as 0x24 which is a dollar sign).</description>
+      <guid>https://blog.dnmfarrell.com/post/how-to-split-a-string-in-posix-shell/</guid>
+      <description>The POSIX Shell specification defines a minimalist shell language with few features compared to stalwarts like Bash. Yet POSIX shells are everywhere: Dash is the default on Ubuntu, and many Docker containers only have busybox ash. Minimalist shells use few resources and are faster than featureful shells like Bash and Zsh¹. They are more likely to be secure too, as the reduced feature sets are easier to reason about and provide a smaller attack surface for hackers.</description>
     </item>
     
   </channel>
