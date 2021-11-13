@@ -36,7 +36,7 @@
 
 <em class="date">November 12, 2021</em>
 
-<p>The POSIX Shell <a href="https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html">specification</a> defines a minimalist shell language with few features compared to stalwarts like Bash. Yet POSIX shells are everywhere: <a href="https://en.wikipedia.org/wiki/Almquist_shell">Dash</a> is the default on Ubuntu, and many Docker containers only have busybox <a href="https://github.com/brgl/busybox/blob/master/shell/ash.c">ash</a>. Minimalist shells use few resources and are faster than featureful shells like <a href="https://www.gnu.org/software/bash/">Bash</a> and <a href="https://www.zsh.org/">Zsh</a>¹. They are more likely to be secure too, as the reduced feature sets are easier to reason about and provide a smaller attack surface for hackers.</p>
+<p>The POSIX Shell <a href="https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html">specification</a> defines a minimalist shell language with few features compared to stalwarts like Bash. Yet POSIX shells are everywhere: <a href="https://en.wikipedia.org/wiki/Almquist_shell">Dash</a> is the default on Ubuntu, and many Docker containers only have busybox <a href="https://github.com/brgl/busybox/blob/master/shell/ash.c">ash</a>. Minimalist shells use little resources and are faster than featureful shells like <a href="https://www.gnu.org/software/bash/">Bash</a> and <a href="https://www.zsh.org/">Zsh</a>¹. They are more likely to be secure too, as the reduced feature sets are easier to reason about and provide a smaller attack surface for hackers.</p>
 <p>The trouble starts when a developer needs a feature that POSIX shells don&rsquo;t provide: I wanted to split a string into characters, yet there is no builtin function to do this. Common advice is to pipe the string to <code>sed</code>:</p>
 <pre><code>#!/bin/sh
 split_string () {
@@ -78,14 +78,14 @@ while read -r line;do
   split_string &quot;$line&quot;
 done
 </code></pre>
-<p>This version of split_string² uses the builtin <a href="//pubs.opengroup.org/onlinepubs/9699919799/utilities/getopts.html">getopts</a> utility to treat its arg <em>as if</em> it&rsquo;s parsing an options string for a program. The optstring pattern <code>:</code> suppresses error reporting when an unexpected option is found and <code>OPTARG</code> is set to its value. The arg is prefixed with a dash so that it looks like an options string. Getopts returns true for every character in the arg string, causing the <code>while</code> loop to iterate. If <code>OPTARG</code> is unset/null it&rsquo;s because the character was a colon, so the code uses parameter expansion to set colon as the default value. This code is about 55x faster at processing the large text file than the <code>sed</code> version. It also has no trouble with tab:</p>
+<p>This version of split_string² uses the builtin <a href="//pubs.opengroup.org/onlinepubs/9699919799/utilities/getopts.html">getopts</a> to treat its arg <em>as if</em> it&rsquo;s parsing an options string for a program. The optstring pattern <code>:</code> instructs getopts to set <code>OPTARG</code> to the value of every character processed. The arg is prefixed with a dash so that it looks like an options string. If <code>OPTARG</code> is unset/null it&rsquo;s because the character was a colon, so the code uses parameter expansion to set colon as the default value. This code is about 55x faster at processing the large text file than the <code>sed</code> version. It also has no trouble with tab:</p>
 <pre><code class="language-pre">echo 'f	oo' | ./split-getopts.sh
 f
 	
 o
 o
 </code></pre>
-<p>However, getopts splits the string <em>bytewise</em> which shreds multibyte characters, corrupting them (getopts only supports single byte option characters). Which is why this snowman&rsquo;s 3 bytes are printed on separate lines:</p>
+<p>However, getopts splits the string <em>bytewise</em> which shreds multibyte characters. Which is why this snowman&rsquo;s 3 bytes are printed on separate lines:</p>
 <pre><code>echo '⛄' | ./split-getopts.sh
 
 
@@ -116,7 +116,7 @@ LC_ALL=
 LC_CTYPE
 copy &quot;en_GB&quot;
 </code></pre>
-<p>This says the en_US LC_CTYPE definition is a copy of the en_GB definition. So I grep that file:</p>
+<p>This says the its LC_CTYPE definition is a copy of the en_GB definition. So I grep that file:</p>
 <pre><code class="language-pre">grep -A1 ^LC_CTYPE /usr/share/i18n/locales/en_GB
 LC_CTYPE
 copy &quot;i18n&quot;
@@ -127,16 +127,15 @@ LC_CTYPE
 
 copy &quot;i18n_ctype&quot;
 </code></pre>
-<p>The file <code>/usr/share/i18n/locales/i18n_ctype</code> doesn&rsquo;t have a <code>copy</code> directive, it has the definitions! The entry for the <code>print</code> character class looks like this:</p>
+<p>Which is a copy of i18n_ctype definition. Looking at the file <code>/usr/share/i18n/locales/i18n_ctype</code>, it doesn&rsquo;t have a <code>copy</code> directive, it has the definitions! The entry for the <code>print</code> character class looks like this (truncated for brevity):</p>
 <pre><code class="language-pre">print /
-   &lt;U0020&gt;..&lt;U007E&gt;;&lt;U00A0&gt;..&lt;U0377&gt;;&lt;U037A&gt;..&lt;U037F&gt;;&lt;U0384&gt;..&lt;U038A&gt;;/
    ...
    &lt;U2440&gt;..&lt;U244A&gt;;&lt;U2460&gt;..&lt;U2B73&gt;;&lt;U2B76&gt;..&lt;U2B95&gt;;&lt;U2B98&gt;..&lt;U2C2E&gt;;/
    ...
 </code></pre>
 <p>This is a list of Unicode codepoints that should be considered part of the <code>print</code> character class. The snowman has the codepoint U+26C4, which falls in the range <code>&lt;U2460&gt;..&lt;U2B73&gt;</code> above. So with the correct locale settings, POSIX shells should be able to pattern match snowmen, and indeed all printable Unicode codepoints!</p>
 <h3 id="splitting-multibyte-characters">Splitting multibyte characters</h3>
-<p>The obvious fix for this is to buffer bytes until they form a printable character:</p>
+<p>Knowing that locale changes the <code>print</code> character class for pattern matching, the obvious fix for this is to buffer bytes until they form a printable character:</p>
 <pre><code class="language-pre">#!/bin/sh
 IFS='
 '
