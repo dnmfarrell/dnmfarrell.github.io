@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>How to Split a String in POSIX Shell</title>
-  <meta name="description" content="Handling multibyte input gets tricky" />
+  <meta name="description" content="Handling multibyte characters gets tricky" />
   <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
   <meta property="twitter:card" content="summary">
   <meta property="twitter:site" content="@perltricks">
   <meta property="og:url" content="https://blog.dnmfarrell.com/post/how-to-split-a-string-in-posix-shell/" />
   <meta property="og:title" content="How to Split a String in POSIX Shell" />
-  <meta property="og:description" content="Handling multibyte input gets tricky">
+  <meta property="og:description" content="Handling multibyte characters gets tricky">
   <meta property="og:site_name" content="blog.dnmfarrell.com" />
   <meta property="og:type" content="article" />
   <meta property="og:article:published_time" content="2021-11-12T03:41:21Z" />
@@ -22,6 +22,7 @@
   <meta property="og:article:tag" content="zsh" />
   <meta property="og:article:tag" content="unicode" />
   <meta property="og:article:tag" content="utf8" />
+  <meta property="og:article:tag" content="locale" />
 </head>
 
   <body>
@@ -36,7 +37,7 @@
 
 <em class="date">November 12, 2021</em>
 
-<p>The POSIX Shell <a href="https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html">specification</a> defines a minimalist shell language with few features compared to stalwarts like Bash. Yet POSIX shells are everywhere: <a href="https://en.wikipedia.org/wiki/Almquist_shell">Dash</a> is the default on Ubuntu, and many Docker containers only have busybox <a href="https://github.com/brgl/busybox/blob/master/shell/ash.c">ash</a>. Minimalist shells use little resources and are faster than featureful shells like <a href="https://www.gnu.org/software/bash/">Bash</a> and <a href="https://www.zsh.org/">Zsh</a>¹. They are more likely to be secure too, as the reduced feature sets are easier to reason about and provide a smaller attack surface for hackers.</p>
+<p>The POSIX Shell <a href="https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html">specification</a> defines a minimalist shell language with few features compared to stalwarts like Bash. Yet POSIX shells are everywhere: <a href="https://en.wikipedia.org/wiki/Almquist_shell">Dash</a> is the default on Ubuntu, and many Docker containers only have busybox <a href="https://github.com/brgl/busybox/blob/master/shell/ash.c">ash</a>. Minimalist shells use less resources and are faster than featureful shells like <a href="https://www.gnu.org/software/bash/">Bash</a> and <a href="https://www.zsh.org/">Zsh</a>¹. They are more likely to be secure too, as the reduced feature sets are easier to reason about and provide a smaller attack surface for hackers.</p>
 <p>The trouble starts when a developer needs a feature that POSIX shells don&rsquo;t provide: I wanted to split a string into characters, yet there is no builtin function to do this. Common advice is to pipe the string to <code>sed</code>:</p>
 <pre><code>#!/bin/sh
 split_string () {
@@ -85,14 +86,14 @@ f
 o
 o
 </code></pre>
-<p>However, getopts splits the string <em>bytewise</em> which shreds multibyte characters. Which is why this snowman&rsquo;s 3 bytes are printed on separate lines:</p>
+<p>However, getopts splits the string <em>bytewise</em> which shreds multibyte characters. Which is why this snowman&rsquo;s bytes are printed on 3 lines:</p>
 <pre><code>echo '⛄' | ./split-getopts.sh
 
 
 
 </code></pre>
 <h3 id="understanding-locale">Understanding locale</h3>
-<p>The locale <a href="https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap07.html">environment variables</a> tell programs what language and cultural conventions to use (like date formats, weights and measures etc).</p>
+<p>The locale <a href="https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap07.html">environment variables</a> tell programs what language and cultural conventions to use (like date and number formats, weights and measures etc).</p>
 <p>The <code>locale</code> program prints the current settings:</p>
 <pre><code>locale
 LANG=en_US.UTF-8
@@ -111,7 +112,7 @@ LC_MEASUREMENT=&quot;en_US.UTF-8&quot;
 LC_IDENTIFICATION=&quot;en_US.UTF-8&quot;
 LC_ALL=
 </code></pre>
-<p>So my environment&rsquo;s locale is set to &ldquo;en_US.UTF-8&rdquo;. The <code>LC_CTYPE</code> variable defines the locale programs should use for character classification and case converson. Now some detective work is needed. On my system there&rsquo;s no file called <code>/usr/share/i18n/locales/en_US/UTF-8</code> but there is a <code>/usr/share/i18n/locales/en_US</code>³. Searching for LC_CTYPE:</p>
+<p>So my environment&rsquo;s locale is set to &ldquo;en_US.UTF-8&rdquo;. The <code>LC_CTYPE</code> variable defines the locale programs should use for character classification and case converson. Now some detective work is needed. On my system there&rsquo;s no file named <code>en_US/UTF-8</code> but there is a <code>/usr/share/i18n/locales/en_US</code>³. Searching for LC_CTYPE:</p>
 <pre><code class="language-pre">grep -A1 ^LC_CTYPE /usr/share/i18n/locales/en_US
 LC_CTYPE
 copy &quot;en_GB&quot;
@@ -172,7 +173,7 @@ n
 <ol>
 <li>Speed was the primary reason cited by <a href="https://wiki.ubuntu.com/DashAsBinSh">Ubuntu</a>. In testing the code in this article, <code>Dash</code> was 2-3 times faster than Bash and Zsh.</li>
 <li>Thanks to Koichi Nakashima for improving my original <a href="https://stackoverflow.com/a/69915603/1554448">answer</a></li>
-<li>Linux doesn&rsquo;t support any other encoding for locale, as encodings like UTF-16 would break a lot of C code.</li>
+<li>Linux doesn&rsquo;t support any other encoding for locale, as non-ASCII compatible encodings like UTF-16 would break a lot of C code.</li>
 </ol>
 
 
@@ -244,6 +245,14 @@ n
   
 
   <a href=https://blog.dnmfarrell.com/tags/utf8/>utf8</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/locale/>locale</a>
 
 
 
