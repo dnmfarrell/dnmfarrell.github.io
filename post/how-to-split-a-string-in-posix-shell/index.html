@@ -112,7 +112,8 @@ LC_MEASUREMENT=&quot;en_US.UTF-8&quot;
 LC_IDENTIFICATION=&quot;en_US.UTF-8&quot;
 LC_ALL=
 </code></pre>
-<p>So my environment&rsquo;s locale is set to &ldquo;en_US.UTF-8&rdquo;. The <code>LC_CTYPE</code> variable defines the locale programs should use for character classification and case converson. Now some detective work is needed. On my system there&rsquo;s no file named <code>en_US/UTF-8</code> but there is a <code>/usr/share/i18n/locales/en_US</code>³. Searching for LC_CTYPE:</p>
+<p>So my environment&rsquo;s locale is set to &ldquo;en_US.UTF-8&rdquo;. This translates as US English in the UTF-8 character encoding. The <code>LC_CTYPE</code> variable defines the locale programs should use for character classification and case conversion.</p>
+<p>Now some detective work is needed. I want to find the definitions for LC_CTYPE for my locale. Since the definitions are separate from the encoding, I&rsquo;m looking for a file named <code>en_US</code>. The locale manpage says the definition files³ are stored under <code>/usr/share/i18n/locales</code> and sure enough, there is a file named <code>/usr/share/i18n/locales/en_US</code>. Searching for LC_CTYPE:</p>
 <pre><code class="language-pre">grep -A1 ^LC_CTYPE /usr/share/i18n/locales/en_US
 LC_CTYPE
 copy &quot;en_GB&quot;
@@ -168,12 +169,13 @@ done
 n
 
 </code></pre>
-<p>The ǹ is a composition of two codepoints: U+006E (n) and U+0300 (combining grave accent). Even though I&rsquo;m using Bash, the &ldquo;n&rdquo; is a printable character, so the code prints it immediately, separating it from the combining character. In other words, this algorithm splits on printable codepoints, not characters.</p>
+<p>The ǹ is a composition of two codepoints: U+006E (n) and U+0300 (combining grave accent). Even though I&rsquo;m using Bash, the &ldquo;n&rdquo; is a printable character, so the code prints it immediately, separating it from the combining character. In other words, this algorithm splits on printable codepoints, not characters⁴.</p>
 <h2 id="notes">Notes</h2>
 <ol>
 <li>Speed was the primary reason cited by <a href="https://wiki.ubuntu.com/DashAsBinSh">Ubuntu</a>. In testing the code in this article, <code>Dash</code> was 2-3 times faster than Bash and Zsh.</li>
-<li>Thanks to Koichi Nakashima for improving my original <a href="https://stackoverflow.com/a/69915603/1554448">answer</a></li>
-<li>Linux doesn&rsquo;t support any other encoding for locale, as non-ASCII compatible encodings like UTF-16 would break a lot of C code.</li>
+<li>Thanks to Koichi Nakashima for improving my original <a href="https://stackoverflow.com/a/69915603/1554448">answer</a>.</li>
+<li><code>man 5 locale</code>.</li>
+<li>Dash and busybox ash behavior could be improved to split on ASCII characters by pattern matching OPTARG before appending to <code>buf</code>.</li>
 </ol>
 
 
