@@ -34,7 +34,7 @@
 
 <em class="date">November 23, 2021</em>
 
-<p>I usually program in vim inside a tmux session. I&rsquo;m a <a href="/post/organize-your-work-with-tmux/">big fan of tmux</a>, but the copy-and-paste feature is decidedly clunky. And my version of vim is compiled without <a href="https://vim.fandom.com/wiki/Accessing_the_system_clipboard#Checking_for_X11-clipboard_support_in_terminal">clipboard support</a>. What to do? I <em>could</em> install a vim with clipboard support, but surely this is just a small matter of programming.</p>
+<p>I usually program with vim inside a tmux session. I&rsquo;m a <a href="/post/organize-your-work-with-tmux/">big fan of tmux</a>, but the copy-and-paste feature is decidedly clunky. And my version of vim is compiled without <a href="https://vim.fandom.com/wiki/Accessing_the_system_clipboard#Checking_for_X11-clipboard_support_in_terminal">clipboard support</a>. What to do? I <em>could</em> install a vim with clipboard support, but surely this is just a small matter of programming.</p>
 <h3 id="copy-text-into-the-clipboard">Copy text into the clipboard</h3>
 <p>The clipboard is controlled by the windowing system; my system uses X11, so I use the <a href="https://github.com/astrand/xclip">xclip</a> utility to copy text into the clipboard. If you&rsquo;re using <a href="https://wayland.freedesktop.org/">Wayland</a> you&rsquo;ll need to use a different utility, like <a href="https://github.com/bugaevc/wl-clipboard">wl-clipboard</a>.</p>
 <p>Xclip can read text from stdin:</p>
@@ -56,11 +56,11 @@ Press ENTER or type command to continue
 Press ENTER or type command to continue
 </code></pre>
 <p>This gives the range of line numbers 1 to the line the cursor is on (<code>.</code>). I can still copy the whole file, by first jumping the cursor to the bottom of the file with <code>&lt;SHIFT&gt;G</code> and then running the command.</p>
-<p>I can map this to the shortcut <code>&lt;leader&gt;h</code> (h for head) by adding this to mu <code>.vimrc</code>:</p>
-<pre><code class="language-pre">nnoremap &lt;leader&gt;h :1,.w !xclip -sel c&lt;CR&gt;&lt;CR&gt;
+<p>I can map this to the shortcut <code>&lt;leader&gt;h</code> (h for head):</p>
+<pre><code class="language-pre">:nnoremap &lt;leader&gt;h :1,.w !xclip -sel c&lt;CR&gt;&lt;CR&gt;
 </code></pre>
-<p>The option <code>nnoremap</code> tells vim to non-recursively³ map the shortcut for normal mode. The shortcut <code>&lt;leader&gt;h</code> means pressing the leader key⁴ and h at the same time. My leader key is bound to the default key: <code>\</code>.</p>
-<p>That trailing <code>&lt;CR&gt;&lt;CR&gt;</code> tells vim to type two newlines; the first submits the command, the second dismisses the &ldquo;Press Enter&hellip;&rdquo; prompt. After restarting vim, whenever I press <code>\h</code> together, vim copies the range of text from the top of the current buffer to my cursor into my clipboard!</p>
+<p>The option <code>nnoremap</code> tells vim to non-recursively³ map the shortcut for normal mode. The shortcut <code>&lt;leader&gt;h</code> means pressing the leader key⁴ and h at the same time. My leader key is bound to the default key: backslash.</p>
+<p>That trailing <code>&lt;CR&gt;&lt;CR&gt;</code> tells vim to type two newlines; the first submits the command, the second dismisses the &ldquo;Press Enter&hellip;&rdquo; prompt. Now when I press <code>\h</code> together, vim copies the range of text from the top of the current buffer to my cursor into my clipboard.</p>
 <h3 id="copying-selections">Copying selections</h3>
 <p>I also want to be able to copy the currently selected text into the clipboard. Vim has builtin support for passing ranges to functions, but the ranges are denoted per line. What if I only want to copy part of a line? Based on this Stack Overflow <a href="https://stackoverflow.com/a/6271254/1554448">answer</a> I ended up with:</p>
 <pre><code class="language-pre">function! RangeToClipboard() range
@@ -73,7 +73,7 @@ Press ENTER or type command to continue
   silent exec system('xclip -sel c', lines)
 endfunction
 </code></pre>
-<p>This function has an empty signature followed by the <code>range</code> argument, which I&rsquo;m using to stop vim from calling the function once per line if its called with a range⁵. The function reads the selected text into <code>lines</code> and trims the first and last line according to the column numbers of the current selection (<code>'&lt;</code> and <code>'&gt;</code>). It uses <code>system</code> to pass the <code>lines</code> variable to xclip⁶.</p>
+<p>This function has an empty signature followed by the <code>range</code> argument, which I&rsquo;m using to stop vim from calling the function once per line if its called with a range⁵. The function reads the selected text into <code>lines</code> and trims the first and last line according to the column numbers of the current selection (<code>'&lt;</code> and <code>'&gt;</code>). It uses the <code>system()</code> builtin to pass the <code>lines</code> variable to xclip⁶.</p>
 <p>Now I can bind a shortcut to call it:</p>
 <pre><code class="language-pre">vnoremap &lt;leader&gt;h :&lt;c-u&gt;call RangeToClipboard()&lt;CR&gt;
 </code></pre>
@@ -83,15 +83,15 @@ endfunction
 <li><code>&lt;c-u&gt;</code> erases the range that vim automatically pastes when starting an ex command with a selection</li>
 <li>It only needs one trailing <code>&lt;CR&gt;</code> because <code>silent exec</code> disables the &ldquo;Press Enter&hellip;&rdquo; prompt`</li>
 </ul>
-<p>After appending this code to my <code>.vimrc</code> and restarting vim, I can now copy and paste from visual mode. Here is the <a href="https://www.youtube.com/watch?v=LRCBgSZylyM">proof!</a></p>
+<p>After adding this code to my <code>.vimrc</code> and restarting vim, I can now copy and paste from visual mode. Here is the <a href="https://www.youtube.com/watch?v=LRCBgSZylyM">proof!</a></p>
 <h2 id="notes">Notes</h2>
 <ol>
 <li>X11 <a href="https://tronche.com/gui/x/icccm/sec-2.html#s-2.6">Selection Atoms</a></li>
-<li>See <code>:help w_c</code></li>
-<li>Always use non-recursive variants - Losh, <a href="https://learnvimscriptthehardway.stevelosh.com/chapters/05.html#nonrecursive-mapping">Learn Vimscript the Hard Way</a></li>
+<li>See <code>:help write_c</code></li>
+<li>Always use non-recursive variants; Losh, <a href="https://learnvimscriptthehardway.stevelosh.com/chapters/05.html#nonrecursive-mapping">Learn Vimscript the Hard Way</a></li>
 <li>See <code>:help leader</code></li>
 <li>Range also makes vim pass the first and last line function arguments, but they&rsquo;re not useful for character-wise selection. See <code>:help func-range</code></li>
-<li>Indirectly; <code>system()</code> writes the lines to a file and sends that as stdin to xclip. See &hellip; <code>:help system</code> 🤖</li>
+<li>Indirectly; <code>system()</code> writes the lines to a file and sends that as stdin to xclip. See … <code>:help system</code> 🤖</li>
 </ol>
 
 
