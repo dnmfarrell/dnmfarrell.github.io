@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Copy a Vim Buffer to the Clipboard</title>
+  <meta name="description" content="In hard mode (without clipboard support)" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:site" content="@perltricks">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/how-to-copy-a-vim-buffer-to-the-clipboard/" />
+  <meta property="og:title" content="How to Copy a Vim Buffer to the Clipboard" />
+  <meta property="og:description" content="In hard mode (without clipboard support)">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2021-11-23T50:45:21Z" />
+  <meta property="og:article:tag" content="vim" />
+  <meta property="og:article:tag" content="xclip" />
+  <meta property="og:article:tag" content="range" />
+  <meta property="og:article:tag" content="terminal" />
+  <meta property="og:article:tag" content="linux" />
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code Matters</h1>
+</a>
+
+    <main>
+      
+
+<h2>How to Copy a Vim Buffer to the Clipboard</h2>
+
+<em class="date">November 23, 2021</em>
+
+<p>I usually program in vim inside a tmux session. I&rsquo;m a <a href="/post/organize-your-work-with-tmux/">big fan of tmux</a>, but the copy-and-paste feature is decidedly clunky. And my version of vim is compiled without <a href="https://vim.fandom.com/wiki/Accessing_the_system_clipboard#Checking_for_X11-clipboard_support_in_terminal">clipboard support</a>. What to do? I <em>could</em> install a vim with clipboard support, but surely this is just a small matter of programming.</p>
+<h3 id="copy-text-into-the-clipboard">Copy text into the clipboard</h3>
+<p>The clipboard is controlled by the windowing system; my system uses X11, so I use the <a href="https://github.com/astrand/xclip">xclip</a> utility to copy text into the clipboard. If you&rsquo;re using <a href="https://wayland.freedesktop.org/">Wayland</a> you&rsquo;ll need to use a different utility, like <a href="https://github.com/bugaevc/wl-clipboard">wl-clipboard</a>.</p>
+<p>Xclip can read text from stdin:</p>
+<pre><code>echo 'foo' | xclip -sel c
+</code></pre>
+<p>Or a file:</p>
+<pre><code>xclip -sec c foo.txt
+</code></pre>
+<p>Of course this being Linux I need to tell xclip <em>which</em> clipboard to use. The option <code>-sel c</code> tells xclip to read the text into the selection buffer called &ldquo;clipboard&rdquo; which is similar to the Windows clipboard.</p>
+<h3 id="translating-to-a-vim-shortcut">Translating to a vim shortcut</h3>
+<p>Vim&rsquo;s write command has a useful variant² which writes the current buffer to the stdin of a command. All I have to do is hook it up to xclip:</p>
+<pre><code>:w !xclip -sel c
+
+Press ENTER or type command to continue
+</code></pre>
+<p>I don&rsquo;t always want to copy the whole file though. I can replicate the behavior of <code>head</code> by passing a range:</p>
+<pre><code>:1,.w !xclip -sel c
+
+Press ENTER or type command to continue
+</code></pre>
+<p>This gives the range of line numbers 1 to the line the cursor is on (<code>.</code>). I can still copy the whole file, by first jumping the cursor to the bottom of the file with <code>&lt;SHIFT&gt;G</code> and then running the command.</p>
+<p>I can map this to the shortcut <code>&lt;leader&gt;h</code> (h for head) by adding this to mu <code>.vimrc</code>:</p>
+<pre><code class="language-pre">nnoremap &lt;leader&gt;h :1,.w !xclip -sel c&lt;CR&gt;&lt;CR&gt;
+</code></pre>
+<p>The option <code>nnoremap</code> tells vim to non-recursively³ map the shortcut for normal mode. The shortcut <code>&lt;leader&gt;h</code> means pressing the leader key⁴ and h at the same time. My leader key is bound to the default key: <code>\</code>.</p>
+<p>That trailing <code>&lt;CR&gt;&lt;CR&gt;</code> tells vim to type two newlines; the first submits the command, the second dismisses the &ldquo;Press Enter&hellip;&rdquo; prompt. After restarting vim, whenever I press <code>\h</code> together, vim copies the range of text from the top of the current buffer to my cursor into my clipboard!</p>
+<h3 id="copying-selections">Copying selections</h3>
+<p>I also want to be able to copy the currently selected text into the clipboard. Vim has builtin support for passing ranges to functions, but the ranges are denoted per line. What if I only want to copy part of a line? Based on this Stack Overflow <a href="https://stackoverflow.com/a/6271254/1554448">answer</a> I ended up with:</p>
+<pre><code class="language-pre">function! RangeToClipboard() range
+  let [line1, col1] = getpos(&quot;'&lt;&quot;)[1:2]
+  let [line2, col2] = getpos(&quot;'&gt;&quot;)[1:2]
+  let lines = getline(line1, line2)
+  &quot; handle incl/excl last char
+  let lines[-1] = lines[-1][: col2 - (&amp;sel == 'inclusive' ? 1 : 2)]
+  let lines[0] = lines[0][col1 - 1:]
+  silent exec system('xclip -sel c', lines)
+endfunction
+</code></pre>
+<p>This function has an empty signature followed by the <code>range</code> argument, which I&rsquo;m using to stop vim from calling the function once per line if its called with a range⁵. The function reads the selected text into <code>lines</code> and trims the first and last line according to the column numbers of the current selection (<code>'&lt;</code> and <code>'&gt;</code>). It uses <code>system</code> to pass the <code>lines</code> variable to xclip⁶.</p>
+<p>Now I can bind a shortcut to call it:</p>
+<pre><code class="language-pre">vnoremap &lt;leader&gt;h :&lt;c-u&gt;call RangeToClipboard()&lt;CR&gt;
+</code></pre>
+<p>The differences between this and the first binding:</p>
+<ul>
+<li><code>vnoremap</code> non-recursively maps the shortcut for visual mode, so it doesn&rsquo;t conflict with the other binding</li>
+<li><code>&lt;c-u&gt;</code> erases the range that vim automatically pastes when starting an ex command with a selection</li>
+<li>It only needs one trailing <code>&lt;CR&gt;</code> because <code>silent exec</code> disables the &ldquo;Press Enter&hellip;&rdquo; prompt`</li>
+</ul>
+<p>After appending this code to my <code>.vimrc</code> and restarting vim, I can now copy and paste from visual mode. Here is the proof!</p>
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="https://www.youtube.com/embed/https://www.youtube.com/watch?v=LRCBgSZylyM" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+<h2 id="notes">Notes</h2>
+<ol>
+<li>X11 <a href="https://tronche.com/gui/x/icccm/sec-2.html#s-2.6">Selection Atoms</a></li>
+<li>See <code>:help w_c</code></li>
+<li>Always use non-recursive variants - Losh, <a href="https://learnvimscriptthehardway.stevelosh.com/chapters/05.html#nonrecursive-mapping">Learn Vimscript the Hard Way</a></li>
+<li>See <code>:help leader</code></li>
+<li>Range also makes vim pass the first and last line function arguments, but they&rsquo;re not useful for character-wise selection. See <code>:help func-range</code></li>
+<li>Indirectly; <code>system()</code> writes the lines to a file and sends that as stdin to xclip. See &hellip; <code>:help system</code> 🤖</li>
+</ol>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/vim/>vim</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/xclip/>xclip</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/range/>range</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/terminal/>terminal</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/linux/>linux</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+    <p>Follow me on Twitter <a href="https://twitter.com/PerlTricks">@perltricks</a></p>
+ </footer>
+
+  </body>
+</html>
