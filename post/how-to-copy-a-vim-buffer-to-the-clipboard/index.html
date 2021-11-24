@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>How to Copy a Vim Buffer to the Clipboard</title>
-  <meta name="description" content="In hard mode (without clipboard support)" />
+  <meta name="description" content="On hard mode (compiled without clipboard support)" />
   <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
   <meta property="twitter:card" content="summary">
   <meta property="twitter:site" content="@perltricks">
   <meta property="og:url" content="https://blog.dnmfarrell.com/post/how-to-copy-a-vim-buffer-to-the-clipboard/" />
   <meta property="og:title" content="How to Copy a Vim Buffer to the Clipboard" />
-  <meta property="og:description" content="In hard mode (without clipboard support)">
+  <meta property="og:description" content="On hard mode (compiled without clipboard support)">
   <meta property="og:site_name" content="blog.dnmfarrell.com" />
   <meta property="og:type" content="article" />
   <meta property="og:article:published_time" content="2021-11-23T50:45:21Z" />
@@ -43,7 +43,7 @@
 <p>Or a file:</p>
 <pre><code>xclip -sec c foo.txt
 </code></pre>
-<p>Of course this being Linux I need to tell xclip <em>which</em> clipboard to use. The option <code>-sel c</code> tells xclip to read the text into the selection buffer called &ldquo;clipboard&rdquo; which is similar to the Windows clipboard.</p>
+<p>Of course this being Linux I need to tell xclip <em>which</em> clipboard to use¹. The option <code>-sel c</code> tells xclip to read the text into the selection buffer called &ldquo;clipboard&rdquo; which is similar to the Windows clipboard.</p>
 <h3 id="translating-to-a-vim-shortcut">Translating to a vim shortcut</h3>
 <p>Vim&rsquo;s write command has a useful variant² which writes the current buffer to the stdin of a command. All I have to do is hook it up to xclip:</p>
 <pre><code>:w !xclip -sel c
