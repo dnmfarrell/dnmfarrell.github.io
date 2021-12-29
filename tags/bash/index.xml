@@ -6,7 +6,18 @@
     <description>Recent content in bash on Code - a programming blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 12 Nov 2021 09:03:41 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/bash/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 28 Dec 2021 18:44:47 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/bash/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>How to Split Quoted Strings in Bash</title>
+      <link>https://blog.dnmfarrell.com/post/how-to-split-strings-in-bash/</link>
+      <pubDate>Tue, 28 Dec 2021 18:44:47 -0500</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/how-to-split-strings-in-bash/</guid>
+      <description>A few weeks ago I was writing a macro loader for my JSON Processor, and I ran into an odd case where code I entered in the terminal was splitting differently to code I loaded from a file. It turns out that Bash&amp;rsquo;s word splitting behaves differently for arguments than it does for variables.
+When processing args, Bash will not split quoted words that contain a delimiter:
+printf &amp;quot;%s\n&amp;quot; foo &#39;bar baz&#39; foo bar baz  But if those args are in a string:</description>
+    </item>
+    
     <item>
       <title>How to Split a String in POSIX Shell</title>
       <link>https://blog.dnmfarrell.com/post/how-to-split-a-string-in-posix-shell/</link>
