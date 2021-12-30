@@ -129,7 +129,7 @@ bar baz
 <p>The first conditional block <code>[ -z $quo ]</code> handles unquoted strings; all word splitting happens outside of quotes, so this is the longest block.</p>
 <p>The second top-level block <code>[ &quot;$quo&quot; = '&quot;' ]</code> handles <a href="https://www.gnu.org/software/bash/manual/html_node/Double-Quotes.html">double quotes string escapes</a>. One complication here is only five characters can be escaped, so if we&rsquo;re in escape mode and the current character is not one of those, the code appends a backslash to the current word which would have been ignored when it was seen in the previous iteration.</p>
 <p>The last top-level block <code>[ &quot;$OPTARG&quot; = &quot;$quo&quot; ]</code> just catches the case of a single-quoted string terminator.</p>
-<p>Once the loop ends, <code>wordsplit</code> checks for the unterminated string error condition, and also a dangling word.</p>
+<p>Once the loop ends <code>wordsplit</code> checks for the unterminated string error condition, and also a dangling word.</p>
 <p>Here it is in action:</p>
 <pre><code>wordsplit ' foo bar\ baz	&quot;a b\&quot;c&quot; \d';printf &quot;%s\n&quot; &quot;${WORDS[@]}&quot;
 foo
