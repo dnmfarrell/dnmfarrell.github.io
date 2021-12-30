@@ -3,19 +3,20 @@
   <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>How to Split Quoted Strings in Bash</title>
+  <title>Splitting Quoted Strings in Bash</title>
   <meta name="description" content="Sometimes you really just have to code it" />
   <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
   <meta property="twitter:card" content="summary">
   <meta property="twitter:site" content="@perltricks">
   <meta property="og:url" content="https://blog.dnmfarrell.com/post/how-to-split-strings-in-bash/" />
-  <meta property="og:title" content="How to Split Quoted Strings in Bash" />
+  <meta property="og:title" content="Splitting Quoted Strings in Bash" />
   <meta property="og:description" content="Sometimes you really just have to code it">
   <meta property="og:site_name" content="blog.dnmfarrell.com" />
   <meta property="og:type" content="article" />
   <meta property="og:article:published_time" content="2021-12-28T44:47:21Z" />
   <meta property="og:article:tag" content="bash" />
   <meta property="og:article:tag" content="wordsplit" />
+  <meta property="og:article:tag" content="awk" />
 </head>
 
   <body>
@@ -26,12 +27,12 @@
     <main>
       
 
-<h2>How to Split Quoted Strings in Bash</h2>
+<h2>Splitting Quoted Strings in Bash</h2>
 
 <em class="date">December 28, 2021</em>
 
 <p>A few weeks ago I was writing a macro loader for my <a href="https://github.com/dnmfarrell/jp">JSON Processor</a>, and I ran into an odd case where code I entered in the terminal was splitting differently to code I loaded from a file. It turns out that Bash&rsquo;s word splitting behaves differently for arguments than it does for variables.</p>
-<p>When processing args, Bash will not split quoted words that contain a delimiter:</p>
+<p>When processing args Bash will not split quoted words that contain a delimiter:</p>
 <pre><code>printf &quot;%s\n&quot; foo 'bar baz'
 foo
 bar baz
@@ -53,19 +54,88 @@ printf &quot;%s\n&quot; &quot;${input[@]}&quot;
 foo
 bar baz
 </code></pre>
-<p>I can&rsquo;t use <code>read -a</code> because that will split input ignoring quotes. In fact, the only built in way to accomplish this is via eval:</p>
+<p>I can&rsquo;t use <code>read -a</code> because that will split input ignoring quotes. In fact the only built in way to accomplish this is via eval:</p>
 <pre><code>input='foo &quot;bar baz&quot;'
 eval &quot;printf \&quot;%s\n\&quot; $input&quot;
 foo
 bar baz
 </code></pre>
 <p>But using eval invites a whole set of complications I&rsquo;d rather avoid. And launching a subshell to another program (awk, xargs) is too slow for my use case. What to do?</p>
-<p>After much Googling, I decided to <a href="https://github.com/dnmfarrell/bash-wordsplit">roll my own</a>. It respects unquoted, single or double-quoted string escapes (but not ANSI-C escape sequences).</p>
-<pre><code>wordsplit 'foo &quot;bar baz&quot;';printf &quot;%s\n&quot; &quot;${WORDS[@]}&quot;
+<blockquote>
+<p>Bash really doesn&rsquo;t have a good way to parse a string into substrings, while respecting quotes.</p>
+<p>&ndash; <em><a href="https://superuser.com/a/1529316/303009">superuser</a></em></p>
+</blockquote>
+<h3 id="bash-quoting">Bash Quoting</h3>
+<p>Bash splits words on unescaped spaces, horizontal tabs and newlines. So to determine when to split a word we need to understand Bash escape rules. There are four(ish) <a href="https://www.gnu.org/software/bash/manual/html_node/Quoting.html">kinds</a>:</p>
+<ul>
+<li>Unquoted - tab/space/newline can be escaped with backslash: <code>foo bar\ baz</code>.</li>
+<li>Single quoted - literal string, no escapes recognized: `&lsquo;foo&rsquo; &lsquo;bar baz&rsquo;</li>
+<li>Double quoted - double quotes can be escaped with backslash: <code>&quot;foo&quot; &quot;bar baz&quot;</code></li>
+<li>ANSI-C - single quotes can be escaped and many other backslash sequences are recognized: <code>$'foo' 'bar baz'</code></li>
+</ul>
+<h3 id="splitting-words">Splitting words</h3>
+<p>Decoding and interpreting ANSI-C <a href="https://www.gnu.org/software/bash/manual/html_node/ANSI_002dC-Quoting.html">escape sequences</a> seems difficult, and I don&rsquo;t need to support it for my use case. To handle the other three kinds, I need to write code which handles each set of escape rules, scan a string and to keep track which kind of quoting is currently in effect.</p>
+<pre><code class="language-pre">#!/bin/bash
+wordsplit () {
+  WORDS=()
+  WORDC=0
+  WORDERR=
+  local idx=0 quo= word= c= esc=
+  while :;do
+    c=&quot;${1:$idx:1}&quot;
+    (( idx++ ))
+    if [ -z $quo ];then
+      if [ &quot;$c&quot; = '\' ];then
+        if [ -z &quot;$esc&quot; ];then
+          esc=1
+          continue
+        else
+          esc=
+        fi
+      elif ([[ &quot;$c&quot; == [$' \t\n'] ]]&amp;&amp;[ -z &quot;$esc&quot; ])||[ -z &quot;$c&quot; ];then
+        if [ -n &quot;$word&quot; ];then
+          WORDS+=(&quot;$word&quot;)
+          word=
+          (( WORDC++ ))
+        fi
+        [ -z &quot;$c&quot; ] &amp;&amp; break
+        continue
+      elif ([ &quot;$c&quot; = &quot;'&quot; ]||[ &quot;$c&quot; = '&quot;' ])&amp;&amp;[ -z &quot;$esc&quot; ];then
+        quo=&quot;$c&quot;
+        continue
+      fi
+    elif [ -z &quot;$c&quot; ];then
+      WORDERR=&quot;found unterminated string at col $idx: '$1'&quot;
+      return 1
+    elif [ &quot;$c&quot; = '\' ]&amp;&amp;[ &quot;$quo&quot; = '&quot;' ];then
+      if [[ &quot;${1:$idx:1}&quot; == [$\\\`\&quot;] ]] || [ &quot;${1:$idx:1}&quot; = $'\n' ];then
+        c=&quot;${1:$idx:1}&quot;
+        (( idx++ ))
+      fi
+    elif [ &quot;$c&quot; = &quot;$quo&quot; ];then
+      quo=
+      continue
+    fi
+    esc=
+    word+=&quot;$c&quot;
+  done
+  return 0
+}
+</code></pre>
+<p>This function <code>wordsplit</code> accepts a single string argument, the string to split and saves the result in the <code>WORDS</code> array (Bash doesn&rsquo;t really support return values). It inspecting the string byte-by-byte, storing the current byte in the local variable <code>c</code>.</p>
+<p>The first conditional block <code>[ -z $quo ]</code> handles unquoted strings; all word splitting happens outside of quotes, so this is the longest block. The second top-level condition <code>[ -z &quot;$c&quot; ]</code> handles the unterminated string error condition. The third conditional block handles <a href="https://www.gnu.org/software/bash/manual/html_node/Double-Quotes.html">double quote escapes</a>; only five characters are escape-able in double quotes, but because it&rsquo;s possible to have n backslash escapes in a row, this block jumps forward one byte instead of counting how many backslash escapes it&rsquo;s seen so far (imagine: &ldquo;\\\\\\\\\\\\\\\&quot;). The last top-level condition <code>[ &quot;$c&quot; = &quot;$quo&quot; ]</code> matches a terminating quote character.</p>
+<p>Here it is in action:</p>
+<pre><code>wordsplit ' foo bar\ baz	&quot;a b\&quot;c&quot; \d';printf &quot;%s\n&quot; &quot;${WORDS[@]}&quot;
 foo
 bar baz
+a b&quot;c
+d
 </code></pre>
-<p>Shell quoting is a treacherous business. If you find any bugs, please let me know!</p>
+<p>I&rsquo;ve uploaded the code to <a href="https://github.com/dnmfarrell/bash-wordsplit">GitHub</a>. It has a test suite but as shell quoting is a treacherous business, if you find any bugs please let me know!</p>
+<h2 id="notes">Notes</h2>
+<ol>
+<li>Greg&rsquo;s wiki page on <a href="http://mywiki.wooledge.org/Quotes">Bash quoting</a> has more detail than the GNU manual (the whole wiki is pretty great).</li>
+</ol>
 
 
 <p>
@@ -88,6 +158,14 @@ bar baz
   
 
   <a href=https://blog.dnmfarrell.com/tags/wordsplit/>wordsplit</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/awk/>awk</a>
 
 
 
