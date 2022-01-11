@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>errval on Code - a programming blog</title>
+    <link>https://blog.dnmfarrell.com/tags/errval/</link>
+    <description>Recent content in errval on Code - a programming blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 10 Jan 2022 23:41:35 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/errval/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Can Generics Rescue Golang&#39;s Clunky Error Handling?</title>
+      <link>https://blog.dnmfarrell.com/post/can-generics-rescue-golangs-clunky-error-handling/</link>
+      <pubDate>Mon, 10 Jan 2022 23:41:35 -0500</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/can-generics-rescue-golangs-clunky-error-handling/</guid>
+      <description>One of the most complained about aspects of programming in Go is error handling. However - Go is getting generics! Generics have already been merged to master and are slated for inclusion in the 1.18 release. So can generics raise¹ Go&amp;rsquo;s error handling out of the doldrums?
+The problem Here&amp;rsquo;s some typical error handling code:
+str, err := foobar() if err != nil { // handle error }  The function foobar returns two values; the second one is an error.</description>
+    </item>
+    
+  </channel>
+</rss>
