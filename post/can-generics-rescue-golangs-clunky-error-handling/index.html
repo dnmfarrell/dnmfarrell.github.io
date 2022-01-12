@@ -34,8 +34,8 @@
 
 <p>One of the most complained about aspects of programming in Go is error handling. However - Go is getting <a href="https://go.googlesource.com/proposal/+/refs/heads/master/design/43651-type-parameters.md">generics</a>! Generics have already been merged to <a href="https://github.com/golang/go">master</a> and are slated for inclusion in the 1.18 release. So can generics raise¹ Go&rsquo;s error handling out of the doldrums?</p>
 <h3 id="the-problem">The problem</h3>
-<p>Here&rsquo;s some typical error handling code:</p>
-<pre><code>str, err := foobar()
+<p>Here&rsquo;s some typical error-handling code:</p>
+<pre><code class="language-pre">str, err := foobar()
 if err != nil {
   // handle error
 }
@@ -43,7 +43,7 @@ if err != nil {
 <p>The function <code>foobar</code> returns two values; the second one is an error. The condition checks whether <code>err</code> is defined, and if it is, branches into some error handling code (logging, early return, whatever is needed).</p>
 <p>Several unfortunate properties can arise from this arrangement:</p>
 <ol>
-<li>Pollutive - Go code declares a lot of unused variables: <code>foobar()</code> returns either a string or an error, but <em>both</em> are declared by the calling code.</li>
+<li>Pollutive - Go code declares unused variables: <code>foobar()</code> returns either a string or an error, but <em>both</em> are declared by the calling code.</li>
 <li>Verbose - sequential function calls all perform the same dance: assign an error return value, test and conditionally handle it. Go has no exception handler mechanism.</li>
 <li>Fragile - mistakes can be hard to spot: Go function calls often re-use previously declared error variables or ignore them by assigning error return values to <code>_</code>.</li>
 </ol>
@@ -51,33 +51,33 @@ if err != nil {
 <p>One way that Go programs fail to scale well is in the writing of error-checking and error-handling code</p>
 <p>Error Handling - Problem Overview²</p>
 </blockquote>
-<h3 id="one-type-but-two-values">One type but two values</h3>
-<p>Haskell&rsquo;s <a href="https://hackage.haskell.org/package/base-4.16.0.0/docs/Data-Either.html">Either type</a> is a single value which can be one of two types. Callers then pattern-match on the either type to take the appropriate action.</p>
+<h3 id="one-value-but-two-types">One value but two types</h3>
+<p>Haskell&rsquo;s <a href="https://hackage.haskell.org/package/base-4.16.0.0/docs/Data-Either.html">Either type</a> is a single value which can be one of two types. Callers then pattern-match on the value to take the appropriate action.</p>
 <p>To replicate the behavior of an Either type, I created <a href="https://github.com/dnmfarrell/go-errval/blob/master/errval/errval.go">errval.go</a>, a generic struct type which contains slots for an error and a value:</p>
 <pre><code class="language-pre">type ErrVal[A any] struct {
 	err error
 	val A
 }
 </code></pre>
-<p>Even though the <code>ErrVal</code> struct should only wrap a value or an error, it has a slot for each. Since we have generics, why not use one slot for both? The trouble is there is no good way for the type to reflect and figure out if it is holding an error or not. <a href="https://go.dev/ref/spec#Type_switches">Type switches</a> only work for interfaces. And what would the generic type declaration look like? <code>ErrVal[any]</code> doesn&rsquo;t tell the caller anything. We could declare a type like StringErr which would be a string or an error, but then we would have to declare a type for each variation (IntErr, &hellip;).</p>
-<p>Regardless, instead of returning two values and having the caller declare both and test the error, functions can return a single <code>ErrVal</code>:</p>
-<pre><code>func foobar () *ErrVal[string] {
+<p>Even though the <code>ErrVal</code> struct should only wrap a value or an error, it has a slot for each. Since we have generics, why not use one slot for both? The trouble is there is no good way for the type to reflect and figure out if it is holding an error or not. <a href="https://go.dev/ref/spec#Type_switches">Type switches</a> only work for interfaces. And what would the generic type declaration look like? <code>ErrVal[any]</code> doesn&rsquo;t tell the caller anything. We could declare a type like StringErr which would be a string or an error, but then we would have to declare a type for each variation (IntErr, &hellip;). That doesn&rsquo;t sound very generic.</p>
+<p>Regardless, instead of returning two values and having the caller declare both and test if the error is nil or not, functions can return a single <code>ErrVal</code>. ErrVal has two constructors: <code>Err</code> which takes an error, and <code>Val</code> which takes a generic value:</p>
+<pre><code class="language-pre">func foobar () *errval.ErrVal[string] {
 	if mightFail() {
-		return Err[string](errors.New(&quot;some error message&quot;)
+		return errval.Err[string](errors.New(&quot;some error message&quot;))
 	}
-	return Val[string](&quot;foobar&quot;)
+	return errval.Val[string](&quot;foobar&quot;)
 }
 
-ev := foobar()
+result := foobar()
 </code></pre>
 <p>This de-pollutes the calling code by not needing to have declared-but-unused variables.</p>
 <h3 id="explicit-error-handling">Explicit Error Handling</h3>
-<p>I mentioned before how callers can ignore errors by assigning them to <code>_</code>. Another way is to ignore all return values, such as when a function is being called purely for its side-effects:</p>
+<p>I mentioned before how callers can ignore errors by assigning them to <code>_</code>. Another way is to ignore all return values, such as when a function is being called only for its side-effects:</p>
 <pre><code>w.Close()
 </code></pre>
 <p>Many Go projects use the linter <a href="https://github.com/kisielk/errcheck">errcheck</a> to catch ignored errors. This is fine, but it&rsquo;s a bandaid - imagine if the errors were explicitly handled by design. Then we wouldn&rsquo;t need to check.</p>
 <p>To enforce error handling, the only way to get the value out of an ErrVal is to call its <code>Catch</code> method. Catch takes an anonymous function error handler, and returns a boolean indicating success (no error) plus the value:</p>
-<pre><code>if ok, str := foobar().Catch(logger); ok {
+<pre><code class="language-pre">if ok, str := foobar().Catch(logger); ok {
 	// do something with str
 }
 </code></pre>
@@ -134,16 +134,16 @@ ev := foobar()
 }
 </code></pre>
 <p>Yikes. This code is almost as long as the original and frankly, hurts my eyes. ErrVal has made the code <em>harder</em> to read!</p>
-<p>Now why is that? I think the reason is control flow - Go uses statements to control program execution, and programmers can only define expressions⁴. Potentially goto could be used to jump the thread of execution to a common exception handler, but Go&rsquo;s <a href="https://go.dev/ref/spec#Goto_statements">goto statement</a> is so neutered as to be useless here.</p>
-<p>Go&rsquo;s unsatisfactory error handling will require new statement(s)³. Dedicated keywords are no doubt safer and more readable than programmers running amok with <code>goto</code>, it&rsquo;s a shame Go doesn&rsquo;t have them already.</p>
+<p>Now why is that? I think the reason is control flow - Go uses statements to control program execution, and programmers can only define expressions⁴. Potentially goto could be used to jump the thread of execution to a common exception handler, but Go&rsquo;s <a href="https://go.dev/ref/spec#Goto_statements">goto statement</a> is so neutered it can&rsquo;t help here.</p>
+<p>Go&rsquo;s unsatisfactory error handling will require new statements³ then. Dedicated keywords are no doubt safer and more readable than programmers running amok with <code>goto</code>, it&rsquo;s a shame Go doesn&rsquo;t have them already.</p>
 <h2 id="notes">Notes</h2>
 <ol>
-<li>Silly pun 😉.</li>
-<li>Russ Cox, <a href="https://go.googlesource.com/proposal/+/master/design/go2draft-error-handling-overview.md">Error Handling - Problem Overview</a>.</li>
+<li>Silly exception pun 😉.</li>
+<li>Russ Cox, <a href="https://go.googlesource.com/proposal/+/master/design/go2draft-error-handling-overview.md">Error Handling - Problem Overview</a> is a thorough examination of Go&rsquo;s error handling.</li>
 <li>ibid, <a href="https://go.googlesource.com/proposal/+/master/design/go2draft-error-handling-overview.md#draft-design">check/handle statements</a>.</li>
-<li>I also experimented with methods like <code>IfErr</code> and <code>Else</code> which don&rsquo;t help as you end up with one giant expression prefaced with return:</li>
+<li>I also experimented with methods like <code>IfErr</code> and <code>Else</code> which don&rsquo;t help as you end up having to return one giant expression:</li>
 </ol>
-<pre><code>func CopyFile(src, dst string) error {
+<pre><code class="language-pre">func CopyFile(src, dst string) error {
 	return Open(src).IfErr(func(e error) {
 		return fmt.Errorf(&quot;copy %s %s: %v&quot;, src, dst, err)
 	}).Else(func(r *File) {
