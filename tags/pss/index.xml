@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>pss on Code - a programming blog</title>
+    <link>https://blog.dnmfarrell.com/tags/pss/</link>
+    <description>Recent content in pss on Code - a programming blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 10 Feb 2022 22:34:09 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/pss/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>How Much Memory Is My Program Really Using?</title>
+      <link>https://blog.dnmfarrell.com/post/how-much-memory-is-my-program-really-using/</link>
+      <pubDate>Thu, 10 Feb 2022 22:34:09 -0500</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/how-much-memory-is-my-program-really-using/</guid>
+      <description>It sounds like such a simple question - but virtual memory makes measuring real memory use complicated. Popular tools like ps and top report virtual, resident and shared memory consumption per process, but these are unsatisfactory:
+ Shared memory is not apportioned per process, so it overstates the memory used Resident memory includes shared memory, so it overstates as well Virtual memory includes resident memory plus data held in swap, which is not in main memory  Fortunately unless you are running a Linux kernel older than the last financial crisis, you have a better option: Proportional Set Size (PSS)¹.</description>
+    </item>
+    
+  </channel>
+</rss>

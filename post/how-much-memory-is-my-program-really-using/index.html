@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How Much Memory Is My Program Really Using?</title>
+  <meta name="description" content="Modern Linux kernel memory measurements can help" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:site" content="@perltricks">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/how-much-memory-is-my-program-really-using/" />
+  <meta property="og:title" content="How Much Memory Is My Program Really Using?" />
+  <meta property="og:description" content="Modern Linux kernel memory measurements can help">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2022-02-10T34:09:22Z" />
+  <meta property="og:article:tag" content="virtual-memory" />
+  <meta property="og:article:tag" content="rss" />
+  <meta property="og:article:tag" content="pss" />
+  <meta property="og:article:tag" content="uss" />
+  <meta property="og:article:tag" content="smem" />
+  <meta property="og:article:tag" content="smaps" />
+  <meta property="og:article:tag" content="perl" />
+  <meta property="og:article:tag" content="linux" />
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<h2>How Much Memory Is My Program Really Using?</h2>
+
+<em class="date">February 10, 2022</em>
+
+<p>It sounds like such a simple question - but virtual memory makes measuring real memory use complicated. Popular tools like ps and top report virtual, resident and shared memory consumption per process, but these are unsatisfactory:</p>
+<ul>
+<li>Shared memory is not apportioned per process, so it overstates the memory used</li>
+<li>Resident memory includes shared memory, so it overstates as well</li>
+<li>Virtual memory includes resident memory plus data held in swap, which is not in main memory</li>
+</ul>
+<p>Fortunately unless you are running a Linux kernel older than the last financial crisis, you have a better option: Proportional Set Size (PSS)¹. This is the amount of private memory the process is using, plus its proportional share of shared memory. The kernel reports this data per PID in <code>/proc/$pid/smaps</code>. The file lists each memory block mapped to the process, and its properties. You <em>could</em> wrangle the smaps data with shell code, but you don&rsquo;t have to! The <a href="https://www.selenic.com/smem/">smem tool</a> does that, and it can filter/format too. Modern kernels also aggregate the data in <code>/proc/$pid/smaps_rollup</code> which is convenient to grep and less error prone than rolling your own aggregator².</p>
+<h3 id="example">Example</h3>
+<p>Memory concepts can be a bit abstract, so let&rsquo;s look at an example. This Perl <a href="https://gist.github.com/dnmfarrell/33284a671d6d62dc134d9293d12c4a29">script</a> creates a big array of numbers, forks a child process and prints both processes RSS and PSS using <a href="https://metacpan.org/pod/Linux::Smaps">Linux::Smaps</a>:</p>
+<pre><code class="language-pre">#!/usr/bin/env perl
+use strict;
+use warnings;
+use Linux::Smaps;
+
+sub print_memusage {
+  my $smaps = Linux::Smaps-&gt;new;
+  printf &quot;% 6s % 9d % 9d KB % 9d KB\n&quot;, $_[0], $$, $smaps-&gt;rss, $smaps-&gt;pss;
+}
+
+my @bigarray = (1..1_000_000);
+print &quot; LABEL       PID       RSS          PSS\n&quot;;
+my $pid = fork;
+die &quot;failed to fork $!&quot; unless defined $pid;
+if ($pid == 0) {
+  print_memusage(&quot;CHILD&quot;);
+  exit;
+}
+print_memusage(&quot;PARENT&quot;);
+waitpid $pid, 0;
+</code></pre>
+<p>Now what do you think the output will show? The child process receives a copy of its parent&rsquo;s memory - so has real memory use doubled? No! The parent and child <em>share</em> the memory; if the child tries to write to any memory it inherited, the kernel will copy the memory page for the child to write to (this is called <a href="https://en.wikipedia.org/wiki/Copy-on-write">copy-on-write</a>).</p>
+<p>Running the script, I get this output:</p>
+<pre><code class="language-pre"> LABEL       PID       RSS          PSS
+ CHILD   1393612     81924 KB     40661 KB
+PARENT   1393611     85356 KB     42178 KB
+</code></pre>
+<p>The total resident memory is 167,280 KB but we know that&rsquo;s a lie - there&rsquo;s one big array in memory and both processes are sharing it. The total PSS of 82,839 KB is more accurate. You might notice that the parent&rsquo;s RSS of 85,356 KB is still 2,517 KB higher than the total PSS. That&rsquo;s because the Perl interpreter is using libraries which are already in memory (such as those in libc). Aside from reducing total memory use, sharing memory reduces program start times as the kernel has less code to copy into memory. Virtual memory complexifies operating systems but it has a lot of benefits.</p>
+<h3 id="if-my-program-exits-how-much-memory-can-be-reclaimed">If my program exits, how much memory can be reclaimed?</h3>
+<p>Proportional Set Size is useful, but it overstates how much memory will be freed when the process exits as its shared memory cannot be reclaimed. To measure free-able memory, use Unique Set Size (USS); the sum of all memory pages private to the process. The kernel does not report USS, you have to calculate it using the memory map data under <code>/proc/$pid</code>. Conveniently, smem already reports USS so there&rsquo;s no need to write your own solution unless you&rsquo;re curious³.</p>
+<h2 id="notes">Notes</h2>
+<ol>
+<li>PSS was created by Matt Mackall - this LWN <a href="https://lwn.net/Articles/230975/">article</a> has more info on its origins.</li>
+<li>The motivation for <a href="https://patchwork.kernel.org/project/linux-fsdevel/patch/20170810001557.147285-1-dancol@google.com/">smaps_rollup</a> was Android&rsquo;s sampling memory use to balance memory pools sizes taking too long for large processes.</li>
+<li>And if you <em>are</em> curious, this neat golang <a href="https://github.com/brk0v/sre-page-cache-article/blob/main/uss/main.go">script</a> by Viacheslav Biriukov calculates the Unique Set Size for a given PID.</li>
+</ol>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/virtual-memory/>virtual-memory</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/rss/>rss</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/pss/>pss</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/uss/>uss</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/smem/>smem</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/smaps/>smaps</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/perl/>perl</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/linux/>linux</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+    <p>Follow me on Twitter <a href="https://twitter.com/PerlTricks">@perltricks</a></p>
+ </footer>
+
+  </body>
+</html>
