@@ -15,9 +15,9 @@
   <meta property="og:type" content="article" />
   <meta property="og:article:published_time" content="2022-02-10T34:09:22Z" />
   <meta property="og:article:tag" content="virtual-memory" />
-  <meta property="og:article:tag" content="rss" />
-  <meta property="og:article:tag" content="pss" />
-  <meta property="og:article:tag" content="uss" />
+  <meta property="og:article:tag" content="resident-set-size" />
+  <meta property="og:article:tag" content="proportional-set-size" />
+  <meta property="og:article:tag" content="unique-set-size" />
   <meta property="og:article:tag" content="smem" />
   <meta property="og:article:tag" content="smaps" />
   <meta property="og:article:tag" content="perl" />
@@ -38,9 +38,9 @@
 
 <p>It sounds like such a simple question - but virtual memory makes measuring real memory use complicated. Popular tools like ps and top report virtual, resident and shared memory consumption, but these are unsatisfactory:</p>
 <ul>
-<li>Shared memory is not apportioned per process using it so it is overstated</li>
-<li>Resident memory includes shared memory, so it overstates as well</li>
-<li>Virtual memory includes resident memory plus data held in swap, which is not in main memory</li>
+<li>Shared memory is not apportioned per process using it so it is overstated.</li>
+<li>Resident memory includes shared memory, so it overstates as well.</li>
+<li>Virtual memory includes resident memory plus data held in swap, which is not in main memory.</li>
 </ul>
 <p>Fortunately unless you are running a Linux kernel older than the last financial crisis, you have a better option: Proportional Set Size (PSS)¹. This is the amount of private memory the process is using, plus its proportional allocation of shared memory. The kernel reports this data per PID in <code>/proc/$pid/smaps</code>. The file lists each memory block mapped to the process, and its properties. You <em>could</em> wrangle the smaps data with shell code, but you don&rsquo;t have to! The <a href="https://www.selenic.com/smem/">smem tool</a> does that, and it can filter/format too. Modern kernels also aggregate the data in <code>/proc/$pid/smaps_rollup</code> which is convenient to grep and less error prone than rolling your own aggregator².</p>
 <h3 id="example">Example</h3>
@@ -72,9 +72,16 @@ waitpid $pid, 0;
  CHILD   1393612     81924 KB     40661 KB
 PARENT   1393611     85356 KB     42178 KB
 </code></pre>
-<p>The total resident memory is 167,280 KB but we know that&rsquo;s a lie - there&rsquo;s one big array in memory and both processes are sharing it. The total PSS of 82,839 KB is more accurate. You might notice that the parent&rsquo;s RSS of 85,356 KB is still 2,517 KB higher than the total PSS. That&rsquo;s because the Perl interpreter is using libraries which are already in memory (such as those in libc). Aside from reducing total memory use, sharing memory reduces program start times as the kernel has less code to copy into memory. Virtual memory complexifies operating systems but it has a lot of benefits.</p>
+<p>The total resident memory is 167,280 KB but we know that&rsquo;s a lie - there&rsquo;s one big array in memory and both processes are sharing it. The total PSS of 82,839 KB is more accurate.</p>
 <h3 id="if-my-program-exits-how-much-memory-can-be-reclaimed">If my program exits, how much memory can be reclaimed?</h3>
-<p>Proportional Set Size is useful, but it overstates how much memory will be freed when the process exits as its shared memory cannot be reclaimed. To measure free-able memory, use Unique Set Size (USS); the sum of all memory pages private to the process. The kernel does not report USS, you have to calculate it using the memory map data in <code>/proc/$pid/maps</code>. Conveniently, smem already reports USS so there&rsquo;s no need to write your own solution unless you&rsquo;re curious³.</p>
+<p>Whilst Proportional Set Size is useful for gauging how much memory a process is using, it overstates how much memory will be freed when the process exits as shared memory cannot be reclaimed.</p>
+<p>To measure free-able memory, use Unique Set Size (USS); the sum of all memory pages private to the process. The kernel does not report USS, you have to calculate it using the memory map data in <code>/proc/$pid/maps</code>. Conveniently, smem already reports USS so there&rsquo;s no need to write your own solution unless you&rsquo;re curious³.</p>
+<pre><code class="language-pre">bash -c $'smem -c \'pid vss rss pss uss\' --processfilter bash | grep &quot;PID\|$$&quot;'
+  PID      VSS      RSS      PSS      USS
+1412528     9500     3184      341      260
+</code></pre>
+<p>This Bash one liner prints its own memory statistics by running <code>smem</code> and filtering the output to itself. The USS is 260 KB so I can expected to free that much real memory when it exits.</p>
+<p>At 341 KB, PSS is 81 KB higher, and comprised of (its proportional share of) bash (already in memory as I&rsquo;m launching this from a Bash shell) and other system libraries bash depends on like those in libc, readline etc. The Bash program starts quicker as the kernel doesn&rsquo;t have to copy these shared libraries to the program&rsquo;s memory. Sharing memory between programs reduces total real memory use. Virtual memory complexifies operating systems but it has a lot of benefits.</p>
 <h2 id="notes">Notes</h2>
 <ol>
 <li>PSS was created by Matt Mackall - this LWN <a href="https://lwn.net/Articles/230975/">article</a> has more info on its origins.</li>
@@ -102,7 +109,7 @@ PARENT   1393611     85356 KB     42178 KB
   
   
 
-  <a href=https://blog.dnmfarrell.com/tags/rss/>rss</a>
+  <a href=https://blog.dnmfarrell.com/tags/resident-set-size/>resident-set-size</a>
 
 
 
@@ -110,7 +117,7 @@ PARENT   1393611     85356 KB     42178 KB
   
   
 
-  <a href=https://blog.dnmfarrell.com/tags/pss/>pss</a>
+  <a href=https://blog.dnmfarrell.com/tags/proportional-set-size/>proportional-set-size</a>
 
 
 
@@ -118,7 +125,7 @@ PARENT   1393611     85356 KB     42178 KB
   
   
 
-  <a href=https://blog.dnmfarrell.com/tags/uss/>uss</a>
+  <a href=https://blog.dnmfarrell.com/tags/unique-set-size/>unique-set-size</a>
 
 
 
