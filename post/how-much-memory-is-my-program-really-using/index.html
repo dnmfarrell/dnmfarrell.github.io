@@ -81,7 +81,7 @@ PARENT   1393611     85356 KB     42178 KB
 1412528     9500     3184      341      260
 </code></pre>
 <p>This Bash one liner prints its own memory statistics by running <code>smem</code> and filtering the output to itself. The USS is 260 KB so I expect to free that much real memory when it exits.</p>
-<p>At 341 KB, PSS is 81 KB higher, and comprised of its proportional share of bash (already in memory as I&rsquo;m launching this from a Bash shell) and other system libraries bash depends on like those in libc, readline etc. The Bash program starts quicker as by sharing the libraries already in memory, the kernel doesn&rsquo;t have to copy them to the program&rsquo;s memory. Additionally, shared memory reduces overall memory use. Virtual memory complexifies operating systems but it has a lot of benefits.</p>
+<p>At 341 KB, PSS is 81 KB higher, and comprised of its proportional share of /bin/bash (already in memory as I&rsquo;m launching this from a Bash shell), libc and other shared libraries, and the system locales. The Bash program starts quicker as by sharing the libraries already in memory, the kernel doesn&rsquo;t have to copy them to the program&rsquo;s memory. Additionally, shared memory reduces overall memory use. Virtual memory complexifies operating systems but it has a lot of benefits.</p>
 <h2 id="notes">Notes</h2>
 <ol>
 <li>PSS was created by Matt Mackall - this LWN <a href="https://lwn.net/Articles/230975/">article</a> has more info on its origins.</li>
