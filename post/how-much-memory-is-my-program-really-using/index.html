@@ -75,18 +75,18 @@ PARENT   1393611     85356 KB     42178 KB
 <p>The total resident memory is 167,280 KB but we know that&rsquo;s a lie - there&rsquo;s one big array in memory and both processes are sharing it. The total PSS of 82,839 KB is more accurate.</p>
 <h3 id="if-my-program-exits-how-much-memory-can-be-reclaimed">If my program exits, how much memory can be reclaimed?</h3>
 <p>Whilst Proportional Set Size is useful for gauging how much memory a process is using, it overstates how much memory will be freed when the process exits as shared memory cannot be reclaimed.</p>
-<p>To measure free-able memory, use Unique Set Size (USS); the sum of all memory pages private to the process. The kernel does not report USS, you have to calculate it using the memory map data in <code>/proc/$pid/maps</code>. Conveniently, smem already reports USS so there&rsquo;s no need to write your own solution unless you&rsquo;re curious³.</p>
+<p>To measure free-able memory, use Unique Set Size (USS); the sum of all memory pages private to the process. The kernel does not report USS, you have to calculate it using <code>/proc/$pid/pagemap</code>. Conveniently, smem already reports USS so there&rsquo;s no need to write your own solution unless you&rsquo;re curious³.</p>
 <pre><code class="language-pre">bash -c $'smem -c \'pid vss rss pss uss\' --processfilter bash | grep &quot;PID\|$$&quot;'
   PID      VSS      RSS      PSS      USS
 1412528     9500     3184      341      260
 </code></pre>
 <p>This Bash one liner prints its own memory statistics by running <code>smem</code> and filtering the output to itself. The USS is 260 KB so I expect to free that much real memory when it exits.</p>
-<p>At 341 KB, PSS is 81 KB higher, and comprised of its proportional share of /bin/bash (already in memory as I&rsquo;m launching this from a Bash shell), libc and other shared libraries, and the system locales. The Bash program starts quicker as by sharing the libraries already in memory, the kernel doesn&rsquo;t have to copy them to the program&rsquo;s memory. Additionally, shared memory reduces overall memory use. Virtual memory complexifies operating systems but it has a lot of benefits.</p>
+<p>At 341 KB, PSS is 81 KB higher, and comprised of its proportional share of <code>/bin/bash</code> (already in memory as I&rsquo;m launching this from a Bash shell), libc and other shared libraries, and the system locales. The Bash program starts quicker as by sharing the libraries already in memory, the kernel doesn&rsquo;t have to copy them to the program&rsquo;s memory. Additionally, shared memory reduces overall memory use. Virtual memory complexifies operating systems but it has a lot of benefits.</p>
 <h2 id="notes">Notes</h2>
 <ol>
 <li>PSS was created by Matt Mackall - this LWN <a href="https://lwn.net/Articles/230975/">article</a> has more info on its origins.</li>
-<li>The motivation for <a href="https://patchwork.kernel.org/project/linux-fsdevel/patch/20170810001557.147285-1-dancol@google.com/">smaps_rollup</a> was Android taking too long to sample large processes' memory in order to balance memory pools</li>
-<li>And if you <em>are</em> curious, this neat golang <a href="https://github.com/brk0v/sre-page-cache-article/blob/main/uss/main.go">script</a> by Viacheslav Biriukov calculates the Unique Set Size for a given PID.</li>
+<li>The motivation for <a href="https://patchwork.kernel.org/project/linux-fsdevel/patch/20170810001557.147285-1-dancol@google.com/">smaps_rollup</a> was Android taking too long to sample large processes' memory in order to balance memory pools.</li>
+<li>And if you <em>are</em> curious, this neat golang <a href="https://github.com/brk0v/sre-page-cache-article/blob/main/uss/main.go">script</a> by Viacheslav Biriukov calculates the Unique Set Size for a given PID. The pagemap interface and USS algorithm is described <a href="https://www.kernel.org/doc/Documentation/vm/pagemap.txt">here</a>.</li>
 </ol>
 
 
