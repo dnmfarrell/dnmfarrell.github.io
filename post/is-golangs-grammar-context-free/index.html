@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Is Golang&#39;s Grammar Context Free?</title>
+  <meta name="description" content="Perhaps it comes down to semantics" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:site" content="@perltricks">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/is-golangs-grammar-context-free/" />
+  <meta property="og:title" content="Is Golang&#39;s Grammar Context Free?" />
+  <meta property="og:description" content="Perhaps it comes down to semantics">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2022-02-27T09:53:22Z" />
+  <meta property="og:article:tag" content="context-free-grammar" />
+  <meta property="og:article:tag" content="parser" />
+  <meta property="og:article:tag" content="go" />
+  <meta property="og:article:tag" content="perl" />
+  <meta property="og:article:tag" content="c" />
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<h2>Is Golang&#39;s Grammar Context Free?</h2>
+
+<em class="date">February 27, 2022</em>
+
+<p>Most programming language grammars are not context-free. That means the parser has to maintain state in order to process a snippet of the language.</p>
+<p>Often when discussing context somebody will point out the parsing strings, parentheses and so on also require a kind of state in order to match their terminators. That is not the same thing. The question here is given valid input, can a parser using the language grammar alone, assemble it into an unambiguous parse tree or not.</p>
+<p>Perl is notorious for this, take this snippet:¹</p>
+<pre><code class="language-pre">foo  / 25 ; # / ; die;
+</code></pre>
+<p>If <code>foo</code> has been forward declared with a function signature that takes an argument, <code>/ 25 ; # /</code> is matched against <code>$_</code> and the result sent to <code>foo</code>. Then the code dies.  Else the result of <code>foo()</code> is divided in a void context and the rest of the line is interpreted as a comment.</p>
+<p>Chances are your favorite language suffers from the same issue; even a grammar as simple as C&rsquo;s requires context to resolve ambiguities.²</p>
+<h3 id="parsing-go">Parsing Go</h3>
+<p>Go however, is different. Parsing it requires very little context. The Go <a href="https://perlmonks.org/?node_id=663393">FAQ claims</a>:</p>
+<blockquote>
+<p>the language has been designed to be easy to analyze and can be parsed without a symbol table</p>
+</blockquote>
+<p>But Go&rsquo;s <a href="https://go.dev/ref/spec">spec</a> uses the same syntax for function calls and type conversions:</p>
+<pre><code class="language-pre">y := Foo(x)
+</code></pre>
+<p>The only way to know is by checking the symbol table to see if <code>Foo</code> is a type or a function. So is the FAQ wrong?</p>
+<p>To check, I fed the go parser a test program:</p>
+<pre><code class="language-pre">package main
+
+import (
+	&quot;go/parser&quot;
+	&quot;go/token&quot;
+)
+
+func main() {
+	src := `
+package main
+
+type Bar int
+
+func main () {
+	Bar(5)
+}
+`
+	parser.ParseFile(token.NewFileSet(), &quot;&quot;, src, parser.Trace)
+}
+</code></pre>
+<p>This program parses a string of go code containing the type conversion <code>Bar(5)</code>. The parser&rsquo;s <a href="https://pkg.go.dev/go/parser#Mode">trace mode</a> makes it print its parse tree. If it classifies <code>Bar(5)</code> as a type conversion, it must have used the symbol table to resolve the ambiguity!</p>
+<p>Here&rsquo;s the relevant output:</p>
+<pre><code class="language-pre">7:  2: . . . . . . . . . . UnaryExpr (
+7:  2: . . . . . . . . . . . PrimaryExpr (
+7:  2: . . . . . . . . . . . . Operand (
+7:  2: . . . . . . . . . . . . . IDENT Bar
+7:  5: . . . . . . . . . . . . )
+7:  5: . . . . . . . . . . . . CallOrConversion (
+7:  5: . . . . . . . . . . . . . &quot;(&quot;
+7:  6: . . . . . . . . . . . . . Expression (
+7:  6: . . . . . . . . . . . . . . BinaryExpr (
+7:  6: . . . . . . . . . . . . . . . UnaryExpr (
+7:  6: . . . . . . . . . . . . . . . . PrimaryExpr (
+7:  6: . . . . . . . . . . . . . . . . . Operand (
+7:  6: . . . . . . . . . . . . . . . . . . INT 5
+</code></pre>
+<p>Note the <code>CallOrConversion</code> node it found on line 7! So the Go FAQ is correct; the parser did not use context and resolve whether it was a function call or type conversion. As they have the same precedence, it didn&rsquo;t need to. By deferring the resolution until later, Go can be parsed faster. On the other hand it is not quite context-free.</p>
+<h2 id="notes">Notes</h2>
+<ol>
+<li>I&rsquo;ve shortened this code from an example by Randal Schwartz. This <a href="https://perlmonks.org/?node_id=663393">PerlMonks post</a> discusses it and its implications.</li>
+<li>Eli Bendersky has a lucid <a href="https://eli.thegreenplace.net/2007/11/24/the-context-sensitivity-of-cs-grammar">blog post</a> about C&rsquo;s ambiguities which clarified my understanding.</li>
+</ol>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/context-free-grammar/>context-free-grammar</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/parser/>parser</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/go/>go</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/perl/>perl</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/c/>c</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+    <p>Follow me on Twitter <a href="https://twitter.com/PerlTricks">@perltricks</a></p>
+ </footer>
+
+  </body>
+</html>
