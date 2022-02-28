@@ -17,5 +17,16 @@
 Often when discussing context somebody will point out the parsing strings, parentheses and so on also require a kind of state in order to match their terminators. That is not the same thing. The question here is given valid input, can a parser using the language grammar alone, assemble it into an unambiguous parse tree or not.</description>
     </item>
     
+    <item>
+      <title>Can Generics Rescue Golang&#39;s Clunky Error Handling?</title>
+      <link>https://blog.dnmfarrell.com/post/can-generics-rescue-golangs-clunky-error-handling/</link>
+      <pubDate>Mon, 10 Jan 2022 23:41:35 -0500</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/can-generics-rescue-golangs-clunky-error-handling/</guid>
+      <description>One of the most complained about aspects of programming in Go is error handling. However - Go is getting generics! Generics have already been merged to master and are slated for inclusion in the 1.18 release. So can generics raise¹ Go&amp;rsquo;s error handling out of the doldrums?
+The problem Here&amp;rsquo;s some typical error-handling code:
+str, err := foobar() if err != nil { // handle error }  The function foobar returns two values; the second one is an error.</description>
+    </item>
+    
   </channel>
 </rss>
