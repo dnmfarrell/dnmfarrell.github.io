@@ -79,7 +79,6 @@ done
 </code></pre>
 <p>Because variable naming rules are stricter, I prepend jp&rsquo;s global variables with <code>JP_</code>, but the idea is the same².</p>
 <p>Is this a good idea? Well if your code is going to be Bash-only, then it&rsquo;s fine. But it&rsquo;s not portable³. In particular, <a href="https://en.wikipedia.org/wiki/Almquist_shell">ash</a> will not run this code. That&rsquo;s bad news if you want to run it on <a href="https://busybox.net/">Busybox-based</a> Docker containers.</p>
-<p>Bash has a handy <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-POSIX-Mode.html">POSIX mode</a> which you can run your code under if you&rsquo;re not sure if it&rsquo;s portable or not. This also prevents user code from re-defining builtin commands defined in POSIX.</p>
 <h2 id="references">References</h2>
 <ol>
 <li>See <code>man 7 ascii</code> for a handy reference table</li>
