@@ -36,7 +36,7 @@
 
 <p>The release of Delta Lake <a href="https://github.com/delta-io/delta/releases/tag/v2.0.0">2.0.0</a> came with an exciting new feature called <a href="https://docs.delta.io/2.0.0/delta-change-data-feed.html">Change data feed</a> which tracks row-level changes to a delta table. This ability unlocks new use cases:</p>
 <ul>
-<li>Batch selection of new data; previously new rows could be streamed from a delta table, but streams are opaque. Batch mode enables new patterns which operate on a whole set of changes.</li>
+<li>Batch selection of new data; previously new rows could be streamed from a delta table, but streams are opaque. Batch mode enables operations on a whole set of changes.</li>
 <li>Streaming Change Data Capture (CDC) rows from delta tables, similar to MySQL&rsquo;s <a href="https://dev.mysql.com/doc/refman/8.0/en/binary-log.html">binlog</a>.</li>
 <li>Row-level observability to help debug, understand data patterns and collect better table stats.</li>
 </ul>
@@ -64,7 +64,7 @@ scala&gt; spark.createDataFrame(data).
 <pre><code>scala&gt; spark.sql(&quot;&quot;&quot;ALTER TABLE delta.`/tmp/spark-shell/langpop`
      | SET TBLPROPERTIES (delta.enableChangeDataFeed = true)&quot;&quot;&quot;)
 </code></pre>
-<p>This adds a commit to the table&rsquo;s delta log which enables the Change data feed feature, and bumps the <a href="https://github.com/delta-io/delta/blob/master/PROTOCOL.md#protocol-evolution">minWriterVersion protocol</a> to 4, so versions of Delta Lake older than 1.2.1 will no longer be able to write to the table.</p>
+<p>This adds a commit to the table&rsquo;s delta log which enables the Change data feed feature, and bumps the <a href="https://github.com/delta-io/delta/blob/master/PROTOCOL.md#protocol-evolution">minWriterVersion protocol</a> to 4, so old Delta Lake clients¹ will no longer be able to write to the table.</p>
 <h3 id="view-row-level-changes">View Row Level Changes</h3>
 <p>Now that the table is tracking changes, let&rsquo;s add more data to it; the top 3 programming languages from 2014:</p>
 <pre><code>scala&gt; val data = Seq(
@@ -115,7 +115,7 @@ org.apache.spark.sql.AnalysisException: Error getting change data for range
 [0 , 2] as change data was not recorded for version [0]
 </code></pre>
 <h3 id="where-delta-lake-stores-change-data">Where Delta Lake stores change data</h3>
-<p>Delta Lake should save change data in the <code>_change_data</code> directory of the delta table, however I see no such directory:</p>
+<p>Delta Lake should save change data in the _change_data directory of the delta table, however I see no such directory:</p>
 <pre><code>ls -1 /tmp/spark-shell/langpop
 _delta_log
 part-00000-a6f68dca-06ef-4280-b5b7-edb38b7f3a70-c000.snappy.parquet
@@ -129,7 +129,7 @@ part-00002-aee452dc-92f0-4b16-9243-c9b8ca34a8bf-c000.snappy.parquet
 <blockquote>
 <p>insert-only operations and full partition deletes will not generate data in the _change_data directory.</p>
 </blockquote>
-<p>In other words, non-destructive table changes do not trigger writes to the <code>_change_data</code> directory. Here&rsquo;s a handy table of operations, actions and their destructivity:</p>
+<p>In other words, non-destructive table changes do not trigger writes to the _change_data directory. Here&rsquo;s a handy table of operations, actions and their destructivity:</p>
 <pre><code>+---------+------+------------+
 |Operation|Action|Destructive?|
 +---------+------+------------+
@@ -142,7 +142,7 @@ part-00002-aee452dc-92f0-4b16-9243-c9b8ca34a8bf-c000.snappy.parquet
 |   update|update|        true|
 +---------+------+------------+
 </code></pre>
-<p>Now as it happens, I inserted some bad data earlier. Did you spot it? Come on you didn&rsquo;t think Pascal was the #2 most popular programming language in 2014 did you? (✊ #WirthSquad). Sorry, it was PHP again:</p>
+<p>Now as it happens, I inserted some bad data earlier. Did you spot it? Come on you didn&rsquo;t think Pascal was the #2 most popular programming language in 2014 did you? (✊ #WirthSquad). Sorry, it was PHP again. This calls for a (destructive) update!</p>
 <pre><code>scala&gt; import org.apache.spark.sql.functions._
 scala&gt; dt.update(col(&quot;lang&quot;) === &quot;Pascal&quot;, Map(&quot;lang&quot;-&gt;lit(&quot;PHP&quot;)))
 scala&gt; dt.toDF.sort(&quot;year&quot;,&quot;rank&quot;).show
@@ -161,7 +161,7 @@ scala&gt; dt.toDF.sort(&quot;year&quot;,&quot;rank&quot;).show
 <pre><code>ls -1 /tmp/spark-shell/langpop/_change_data/
 cdc-00000-892bcc16-fa7e-4e87-9ccc-d47fdd8d5e92.c000.snappy.parquet
 </code></pre>
-<p>But what&rsquo;s in the parquet file? Even though it&rsquo;s a binary format, I can get the gist using <code>hexdump</code>:</p>
+<p>But what&rsquo;s in that parquet file? Even though it&rsquo;s in binary, I can get the gist using <code>hexdump</code>:</p>
 <pre><code>hexdump -c /tmp/spark-shell/langpop/_change_data/*
 0000000   P   A   R   1 025 004 025  \b 025  \f 025             005
 0000010   &lt; 025 002 025 004  \0  \0 004  \f     \a  \0  \0 025  \0 025
@@ -268,6 +268,10 @@ cdc-00000-892bcc16-fa7e-4e87-9ccc-d47fdd8d5e92.c000.snappy.parquet
 <li>Every update to a row emits a pair of records containing the before and after state. This seems like it would require a self-join to combine them into a single record suitable for CDC. It would be nice to have the option of fetching changes in the combined format instead.</li>
 <li>The feature can only be enabled via a SQL query. Giving the DeltaTable class an &ldquo;enableChangeDataFeed&rdquo; method would convenient. I expect this is on the Delta Lake roadmap, once the feature stabilizes.</li>
 </ul>
+<h2 id="notes">Notes</h2>
+<ol>
+<li>Older than 1.2.1.</li>
+</ol>
 
 
 <p>
