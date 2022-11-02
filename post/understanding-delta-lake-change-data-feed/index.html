@@ -34,12 +34,12 @@
 
 <p>The release of Delta Lake <a href="https://github.com/delta-io/delta/releases/tag/v2.0.0">2.0.0</a> came with an exciting new feature called <a href="https://docs.delta.io/2.0.0/delta-change-data-feed.html">Change data feed</a> which tracks row-level changes to a delta table. This ability unlocks new use cases:</p>
 <ul>
-<li>Batch selection of new data; previously new rows could be streamed from a Delta table, but streams are opaque. Batch mode unlocks new patterns which operate on the set of changes as a whole, such as finding all the changed partitions.</li>
+<li>Batch selection of new data; previously new rows could be streamed from a Delta table, but streams are opaque. Batch mode unlocks new patterns which operate on the set of changes as a whole.</li>
 <li>Streaming Change Data Capture (CDC) rows from delta tables, similar to MySQL&rsquo;s <a href="https://dev.mysql.com/doc/refman/8.0/en/binary-log.html">binlog</a>.</li>
-<li>Row-level observability to help debug data issues, collect better table stats.</li>
+<li>Row-level observability to help debug, understand data patterns and collect better table stats.</li>
 </ul>
 <p>To get started with Change data feed, there are three things to know: how to enable them, how to view changes and how the changes are stored.</p>
-<h3 id="enable-change-data-feed-on-a-delta-table">Enable Change data feed on a delta table</h3>
+<h3 id="enable-change-data-feed">Enable Change data feed</h3>
 <p>I&rsquo;m going to demonstrate the Change data feed feature using <code>spark-shell</code>. Here&rsquo;s my launch command:</p>
 <pre><code>spark-shell --packages io.delta:delta-core_2.12:2.0.0 \
 --conf &quot;spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension&quot; \
@@ -57,14 +57,10 @@ scala&gt; spark.createDataFrame(data).
      | format(&quot;delta&quot;).
      | mode(&quot;append&quot;).
      | save(&quot;/tmp/spark-shell/langpop&quot;)
-scala&gt; spark.sql(&quot;&quot;&quot;CREATE TABLE langpop
-     | USING delta
-     | LOCATION '/tmp/spark-shell/langpop'
-     | &quot;&quot;&quot;)
 </code></pre>
-<p>This creates the delta table in my <code>/tmp</code> directory, and then registers it with Spark&rsquo;s catalog. At this point spark emits a <a href="https://github.com/delta-io/delta/issues/85#issuecomment-1255272656">warning</a> about Hive, which can can be ignored.</p>
-<p>Currently the Change data feed feature can only be enabled via a SQL query, there&rsquo;s no Python/Scala interface, which is why I had to register the table in the previous step (identifying Delta tables by path is supported in <a href="https://docs.databricks.com/sql/language-manual/sql-ref-names.html#table-name">databricks</a> but not Delta Lake).</p>
-<pre><code>scala&gt; spark.sql(&quot;&quot;&quot;ALTER TABLE langpop
+<p>Currently the Change data feed feature can only be enabled via a SQL query:</p>
+<pre><code>scala&gt; spark.sql(&quot;&quot;&quot;ALTER TABLE
+     | delta.`/tmp/spark-shell/langpop`
      | SET TBLPROPERTIES
      | (delta.enableChangeDataFeed = true)
      | &quot;&quot;&quot;)
@@ -87,7 +83,8 @@ scala&gt; spark.createDataset(data).
 <pre><code>scala&gt; spark.read.format(&quot;delta&quot;).
      | option(&quot;readChangeFeed&quot;, &quot;true&quot;).
      | option(&quot;startingVersion&quot;, 2).
-     | table(&quot;langpop&quot;).show(false)
+     | load(&quot;/tmp/spark-shell/langpop&quot;).
+     | show(false)
 +----+------+----+------------+---------------+---------------------+
 |year|lang  |rank|_change_type|_commit_version|_commit_timestamp    |
 +----+------+----+------------+---------------+---------------------+
@@ -96,9 +93,9 @@ scala&gt; spark.createDataset(data).
 |2014|Pascal|2   |insert      |2              |2022-11-01 21:45:52.7|
 +----+------+----+------------+---------------+---------------------
 </code></pre>
-<p>Delta returns the table data, plus the <a href="https://docs.delta.io/2.0.0/delta-change-data-feed.html#change-data-event-schema">change data event schema columns</a>. Note that the first 3 rows I inserted (pl popularity 2004) are not returned. They&rsquo;re excluded by the option clause setting a <code>startingVersion</code> of 2. Let&rsquo;s see why that is the case:</p>
+<p>Delta returns the table data, plus the <a href="https://docs.delta.io/2.0.0/delta-change-data-feed.html#change-data-event-schema">change data event schema columns</a>. Note that the first 3 rows I inserted (pl popularity 2004) are not returned. They&rsquo;re excluded by the option clause setting a <code>startingVersion</code> of 2. I can query the table history to see why that is the case:</p>
 <pre><code>scala&gt; import io.delta.tables.DeltaTable
-scala&gt; val dt = DeltaTable.forName(spark, &quot;langpop&quot;)
+scala&gt; val dt = DeltaTable.forPath(spark, &quot;/tmp/spark-shell/langpop&quot;)
 scala&gt; dt.history.select(&quot;version&quot;,&quot;timestamp&quot;,&quot;operation&quot;).show
 +-------+--------------------+-----------------+
 |version|           timestamp|        operation|
@@ -113,11 +110,12 @@ scala&gt; dt.history.select(&quot;version&quot;,&quot;timestamp&quot;,&quot;oper
 <pre><code>scala&gt; spark.read.format(&quot;delta&quot;).
      | option(&quot;readChangeFeed&quot;, &quot;true&quot;).
      | option(&quot;startingVersion&quot;, 0).
-     | table(&quot;langpop&quot;).show(false)
+     | load(&quot;/tmp/spark-shell/langpop&quot;).
+     | show(false)
 org.apache.spark.sql.AnalysisException: Error getting change data for range
 [0 , 2] as change data was not recorded for version [0]
 </code></pre>
-<h3 id="the-_change_data-directory">The _change_data directory</h3>
+<h3 id="where-delta-lake-stores-change-data">Where Delta Lake stores change data</h3>
 <p>Delta Lake saves change data in the <code>_change_data</code> directory of the Delta table, however when I look there, I see no such directory:</p>
 <pre><code>ls -1 /tmp/spark-shell/langpop
 _delta_log
@@ -132,7 +130,7 @@ part-00002-aee452dc-92f0-4b16-9243-c9b8ca34a8bf-c000.snappy.parquet
 <blockquote>
 <p>insert-only operations and full partition deletes will not generate data in the _change_data directory.</p>
 </blockquote>
-<p>In other words, non-destructive table changes do not trigger writes to the <code>_change_data</code> directory:</p>
+<p>In other words, non-destructive table changes do not trigger writes to the <code>_change_data</code> directory. Here&rsquo;s a handy table of operations, actions and their destructivity:</p>
 <pre><code>+---------+------+------------+
 |Operation|Action|Destructive?|
 +---------+------+------------+
@@ -254,7 +252,8 @@ cdc-00000-892bcc16-fa7e-4e87-9ccc-d47fdd8d5e92.c000.snappy.parquet
 <pre><code>scala&gt; spark.read.format(&quot;delta&quot;).
      | option(&quot;readChangeFeed&quot;, &quot;true&quot;).
      | option(&quot;startingVersion&quot;, 3).
-     | table(&quot;langpop&quot;).show(false)
+     | load(&quot;/tmp/spark-shell/langpop&quot;).
+     | show(false)
 +----+------+----+----------------+---------------+-----------------------+
 |year|lang  |rank|_change_type    |_commit_version|_commit_timestamp      |
 +----+------+----+----------------+---------------+-----------------------+
@@ -266,9 +265,9 @@ cdc-00000-892bcc16-fa7e-4e87-9ccc-d47fdd8d5e92.c000.snappy.parquet
 <p>At $work we&rsquo;re trialing use of Change data feed to get row changes to union with an output partition which is sorted and deduped. By selecting changed partitions in batch, we&rsquo;re able to process one partition at a time, stabilizing Spark&rsquo;s resource demands and making them more predictable.</p>
 <p>Whilst Change data feed is powerful, it&rsquo;s listed as experimental and I think the interface could be friendlier:</p>
 <ul>
-<li>Reading changes for a non-existent commit version number always throws an exception. Why? The empty dataframe is a perfectly truthful response which let&rsquo;s consumers not have to wrap calls in a try/catch.</li>
-<li>The feature can only be enabled by table name. This means it&rsquo;s necessary to register the delta table in the spark catalog before it can be used. This could be solved by either allowing path-based table names (as with databricks), or giving the DeltaTable class an &ldquo;enableChangeDataFeed&rdquo; method.</li>
+<li>Reading changes for a non-existent commit version number always throws an exception. Why? The empty dataframe is a perfectly truthful response which allows consumers not have to wrap calls in a try/catch.</li>
 <li>Every update to a row emits a pair of records containing the before and after state. This seems like it would require a self-join to combine them into a single record suitable for CDC. It would be nice to have the option of fetching changes in the combined format instead.</li>
+<li>The feature can only be enabled via a SQL query. Giving the DeltaTable class an &ldquo;enableChangeDataFeed&rdquo; method would convenient. I expect this is on the Delta Lake roadmap, once the feature stabilizes.</li>
 </ul>
 
 
