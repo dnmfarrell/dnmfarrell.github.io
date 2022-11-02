@@ -246,7 +246,7 @@ cdc-00000-892bcc16-fa7e-4e87-9ccc-d47fdd8d5e92.c000.snappy.parquet
 0000500  \0 034  \0  \0 034  \0  \0  \0 204 003  \0  \0   P   A   R   1
 0000510
 </code></pre>
-<p>The official <a href="https://github.com/apache/parquet-format#file-format">docs</a> explain the layout more precisely but roughly: it begins with the 4 byte magic number <code>PAR1</code> to identify the file type. Next comes each column chunk; a careful reading shows that it stores both the before and after values (&ldquo;Pascal&rdquo;, &ldquo;PHP&rdquo;) and the action (&ldquo;update_(pre|post)image&rdquo;). Every parquet file ends with the file metadata, length and 4 byte magic number.</p>
+<p>The official <a href="https://github.com/apache/parquet-format#file-format">docs</a> explain the layout more precisely but roughly: it begins with the 4 byte magic number <code>PAR1</code> to identify the file type. Next comes each column chunk; a careful reading shows that it stores both the before and after values (&ldquo;Pascal&rdquo;, &ldquo;PHP&rdquo;) and the action (&ldquo;update_(pre|post)image&rdquo;). Every parquet file ends with the file metadata (which includes the schema), metadata length and 4 byte magic number.</p>
 <p>But there&rsquo;s no need to squint over hexdumps until your eyes bleed, we can read the change data feed instead:</p>
 <pre><code>scala&gt; spark.read.format(&quot;delta&quot;).
      | option(&quot;readChangeFeed&quot;, &quot;true&quot;).
