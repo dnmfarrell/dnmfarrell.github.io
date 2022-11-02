@@ -64,7 +64,7 @@ scala&gt; spark.createDataFrame(data).
 <pre><code>scala&gt; spark.sql(&quot;&quot;&quot;ALTER TABLE delta.`/tmp/spark-shell/langpop`
      | SET TBLPROPERTIES (delta.enableChangeDataFeed = true)&quot;&quot;&quot;)
 </code></pre>
-<p>This adds a commit to the table&rsquo;s delta log which enables the Change data feed feature, and bumps the <code>minWriterVersion</code> <a href="https://github.com/delta-io/delta/blob/master/PROTOCOL.md#protocol-evolution">protocol</a> to 4, so versions of Delta Lake older than 1.2.1 will no longer be able to write to the table.</p>
+<p>This adds a commit to the table&rsquo;s delta log which enables the Change data feed feature, and bumps the <a href="https://github.com/delta-io/delta/blob/master/PROTOCOL.md#protocol-evolution">minWriterVersion protocol</a> to 4, so versions of Delta Lake older than 1.2.1 will no longer be able to write to the table.</p>
 <h3 id="view-row-level-changes">View Row Level Changes</h3>
 <p>Now that the table is tracking changes, let&rsquo;s add more data to it; the top 3 programming languages from 2014:</p>
 <pre><code>scala&gt; val data = Seq(
@@ -92,7 +92,7 @@ scala&gt; spark.createDataset(data).
 |2014|Pascal|2   |insert      |2              |2022-11-01 21:45:52.7|
 +----+------+----+------------+---------------+---------------------
 </code></pre>
-<p>Delta returns the table data, plus the <a href="https://docs.delta.io/2.0.0/delta-change-data-feed.html#change-data-event-schema">change data event schema columns</a>. Note that the first 3 rows I inserted (pl popularity 2004) are not returned. They&rsquo;re excluded by the option clause setting a <code>startingVersion</code> of 2. I can query the table history to see why that is the case:</p>
+<p>Delta returns the table data, plus the <a href="https://docs.delta.io/2.0.0/delta-change-data-feed.html#change-data-event-schema">change data event columns</a>. Note that the first 3 rows I inserted (pl popularity 2004) are not returned. The option <code>startingVersion</code> of 2 excludes them. I can query the table history to see why:</p>
 <pre><code>scala&gt; import io.delta.tables.DeltaTable
 scala&gt; val dt = DeltaTable.forPath(spark, &quot;/tmp/spark-shell/langpop&quot;)
 scala&gt; dt.history.select(&quot;version&quot;,&quot;timestamp&quot;,&quot;operation&quot;).show
@@ -104,7 +104,7 @@ scala&gt; dt.history.select(&quot;version&quot;,&quot;timestamp&quot;,&quot;oper
 |      0|2022-11-01 21:39:...|            WRITE|
 +-------+--------------------+-----------------+
 </code></pre>
-<p>This output shows the brief history of the table so far. In commit 0 the table was created and the initial rows written to it. Commit 1 enabled Change data feed. So commit 2 is the first commit to track changes.</p>
+<p>In commit 0 the table was created and the initial rows written to it. Commit 1 enabled Change data feed. So commit 2 is the first commit to track changes.</p>
 <p>What if I say &ldquo;screw it&rdquo; and try to read changes earlier than commit 2?</p>
 <pre><code>scala&gt; spark.read.format(&quot;delta&quot;).
      | option(&quot;readChangeFeed&quot;, &quot;true&quot;).
