@@ -36,7 +36,7 @@
 
 <p>The release of Delta Lake <a href="https://github.com/delta-io/delta/releases/tag/v2.0.0">2.0.0</a> came with an exciting new feature called <a href="https://docs.delta.io/2.0.0/delta-change-data-feed.html">Change data feed</a> which tracks row-level changes to a delta table. This ability unlocks new use cases:</p>
 <ul>
-<li>Batch selection of new data; previously new rows could be streamed from a Delta table, but streams are opaque. Batch mode unlocks new patterns which operate on the set of changes as a whole.</li>
+<li>Batch selection of new data; previously new rows could be streamed from a delta table, but streams are opaque. Batch mode unlocks new patterns which operate on the set of changes as a whole.</li>
 <li>Streaming Change Data Capture (CDC) rows from delta tables, similar to MySQL&rsquo;s <a href="https://dev.mysql.com/doc/refman/8.0/en/binary-log.html">binlog</a>.</li>
 <li>Row-level observability to help debug, understand data patterns and collect better table stats.</li>
 </ul>
@@ -118,7 +118,7 @@ org.apache.spark.sql.AnalysisException: Error getting change data for range
 [0 , 2] as change data was not recorded for version [0]
 </code></pre>
 <h3 id="where-delta-lake-stores-change-data">Where Delta Lake stores change data</h3>
-<p>Delta Lake saves change data in the <code>_change_data</code> directory of the Delta table, however when I look there, I see no such directory:</p>
+<p>Delta Lake should save change data in the <code>_change_data</code> directory of the delta table, however I see no such directory:</p>
 <pre><code>ls -1 /tmp/spark-shell/langpop
 _delta_log
 part-00000-a6f68dca-06ef-4280-b5b7-edb38b7f3a70-c000.snappy.parquet
