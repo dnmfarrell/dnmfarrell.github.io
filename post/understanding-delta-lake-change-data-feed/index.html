@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Understanding Delta Lake&#39;s Change Data Feed</title>
+  <meta name="description" content="What it&#39;s good for, how changes are tracked, and how to view them" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:site" content="@perltricks">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/understanding-delta-lake-change-data-feed/" />
+  <meta property="og:title" content="Understanding Delta Lake&#39;s Change Data Feed" />
+  <meta property="og:description" content="What it&#39;s good for, how changes are tracked, and how to view them">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2022-11-01T55:49:22Z" />
+  <meta property="og:article:tag" content="spark" />
+  <meta property="og:article:tag" content="parquet" />
+  <meta property="og:article:tag" content="scala" />
+  <meta property="og:article:tag" content="delta-table" />
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<h2>Understanding Delta Lake&#39;s Change Data Feed</h2>
+
+<em class="date">November 1, 2022</em>
+
+<p>The release of Delta Lake <a href="https://github.com/delta-io/delta/releases/tag/v2.0.0">2.0.0</a> came with an exciting new feature called <a href="https://docs.delta.io/2.0.0/delta-change-data-feed.html">Change data feed</a> which tracks row-level changes to a delta table. This ability unlocks new use cases:</p>
+<ul>
+<li>Batch selection of new data; previously new rows could be streamed from a Delta table, but streams are opaque. Batch mode unlocks new patterns which operate on the set of changes as a whole, such as finding all the changed partitions.</li>
+<li>Streaming Change Data Capture (CDC) rows from delta tables, similar to MySQL&rsquo;s <a href="https://dev.mysql.com/doc/refman/8.0/en/binary-log.html">binlog</a>.</li>
+<li>Row-level observability to help debug data issues, collect better table stats.</li>
+</ul>
+<p>To get started with Change data feed, there are three things to know: how to enable them, how to view changes and how the changes are stored.</p>
+<h3 id="enable-change-data-feed-on-a-delta-table">Enable Change data feed on a delta table</h3>
+<p>I&rsquo;m going to demonstrate the Change data feed feature using <code>spark-shell</code>. Here&rsquo;s my launch command:</p>
+<pre><code>spark-shell --packages io.delta:delta-core_2.12:2.0.0 \
+--conf &quot;spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension&quot; \
+--conf &quot;spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog&quot;
+</code></pre>
+<p>I have Spark 3.2 installed on my machine so I&rsquo;m using Delta Lake 2.0 (there is also a 2.1 version for Spark 3.3).</p>
+<p>Let&rsquo;s create a table to store programming language popularity rankings by year. Here are the <a href="https://www.kaggle.com/datasets/muhammadkhalid/most-popular-programming-languages-since-2004">top 3 from 2004</a>:</p>
+<pre><code>scala&gt; val data = val data = Seq(
+     | (2004,&quot;Java&quot;,1),
+     | (2004,&quot;PHP&quot;,2),
+     | (2004,&quot;C/C++&quot;,3))
+scala&gt; spark.createDataFrame(data).
+     | toDF(&quot;year&quot;,&quot;lang&quot;,&quot;rank&quot;).
+     | write.
+     | format(&quot;delta&quot;).
+     | mode(&quot;append&quot;).
+     | save(&quot;/tmp/spark-shell/langpop&quot;)
+scala&gt; spark.sql(&quot;&quot;&quot;CREATE TABLE langpop
+     | USING delta
+     | LOCATION '/tmp/spark-shell/langpop'
+     | &quot;&quot;&quot;)
+</code></pre>
+<p>This creates the delta table in my <code>/tmp</code> directory, and then registers it with Spark&rsquo;s catalog. At this point spark emits a <a href="https://github.com/delta-io/delta/issues/85#issuecomment-1255272656">warning</a> about Hive, which can can be ignored.</p>
+<p>Currently the Change data feed feature can only be enabled via a SQL query, there&rsquo;s no Python/Scala interface, which is why I had to register the table in the previous step (identifying Delta tables by path is supported in <a href="https://docs.databricks.com/sql/language-manual/sql-ref-names.html#table-name">databricks</a> but not Delta Lake).</p>
+<pre><code>scala&gt; spark.sql(&quot;&quot;&quot;ALTER TABLE langpop
+     | SET TBLPROPERTIES
+     | (delta.enableChangeDataFeed = true)
+     | &quot;&quot;&quot;)
+</code></pre>
+<p>This adds a commit to the table&rsquo;s delta log which enables the Change data feed feature, and bumps the <code>minWriterVersion</code> <a href="https://github.com/delta-io/delta/blob/master/PROTOCOL.md#protocol-evolution">protocol</a> to 4, so versions of Delta Lake older than 1.2.1 will no longer be able to write to the table.</p>
+<h3 id="view-row-level-changes">View Row Level Changes</h3>
+<p>Now that the table is tracking changes, let&rsquo;s add more data to it; the top 3 programming languages from 2014:</p>
+<pre><code>scala&gt; val data = Seq(
+     | (2014,&quot;Java&quot;,1),
+     | (2014,&quot;Pascal&quot;,2),
+     | (2014,&quot;Python&quot;,3))
+scala&gt; spark.createDataset(data).
+     | toDF(&quot;year&quot;,&quot;lang&quot;,&quot;rank&quot;).
+     | write.
+     | format(&quot;delta&quot;).
+     | mode(&quot;append&quot;).
+     | save(&quot;/tmp/spark-shell/langpop&quot;)
+</code></pre>
+<p>Finally I&rsquo;m ready to view changes to the table:</p>
+<pre><code>scala&gt; spark.read.format(&quot;delta&quot;).
+     | option(&quot;readChangeFeed&quot;, &quot;true&quot;).
+     | option(&quot;startingVersion&quot;, 2).
+     | table(&quot;langpop&quot;).show(false)
++----+------+----+------------+---------------+---------------------+
+|year|lang  |rank|_change_type|_commit_version|_commit_timestamp    |
++----+------+----+------------+---------------+---------------------+
+|2014|Python|3   |insert      |2              |2022-11-01 21:45:52.7|
+|2014|Java  |1   |insert      |2              |2022-11-01 21:45:52.7|
+|2014|Pascal|2   |insert      |2              |2022-11-01 21:45:52.7|
++----+------+----+------------+---------------+---------------------
+</code></pre>
+<p>Delta returns the table data, plus the <a href="https://docs.delta.io/2.0.0/delta-change-data-feed.html#change-data-event-schema">change data event schema columns</a>. Note that the first 3 rows I inserted (pl popularity 2004) are not returned. They&rsquo;re excluded by the option clause setting a <code>startingVersion</code> of 2. Let&rsquo;s see why that is the case:</p>
+<pre><code>scala&gt; import io.delta.tables.DeltaTable
+scala&gt; val dt = DeltaTable.forName(spark, &quot;langpop&quot;)
+scala&gt; dt.history.select(&quot;version&quot;,&quot;timestamp&quot;,&quot;operation&quot;).show
++-------+--------------------+-----------------+
+|version|           timestamp|        operation|
++-------+--------------------+-----------------+
+|      2|2022-11-01 21:45:...|            WRITE|
+|      1|2022-11-01 21:40:...|SET TBLPROPERTIES|
+|      0|2022-11-01 21:39:...|            WRITE|
++-------+--------------------+-----------------+
+</code></pre>
+<p>This output shows the brief history of the table so far. In commit 0 the table was created and the initial rows written to it. Commit 1 enabled Change data feed. So commit 2 is the first commit to track changes.</p>
+<p>What if I say &ldquo;screw it&rdquo; and try to read changes earlier than commit 2?</p>
+<pre><code>scala&gt; spark.read.format(&quot;delta&quot;).
+     | option(&quot;readChangeFeed&quot;, &quot;true&quot;).
+     | option(&quot;startingVersion&quot;, 0).
+     | table(&quot;langpop&quot;).show(false)
+org.apache.spark.sql.AnalysisException: Error getting change data for range
+[0 , 2] as change data was not recorded for version [0]
+</code></pre>
+<h3 id="the-_change_data-directory">The _change_data directory</h3>
+<p>Delta Lake saves change data in the <code>_change_data</code> directory of the Delta table, however when I look there, I see no such directory:</p>
+<pre><code>ls -1 /tmp/spark-shell/langpop
+_delta_log
+part-00000-a6f68dca-06ef-4280-b5b7-edb38b7f3a70-c000.snappy.parquet
+part-00000-e1b18e95-ded0-4ee8-b011-961e609dc8a4-c000.snappy.parquet
+part-00001-3efe7e39-4354-4e20-ad20-8771ab46ac19-c000.snappy.parquet
+part-00001-b1dcb6c9-2151-4818-ae1c-ba23de955249-c000.snappy.parquet
+part-00002-95dc0d80-1403-43c6-aa14-002841226baf-c000.snappy.parquet
+part-00002-aee452dc-92f0-4b16-9243-c9b8ca34a8bf-c000.snappy.parquet
+</code></pre>
+<p>The Delta Lake <a href="https://docs.delta.io/2.0.0/delta-change-data-feed.html#change-data-storage">docs</a> explain:</p>
+<blockquote>
+<p>insert-only operations and full partition deletes will not generate data in the _change_data directory.</p>
+</blockquote>
+<p>In other words, non-destructive table changes do not trigger writes to the <code>_change_data</code> directory:</p>
+<pre><code>+---------+------+------------+
+|Operation|Action|Destructive?|
++---------+------+------------+
+|   append|insert|       false|
+|overwrite|insert|       false|
+|overwrite|delete|        true|
+|    merge|update|        true|
+|    merge|insert|       false|
+|   delete|delete|        true|
+|   update|update|        true|
++---------+------+------------+
+</code></pre>
+<p>Now as it happens, I inserted some bad data earlier. Did you spot it? Come on you didn&rsquo;t think Pascal was the #2 most popular programming language in 2014 did you? (✊ #WirthSquad). Sorry, it was PHP again:</p>
+<pre><code>scala&gt; import org.apache.spark.sql.functions._
+scala&gt; dt.update(col(&quot;lang&quot;) === &quot;Pascal&quot;, Map(&quot;lang&quot;-&gt;lit(&quot;PHP&quot;)))
+scala&gt; dt.toDF.sort(&quot;year&quot;,&quot;rank&quot;).show
++----+------+----+
+|year|  lang|rank|
++----+------+----+
+|2004|  Java|   1|
+|2004|   PHP|   2|
+|2004| C/C++|   3|
+|2014|  Java|   1|
+|2014|   PHP|   2|
+|2014|Python|   3|
++----+------+----+
+</code></pre>
+<p>And now the _change_data directory is there:</p>
+<pre><code>ls -1 /tmp/spark-shell/langpop/_change_data/
+cdc-00000-892bcc16-fa7e-4e87-9ccc-d47fdd8d5e92.c000.snappy.parquet
+</code></pre>
+<p>But what&rsquo;s in the parquet file? Even though it&rsquo;s a binary format, I can get the gist using <code>hexdump</code>:</p>
+<pre><code>hexdump -c /tmp/spark-shell/langpop/_change_data/cdc-00000-892bcc16-fa7e-4e87-9ccc-d47fdd8d5e92.c000.snappy.parquet
+0000000   P   A   R   1 025 004 025  \b 025  \f 025             005
+0000010   &lt; 025 002 025 004  \0  \0 004  \f     \a  \0  \0 025  \0 025
+0000020 020 025 024 025          227 016 034 025 004 025 004 025 006
+0000030 025  \b  \0  \0  \b 034 002  \0  \0  \0 003 003  \0 003 025  \0
+0000040 025   . 025   2 025       215    005 034 025 004 025  \0 025
+0000050 006 025  \b  \0  \0 027   X 002  \0  \0  \0 003 003 006  \0  \0
+0000060  \0   P   a   s   c   a   l 003  \0  \0  \0   P   H   P 025 004
+0000070 025  \b 025  \f 025    230        \b   &lt; 025 002 025 004  \0
+0000080  \0 004  \f 002  \0  \0  \0 025  \0 025 020 025 024 025
+0000090    227 016 034 025 004 025 004 025 006 025  \b  \0  \0  \b 034
+00000a0 002  \0  \0  \0 003 003  \0 003 025  \0 025   Z 025   P 025
+00000b0 220      f 034 025 004 025  \0 025 006 025  \b  \0  \0   -   h
+00000c0 002  \0  \0  \0 003 003 017  \0  \0  \0   u   p   d   a   t   e
+00000d0   _   p   r   e   i   m   a   g   e 020  \0 031 023 034   o   s
+00000e0   t   i   m   a   g   e 031 021 002 031 030 004     \a  \0  \0
+00000f0 031 030 004     \a  \0  \0 025 002 031 026  \0  \0 031 021 002
+0000100 031 030 003   P   H   P 031 030 006   P   a   s   c   a   l 025
+0000110 002 031 026  \0  \0 031 021 002 031 030 004 002  \0  \0  \0 031
+0000120 030 004 002  \0  \0  \0 025 002 031 026  \0  \0 031 021 002 031
+0000130 030 020   u   p   d   a   t   e   _   p   o   s   t   i   m   a
+0000140   g   e 031 030 017   u   p   d   a   t   e   _   p   r   e   i
+0000150   m   a   g   e 025 002 031 026  \0  \0 031 034 026   : 025   B
+0000160 026  \0  \0  \0 031 034 026   | 025   ` 026  \0  \0  \0 031 034
+0000170 026 216 002 025   B 026  \0  \0  \0 031 034 026    002 025   |
+0000180 026  \0  \0  \0 025 002 031   \   H  \f   s   p   a   r   k   _
+0000190   s   c   h   e   m   a 025  \b  \0 025 002   % 002 030 004   y
+00001a0   e   a   r  \0 025  \f   % 002 030 004   l   a   n   g   %  \0
+00001b0   L 034  \0  \0  \0 025 002   % 002 030 004   r   a   n   k  \0
+00001c0 025  \f   % 002 030  \f   _   c   h   a   n   g   e   _   t   y
+00001d0   p   e   %  \0   L 034  \0  \0  \0 026 004 031 034 031   L   &amp;
+00001e0   : 034 025 002 031   5 004  \b 006 031 030 004   y   e   a   r
+00001f0 025 002 026 004 026   l 026   t   &amp;   :   &amp;  \b 034 030 004
+0000200  \a  \0  \0 030 004     \a  \0  \0 026  \0   ( 004     \a  \0
+0000210  \0 030 004     \a  \0  \0  \0 031   , 025 004 025 004 025 002
+0000220  \0 025  \0 025 004 025 002  \0  \0 026    005 025 024 026
+0000230 003 025   .  \0   &amp;   | 034 025  \f 031   5  \0  \b 006 031 030
+0000240 004   l   a   n   g 025 002 026 004 026   \ 026   `   &amp;   |   &lt;
+0000250   6  \0   ( 006   P   a   s   c   a   l 030 003   P   H   P  \0
+0000260 031 034 025  \0 025  \0 025 002  \0  \0 026    005 025 024 026
+0000270    003 025   0  \0   &amp; 216 002 034 025 002 031   5 004  \b 006
+0000280 031 030 004   r   a   n   k 025 002 026 004 026   l 026   t   &amp;
+0000290 216 002   &amp;    001 034 030 004 002  \0  \0  \0 030 004 002  \0
+00002a0  \0  \0 026  \0   ( 004 002  \0  \0  \0 030 004 002  \0  \0  \0
+00002b0  \0 031   , 025 004 025 004 025 002  \0 025  \0 025 004 025 002
+00002c0  \0  \0 026    005 025 026 026    004 025   .  \0   &amp;    002
+00002d0 034 025  \f 031   5  \0  \b 006 031 030  \f   _   c   h   a   n
+00002e0   g   e   _   t   y   p   e 025 002 026 004 026 206 001 026   |
+00002f0   &amp;    002   &lt;   6  \0   ( 017   u   p   d   a   t   e   _   p
+0000300   r   e   i   m   a   g   e 030 020   u   p   d   a   t   e   _
+0000310   p   o   s   t   i   m   a   g   e  \0 031 034 025  \0 025  \0
+0000320 025 002  \0  \0 026    005 025 026 026    004 025   \  \0 026
+0000330    003 026 004   &amp;  \b 026    003 024  \0  \0 031   , 030 030
+0000340   o   r   g   .   a   p   a   c   h   e   .   s   p   a   r   k
+0000350   .   v   e   r   s   i   o   n 030 005   3   .   2   .   1  \0
+0000360 030   )   o   r   g   .   a   p   a   c   h   e   .   s   p   a
+0000370   r   k   .   s   q   l   .   p   a   r   q   u   e   t   .   r
+0000380   o   w   .   m   e   t   a   d   a   t   a 030 236 002   {   &quot;
+0000390   t   y   p   e   &quot;   :   &quot;   s   t   r   u   c   t   &quot;   ,   &quot;
+00003a0   f   i   e   l   d   s   &quot;   :   [   {   &quot;   n   a   m   e   &quot;
+00003b0   :   &quot;   y   e   a   r   &quot;   ,   &quot;   t   y   p   e   &quot;   :   &quot;
+00003c0   i   n   t   e   g   e   r   &quot;   ,   &quot;   n   u   l   l   a   b
+00003d0   l   e   &quot;   :   t   r   u   e   ,   &quot;   m   e   t   a   d   a
+00003e0   t   a   &quot;   :   {   }   }   ,   {   &quot;   n   a   m   e   &quot;   :
+00003f0   &quot;   l   a   n   g   &quot;   ,   &quot;   t   y   p   e   &quot;   :   &quot;   s
+0000400   t   r   i   n   g   &quot;   ,   &quot;   n   u   l   l   a   b   l   e
+0000410   &quot;   :   t   r   u   e   ,   &quot;   m   e   t   a   d   a   t   a
+0000420   &quot;   :   {   }   }   ,   {   &quot;   n   a   m   e   &quot;   :   &quot;   r
+0000430   a   n   k   &quot;   ,   &quot;   t   y   p   e   &quot;   :   &quot;   i   n   t
+0000440   e   g   e   r   &quot;   ,   &quot;   n   u   l   l   a   b   l   e   &quot;
+0000450   :   t   r   u   e   ,   &quot;   m   e   t   a   d   a   t   a   &quot;
+0000460   :   {   }   }   ,   {   &quot;   n   a   m   e   &quot;   :   &quot;   _   c
+0000470   h   a   n   g   e   _   t   y   p   e   &quot;   ,   &quot;   t   y   p
+0000480   e   &quot;   :   &quot;   s   t   r   i   n   g   &quot;   ,   &quot;   n   u   l
+0000490   l   a   b   l   e   &quot;   :   t   r   u   e   ,   &quot;   m   e   t
+00004a0   a   d   a   t   a   &quot;   :   {   }   }   ]   }  \0 030   J   p
+00004b0   a   r   q   u   e   t   -   m   r       v   e   r   s   i   o
+00004c0   n       1   .   1   2   .   2       (   b   u   i   l   d
+00004d0   7   7   e   3   0   c   8   0   9   3   3   8   6   e   c   5
+00004e0   2   c   3   c   f   a   6   c   3   4   b   7   e   f   3   3
+00004f0   2   1   3   2   2   c   9   4   ) 031   L 034  \0  \0 034  \0
+0000500  \0 034  \0  \0 034  \0  \0  \0 204 003  \0  \0   P   A   R   1
+0000510
+</code></pre>
+<p>The official <a href="https://github.com/apache/parquet-format#file-format">docs</a> explain the layout more precisely but roughly: it begins with the 4 byte magic number <code>PAR1</code> to identify the file type. Next comes each column chunk; a careful reading shows that it stores both the before and after values (&ldquo;Pascal&rdquo;, &ldquo;PHP&rdquo;) and the action (&ldquo;update_(pre|post)image&rdquo;). Every parquet file ends with the file metadata, length and 4 byte magic number.</p>
+<p>But there&rsquo;s no need to squint over hexdumps until your eyes bleed, we can read the change data feed instead:</p>
+<pre><code>scala&gt; spark.read.format(&quot;delta&quot;).
+     | option(&quot;readChangeFeed&quot;, &quot;true&quot;).
+     | option(&quot;startingVersion&quot;, 3).
+     | table(&quot;langpop&quot;).show(false)
++----+------+----+----------------+---------------+-----------------------+
+|year|lang  |rank|_change_type    |_commit_version|_commit_timestamp      |
++----+------+----+----------------+---------------+-----------------------+
+|2014|Pascal|2   |update_preimage |3              |2022-11-01 22:59:13.273|
+|2014|PHP   |2   |update_postimage|3              |2022-11-01 22:59:13.273|
++----+------+----+----------------+---------------+-----------------------+
+</code></pre>
+<h3 id="conclusion">Conclusion</h3>
+<p>At $work we&rsquo;re trialing use of Change data feed to get row changes to union with an output partition which is sorted and deduped. By selecting changed partitions in batch, we&rsquo;re able to process one partition at a time, stabilizing Spark&rsquo;s resource demands and making them more predictable.</p>
+<p>Whilst Change data feed is powerful, it&rsquo;s listed as experimental and I think the interface could be friendlier:</p>
+<ul>
+<li>Reading changes for a non-existent commit version number always throws an exception. Why? The empty dataframe is a perfectly truthful response which let&rsquo;s consumers not have to wrap calls in a try/catch.</li>
+<li>The feature can only be enabled by table name. This means it&rsquo;s necessary to register the delta table in the spark catalog before it can be used. This could be solved by either allowing path-based table names (as with databricks), or giving the DeltaTable class an &ldquo;enableChangeDataFeed&rdquo; method.</li>
+<li>Every update to a row emits a pair of records containing the before and after state. This seems like it would require a self-join to combine them into a single record suitable for CDC. It would be nice to have the option of fetching changes in the combined format instead.</li>
+</ul>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/spark/>spark</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/parquet/>parquet</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/scala/>scala</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/delta-table/>delta-table</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+    <p>Follow me on Twitter <a href="https://twitter.com/PerlTricks">@perltricks</a></p>
+ </footer>
+
+  </body>
+</html>
