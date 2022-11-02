@@ -36,7 +36,7 @@
 
 <p>The release of Delta Lake <a href="https://github.com/delta-io/delta/releases/tag/v2.0.0">2.0.0</a> came with an exciting new feature called <a href="https://docs.delta.io/2.0.0/delta-change-data-feed.html">Change data feed</a> which tracks row-level changes to a delta table. This ability unlocks new use cases:</p>
 <ul>
-<li>Batch selection of new data; previously new rows could be streamed from a delta table, but streams are opaque. Batch mode enables new patterns which operate on the set of changes as a whole.</li>
+<li>Batch selection of new data; previously new rows could be streamed from a delta table, but streams are opaque. Batch mode enables new patterns which operate on a whole set of changes.</li>
 <li>Streaming Change Data Capture (CDC) rows from delta tables, similar to MySQL&rsquo;s <a href="https://dev.mysql.com/doc/refman/8.0/en/binary-log.html">binlog</a>.</li>
 <li>Row-level observability to help debug, understand data patterns and collect better table stats.</li>
 </ul>
@@ -61,11 +61,8 @@ scala&gt; spark.createDataFrame(data).
      | save(&quot;/tmp/spark-shell/langpop&quot;)
 </code></pre>
 <p>Currently the Change data feed feature can only be enabled via a SQL query:</p>
-<pre><code>scala&gt; spark.sql(&quot;&quot;&quot;ALTER TABLE
-     | delta.`/tmp/spark-shell/langpop`
-     | SET TBLPROPERTIES
-     | (delta.enableChangeDataFeed = true)
-     | &quot;&quot;&quot;)
+<pre><code>scala&gt; spark.sql(&quot;&quot;&quot;ALTER TABLE delta.`/tmp/spark-shell/langpop`
+     | SET TBLPROPERTIES (delta.enableChangeDataFeed = true)&quot;&quot;&quot;)
 </code></pre>
 <p>This adds a commit to the table&rsquo;s delta log which enables the Change data feed feature, and bumps the <code>minWriterVersion</code> <a href="https://github.com/delta-io/delta/blob/master/PROTOCOL.md#protocol-evolution">protocol</a> to 4, so versions of Delta Lake older than 1.2.1 will no longer be able to write to the table.</p>
 <h3 id="view-row-level-changes">View Row Level Changes</h3>
