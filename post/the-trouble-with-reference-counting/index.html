@@ -28,9 +28,11 @@
     <main>
       
 
-<h2>The Trouble with Reference Counting</h2>
-
-<em class="date">January 25, 2021</em>
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/the-trouble-with-reference-counting/><h2>The Trouble with Reference Counting</h2></a>
+  <p class="description">Is tracing garbage collection a realistic alternative for Perl?</p>
+  <p><em class="date">January 25, 2021</em></p>
+</div>
 
 <p>Perl uses a simple form of garbage collection (GC) called <a href="https://en.wikipedia.org/wiki/Reference_counting">reference counting</a>. Every variable created by a Perl program has a <a href="https://perldoc.perl.org/perlguts#Reference-Counts-and-Mortality">refcnt</a> associated with it. If the program creates a reference to the variable, Perl increments its <code>refcnt</code>. Whenever Perl exits a block it reclaims any variables that belong to the block scope. If any are references, their referenced values' <code>refcnt</code> are either decremented or they&rsquo;re reclaimed as well if no other references to them remain.</p>
 <h3 id="benefits">Benefits</h3>

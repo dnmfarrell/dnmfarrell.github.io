@@ -28,9 +28,11 @@
     <main>
       
 
-<h2>Patching Perl: Loading Modules That Return False</h2>
-
-<em class="date">July 23, 2018</em>
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/patching-perl-loading-modules-that-return-false/><h2>Patching Perl: Loading Modules That Return False</h2></a>
+  <p class="description">Removing a misfeature from the Perl interpreter</p>
+  <p><em class="date">July 23, 2018</em></p>
+</div>
 
 <p>[<strong>Update</strong>: this is now <a href="https://github.com/Perl/perl5/issues/17921">an issue for Perl 7</a>]</p>
 <p>If you&rsquo;ve been programming Perl for a while, you&rsquo;ve probably run into this exception: <code>Foo.pm did not return a true value</code>. This is a peculiar quirk of the <code>require</code> function: modules <em>must</em> return a true value else Perl interprets it as a failure:</p>

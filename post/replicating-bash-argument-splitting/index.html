@@ -30,9 +30,11 @@
     <main>
       
 
-<h2>Replicating Bash Argument Splitting</h2>
-
-<em class="date">December 28, 2021</em>
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/replicating-bash-argument-splitting/><h2>Replicating Bash Argument Splitting</h2></a>
+  <p class="description">Sometimes it really is just a Small Matter of Programming</p>
+  <p><em class="date">December 28, 2021</em></p>
+</div>
 
 <p>A few weeks ago I was writing a macro loader for my <a href="https://github.com/dnmfarrell/jp">JSON Processor</a>, and I ran into an odd case where code I entered in the terminal was splitting differently to code I loaded from a file. It turns out that Bash&rsquo;s word splitting behaves differently for arguments than it does for variables.</p>
 <p>When processing args Bash will not split quoted words that contain a delimiter:</p>

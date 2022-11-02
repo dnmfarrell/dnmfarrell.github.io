@@ -27,9 +27,11 @@
     <main>
       
 
-<h2>Git Bisect And Perl</h2>
-
-<em class="date">August 8, 2017</em>
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/git-bisect-and-perl/><h2>Git Bisect And Perl</h2></a>
+  <p class="description">Bisecting Perl commits doesn&#39;t always work by itself</p>
+  <p><em class="date">August 8, 2017</em></p>
+</div>
 
 <p>At <a href="https://ziprecruiter.com">work</a> we have many developers committing code to a large Git repo, and a huge test suite which runs to check the software builds and operates correctly. Inevitably, developers push commits which break a test or two, and in particularly hectic moments, it can be difficult to figure out &ldquo;who broke the build&rdquo;.</p>
 <p>Enter Git&rsquo;s bisect <a href="https://git-scm.com/docs/git-bisect">command</a>. I feed it the SHA of the earliest bad commit I know of (or &ldquo;HEAD&rdquo;) and the SHA of the last working commit:</p>

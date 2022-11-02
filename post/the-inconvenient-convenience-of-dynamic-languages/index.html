@@ -29,9 +29,11 @@
     <main>
       
 
-<h2>The Inconvenient Convenience of Dynamic Languages</h2>
-
-<em class="date">November 3, 2021</em>
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/the-inconvenient-convenience-of-dynamic-languages/><h2>The Inconvenient Convenience of Dynamic Languages</h2></a>
+  <p class="description">Truthiness probably isn&#39;t worth it anymore</p>
+  <p><em class="date">November 3, 2021</em></p>
+</div>
 
 <p>Truthiness is the behavior of interpreting non-boolean values as true or false in a conditional context. E.g. in this loop: <code>while 1 { ... }</code>, the 1 is interpreted as <code>true</code>. Dynamic programming languages provide this behavior as a convenience to save the programmer from typing more than they need to. However, this week I wasted a bunch of time tracking down a bug that had a several root causes:</p>
 <ol>

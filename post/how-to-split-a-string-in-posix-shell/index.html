@@ -33,9 +33,11 @@
     <main>
       
 
-<h2>How to Split a String in POSIX Shell</h2>
-
-<em class="date">November 12, 2021</em>
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/how-to-split-a-string-in-posix-shell/><h2>How to Split a String in POSIX Shell</h2></a>
+  <p class="description">Handling multibyte characters gets tricky</p>
+  <p><em class="date">November 12, 2021</em></p>
+</div>
 
 <p>The POSIX Shell <a href="https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html">specification</a> defines a minimalist shell language with few features compared to stalwarts like Bash. Yet POSIX shells are everywhere: <a href="https://en.wikipedia.org/wiki/Almquist_shell">Dash</a> is the default on Ubuntu, and many Docker containers only have busybox <a href="https://github.com/brgl/busybox/blob/master/shell/ash.c">ash</a>. Minimalist shells use less resources and are faster than featureful shells like <a href="https://www.gnu.org/software/bash/">Bash</a> and <a href="https://www.zsh.org/">Zsh</a>¹. They are more likely to be secure too, as the reduced feature sets are easier to reason about and provide a smaller attack surface for hackers.</p>
 <p>The trouble starts when a developer needs a feature that POSIX shells don&rsquo;t provide: I wanted to split a string into characters, yet there is no builtin function to do this. Common advice is to pipe the string to <code>sed</code>:</p>
