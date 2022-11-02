@@ -4,17 +4,11 @@ body {
 }
 
 pre {
-  white-space: pre-wrap;
-  word-break: keep-all;
+  overflow: auto;
 }
-
 code {
   font-weight: 600;
   font-size: large;
-}
-
-code.language-pre {
-  white-space: pre;
 }
 
 p {
@@ -44,7 +38,7 @@ h3 {
 main {
   min-height: 100vh;
   padding: 1em;
-  overflow-x: scroll;
+  max-width: 800px;
 }
 
 img {
@@ -122,7 +116,6 @@ em.date {
 }
 
 /* The styles below deal with the default Hugo theme content. */
-
 .list-content h1, .list-content h2 {
     font-size: 1.2em;
 }
@@ -133,28 +126,4 @@ em.date {
 
 .archive {
     margin-bottom: 15px;
-}
-
-@media (min-width: 699px) {
-  main {
-    width: 800px;
-    overflow-x: visible;
-  }
-
-  img {
-    max-width: 800px;
-  }
-
-  footer li {
-    display: inline;
-  }
-
-  footer li em {
-      display: inline;
-  }
-
-  #updated {
-    border-left: 1px solid #737373;
-    padding-left: 5px;
-  }
 }

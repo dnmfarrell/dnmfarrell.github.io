@@ -165,7 +165,7 @@ scala&gt; dt.toDF.sort(&quot;year&quot;,&quot;rank&quot;).show
 cdc-00000-892bcc16-fa7e-4e87-9ccc-d47fdd8d5e92.c000.snappy.parquet
 </code></pre>
 <p>But what&rsquo;s in the parquet file? Even though it&rsquo;s a binary format, I can get the gist using <code>hexdump</code>:</p>
-<pre><code>hexdump -c /tmp/spark-shell/langpop/_change_data/cdc-00000-892bcc16-fa7e-4e87-9ccc-d47fdd8d5e92.c000.snappy.parquet
+<pre><code>hexdump -c /tmp/spark-shell/langpop/_change_data/*
 0000000   P   A   R   1 025 004 025  \b 025  \f 025             005
 0000010   &lt; 025 002 025 004  \0  \0 004  \f     \a  \0  \0 025  \0 025
 0000020 020 025 024 025          227 016 034 025 004 025 004 025 006
