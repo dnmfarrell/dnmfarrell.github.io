@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Silencing Spark&#39;s Most Annoying Warning</title>
+  <meta name="description" content="Stop Spark warning that it truncated the query plan" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:site" content="@perltricks">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/silencing-sparks-most-annoying-warning/" />
+  <meta property="og:title" content="Silencing Spark&#39;s Most Annoying Warning" />
+  <meta property="og:description" content="Stop Spark warning that it truncated the query plan">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2022-11-14T54:06:22Z" />
+  <meta property="og:article:tag" content="spark" />
+  <meta property="og:article:tag" content="scala" />
+  <meta property="og:article:tag" content="log4j" />
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/silencing-sparks-most-annoying-warning/><h2>Silencing Spark&#39;s Most Annoying Warning</h2></a>
+  <p class="description">Stop Spark warning that it truncated the query plan</p>
+  <p><em class="date">November 14, 2022</em></p>
+</div>
+
+<p>Apache Spark is a chatty application; it <a href="https://en.wikipedia.org/wiki/Release_early,_release_often">logs early and often</a>. Sure, some log messages increase Spark&rsquo;s observability, but others seem questionable. Like logging query plans, which can add over 1MB of text to a single log message.¹</p>
+<p>Writing enormous log messages causes issues with our logging pipeline, so at $work we set the Spark config option <a href="https://spark.apache.org/docs/latest/configuration.html">spark.sql.maxPlanStringLength</a> to 0. This stops Spark from logging query plans. However it has an unfortunate consequence:</p>
+<p><img src="/images/silencing-sparks-most-annoying-warning/log-output.png" alt=""></p>
+<p>I understand the intention, but this is silly. If I&rsquo;ve set the limit to zero, <em>every</em> query plan is going to exceed it.</p>
+<p>The &ldquo;truncated&rdquo; warning actually comes in 2 flavors:</p>
+<blockquote>
+<p>Truncated the string representation of a plan since it was too long. The plan had length ${length} and the maximum is ${maxLength}. This behavior can be adjusted by setting &lsquo;spark.sql.maxPlanStringLength&rsquo;.</p>
+</blockquote>
+<p>And:</p>
+<blockquote>
+<p>Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting &lsquo;spark.sql.maxPlanStringLength&rsquo;.</p>
+</blockquote>
+<p>A quick fix for this is to raise the priority threshold of the relevant log4j loggers:</p>
+<pre><code>log4j.logger.org.apache.spark.sql.catalyst.util.StringUtils=ERROR
+log4j.logger.org.apache.spark.sql.catalyst.util=ERROR
+</code></pre>
+<p>This works on Spark 3.x. As this is the only warning emitted by these loggers, raising their threshold to error doesn&rsquo;t block other warnings.</p>
+<p>It would be nice if a future version of Spark stopped logging query plans altogether, but this might be inconvenient for some users. A backwards-compatible solution would be to add a new configuration option which disables logging of query plans. This declarative approach avoids the implicit disabling of setting <code>spark.sql.maxPlanStringLength</code> to 0, and the need to warn about it in case of user error.</p>
+<h2 id="notes">Notes</h2>
+<ol>
+<li>In practice. In theory they can be much longer as the default plan length string limit is 2^31-16 bytes (2 GB).</li>
+</ol>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/spark/>spark</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/scala/>scala</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/log4j/>log4j</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+    <p>Follow me on Twitter <a href="https://twitter.com/PerlTricks">@perltricks</a></p>
+ </footer>
+
+  </body>
+</html>
