@@ -49,7 +49,7 @@
 </code></pre>
 <p>I have Spark 3.2 installed on my machine so I&rsquo;m using Delta Lake 2.0 (there is also a 2.1 version for Spark 3.3).</p>
 <p>Let&rsquo;s create a table to store programming language popularity rankings by year. Here are the <a href="https://www.kaggle.com/datasets/muhammadkhalid/most-popular-programming-languages-since-2004">top 3 from 2004</a>:</p>
-<pre><code>scala&gt; val data = val data = Seq(
+<pre><code>scala&gt; val data = Seq(
      | (2004,&quot;Java&quot;,1),
      | (2004,&quot;PHP&quot;,2),
      | (2004,&quot;C/C++&quot;,3))
