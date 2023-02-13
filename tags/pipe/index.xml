@@ -8,11 +8,11 @@
     <language>en-us</language>
     <lastBuildDate>Sun, 12 Feb 2023 17:28:37 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/pipe/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Parallel Processing in Bash</title>
-      <link>https://blog.dnmfarrell.com/post/multicore-processing-in-bash/</link>
+      <title>Parallel Processing with Bash</title>
+      <link>https://blog.dnmfarrell.com/post/parallel-processing-with-bash/</link>
       <pubDate>Sun, 12 Feb 2023 17:28:37 -0500</pubDate>
       
-      <guid>https://blog.dnmfarrell.com/post/multicore-processing-in-bash/</guid>
+      <guid>https://blog.dnmfarrell.com/post/parallel-processing-with-bash/</guid>
       <description>Last week at work I had to whip up a script to process several thousand ids for product analysis on a new feature we&amp;rsquo;re launching. The processing included making HTTP requests to a service, and I was on a deadline, so the script had to be concurrent. Here&amp;rsquo;s what I came up with:
 #!/bin/bash startline=2 setsize=1200 for i in {1..5};do tail -n+$startline ids.tsv \ | cut -f4 \ | head -n $setsize \ | .</description>
     </item>
