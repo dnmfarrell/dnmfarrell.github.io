@@ -46,7 +46,8 @@
 <p><img src="/images/displaying-athena-spend/athena-query-result-with-cost.png" alt=""></p>
 <p>Looks like I spent 3/4 of a penny ($5 / 1000GB * 1.52GB).</p>
 <h3 id="controlling-athena-spend">Controlling Athena Spend</h3>
-<p>Providing spend data to users is one way to help them avoid costly queries. But the most effective way to control Athena spend is via the workgroups feature. You can create a workgroup for each set of users and assign a &ldquo;Per query data usage control&rdquo; which sets the maximum amount of data scanned per query. This is a good fail safe to avoid runaway scans such as when a query doesn&rsquo;t filter a table by its partitioned values.</p>
+<p>Showing spend data to users is one way to help them avoid costly queries. But installing Tampermonkey scripts is <a href="https://github.com/dnmfarrell/tampermonkey-athena-cost-estimator/#safety">insecure</a>, and often the technically savvy users aren&rsquo;t the ones that need to be reminded of Athena&rsquo;s cost model.</p>
+<p>The most effective way to control Athena spend is via the workgroups feature. You can create a workgroup for each set of users and assign a &ldquo;Per query data usage control&rdquo; which sets the maximum amount of data scanned per query. This is a good fail safe to avoid runaway scans such as when a query doesn&rsquo;t filter a table by its partitioned values.</p>
 
 
 <p>
