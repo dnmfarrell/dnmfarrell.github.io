@@ -104,7 +104,7 @@ func parseTruthy(s string) (string, error) {
 }
 </code></pre>
 <p>Now for that case, this was an improvement for sure. But my truthy parser can&rsquo;t use it as it doesn&rsquo;t call one function repeatedly, but several functions with different signatures.</p>
-<p>I&rsquo;d rather not have to invent an error handler for every unique context. As it happens that is exactly the problem that Scala&rsquo;s <a href="https://www.scala-lang.org/api/current/scala/util/Try.html">Try</a> solves.</p>
+<p>And I&rsquo;d rather not have to invent an error handler for every unique context. As it happens that is exactly the problem that Scala&rsquo;s <a href="https://www.scala-lang.org/api/current/scala/util/Try.html">Try</a> solves.</p>
 <h3 id="the-try-monad">The Try Monad</h3>
 <p>Monads. Not long ago it seemed like every other blog was just somebody trying to explain what the hell a monad is. And today it&rsquo;s my turn. <em>Cracks fingers</em>.</p>
 <p>J/K.</p>
@@ -121,11 +121,11 @@ func parseTruthy(s string) (string, error) {
 <p>The first is safety. Somewhere in our mythical <code>try</code> type there is a single control statement that is perfectly unit tested. Imagine that - no branches in your code to test. This is a partial expression of the idea of &ldquo;business logic as types&rdquo;.</p>
 <p>The second is <code>Fmap</code> also returns a try object, which can be passed to another function which <em>also</em> conditionally executes. This is how try generically solves the repetitive error checking issue.</p>
 <h3 id="go-try">Go Try</h3>
-<p>It <a href="https://github.com/dnmfarrell/try">exists</a>. There are two other abilities that every monad needs. One is confusingly called <code>return</code>, that&rsquo;s a type converter that wraps a value in a monad. Go try has <code>Succeed</code> for values and <code>Fail</code> for errors:</p>
+<p>It <a href="https://github.com/dnmfarrell/try">exists</a>. There are two other abilities that every monad needs. One is confusingly called <code>return</code>, which is a type converter that wraps a value in a monad. Go try has <code>Succeed</code> for values and <code>Fail</code> for errors:</p>
 <pre><code>Succeed[string](&quot;Yay&quot;)
 Fail[string](errors.New(&quot;Nay&quot;))
 </code></pre>
-<p>These are the building blocks for functions which return try objects (&ldquo;monadic functions&rdquo;). E.G:</p>
+<p>These are the building blocks for functions which return try objects (&ldquo;monadic functions&rdquo;):</p>
 <pre><code>func ParseBool(s string) Try[bool] {
   b, err := strconv.ParseBool(s)
   if err != nil {
@@ -138,7 +138,7 @@ Fail[string](errors.New(&quot;Nay&quot;))
 <p>So it&rsquo;s easy to wrap existing functions. But try has a shortcut for that, called <code>New</code>:</p>
 <pre><code>parseBool := New(strconv.ParseBool)
 </code></pre>
-<p>The other required ability every monad needs is called &ldquo;bind&rdquo;. This is a combinator, similar to fmap except it conditionally applies a monad to a function which already returns a monad.</p>
+<p>The other ability every monad needs is a combinator called &ldquo;bind&rdquo;. It&rsquo;s similar to fmap except it conditionally applies a monad to a monadic function (one that already returns a try object).</p>
 <p>Here&rsquo;s my truthiness program re-written with try:</p>
 <pre><code>package main
 
@@ -178,9 +178,9 @@ func parseTruthy(s string) m.Try[string] {
   })
 }
 </code></pre>
-<p>Compared to the original, this is six lines of code shorter, with three fewer branches and half as many variable assignments. The only time an error is checked for is at the end of the program, when the try object is unwrapped.</p>
+<p>Compared to the original, it is six lines of code shorter, with three fewer branches and half as many variable assignments. The only time an error is checked for is at the end of the program, when the try object is unwrapped.</p>
 <h3 id="critique">Critique</h3>
-<p>Being a struct that wraps two values, try uses more resources than returning two values. And <code>New</code> adds a function call, not to mention that if it wraps a function which takes an interface:¹</p>
+<p>Being a struct that wraps two values, try uses more resources than returning two values. And <code>New</code> adds a function call, not to mention the additional overhead if it wraps a function which takes an interface:¹</p>
 <blockquote>
 <p>Because of the way shape instantiation works for interfaces, instead of de-virtualizing, you’re adding another virtualization layer that involves a global hash table lookup for every method call. When dealing with Generics in a performance-sensitive context, use only pointers instead of interfaces.</p>
 </blockquote>
@@ -188,7 +188,7 @@ func parseTruthy(s string) m.Try[string] {
 <pre><code>parseInt := New3(strconv.ParseInt)
 </code></pre>
 <p>This would accept three parameters and return a try. We could create variant arity functions as needed (Haskell has <a href="https://hackage.haskell.org/package/base-4.17.0.0/docs/Data-List.html#v:zip7">zip3..zip7</a>). But then how would you bind <code>parseInt</code>?</p>
-<p>For what it&rsquo;s worth, <code>Bind3</code> seems like the wrong solution. The best I could come up with is to curry the function to the required arity first:</p>
+<p>For what it&rsquo;s worth, <code>Bind3</code> seems like the wrong solution. The best I could come up with is to curry the function back to taking one parameter:</p>
 <pre><code>parseInt := New(func(i string) (int64, error) {
   return strconv.ParseInt(i, 10, 32)})
 </code></pre>
@@ -200,10 +200,10 @@ func parseTruthy(s string) m.Try[string] {
 t := r.Bind(parseTruthy)
 
 </code></pre>
-<p>One could imagine beautiful chains of monadic computations sequenced together.</p>
+<p>Imagine beautiful chains of monadic computations sequenced together.</p>
 <p>However implementing generic methods in Go is a hard problem because of their interaction with interfaces. Currently it has no <a href="https://github.com/golang/go/issues/49085#issuecomment-1435367253">known solution</a>.²</p>
 <h3 id="wrap">Wrap</h3>
-<p>Despite the additional overhead, I still think go try is a win for many use cases. For functions that only return an error, an Option type would be useful. In any case I hope I&rsquo;ve embodied Rob Pike&rsquo;s exhortation:</p>
+<p>Despite the additional overhead, I still think go try is a win for many use cases. For functions that only return a pointer value (like error), an Option type would be useful. In any case I hope I&rsquo;ve embodied Rob Pike&rsquo;s exhortation:</p>
 <blockquote>
 <p>Use the language to simplify your error handling.</p>
 </blockquote>
