@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Monads Can Simplify Go&#39;s Error Handling</title>
+  <meta name="description" content="A solution for Go&#39;s biggest issue, but at what cost?" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:site" content="@perltricks">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/monads-simplify-go-error-handling/" />
+  <meta property="og:title" content="Monads Can Simplify Go&#39;s Error Handling" />
+  <meta property="og:description" content="A solution for Go&#39;s biggest issue, but at what cost?">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2023-02-24T39:14:23Z" />
+  <meta property="og:article:tag" content="error-handling" />
+  <meta property="og:article:tag" content="monad" />
+  <meta property="og:article:tag" content="try" />
+  <meta property="og:article:tag" content="generics" />
+  <meta property="og:article:tag" content="haskell" />
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/monads-simplify-go-error-handling/><h2>Monads Can Simplify Go&#39;s Error Handling</h2></a>
+  <p class="description">A solution for Go&#39;s biggest issue, but at what cost?</p>
+  <p><em class="date">February 24, 2023</em></p>
+</div>
+
+<p>Roughly a year ago I <a href="/post/can-generics-rescue-golangs-clunky-error-handling/">wrote about</a> my attempts to tackle Go&rsquo;s <a href="https://go.googlesource.com/proposal/+/master/design/go2draft-error-handling-overview.md">error handling problem</a> using generics. I wasn&rsquo;t very successful:</p>
+<blockquote>
+<p>This code is almost as long as the original and frankly, hurts my eyes.</p>
+</blockquote>
+<p>Since then I&rsquo;ve continued experimenting with the idea and think I have something worth sharing. But first, let me recap the problem with an example.</p>
+<h3 id="parsing-truthiness">Parsing Truthiness</h3>
+<p>Many programming languages have the concept of <a href="/post/the-inconvenient-convenience-of-dynamic-languages/">truthiness</a>, that decides whether or not an expression will evaluate as true or false in a boolean context. For example in C, the number 0 evaluates as false in an <code>if</code> statement.</p>
+<p>I wrote a Go program to parse a line of user input and print whether it is truthy or not. Here is how it&rsquo;s run:</p>
+<pre><code>$ go run example/readtruthy.go
+Enter a truthy value: 1
+You entered a truthy value!
+</code></pre>
+<p>This is the source:</p>
+<pre><code>package main
+
+import (
+  &quot;bufio&quot;
+  &quot;fmt&quot;
+  &quot;os&quot;
+  &quot;strconv&quot;
+  &quot;strings&quot;
+)
+
+func main() {
+  fmt.Print(&quot;Enter a truthy value: &quot;)
+  input, err := readLine(bufio.NewReader(os.Stdin))
+  if err != nil {
+    fmt.Println(err.Error())
+    return
+  }
+  truthy, err := parseTruthy(input)
+  if err != nil {
+    fmt.Println(err.Error())
+    return
+  }
+  fmt.Printf(&quot;You entered a %s value!\n&quot;, truthy)
+}
+
+func readLine(r *bufio.Reader) (string, error) {
+  s, err := r.ReadString('\n')
+  if err != nil {
+    return &quot;&quot;, err
+  }
+  return strings.TrimSuffix(s, &quot;\n&quot;), nil
+}
+
+func parseTruthy(s string) (string, error) {
+  boolean, err := strconv.ParseBool(s)
+  if err != nil {
+    return &quot;&quot;, err
+  }
+  if boolean {
+    return &quot;truthy&quot;, nil
+  }
+  return &quot;falsey&quot;, nil
+}
+</code></pre>
+<p>Look at all that error checking! The code is riddled with variable assignments and control statements.</p>
+<h3 id="a-partial-solution">A Partial Solution</h3>
+<p>In <a href="https://go.dev/blog/errors-are-values">Errors are values</a> Rob Pike showed how to refactor a tedious series of <code>Write()</code> calls and error checks using an object which turns the calls into a no-op as soon as it encounters an error:</p>
+<pre><code>func (ew *errWriter) write(buf []byte) {
+  if ew.err != nil {
+      return
+  }
+  // only if I haven't seen an error yet
+  _, ew.err = ew.w.Write(buf)
+}
+</code></pre>
+<p>Now for that case, this was an improvement for sure. But my truthy parser can&rsquo;t use it as it doesn&rsquo;t call one function repeatedly, but several functions with different signatures.</p>
+<p>I&rsquo;d rather not have to invent an error handler for every unique context. As it happens that is exactly the problem that Scala&rsquo;s <a href="https://www.scala-lang.org/api/current/scala/util/Try.html">Try</a> solves.</p>
+<h3 id="the-try-monad">The Try Monad</h3>
+<p>Monads. Not long ago it seemed like every other blog was just somebody trying to explain what the hell a monad is. And today it&rsquo;s my turn. <em>Cracks fingers</em>.</p>
+<p>J/K.</p>
+<p>But Scala&rsquo;s <code>Try</code> is specialized case of the either monad. It can contain a value or an error. It&rsquo;s cool that Go functions can return multiple values, but:</p>
+<pre><code>s, err := r.ReadString('\n')
+</code></pre>
+<p>Doesn&rsquo;t ever return two values. If <code>ReadString</code> succeeds, it returns the string and nil, and if it fails, it returns nil and the error. So what we really want is something like:</p>
+<pre><code>try := r.ReadString('\n')
+</code></pre>
+<p>That saves a variable assignment. Next we want to only call a function if <code>try</code> contains a value and not an error. In functional programming, that&rsquo;s what the &ldquo;fmap&rdquo; function does. So something like:</p>
+<pre><code>try := Fmap(r.ReadString('\n'), processLine)
+</code></pre>
+<p>We&rsquo;re operating with expressions instead of control statements, which has two benefits:</p>
+<p>The first is safety. Somewhere in our mythical <code>try</code> type there is a single control statement that is perfectly unit tested. Imagine that - no branches in your code to test. This is a partial expression of the idea of &ldquo;business logic as types&rdquo;.</p>
+<p>The second is <code>Fmap</code> also returns a try object, which can be passed to another function which <em>also</em> conditionally executes. This is how try generically solves the repetitive error checking issue.</p>
+<h3 id="go-try">Go Try</h3>
+<p>It <a href="https://github.com/dnmfarrell/try">exists</a>. There are two other abilities that every monad needs. One is confusingly called <code>return</code>, that&rsquo;s a type converter that wraps a value in a monad. Go try has <code>Succeed</code> for values and <code>Fail</code> for errors:</p>
+<pre><code>Succeed[string](&quot;Yay&quot;)
+Fail[string](errors.New(&quot;Nay&quot;))
+</code></pre>
+<p>These are the building blocks for functions which return try objects (&ldquo;monadic functions&rdquo;). E.G:</p>
+<pre><code>func ParseBool(s string) Try[bool] {
+  b, err := strconv.ParseBool(s)
+  if err != nil {
+    return Fail[bool](err)
+  }
+  return Succeed[bool](b)
+}
+
+</code></pre>
+<p>So it&rsquo;s easy to wrap existing functions. But try has a shortcut for that, called <code>New</code>:</p>
+<pre><code>parseBool := New(strconv.ParseBool)
+</code></pre>
+<p>The other required ability every monad needs is called &ldquo;bind&rdquo;. This is a combinator, similar to fmap except it conditionally applies a monad to a function which already returns a monad.</p>
+<p>Here&rsquo;s my truthiness program re-written with try:</p>
+<pre><code>package main
+
+import (
+  &quot;bufio&quot;
+  &quot;fmt&quot;
+  m &quot;github.com/dnmfarrell/try&quot;
+  &quot;os&quot;
+  &quot;strconv&quot;
+  &quot;strings&quot;
+)
+
+func main() {
+  fmt.Print(&quot;Enter a truthy value: &quot;)
+  r := readLine(bufio.NewReader(os.Stdin))
+  t := m.Bind(r, parseTruthy)
+  if t.Err != nil {
+    fmt.Println(t.Err.Error())
+  } else {
+    fmt.Println(t.Val)
+  }
+}
+
+func readLine(r *bufio.Reader) m.Try[string] {
+  read := m.New(r.ReadString)
+  return m.Fmap(read('\n'),
+    func(s string) string { return strings.TrimSuffix(s, &quot;\n&quot;) })
+}
+
+func parseTruthy(s string) m.Try[string] {
+  pars := m.New(strconv.ParseBool)
+  return m.Fmap(pars(s), func(b bool) string {
+    if b {
+      return &quot;You entered a truthy value!&quot;
+    }
+    return &quot;You entered a falsey value!&quot;
+  })
+}
+</code></pre>
+<p>Compared to the original, this is six lines of code shorter, with three fewer branches and half as many variable assignments. The only time an error is checked for is at the end of the program, when the try object is unwrapped.</p>
+<h3 id="critique">Critique</h3>
+<p>Being a struct that wraps two values, try uses more resources than returning two values. And <code>New</code> adds a function call, not to mention that if it wraps a function which takes an interface:¹</p>
+<blockquote>
+<p>Because of the way shape instantiation works for interfaces, instead of de-virtualizing, you’re adding another virtualization layer that involves a global hash table lookup for every method call. When dealing with Generics in a performance-sensitive context, use only pointers instead of interfaces.</p>
+</blockquote>
+<p>Another limitation of go try is it only works for functions that take one parameter. What if you want to wrap <a href="https://pkg.go.dev/strconv#ParseInt">ParseInt</a> which takes three parameters? You&rsquo;d need <code>New3</code>:</p>
+<pre><code>parseInt := New3(strconv.ParseInt)
+</code></pre>
+<p>This would accept three parameters and return a try. We could create variant arity functions as needed (Haskell has <a href="https://hackage.haskell.org/package/base-4.17.0.0/docs/Data-List.html#v:zip7">zip3..zip7</a>). But then how would you bind <code>parseInt</code>?</p>
+<p>For what it&rsquo;s worth, <code>Bind3</code> seems like the wrong solution. The best I could come up with is to curry the function to the required arity first:</p>
+<pre><code>parseInt := New(func(i string) (int64, error) {
+  return strconv.ParseInt(i, 10, 32)})
+</code></pre>
+<p>And maybe that&rsquo;s fine, but <code>parseInt</code> now executes two function calls before it calls <code>ParseInt</code> (at least in theory).</p>
+<p>At work we use <a href="https://github.com/kisielk/errcheck">errcheck</a> to detect unhandled errors, go try would need something similar that checks that <code>Err</code> is tested before <code>Val</code> is used. I might be wrong but that seems harder to lint for.</p>
+<p>On readability, if Go supported generic methods, the code would be easier to read. Behold:</p>
+<pre><code>t := Bind(r, parseTruthy)
+// becomes
+t := r.Bind(parseTruthy)
+
+</code></pre>
+<p>One could imagine beautiful chains of monadic computations sequenced together.</p>
+<p>However implementing generic methods in Go is a hard problem because of their interaction with interfaces. Currently it has no <a href="https://github.com/golang/go/issues/49085#issuecomment-1435367253">known solution</a>.²</p>
+<h3 id="wrap">Wrap</h3>
+<p>Despite the additional overhead, I still think go try is a win for many use cases. For functions that only return an error, an Option type would be useful. In any case I hope I&rsquo;ve embodied Rob Pike&rsquo;s exhortation:</p>
+<blockquote>
+<p>Use the language to simplify your error handling.</p>
+</blockquote>
+<h3 id="notes">Notes</h3>
+<ol>
+<li>Vincent Marti, <a href="https://planetscale.com/blog/generics-can-make-your-go-code-slower">Generics can make your Go code slower</a>, planetscale.com.</li>
+<li>The <a href="https://go.googlesource.com/proposal/+/refs/heads/master/design/43651-type-parameters.md#No-parameterized-methods">Generics proposal</a> has a good example problem.</li>
+</ol>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/error-handling/>error-handling</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/monad/>monad</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/try/>try</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/generics/>generics</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/haskell/>haskell</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+  <p>Follow me on <a href="https://twitter.com/PerlTricks">Twitter</a></p>
+</footer>
+
+  </body>
+</html>
