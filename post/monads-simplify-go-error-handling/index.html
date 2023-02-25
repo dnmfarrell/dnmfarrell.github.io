@@ -135,8 +135,8 @@ Fail[string](errors.New(&quot;Nay&quot;))
 }
 
 </code></pre>
-<p>So it&rsquo;s easy to wrap existing functions. But try has a shortcut for that, called <code>New</code>:</p>
-<pre><code>parseBool := New(strconv.ParseBool)
+<p>So it&rsquo;s easy to wrap existing functions. But try has a shortcut for that, called <code>Lift</code>:</p>
+<pre><code>try := Lift(s, strconv.ParseBool)
 </code></pre>
 <p>The other ability every monad needs is a combinator called &ldquo;bind&rdquo;. It&rsquo;s similar to fmap except it conditionally applies a monad to a monadic function (one that already returns a try object).</p>
 <p>Here&rsquo;s my truthiness program re-written with try:</p>
@@ -163,14 +163,12 @@ func main() {
 }
 
 func readLine(r *bufio.Reader) m.Try[string] {
-  read := m.New(r.ReadString)
-  return m.Fmap(read('\n'),
+  return m.Fmap(Lift('\n', r.ReadString),
     func(s string) string { return strings.TrimSuffix(s, &quot;\n&quot;) })
 }
 
 func parseTruthy(s string) m.Try[string] {
-  pars := m.New(strconv.ParseBool)
-  return m.Fmap(pars(s), func(b bool) string {
+  return m.Fmap(Lift(s, strconv.ParseBool), func(b bool) string {
     if b {
       return &quot;You entered a truthy value!&quot;
     }
@@ -178,21 +176,12 @@ func parseTruthy(s string) m.Try[string] {
   })
 }
 </code></pre>
-<p>Compared to the original, it is six lines of code shorter, with three fewer branches and half as many variable assignments. The only time an error is checked for is at the end of the program, when the try object is unwrapped.</p>
+<p>Compared to the original, it is eight lines of code shorter, with three fewer branches and six fewer variable assignments. The only time an error is checked for is at the end of the program, when the try object is unwrapped.</p>
 <h3 id="critique">Critique</h3>
-<p>Being a struct that wraps two values, try uses more resources than returning two values. And <code>New</code> adds a function call, not to mention the additional overhead if it wraps a function which takes an interface:¹</p>
+<p>Bind, Fmap and Lift are simple functions that should be easy for the go compiler to inline. However one quirk of go generics is the compiler can&rsquo;t optimize generic functions which take an interface:¹</p>
 <blockquote>
 <p>Because of the way shape instantiation works for interfaces, instead of de-virtualizing, you’re adding another virtualization layer that involves a global hash table lookup for every method call. When dealing with Generics in a performance-sensitive context, use only pointers instead of interfaces.</p>
 </blockquote>
-<p>Another limitation of go try is it only works for functions that take one parameter. What if you want to wrap <a href="https://pkg.go.dev/strconv#ParseInt">ParseInt</a> which takes three parameters? You&rsquo;d need <code>New3</code>:</p>
-<pre><code>parseInt := New3(strconv.ParseInt)
-</code></pre>
-<p>This would accept three parameters and return a try. We could create variant arity functions as needed (Haskell has <a href="https://hackage.haskell.org/package/base-4.17.0.0/docs/Data-List.html#v:zip7">zip3..zip7</a>). But then how would you bind <code>parseInt</code>?</p>
-<p>For what it&rsquo;s worth, <code>Bind3</code> seems like the wrong solution. The best I could come up with is to curry the function back to taking one parameter:</p>
-<pre><code>parseInt := New(func(i string) (int64, error) {
-  return strconv.ParseInt(i, 10, 32)})
-</code></pre>
-<p>And maybe that&rsquo;s fine, but <code>parseInt</code> now executes two function calls before it calls <code>ParseInt</code> (at least in theory).</p>
 <p>At work we use <a href="https://github.com/kisielk/errcheck">errcheck</a> to detect unhandled errors, go try would need something similar that checks that <code>Err</code> is tested before <code>Val</code> is used. I might be wrong but that seems harder to lint for.</p>
 <p>On readability, if Go supported generic methods, the code would be easier to read. Behold:</p>
 <pre><code>t := Bind(r, parseTruthy)
@@ -203,13 +192,13 @@ t := r.Bind(parseTruthy)
 <p>Imagine beautiful chains of monadic computations sequenced together.</p>
 <p>However implementing generic methods in Go is a hard problem because of their interaction with interfaces. Currently it has no <a href="https://github.com/golang/go/issues/49085#issuecomment-1435367253">known solution</a>.²</p>
 <h3 id="wrap">Wrap</h3>
-<p>Despite the additional overhead, I still think go try is a win for many use cases. For functions that only return a pointer value (like error), an Option type would be useful. In any case I hope I&rsquo;ve embodied Rob Pike&rsquo;s exhortation:</p>
+<p>Despite the drawbacks, I still think go try is a win for many use cases. For functions that only return a pointer value (like error), an Option type would be useful. In any case I hope I&rsquo;ve embodied Rob Pike&rsquo;s exhortation:</p>
 <blockquote>
 <p>Use the language to simplify your error handling.</p>
 </blockquote>
 <h3 id="notes">Notes</h3>
 <ol>
-<li>Vincent Marti, <a href="https://planetscale.com/blog/generics-can-make-your-go-code-slower">Generics can make your Go code slower</a>, planetscale.com.</li>
+<li>Vincent Marti explains this in detail in <a href="https://planetscale.com/blog/generics-can-make-your-go-code-slower">Generics can make your Go code slower</a>, planetscale.com.</li>
 <li>The <a href="https://go.googlesource.com/proposal/+/refs/heads/master/design/43651-type-parameters.md#No-parameterized-methods">Generics proposal</a> has a good example problem.</li>
 </ol>
 
