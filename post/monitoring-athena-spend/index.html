@@ -38,13 +38,13 @@
 <p>Whilst Athena provides an analyst-friendly SQL interface for running queries, it has a &ldquo;pay-as-you-go&rdquo; model which charges for the amount of data scanned per query. That can really add up!</p>
 <h3 id="athena-in-aws-console">Athena in AWS Console</h3>
 <p>After running an Athena query, the AWS console displays summary data about the query:</p>
-<p><img src="/images/displaying-athena-spend/athena-query-result.png" alt=""></p>
-<p>Note it does report the amount of data scanned (&ldquo;1.52GB&rdquo;), but users may not realize that data scanned means dollars spent.</p>
+<p><img src="/images/displaying-athena-spend/athena-query-result-bar.png" alt=""></p>
+<p>Note it does report the amount of data scanned (&ldquo;33.42GB&rdquo;), but users may not realize that data scanned means dollars spent.</p>
 <p>So I created a <a href="https://github.com/dnmfarrell/tampermonkey-athena-cost-estimator">tampermonkey script</a> to display the estimated cost per query. If you don&rsquo;t know, Tampermonkey is a Chrome plugin which runs user scripts on websites. This allows users to customize (improve) websites as they see fit.</p>
 <p>The script calculates the query cost using the <a href="https://aws.amazon.com/athena/pricing/">Athena pricing</a> for the region, multiplied by the amount of data scanned (minimum 10MB). Because the query results bar is dynamic, it uses <a href="https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver">mutation observers</a> to watch for changes.</p>
 <p>After installing the script, running the query again displays an &ldquo;Est. Cost&rdquo; in the results bar:</p>
-<p><img src="/images/displaying-athena-spend/athena-query-result-with-cost.png" alt=""></p>
-<p>Looks like I spent 3/4 of a penny ($5 / 1000GB * 1.52GB).</p>
+<p><img src="/images/displaying-athena-spend/athenaspend.gif" alt=""></p>
+<p>Looks like I spent 17¢ ($5 / 1000GB * 33.42GB).</p>
 <h3 id="controlling-athena-spend">Controlling Athena Spend</h3>
 <p>Showing spend data to users is one way to help them avoid costly queries. But installing Tampermonkey scripts is <a href="https://github.com/dnmfarrell/tampermonkey-athena-cost-estimator/#safety">insecure</a>, and often the technically savvy users aren&rsquo;t the ones that need to be reminded of Athena&rsquo;s cost model.</p>
 <p>The most effective way to control Athena spend is via the workgroups feature. You can create a workgroup for each set of users and assign a &ldquo;Per query data usage control&rdquo; which sets the maximum amount of data scanned per query. This is a good fail safe to avoid runaway scans such as when a query doesn&rsquo;t filter a table by its partitioned values.</p>
