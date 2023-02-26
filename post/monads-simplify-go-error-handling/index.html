@@ -94,7 +94,7 @@ func parseTruthy(s string) (string, error) {
 </code></pre>
 <p>Look at all that error checking! The code is riddled with variable assignments and control statements.</p>
 <h3 id="a-partial-solution">A Partial Solution</h3>
-<p>In <a href="https://go.dev/blog/errors-are-values">Errors are values</a> Rob Pike showed how to refactor a tedious series of <code>Write()</code> calls and error checks using an object which turns the calls into a no-op as soon as it encounters an error:</p>
+<p>In 2015 in <a href="https://go.dev/blog/errors-are-values">Errors are values</a> Rob Pike showed how to refactor a tedious series of <code>Write()</code> calls and error checks using an object which turns the calls into a no-op as soon as it encounters an error:</p>
 <pre><code>func (ew *errWriter) write(buf []byte) {
   if ew.err != nil {
       return
@@ -103,7 +103,7 @@ func parseTruthy(s string) (string, error) {
   _, ew.err = ew.w.Write(buf)
 }
 </code></pre>
-<p>Now for that case, this was an improvement for sure. But my truthy parser can&rsquo;t use it as it doesn&rsquo;t call one function repeatedly, but several functions with different signatures.</p>
+<p>Now for that case, this was an improvement for sure. But my truthy parser can&rsquo;t use it as it doesn&rsquo;t call one function repeatedly, but several functions with different signatures. Then again, Go didn&rsquo;t have generics in 2015.</p>
 <p>As it happens that is exactly the problem that Scala&rsquo;s <a href="https://www.scala-lang.org/api/current/scala/util/Try.html">Try</a> solves.</p>
 <h3 id="the-try-monad">The Try Monad</h3>
 <p>Monads. Not long ago it seemed like every other blog was just somebody trying to explain what the hell a monad is. And today it&rsquo;s my turn. <em>Cracks fingers</em>.</p>
@@ -114,7 +114,7 @@ func parseTruthy(s string) (string, error) {
 <p>Doesn&rsquo;t ever return two values. If <code>ReadString</code> succeeds, it returns the string and nil, and if it fails, it returns nil and the error. So what we really want is something like:</p>
 <pre><code>try := r.ReadString('\n')
 </code></pre>
-<p>That saves a variable assignment. Next we want to only call a function if <code>try</code> contains a value and not an error. In functional programming, that&rsquo;s what the &ldquo;fmap&rdquo; function does. So something like:</p>
+<p>That saves a variable assignment. Next we want to only call a function if <code>try</code> contains a value and not an error. In functional programming, that&rsquo;s what the &ldquo;fmap&rdquo; function does (&ldquo;functor-map&rdquo; to distinguish it from regular <code>map</code>¹). So something like:</p>
 <pre><code>try := Fmap(r.ReadString('\n'), processLine)
 </code></pre>
 <p>We&rsquo;re operating with expressions instead of control statements, which has two benefits:</p>
@@ -174,11 +174,20 @@ func parseTruthy(s string) m.Try[string] {
 </code></pre>
 <p>Compared to the original, it is eight lines of code shorter, with three fewer branches and six fewer variable assignments. The only time an error is checked for is at the end of the program, when the try object is unwrapped.</p>
 <h3 id="critique">Critique</h3>
-<p>Bind, Fmap and Lift are simple functions that should be easy for the Go compiler to inline. However one quirk of Go is the compiler can&rsquo;t optimize generic functions which take an interface:¹</p>
+<p>Bind, Fmap and Lift are simple functions that should be easy for the Go compiler to inline. However one quirk of Go is the compiler can&rsquo;t optimize generic functions which take an interface:²</p>
 <blockquote>
 <p>Because of the way shape instantiation works for interfaces, instead of de-virtualizing, you’re adding another virtualization layer that involves a global hash table lookup for every method call. When dealing with Generics in a performance-sensitive context, use only pointers instead of interfaces.</p>
 </blockquote>
-<p>At work we use <a href="https://github.com/kisielk/errcheck">errcheck</a> to detect unhandled errors, Go try would need something similar that checks that <code>Err</code> is tested before <code>Val</code> is used.</p>
+<p>Go generally has great tooling, and we take full advantage of that at work. For example we use <a href="https://github.com/kisielk/errcheck">errcheck</a> to detect unhandled errors. Go try would need something similar that checks that <code>Err</code> is tested before <code>Val</code> is used. Consider:</p>
+<pre><code>a := Fmap(x, foo)
+b := Fmap(a, bar)
+c := Fmap(b, baz)
+
+if c.Err != nil {
+  ...
+}
+</code></pre>
+<p>The only way a linter would know that all the errors have been handled is by understanding higher-order semantics. So Go Try (and every other monad package) would need to provide lint routines.</p>
 <p>If Go supported generic methods, the code would be easier to read. Behold:</p>
 <pre><code>t := Bind(r, parseTruthy)
 // becomes
@@ -186,7 +195,7 @@ t := r.Bind(parseTruthy)
 
 </code></pre>
 <p>Imagine beautiful chains of monadic computations sequenced together.</p>
-<p>However implementing generic methods in Go is a hard problem because of their interaction with interfaces. Currently it has no <a href="https://github.com/golang/go/issues/49085#issuecomment-1435367253">known solution</a>.²</p>
+<p>However implementing generic methods in Go is a hard problem because of their interaction with interfaces. Currently it has no <a href="https://github.com/golang/go/issues/49085#issuecomment-1435367253">known solution</a>.³</p>
 <h3 id="wrap">Wrap</h3>
 <p>Despite the drawbacks, I still think Go try is a win for many use cases. For functions that only return a pointer value (like error), an Option type would be useful. In any case I hope I&rsquo;ve embodied Rob Pike&rsquo;s exhortation:</p>
 <blockquote>
@@ -194,6 +203,7 @@ t := r.Bind(parseTruthy)
 </blockquote>
 <h3 id="notes">Notes</h3>
 <ol>
+<li>Scala uses <code>map</code> for both.</li>
 <li>Vincent Marti explains this in detail in <a href="https://planetscale.com/blog/generics-can-make-your-go-code-slower">Generics can make your Go code slower</a>, planetscale.com.</li>
 <li>The <a href="https://go.googlesource.com/proposal/+/refs/heads/master/design/43651-type-parameters.md#No-parameterized-methods">Generics proposal</a> has a good example problem.</li>
 </ol>
