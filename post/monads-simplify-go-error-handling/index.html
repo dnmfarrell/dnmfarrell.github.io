@@ -94,7 +94,7 @@ func parseTruthy(s string) (string, error) {
 </code></pre>
 <p>Look at all that error checking! The code is riddled with variable assignments and control statements.</p>
 <h3 id="a-partial-solution">A Partial Solution</h3>
-<p>In 2015 in <a href="https://go.dev/blog/errors-are-values">Errors are values</a> Rob Pike showed how to refactor a tedious series of <code>Write()</code> calls and error checks using an object which turns the calls into a no-op as soon as it encounters an error:</p>
+<p>In <a href="https://go.dev/blog/errors-are-values">Errors are values</a> Rob Pike showed how to refactor a tedious series of <code>Write()</code> calls and error checks using an object which turns the calls into a no-op as soon as it encounters an error:</p>
 <pre><code>func (ew *errWriter) write(buf []byte) {
   if ew.err != nil {
       return
@@ -103,20 +103,20 @@ func parseTruthy(s string) (string, error) {
   _, ew.err = ew.w.Write(buf)
 }
 </code></pre>
-<p>Now for that case, this was an improvement for sure. But my truthy parser can&rsquo;t use it as it doesn&rsquo;t call one function repeatedly, but several functions with different signatures. Then again, Go didn&rsquo;t have generics in 2015.</p>
-<p>As it happens that is exactly the problem that Scala&rsquo;s <a href="https://www.scala-lang.org/api/current/scala/util/Try.html">Try</a> solves.</p>
+<p>Now for that case, this was an improvement for sure. But my truthy parser can&rsquo;t use it as it doesn&rsquo;t call one function repeatedly, but several functions with different signatures. AS it happens that is exactly the problem Scala&rsquo;s <a href="https://www.scala-lang.org/api/current/scala/util/Try.html">Try</a> solves.</p>
 <h3 id="the-try-monad">The Try Monad</h3>
 <p>Monads. Not long ago it seemed like every other blog was just somebody trying to explain what the hell a monad is. And today it&rsquo;s my turn. <em>Cracks fingers</em>.</p>
 <p>J/K.</p>
-<p>But Scala&rsquo;s <code>Try</code> is specialized case of the either monad. It can contain a value or an error. It&rsquo;s cool that Go functions can return multiple values, but:</p>
+<p>Scala&rsquo;s <code>Try</code> a is specialized case of the either monad. It can contain a value or an error. It&rsquo;s cool that Go functions can return multiple values, but:</p>
 <pre><code>s, err := r.ReadString('\n')
 </code></pre>
 <p>Doesn&rsquo;t ever return two values. If <code>ReadString</code> succeeds, it returns the string and nil, and if it fails, it returns nil and the error. So what we really want is something like:</p>
 <pre><code>try := r.ReadString('\n')
 </code></pre>
 <p>That saves a variable assignment. Next we want to only call a function if <code>try</code> contains a value and not an error. In functional programming, that&rsquo;s what the &ldquo;fmap&rdquo; function does (&ldquo;functor-map&rdquo; to distinguish it from regular <code>map</code>¹). So something like:</p>
-<pre><code>try := Fmap(r.ReadString('\n'), processLine)
+<pre><code>try := Fmap(r.ReadString('\n'), parseTruthy)
 </code></pre>
+<p><code>Fmap</code> will only call <code>parseTruthy</code> if <code>ReadString</code> succeeds. The return value will contain one of: the <code>ReadString</code> error, the <code>parseTruthy</code> error or the successfully parsed boolean.</p>
 <p>We&rsquo;re operating with expressions instead of control statements, which has two benefits:</p>
 <p>The first is safety. Somewhere in our mythical <code>try</code> type there is a single control statement that is perfectly unit tested. Imagine that - no branches in your code to test. This is a partial expression of the idea of &ldquo;business logic as types&rdquo;.</p>
 <p>The second is <code>Fmap</code> also returns a try object, which can be passed to another function which <em>also</em> conditionally executes. This is how try generically solves the repetitive error checking issue.</p>
@@ -187,7 +187,8 @@ if c.Err != nil {
   ...
 }
 </code></pre>
-<p>The only way a linter would know that all the errors have been handled is by understanding higher-order semantics. So Go Try (and every other monad package) would need to provide lint routines.</p>
+<p>The only way a linter would know that all the errors have been handled is by understanding higher-order semantics. So Go Try would need to provide lint routines.</p>
+<p>And what if you need to know at which stage the error occurred, so you can take additional action? That&rsquo;s what makes the <code>CopyFile</code> example from the <a href="https://go.googlesource.com/proposal/+/master/design/go2draft-error-handling-overview.md">error handling overview</a> so difficult to refactor. I must confess I don&rsquo;t have a good solution for that yet.</p>
 <p>If Go supported generic methods, the code would be easier to read. Behold:</p>
 <pre><code>t := Bind(r, parseTruthy)
 // becomes
