@@ -113,13 +113,13 @@ func parseTruthy(s string) (string, error) {
 <p>Doesn&rsquo;t ever return two values. If <code>ReadString</code> succeeds, it returns the string and nil, and if it fails, it returns nil and the error. So what we really want is something like:</p>
 <pre><code>try := r.ReadString('\n')
 </code></pre>
-<p>That saves a variable assignment. Next we want to only call a function if <code>try</code> contains a value and not an error. In functional programming, that&rsquo;s what the &ldquo;fmap&rdquo; function does (&ldquo;functor-map&rdquo; to distinguish it from regular <code>map</code>¹). So something like:</p>
-<pre><code>try := Fmap(r.ReadString('\n'), parseTruthy)
+<p>That saves a variable assignment. Next we want to only call a function if <code>try</code> contains a value and not an error. In functional programming, that&rsquo;s what the &ldquo;map&rdquo; function does. So something like:</p>
+<pre><code>try := Map(r.ReadString('\n'), parseTruthy)
 </code></pre>
-<p><code>Fmap</code> will only call <code>parseTruthy</code> if <code>ReadString</code> succeeds. The return value will contain one of: the <code>ReadString</code> error, the <code>parseTruthy</code> error or the successfully parsed boolean.</p>
+<p><code>Map</code> will only call <code>parseTruthy</code> if <code>ReadString</code> succeeds. The return value will contain one of: the <code>ReadString</code> error, the <code>parseTruthy</code> error or the successfully parsed boolean.</p>
 <p>We&rsquo;re operating with expressions instead of control statements, which has two benefits:</p>
 <p>The first is safety. Somewhere in our mythical <code>try</code> type there is a single control statement that is perfectly unit tested. Imagine that - no branches in your code to test. This is a partial expression of the idea of &ldquo;business logic as types&rdquo;.</p>
-<p>The second is <code>Fmap</code> also returns a try object, which can be passed to another function which <em>also</em> conditionally executes. This is how try generically solves the repetitive error checking issue.</p>
+<p>The second is <code>Map</code> also returns a try object, which can be passed to another function which <em>also</em> conditionally executes. This is how try generically solves the repetitive error checking issue.</p>
 <h3 id="go-try">Go Try</h3>
 <p>It <a href="https://github.com/dnmfarrell/try">exists</a>. There are two other abilities that every monad needs. One is confusingly called <code>return</code>, which is a type converter that wraps a value in a monad. Go try has <code>Succeed</code> for values and <code>Fail</code> for errors:</p>
 <pre><code>func TryParseBool(s string) Try[bool] {
@@ -134,7 +134,7 @@ result := TryParseBool(&quot;false&quot;)
 <p>These are the building blocks for functions which return try objects (&ldquo;monadic functions&rdquo;). But if all you&rsquo;re doing is wrapping an existing function, try has a shortcut for that, called <code>Lift</code>:</p>
 <pre><code>result := Lift(&quot;false&quot;, strconv.ParseBool)
 </code></pre>
-<p>The other ability every monad needs is a combinator called &ldquo;bind&rdquo;. It&rsquo;s similar to fmap except it conditionally applies a monad to a monadic function (one that already returns a try object).</p>
+<p>The other ability every monad needs is a combinator called &ldquo;bind&rdquo;. It&rsquo;s similar to map except it conditionally applies a monad to a monadic function (one that already returns a try object).</p>
 <p>Here&rsquo;s my truthiness program re-written with try:</p>
 <pre><code>package main
 
@@ -159,12 +159,12 @@ func main() {
 }
 
 func readLine(r *bufio.Reader) m.Try[string] {
-  return m.Fmap(Lift('\n', r.ReadString),
+  return m.Map(Lift('\n', r.ReadString),
     func(s string) string { return strings.TrimSuffix(s, &quot;\n&quot;) })
 }
 
 func parseTruthy(s string) m.Try[string] {
-  return m.Fmap(Lift(s, strconv.ParseBool), func(b bool) string {
+  return m.Map(Lift(s, strconv.ParseBool), func(b bool) string {
     if b {
       return &quot;You entered a truthy value!&quot;
     }
@@ -174,14 +174,14 @@ func parseTruthy(s string) m.Try[string] {
 </code></pre>
 <p>Compared to the original, it is eight lines of code shorter, with three fewer branches and six fewer variable assignments. The only time an error is checked for is at the end of the program, when the try object is unwrapped.</p>
 <h3 id="critique">Critique</h3>
-<p>Bind, Fmap and Lift are simple functions that should be easy for the Go compiler to inline. However one quirk of Go is the compiler can&rsquo;t optimize generic functions which take an interface:²</p>
+<p>Bind, Map and Lift are simple functions that should be easy for the Go compiler to inline. However one quirk of Go is the compiler can&rsquo;t optimize generic functions which take an interface:¹</p>
 <blockquote>
 <p>Because of the way shape instantiation works for interfaces, instead of de-virtualizing, you’re adding another virtualization layer that involves a global hash table lookup for every method call. When dealing with Generics in a performance-sensitive context, use only pointers instead of interfaces.</p>
 </blockquote>
 <p>Go generally has great tooling, and we take full advantage of that at work. For example we use <a href="https://github.com/kisielk/errcheck">errcheck</a> to detect unhandled errors. Go try would need something similar that checks that <code>Err</code> is tested before <code>Val</code> is used. Consider:</p>
-<pre><code>a := Fmap(x, foo)
-b := Fmap(a, bar)
-c := Fmap(b, baz)
+<pre><code>a := Map(x, foo)
+b := Map(a, bar)
+c := Map(b, baz)
 
 if c.Err != nil {
   ...
@@ -196,7 +196,7 @@ t := r.Bind(parseTruthy)
 
 </code></pre>
 <p>Imagine beautiful chains of monadic computations sequenced together.</p>
-<p>However implementing generic methods in Go is a hard problem because of their interaction with interfaces. Currently it has no <a href="https://github.com/golang/go/issues/49085#issuecomment-1435367253">known solution</a>.³</p>
+<p>However implementing generic methods in Go is a hard problem because of their interaction with interfaces. Currently it has no <a href="https://github.com/golang/go/issues/49085#issuecomment-1435367253">known solution</a>.²</p>
 <h3 id="wrap">Wrap</h3>
 <p>Despite the drawbacks, I still think Go try is a win for many use cases. For functions that only return a pointer value (like error), an Option type would be useful. In any case I hope I&rsquo;ve embodied Rob Pike&rsquo;s exhortation:</p>
 <blockquote>
@@ -204,7 +204,6 @@ t := r.Bind(parseTruthy)
 </blockquote>
 <h3 id="notes">Notes</h3>
 <ol>
-<li>Scala uses <code>map</code> for both.</li>
 <li>Vincent Marti explains this in detail in <a href="https://planetscale.com/blog/generics-can-make-your-go-code-slower">Generics can make your Go code slower</a>, planetscale.com.</li>
 <li>The <a href="https://go.googlesource.com/proposal/+/refs/heads/master/design/43651-type-parameters.md#No-parameterized-methods">Generics proposal</a> has a good example problem.</li>
 </ol>
