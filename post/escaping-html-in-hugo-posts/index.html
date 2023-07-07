@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Escaping HTML in Hugo posts</title>
+  <meta name="description" content="Or how to indirectly call the safeHTML function" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:site" content="@perltricks">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/escaping-html-in-hugo-posts/" />
+  <meta property="og:title" content="Escaping HTML in Hugo posts" />
+  <meta property="og:description" content="Or how to indirectly call the safeHTML function">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2023-07-06T23:09:23Z" />
+  <meta property="og:article:tag" content="hugo" />
+  <meta property="og:article:tag" content="html-escape" />
+  <meta property="og:article:tag" content="shortcodes" />
+</head>
+
+  <body>
+    <a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/escaping-html-in-hugo-posts/><h2>Escaping HTML in Hugo posts</h2></a>
+  <p class="description">Or how to indirectly call the safeHTML function</p>
+  <p><em class="date">July 6, 2023</em></p>
+</div>
+
+<p>Hugo, the static site generation engine (which generates this site) has a useful function called <a href="https://gohugo.io/functions/safehtml/">safeHTML</a> which marks an HTML string as &ldquo;safe&rdquo;, preventing it from being escaped and displayed literally.</p>
+<p>The other day I needed this same behavior but for a variable declared in a post&rsquo;s frontmatter. &ldquo;I&rsquo;ll use that handy safeHTML function&rdquo; I thought. Wrong! Hugo&rsquo;s security model doesn&rsquo;t allow its builtin functions to be called from posts.</p>
+<p>Instead Hugo allows posts to embed <a href="https://gohugo.io/content-management/shortcodes/">shortcodes</a>, which are similar to macros. The challenge then, was to concoct a shortcode that would lookup an arbitrary post parameter and mark it as safe.</p>
+<p>Here&rsquo;s what I came up with:</p>
+<pre><code>{{ .Get 0 | index $.Page.Params | safeHTML }}
+</code></pre>
+<p>This retrieves the argument from the call stack and looks it up in the post parameters using the <a href="https://gohugo.io/functions/index-function/">index</a> function. This indirection is necessary to enable lookup of arbitrary key names. The lookup result is passed to my old friend, <code>safeHTML</code>.</p>
+<p>I saved the shortcode as <code>layouts/shortcodes/safeparam.html</code>.</p>
+<p>So imagine you have a fancy HTML table declared in the post frontmatter, you can retrieve it in the post&rsquo;s content with <code>safeparam</code>:</p>
+<pre><code>{{&lt; safeparam &quot;fancy-table&quot; &gt;}}
+</code></pre>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/hugo/>hugo</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/html-escape/>html-escape</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/shortcodes/>shortcodes</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+	Check out my <a href="/store/ch">chatgpt shell app</a>
+</footer>
+
+  </body>
+</html>
