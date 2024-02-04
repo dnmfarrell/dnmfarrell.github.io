@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>The Best Way to Improve Software Quality</title>
+  <meta name="description" content="And it doesn&#39;t involve technology" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/the-best-way-to-improve-software-quality/" />
+  <meta property="og:title" content="The Best Way to Improve Software Quality" />
+  <meta property="og:description" content="And it doesn&#39;t involve technology">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2024-02-04T24:08:24Z" />
+  <meta property="og:article:tag" content="software-quality" />
+  <meta property="og:article:tag" content="code-review" />
+  <meta property="og:article:tag" content="ownership" />
+</head>
+
+  <body>
+    
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZXLDS5VZ0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZZXLDS5VZ0');
+</script>
+<a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/the-best-way-to-improve-software-quality/><h2>The Best Way to Improve Software Quality</h2></a>
+  <p class="description">And it doesn&#39;t involve technology</p>
+  <p><em class="date">February 4, 2024</em></p>
+</div>
+
+<p>About five years ago I was working on a team that managed a web app for our enterprise customers. It had been forked from our original app specifically to meet the needs of larger clients. Despite both apps' shared heritage, they did not perform equally well. My team&rsquo;s app build almost never failed, yet the original app build was red a third of the time, preventing new code from being deployed until the issue had been resolved.</p>
+<p>Both apps were maintained by large numbers of software engineers, and the distribution of talent and experience was similar. I bandied together with some other frustrated engineers to try and solve the problem. First we manually investigated each failed build, and categorized and counted the root causes. But apart from flaky tests, we found no pattern. Next we tried bisecting every new build failure and private-messaging the engineer responsible. This helped a little, but many engineers did not respond quickly, and some resented being privately messaged outside of their working hours. This process escalated to its logical conclusion: we built an automated system that would publicly announce the supposed violator in our company&rsquo;s Slack. But this too did not help very much!</p>
+<p>I sensed that we had a people problem, but couldn&rsquo;t figure it out. My suggestion that failed builds be tallied by team, and reported on in the weekly manager meeting was not taken up (by management). Despite our efforts, the enterprise app build stayed evergreen whilst the original ping-ponged between red and green like a hyperactive traffic light. The problem seemed intractable, and we gave up.</p>
+<p>Months later, an engineer heroically separated the original app into smaller apps and the problem solved itself. In hindsight, the difference was whilst our team owned the enterprise app, <em>three</em> teams shared ownership of the original. A <a href="https://en.wikipedia.org/wiki/Tragedy_of_the_commons">tragedy of the commons effect</a> took hold with no team ultimately accountable for the original app, its quality suffered.¹ ²</p>
+<p>You might be wondering what to do about shared code. We adopted these conventions:</p>
+<ul>
+<li>Common code is kept in a directory per programming language, and every language has a &ldquo;guild&rdquo; which owns its common code. Common code is only allowed to depend on open source, and other common code.</li>
+<li>Apps must place any public libraries they provide under the <code>public/</code> directory in their root app directory. Apps may depend only on open source, common and other app&rsquo;s public code. Every app is owned by a single team.</li>
+<li>Teams can require code review for changes to their apps from other teams via a <a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners">CODEOWNERS</a> file. This is generally reserved for critical or sensitive application code only.</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<ol>
+<li>The variations of <a href="https://en.wikipedia.org/wiki/Conway%27s_law">Conway&rsquo;s Law</a> are also relevant.</li>
+<li>This effect has been observed in <a href="https://dl.acm.org/doi/10.1145/2025113.2025119">published research</a> too.</li>
+</ol>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/software-quality/>software-quality</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/code-review/>code-review</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/ownership/>ownership</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+</footer>
+
+  </body>
+</html>
