@@ -65,56 +65,58 @@ set -euo pipefail
 declare -i num_workers=1
 declare -i num_fifos=0
 declare -i next_fifo=1
-declare -a fifos=(&quot;&quot;) # zeroth unused
+declare fifo_prefix=&quot;${TMPDIR-/tmp}/forklift-&quot;
 
 new_fifo() {
-  local fn=&quot;${TMPDIR-/tmp}/forklift-$1&quot;
-  fifos[$1]=&quot;$fn&quot;
-  num_fifos=$((num_fifos+1))
-  mkfifo &quot;$fn&quot;
-  eval &quot;tail -f '$fn' --pid $$ | ${cmd/\{\{w\}\}/$1} &amp;&quot;
+  num_fifos=$((num_fifos + 1))
+  mkfifo &quot;$fifo_prefix$num_fifos&quot;
+  eval &quot;${cmd/\{\{w\}\}/$num_fifos} &lt; \&quot;$fifo_prefix$num_fifos\&quot; &amp;&quot;
 }
 
 cleanup() {
-  for i in $(seq 1 ${num_fifos});do
-    rm -f &quot;${fifos[$i]}&quot;
-  done
+  rm -f &quot;$fifo_prefix&quot;*
+  wait
 }
 trap cleanup EXIT
 
 # process args
-while getopts &quot;w:&quot; opt;do
+while getopts &quot;w:&quot; opt; do
   case &quot;$opt&quot; in
-    'w') num_workers=&quot;$OPTARG&quot;;;
+  'w') num_workers=&quot;$OPTARG&quot; ;;
+  *) echo -e &quot;Unrecognized option. Usage:\n\tforklift [-w #] command&quot; ;;
   esac
 done
-shift $((OPTIND-1))
+shift $((OPTIND - 1))
 if [ $# -ne 1 ]; then
   echo -e &quot;Must provide 1 command. Usage:\n\tforklift [-w #] command&quot;
   exit 1
 fi
 declare cmd=&quot;$1&quot;
 
+# create fifos
+while ((num_workers &gt; num_fifos)); do
+  new_fifo
+done
+
 # process input
-while read -r;do
-  ((next_fifo &gt; num_fifos)) &amp;&amp; new_fifo $next_fifo
-  echo &quot;$REPLY&quot; &gt; &quot;${fifos[$next_fifo]}&quot;
-  if ((next_fifo==num_workers)); then
+while read -r; do
+  echo &quot;$REPLY&quot; &gt;&quot;$fifo_prefix$next_fifo&quot;
+  if ((next_fifo == num_workers)); then
     next_fifo=1
   else
-    next_fifo=$((next_fifo+1))
+    next_fifo=$((next_fifo + 1))
   fi
 done
 </code></pre>
-<p>It starts by declaring a bunch of globals and two functions: <code>new_fifo</code> creates a named pipe (fifo) and forks a worker to read from it. Named pipes are like regular pipes except they can be passed around by filepath, not just inherited. That enables the script to fork a worker and have <code>tail -f</code> block on read until the script starts writing to the fifo. One downside of fifos is they need to be explicitly removed, and that&rsquo;s where the <code>cleanup</code> routine comes in. It deletes any fifos that were created and is triggered by the EXIT signal handler. The reason for this indirection is multiple <code>trap</code> calls for the same signal name replace, rather than stack.</p>
+<p>It starts by declaring a bunch of globals and two functions: <code>new_fifo</code> creates a named pipe (fifo) and forks a worker to read from it. Named pipes are like regular pipes except they can be passed around by filepath, not just inherited. That enables the script to fork a worker and have it block on read until the script starts writing to the fifo. Fifos need to be explicitly removed, and that&rsquo;s where the <code>cleanup</code> routine comes in. It deletes the fifos, effectively &ldquo;closing&rdquo; them for the workers. It&rsquo;s called by the EXIT signal handler.</p>
 <p>The next stanza processes arguments; it accepts a <code>-w</code> option for the number of workers to use, and a command to run. The odd-looking command <code>shift $((OPTIND-1))</code> removes processed-options from the argument stack so all that&rsquo;s left (should be) the command to run.</p>
-<p>The final paragraph loops over each line of input and creates a fifo worker if needed. This laziness avoids the edge case where fewer lines of input are received than workers forked, leaving zombies. The loop round-robin distributes input between the fifos.</p>
+<p>The final loop just round-robin distributes input between the fifos. Once the script has distributed all of its input, it &ldquo;exits&rdquo;, triggering the cleanup of the fifos and waiting for the workers to exit.</p>
 <h3 id="speed">Speed</h3>
 <p>Using bash as a forking server is never going to break any speed records. Pipes and fifos are generally fast because they avoid filesystem IO, but are not the fastest option for IPC:¹</p>
 <blockquote>
 <p>Data has to be copied from user space in one process to a kernel buffer and then back to user space which is expensive (message queues and sockets have the same disadvantage).</p>
 </blockquote>
-<p>However, assuming the forked command is doing something slow like making an internet request per line of input, these limitations won&rsquo;t matter much.</p>
+<p>However, assuming the forked command is doing something slow like making a network request per line of input, these limitations won&rsquo;t matter much.</p>
 <h3 id="capturing-output">Capturing Output</h3>
 <p>What if the forked workers produce output that you need to capture? Imagine:</p>
 <pre><code>cat input.csv | forklift -w 5 'foo &gt; output.tsv'
