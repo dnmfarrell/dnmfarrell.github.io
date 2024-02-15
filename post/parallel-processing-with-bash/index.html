@@ -3,11 +3,11 @@
   <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Parallel Processing with Bash</title>
+  <title>Parallel Processing with POSIX Shell</title>
   <meta name="description" content="How named pipes enable a general-purpose forking worker model" />
   <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
   <meta property="og:url" content="https://blog.dnmfarrell.com/post/parallel-processing-with-bash/" />
-  <meta property="og:title" content="Parallel Processing with Bash" />
+  <meta property="og:title" content="Parallel Processing with POSIX Shell" />
   <meta property="og:description" content="How named pipes enable a general-purpose forking worker model">
   <meta property="og:site_name" content="blog.dnmfarrell.com" />
   <meta property="og:type" content="article" />
@@ -38,11 +38,12 @@
       
 
 <div class="post-title">
-  <a href=https://blog.dnmfarrell.com/post/parallel-processing-with-bash/><h2>Parallel Processing with Bash</h2></a>
+  <a href=https://blog.dnmfarrell.com/post/parallel-processing-with-bash/><h2>Parallel Processing with POSIX Shell</h2></a>
   <p class="description">How named pipes enable a general-purpose forking worker model</p>
   <p><em class="date">February 12, 2023</em></p>
 </div>
 
+<p><strong>N.B. The main example in this post has been updated to use POSIX shell instead of bash.</strong></p>
 <p>Last week at work I had to whip up a script to process several thousand ids for product analysis on a new feature we&rsquo;re launching. The processing included making HTTP requests to a service, and I was on a deadline, so the script had to be concurrent. Here&rsquo;s what I came up with:</p>
 <pre><code>#!/bin/bash
 startline=2
@@ -61,7 +62,6 @@ wait
 <p>It worked, but a couple of things nagged at me. The first is that <code>open</code> and <code>seek</code> is called on the input file five times, but each line of input is only used once. What if the input file was <em>really</em> large, or an infinite stream? The second is that the script is too-specific — I wrote one just like this for another urgent data-processing request last month! So I wanted to generalize the pattern of distributing an input stream among a pool of workers.</p>
 <p>I call the program <a href="https://github.com/dnmfarrell/forklift">forklift</a>:</p>
 <pre><code>#!/bin/sh
-set -eu
 num_workers=1
 num_fifos=0
 next_fifo=1
@@ -73,19 +73,34 @@ cleanup() {
 }
 trap cleanup ABRT EXIT INT TERM
 
+# provides --pid for POSIX tail
+tailpid() {
+  file=&quot;$1&quot;
+  pid=&quot;$2&quot;
+  tail -f &quot;$file&quot; &amp;
+  childpid=$!
+  while :; do
+    if ! ps -p &quot;$pid&quot; &gt;/dev/null 2&gt;&amp;1; then
+      kill &quot;$childpid&quot; &gt;/dev/null 2&gt;&amp;1
+      break
+    fi
+    sleep 1
+  done
+}
+
 # process args
 while getopts &quot;w:&quot; opt; do
   case &quot;$opt&quot; in
   'w') num_workers=&quot;$OPTARG&quot; ;;
   *)
-    printf &quot;Usage:\n\tforklift [-w #] command\n&quot;
+    printf &quot;Usage:\n\tforklift [-w#] command\n&quot;
     exit 1
     ;;
   esac
 done
 shift $((OPTIND - 1))
 if [ $# -ne 1 ]; then
-  printf &quot;Must provide 1 command. Usage:\n\tforklift [-w #] command\n&quot;
+  printf &quot;Must provide 1 command. Usage:\n\tforklift [-w#] command\n&quot;
   exit 1
 fi
 
@@ -99,13 +114,15 @@ touch &quot;$lock&quot;
 } &amp;
 lockpid=$!
 
+# create worker pool
+while [ &quot;$num_fifos&quot; -lt &quot;$num_workers&quot; ]; do
+  num_fifos=$((num_fifos + 1))
+  mkfifo &quot;$fifo_prefix-$num_fifos&quot;
+  tailpid &quot;$fifo_prefix-$num_fifos&quot; $lockpid | $1 &amp;
+done
+
 # distribute input
 while read -r line; do
-  if [ &quot;$next_fifo&quot; -gt &quot;$num_fifos&quot; ]; then
-    num_fifos=$((num_fifos + 1))
-    mkfifo &quot;$fifo_prefix-$num_fifos&quot;
-    tail --pid $lockpid -f &quot;$fifo_prefix-$num_fifos&quot; | $1 &amp;
-  fi
   echo &quot;$line&quot; &gt;&quot;$fifo_prefix-$next_fifo&quot;
   if [ &quot;$next_fifo&quot; -eq &quot;$num_workers&quot; ]; then
     next_fifo=1
@@ -115,12 +132,12 @@ while read -r line; do
 done
 </code></pre>
 <p>It starts by declaring a bunch of globals and a clean up function, which is called when the program receives a signal or is exiting normally.</p>
+<p>The <code>tailpid</code> function wraps a call to <code>tail</code> with a pid watcher, to make it exit when a given pid exits. This can be accomplished with the <code>--pid</code> argument in GNU coreutils tail, but not the <a href="https://pubs.opengroup.org/onlinepubs/007904875/utilities/tail.html">POSIX</a> version, so we implement it here.¹</p>
 <p>The next stanza processes arguments; it accepts a <code>-w</code> option for the number of workers to use, and a command to run. The odd-looking command <code>shift $((OPTIND-1))</code> removes processed-options from the argument stack so all that&rsquo;s left (should be) the command to run.</p>
-<p>Next it creates a lockfile and forks a child worker that loops until the lockfile is removed. This indirection is needed so that the worker pool subprocesses can be created as direct children of the forklift process so it will <code>wait</code> for them to exit <em>and</em> the lockfile worker pid can be passed to <code>tail</code> so that the tailed workers shutdown when the lockfile worker exits.</p>
-<p>The final loop round-robin distributes input between the workers. It first checks if the next worker exists or not, and if not, it creates a named pipe (fifo) and forks a worker which tails the fifo into the command argument. This check is necessary to avoid the edge case where more workers are requested than lines of input received, and they end up blocking on read forever. Also unlike shell <code>read</code>, <code>tail -f</code> is really persistent in its attempts to read from the fifo, which avoids inconsistent behavior passing input to the command.</p>
-<p>One downside of the persistence of <code>tail -f</code> is it won&rsquo;t exit when the named pipe is removed. That&rsquo;s why the <code>--pid</code> argument is used to make <code>tail</code> exit when the lockfile worker exits. And since <code>--pid</code> is not in the <a href="https://pubs.opengroup.org/onlinepubs/007904875/utilities/tail.html">POSIX spec</a>, <code>forklift</code> is not POSIX compliant. This means it won&rsquo;t work on macOS (I think). If I could figure out a way to get the PID of the tail process (not the piped command), perhaps this arrangement could be dropped in favor of sending a sigterm to tail.</p>
-<p>Named pipes are like regular pipes except they can be passed around by filepath. Deleting the fifo &ldquo;closes&rdquo; the pipe, which makes them convenient for distributing input among a worker pool.</p>
-<p>Now, using bash as a parallel stream processor is never going to break any speed records. Pipes and fifos are generally fast because they avoid filesystem IO, but are not the fastest option for IPC:</p>
+<p>Next it creates a lockfile and forks a child worker that loops until the lockfile is removed. This indirection is needed so that the worker pool subprocesses can be created as direct children of the forklift process so it will <code>wait</code> for them to exit <em>and</em> the lockfile worker pid can be passed to <code>tailpid</code> so that the tailed workers shutdown when the lockfile worker exits.</p>
+<p>Next it creates the worker pool. Every worker in the pool gets a named pipe (fifo) through which it is distributed its share of the input. Named pipes are like regular pipes except they can be passed around by filepath. Deleting the fifo &ldquo;closes&rdquo; the pipe, which makes them convenient for distributing input among a worker pool. The forked worker reads the fifo using <code>tail -f</code>, which unlike shell&rsquo;s <code>read</code>, is really persistent in its attempts to read from the named pipe, and avoids inconsistent behavior.²</p>
+<p>The final loop round-robin distributes input between the workers.</p>
+<p>Now, using shell as a parallel stream processor is never going to break any speed records. Pipes and fifos are generally fast because they avoid filesystem IO, but are not the fastest option for IPC:</p>
 <blockquote>
 <p>Data has to be copied from user space in one process to a kernel buffer and then back to user space which is expensive (message queues and sockets have the same disadvantage).</p>
 <p class="source">&mdash;&nbsp;Rochkind, <em>Advanced Unix Programming 2nd edition, chapter 7</em></p>
@@ -128,6 +145,11 @@ done
 </blockquote>
 <p>However, assuming the command is doing something slow like making a network request (i.e. worth parallelizing), this limitation won&rsquo;t matter much</p>
 <p>Once the parent has distributed all of its input, it &ldquo;exits&rdquo;, triggering the removal of the fifos and lockfile and waits for the workers to exit.</p>
+<h2 id="notes">Notes</h2>
+<ol>
+<li>The wrapper also avoids the edge case where <code>tail -f --pid 100</code> will block on the first read even if process 100 exits. This can happen when more workers are created than lines of input received.</li>
+<li>If the command reads input faster than the writer outputs it, the workers exit prematurely.</li>
+</ol>
 
 
 <p>
