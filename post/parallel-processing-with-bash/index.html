@@ -118,7 +118,7 @@ lockpid=$!
 while [ &quot;$num_fifos&quot; -lt &quot;$num_workers&quot; ]; do
   num_fifos=$((num_fifos + 1))
   mkfifo &quot;$fifo_prefix-$num_fifos&quot;
-  tailpid &quot;$fifo_prefix-$num_fifos&quot; $lockpid | $1 &amp;
+  tailpid &quot;$fifo_prefix-$num_fifos&quot; $lockpid | eval &quot;$1&quot; &amp;
 done
 
 # distribute input
@@ -135,7 +135,7 @@ done
 <p>The <code>tailpid</code> function wraps a call to <code>tail</code> with a pid watcher, to make it exit when a given pid exits. This can be accomplished with the <code>--pid</code> argument in GNU coreutils tail, but not the <a href="https://pubs.opengroup.org/onlinepubs/007904875/utilities/tail.html">POSIX</a> version, so we implement it here.¹</p>
 <p>The next stanza processes arguments; it accepts a <code>-w</code> option for the number of workers to use, and a command to run. The odd-looking command <code>shift $((OPTIND-1))</code> removes processed-options from the argument stack so all that&rsquo;s left (should be) the command to run.</p>
 <p>Next it creates a lockfile and forks a child worker that loops until the lockfile is removed. This indirection is needed so that the worker pool subprocesses can be created as direct children of the forklift process so it will <code>wait</code> for them to exit <em>and</em> the lockfile worker pid can be passed to <code>tailpid</code> so that the tailed workers shutdown when the lockfile worker exits.</p>
-<p>Next it creates the worker pool. Every worker in the pool gets a named pipe (fifo) through which it is distributed its share of the input. Named pipes are like regular pipes except they can be passed around by filepath. Deleting the fifo &ldquo;closes&rdquo; the pipe, which makes them convenient for distributing input among a worker pool. The forked worker reads the fifo using <code>tail -f</code>, which unlike shell&rsquo;s <code>read</code>, is really persistent in its attempts to read from the named pipe, and avoids inconsistent behavior.²</p>
+<p>Next it creates the worker pool. Every worker in the pool gets a named pipe (fifo) through which it is distributed its share of the input. Named pipes are like regular pipes except they can be passed around by filepath. Deleting the fifo &ldquo;closes&rdquo; the pipe, which makes them convenient for distributing input among a worker pool. The forked worker reads the fifo using <code>tail -f</code>, which unlike shell&rsquo;s <code>read</code>, is really persistent in its attempts to read from the named pipe, and avoids inconsistent behavior.</p>
 <p>The final loop round-robin distributes input between the workers.</p>
 <p>Now, using shell as a parallel stream processor is never going to break any speed records. Pipes and fifos are generally fast because they avoid filesystem IO, but are not the fastest option for IPC:</p>
 <blockquote>
@@ -143,12 +143,12 @@ done
 <p class="source">&mdash;&nbsp;Rochkind, <em>Advanced Unix Programming 2nd edition, chapter 7</em></p>
 
 </blockquote>
-<p>However, assuming the command is doing something slow like making a network request (i.e. worth parallelizing), this limitation won&rsquo;t matter much</p>
+<p>However, assuming the command is doing something slow like making a network request (i.e. worth parallelizing), this limitation won&rsquo;t matter much.²</p>
 <p>Once the parent has distributed all of its input, it &ldquo;exits&rdquo;, triggering the removal of the fifos and lockfile and waits for the workers to exit.</p>
 <h2 id="notes">Notes</h2>
 <ol>
 <li>The wrapper also avoids the edge case where <code>tail -f --pid 100</code> will block on the first read even if process 100 exits. This can happen when more workers are created than lines of input received.</li>
-<li>If the command reads input faster than the writer outputs it, the workers exit prematurely.</li>
+<li>Ditto the extra subprocesses and subshell created - loops which sleep a second per iteration won&rsquo;t eat up CPU.</li>
 </ol>
 
 
