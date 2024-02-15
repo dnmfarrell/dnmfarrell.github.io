@@ -16,7 +16,7 @@
   <meta property="og:article:tag" content="trap" />
   <meta property="og:article:tag" content="pipe" />
   <meta property="og:article:tag" content="fork" />
-  <meta property="og:article:tag" content="bash" />
+  <meta property="og:article:tag" content="shell" />
   <meta property="og:article:tag" content="concurrency" />
 </head>
 
@@ -59,77 +59,74 @@ wait
 </code></pre>
 <p>It combines <code>tail</code> and <code>head</code> to split the source file into five streams that are piped to the get-service script, which reads from STDIN and makes an HTTP GET request for each line of input.</p>
 <p>It worked, but a couple of things nagged at me. The first is that <code>open</code> and <code>seek</code> is called on the input file five times, but each line of input is only used once. What if the input file was <em>really</em> large, or an infinite stream? The second is that the script is too-specific — I wrote one just like this for another urgent data-processing request last month! So I wanted to generalize the pattern of distributing an input stream among a pool of workers.</p>
-<p>I call the program <a href="https://gist.github.com/dnmfarrell/bea84b3627bdd40f65964b6cc150252c">forklift</a>:</p>
-<pre><code>#!/bin/bash
-set -euo pipefail
-declare -i num_workers=1
-declare -i num_fifos=0
-declare -i next_fifo=1
-declare fifo_prefix=&quot;${TMPDIR-/tmp}/forklift-&quot;
-
-new_fifo() {
-  num_fifos=$((num_fifos + 1))
-  mkfifo &quot;$fifo_prefix$num_fifos&quot;
-  eval &quot;${cmd/\{\{w\}\}/$num_fifos} &lt; \&quot;$fifo_prefix$num_fifos\&quot; &amp;&quot;
-}
+<p>I call the program <a href="https://github.com/dnmfarrell/forklift">forklift</a>:</p>
+<pre><code>#!/bin/sh
+set -eu
+num_workers=1
+num_fifos=0
+next_fifo=1
+fifo_prefix=&quot;${TMPDIR-/tmp}/forklift-$$&quot;
 
 cleanup() {
   rm -f &quot;$fifo_prefix&quot;*
   wait
 }
-trap cleanup EXIT
+trap cleanup ABRT EXIT INT TERM
 
 # process args
 while getopts &quot;w:&quot; opt; do
   case &quot;$opt&quot; in
   'w') num_workers=&quot;$OPTARG&quot; ;;
-  *) echo -e &quot;Unrecognized option. Usage:\n\tforklift [-w #] command&quot; ;;
+  *)
+    printf &quot;Usage:\n\tforklift [-w #] command\n&quot;
+    exit 1
+    ;;
   esac
 done
 shift $((OPTIND - 1))
 if [ $# -ne 1 ]; then
-  echo -e &quot;Must provide 1 command. Usage:\n\tforklift [-w #] command&quot;
+  printf &quot;Must provide 1 command. Usage:\n\tforklift [-w #] command\n&quot;
   exit 1
 fi
-declare cmd=&quot;$1&quot;
 
-# create fifos
-while ((num_workers &gt; num_fifos)); do
-  new_fifo
-done
+# fork child lock
+export lock=&quot;$fifo_prefix-lock&quot;
+touch &quot;$lock&quot;
+{
+  while [ -f &quot;$lock&quot; ]; do
+    sleep 1
+  done
+} &amp;
+lockpid=$!
 
-# process input
-while read -r; do
-  echo &quot;$REPLY&quot; &gt;&quot;$fifo_prefix$next_fifo&quot;
-  if ((next_fifo == num_workers)); then
+# distribute input
+while read -r line; do
+  if [ &quot;$next_fifo&quot; -gt &quot;$num_fifos&quot; ]; then
+    num_fifos=$((num_fifos + 1))
+    mkfifo &quot;$fifo_prefix-$num_fifos&quot;
+    tail --pid $lockpid -f &quot;$fifo_prefix-$num_fifos&quot; | $1 &amp;
+  fi
+  echo &quot;$line&quot; &gt;&quot;$fifo_prefix-$next_fifo&quot;
+  if [ &quot;$next_fifo&quot; -eq &quot;$num_workers&quot; ]; then
     next_fifo=1
   else
     next_fifo=$((next_fifo + 1))
   fi
 done
 </code></pre>
-<p>It starts by declaring a bunch of globals and two functions: <code>new_fifo</code> creates a named pipe (fifo) and forks a worker to read from it. Named pipes are like regular pipes except they can be passed around by filepath, not just inherited. That enables the script to fork a worker and have it block on read until the script starts writing to the fifo. Fifos need to be explicitly removed, and that&rsquo;s where the <code>cleanup</code> routine comes in. It deletes the fifos, effectively &ldquo;closing&rdquo; them for the workers. It&rsquo;s called by the EXIT signal handler.</p>
+<p>It starts by declaring a bunch of globals and a clean up function, which is called when the program receives a signal or is exiting normally.</p>
 <p>The next stanza processes arguments; it accepts a <code>-w</code> option for the number of workers to use, and a command to run. The odd-looking command <code>shift $((OPTIND-1))</code> removes processed-options from the argument stack so all that&rsquo;s left (should be) the command to run.</p>
-<p>The final loop just round-robin distributes input between the fifos. Once the script has distributed all of its input, it &ldquo;exits&rdquo;, triggering the cleanup of the fifos and waiting for the workers to exit.</p>
-<h3 id="speed">Speed</h3>
-<p>Using bash as a forking server is never going to break any speed records. Pipes and fifos are generally fast because they avoid filesystem IO, but are not the fastest option for IPC:¹</p>
+<p>Next it creates a lockfile and forks a child worker that loops until the lockfile is removed. This indirection is needed so that the worker pool subprocesses can be created as direct children of the forklift process so it will <code>wait</code> for them to exit <em>and</em> the lockfile worker pid can be passed to <code>tail</code> so that the tailed workers shutdown when the lockfile worker exits.</p>
+<p>The final loop round-robin distributes input between the workers. It first checks if the next worker exists or not, and if not, it creates a named pipe (fifo) and forks a worker which tails the fifo into the command argument. This check is necessary to avoid the edge case where more workers are requested than lines of input received, and they end up blocking on read forever. Also unlike shell <code>read</code>, <code>tail -f</code> is really persistent in its attempts to read from the fifo, which avoids inconsistent behavior passing input to the command.</p>
+<p>Named pipes are like regular pipes except they can be passed around by filepath. Deleting the fifo &ldquo;closes&rdquo; the pipe, which makes them convenient for distributing input among a worker pool.</p>
+<p>Now, using bash as a parallel stream processor is never going to break any speed records. Pipes and fifos are generally fast because they avoid filesystem IO, but are not the fastest option for IPC:</p>
 <blockquote>
 <p>Data has to be copied from user space in one process to a kernel buffer and then back to user space which is expensive (message queues and sockets have the same disadvantage).</p>
+<p class="source">&mdash;&nbsp;Rochkind, <em>Advanced Unix Programming 2nd edition, chapter 7</em></p>
+
 </blockquote>
-<p>However, assuming the forked command is doing something slow like making a network request per line of input, these limitations won&rsquo;t matter much.</p>
-<h3 id="capturing-output">Capturing Output</h3>
-<p>What if the forked workers produce output that you need to capture? Imagine:</p>
-<pre><code>cat input.csv | forklift -w 5 'foo &gt; output.tsv'
-</code></pre>
-<p>This will fork five workers, but they will all write to <code>output.tsv</code>, clobbering each others' results. My original script used the line number offset in the filename: <code>output/$startline.tsv</code>. This works, but the filenames have odd numbers in them (2, 1202, 2402 …).</p>
-<p>The fix for this is to include the template variable <code>{{w}}</code> which forklift replaces with the worker id:</p>
-<pre><code>cat input.csv | forklift -w 5 'foo &gt; output/{{w}}.tsv'
-</code></pre>
-<p>This will create <code>output/1.tsv</code>, <code>output/2.tsv</code> and so on.</p>
-<h2 id="notes">Notes</h2>
-<ol>
-<li>Rochkind, Advanced Unix Programming 2nd edition, chapter 7, pp 414.</li>
-</ol>
+<p>However, assuming the command is doing something slow like making a network request (i.e. worth parallelizing), this limitation won&rsquo;t matter much</p>
+<p>Once the parent has distributed all of its input, it &ldquo;exits&rdquo;, triggering the removal of the fifos and lockfile and waits for the workers to exit.</p>
 
 
 <p>
@@ -175,7 +172,7 @@ done
   
   
 
-  <a href=https://blog.dnmfarrell.com/tags/bash/>bash</a>
+  <a href=https://blog.dnmfarrell.com/tags/shell/>shell</a>
 
 
 
