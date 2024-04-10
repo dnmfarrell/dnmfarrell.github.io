@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Perplexity Online LLMs Are a Useful Evolution</title>
+  <meta name="description" content="Combining search with compute introduces new capabilities" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/perplexity-online-llms-are-a-useful-evolution/" />
+  <meta property="og:title" content="Perplexity Online LLMs Are a Useful Evolution" />
+  <meta property="og:description" content="Combining search with compute introduces new capabilities">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2024-04-10T15:26:24Z" />
+  <meta property="og:article:tag" content="online-llm" />
+  <meta property="og:article:tag" content="perplexity" />
+  <meta property="og:article:tag" content="ch" />
+  <meta property="og:article:tag" content="chatgpt" />
+  <meta property="og:article:tag" content="openai" />
+</head>
+
+  <body>
+    
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZXLDS5VZ0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZZXLDS5VZ0');
+</script>
+<a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/perplexity-online-llms-are-a-useful-evolution/><h2>Perplexity Online LLMs Are a Useful Evolution</h2></a>
+  <p class="description">Combining search with compute introduces new capabilities</p>
+  <p><em class="date">April 10, 2024</em></p>
+</div>
+
+<p>Search engine startup Perplexity have introduced a new type of LLM model, which they call an <a href="https://www.perplexity.ai/hub/blog/introducing-pplx-online-llms">&ldquo;Online LLM&rdquo;</a>.</p>
+<p>Online LLMs combine the capabilities of an LLM with factual data scraped from the web, that a traditional search engine would provide. The combination is powerful - you get the retrieval power of search combined with the natural language skills of an LLM.</p>
+<p>For example, if I wanted to get the phone number of my local starbucks:</p>
+<pre><code class="language-wrap">$ ppx n get me the phone number for the Bala Cynwyd Starbucks on Montgomery Avenue, PA.
+The phone number for the Bala Cynwyd Starbucks on Montgomery Avenue, PA, is (610) 617-9386.
+</code></pre>
+<p>(<code>ppx</code> is a shell script which wraps <a href="https://github.com/dnmfarrell/ch?tab=readme-ov-file#perplexity-llms">ch</a>).</p>
+<p>Compare this result to Google&rsquo;s search API, the query &ldquo;Phone number for Bala Cynwyd Starbucks on Montgomery Avenue, PA&rdquo; returns 10 results, and the third is from Yelp, which has the phone number in it:</p>
+<pre><code class="language-wrap">{
+  &quot;snippet&quot;: &quot;Starbucks · Map · 138 Montgomery Ave. Bala Cynwyd, PA 19004. Directions · (610) 617-9386. Call Now · Full menu · More Info. Hours, Health Score · Known For. Yes.&quot;,
+  ...
+}
+</code></pre>
+<p>In either case though, I&rsquo;m going to have to parse the response for phone numbers. Can&rsquo;t I ask the online LLM to do that for me?</p>
+<pre><code class="language-wrap">$ ppx n get me the phone number for the Bala Cynwyd Starbucks on Montgomery Avenue, PA. Only print the phone number digits do not give me any words.
+(610) 617-9386
+</code></pre>
+<p>Now, this is a silly example (perhaps I should have used Google&rsquo;s Places API) but you hopefully you can see how the online LLM model let&rsquo;s you bundle a search request with compute.</p>
+<p>You might classify this interaction as &ldquo;search/parse&rdquo;. For sure there are others; what about searching for two disparate facts and combining them into a single result? (&ldquo;search/combine&rdquo;). Or &ldquo;search/validate&rdquo;:</p>
+<pre><code class="language-wrap">$ ppx n 'Is (610) 617-9386 the phone number for the Bala Cynwyd Starbucks on Montgomery Avenue, PA? Only return &quot;yes&quot; if it is the phone number, or &quot;no&quot; otherwise.'
+Yes
+</code></pre>
+<p>Perplexity price online LLM requests the same as Google search: 0.5¢ per, which is a little steep if you&rsquo;re doing a lot of data processing. As competition drives down the cost of LLM compute, I expect this will come down too. In the meantime, despite the AI hype, online LLMs are an innovation that you might actually use.</p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/online-llm/>online-llm</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/perplexity/>perplexity</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/ch/>ch</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/chatgpt/>chatgpt</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/openai/>openai</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+</footer>
+
+  </body>
+</html>

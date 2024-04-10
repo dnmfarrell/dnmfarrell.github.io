@@ -8,6 +8,11 @@ pre {
   overflow: auto;
 }
 
+pre:has(.language-wrap) {
+  text-wrap:wrap;
+  overflow: hidden;
+}
+
 p > code {
   font-weight: 600;
 }
