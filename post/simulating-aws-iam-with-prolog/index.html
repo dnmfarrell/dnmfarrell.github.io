@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Simulating AWS IAM with Prolog</title>
+  <meta name="description" content="Prototyping a better developer tool for cloud security" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/simulating-aws-iam-with-prolog/" />
+  <meta property="og:title" content="Simulating AWS IAM with Prolog" />
+  <meta property="og:description" content="Prototyping a better developer tool for cloud security">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2024-09-23T44:03:24Z" />
+  <meta property="og:article:tag" content="aws-iam" />
+  <meta property="og:article:tag" content="prolog" />
+  <meta property="og:article:tag" content="simulation" />
+  <meta property="og:article:tag" content="cloud-security" />
+</head>
+
+  <body>
+    
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZXLDS5VZ0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZZXLDS5VZ0');
+</script>
+<a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/simulating-aws-iam-with-prolog/><h2>Simulating AWS IAM with Prolog</h2></a>
+  <p class="description">Prototyping a better developer tool for cloud security</p>
+  <p><em class="date">September 23, 2024</em></p>
+</div>
+
+<p>Of all the AWS services, <a href="https://docs.aws.amazon.com/iam/">IAM</a> seems to be the least well-understood. There is something about its data types, logical rules and runtime conditions that make for an arcane, abstract service that most developers treat like a black box.</p>
+<p>And that&rsquo;s unfortunate because IAM secures organizations' cloud resources, and can be the difference between having a data moat and a data breach.</p>
+<p>Now whilst there are a bunch of tools¹ to help manage IAM permissions, they all suffer from one drawback or another. So I wanted to prototype something better.</p>
+<h3 id="sketching-a-solution">Sketching a solution</h3>
+<p>What I&rsquo;d like is a local program that can ingest IAM policies and then simulate whether certain requests would succeed or fail. The program should be able to enumerate all the actions an identity may perform on a given resource. I could then write unit tests which check my app has the permissions it needs and that it does not grant permissions in violation of organization-wide rules. This would work with CI/CD to prevent new security holes, and identify missing permissions <em>before</em> the app is deployed.</p>
+<p>The program should also be able to generate IAM policies to fix permission issues. For instance, if I want to grant my app access to a DynamoDB table, or restrict write access to an S3 object to only my app.</p>
+<p>This requires three capabilities:</p>
+<ol>
+<li>Define all relevant IAM data (users, roles, groups, policies, attachments). If we make the simplifying assumption that all IAM data is managed by an IaC tool like Terraform, then this is already solved.</li>
+<li>Assemble the relevant IAM policies for a <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html">principal</a>. Let&rsquo;s just assume we can do this for now.</li>
+<li>Compile the policies from step 2 into a data structure with some useful functions like <code>has_perms</code>, <code>list_perms</code>, <code>explain_perms</code> and <code>fix_perms</code>. This we&rsquo;ll build in Prolog.</li>
+</ol>
+<h3 id="prolog-for-simulation">Prolog for simulation</h3>
+<p>Prolog might be the ideal simulator language. Prolog has &ldquo;facts&rdquo;, which are named n-ary tuples that are saved in an indexed database table-like structure. To model simple IAM states, we need a couple of different facts:</p>
+<ul>
+<li><code>policy(actionString, resourceString)</code>. This is the set of relevant allow policies for the principal e.g. (<code>s3:GetObject</code>, <code>s3://example.com/public/foo.csv</code>).</li>
+<li><code>action(actionString)</code>. This is the set of all possible IAM policy actions, e.g. <code>s3:GetObject</code>, <code>s3:PutObject</code> &hellip;</li>
+</ul>
+<p>Instead of functions, Prolog &ldquo;rules&rdquo; are logical expressions that describe relations between facts. Here&rsquo;s a simple rule <code>can/2</code>, to check whether a principal can perform an action on a resource:</p>
+<pre><code>can(Action, Resource) :-    % can/2 is true IF
+  action(Action),           % the action exists AND
+  policy(Action, Resource). % the policy exists
+</code></pre>
+<p>Although it looks like a function, rules behave more like an queries, with the variables Action and Resource acting as placeholders. To see it in action, I&rsquo;m going to create a few facts:</p>
+<pre><code>action('s3:GetObject').
+action('s3:PutObject').
+policy('s3:GetObject', 's3://example.com/foo.csv').
+</code></pre>
+<p>And now the rule can be queried:</p>
+<pre><code>?- can('s3:GetObject', 's3://example.com/foo.csv').
+true.
+?- can('s3:PutObject', 's3://example.com/foo.csv').
+false.
+</code></pre>
+<p>So far so good. But I don&rsquo;t have to supply Action and Resource, Prolog can find them for me:</p>
+<pre><code>?- can(A,R).
+A = 's3:GetObject',
+R = 's3://example.com/foo.csv'.
+</code></pre>
+<p>Prolog uses a technique called <a href="http://www.cs.trincoll.edu/~ram/cpsc352/notes/unification.html#unify">unification</a> to find a solution to the query.</p>
+<p>Let&rsquo;s add another policy to make this more interesting:</p>
+<pre><code>policy('s3:PutObject', 's3://example.com/foo.csv').
+</code></pre>
+<p>Now we can query to find all actions we can take on a particular resource:</p>
+<pre><code>?- can(A, 's3://example.com/foo.csv').
+A = 's3:GetObject' ;
+A = 's3:PutObject'.
+</code></pre>
+<p>Each successful match behaves like an iteration of a loop, with <code>A</code> set to the value of the matching fact. Prolog uses a backtracking algorithm to find every solution to our query².</p>
+<p>Now consider, does our principal have permission to delete the resource?</p>
+<pre><code>?- can('s3:DeleteObject', 's3://example.com/foo.csv').
+false.
+</code></pre>
+<p>Prolog answers &ldquo;false&rdquo; because there is no fact <code>action('s3:DeleteObject')</code>. But if there is no fact, shouldn&rsquo;t the answer be &ldquo;unknown&rdquo;?</p>
+<p>Prolog operates under the &ldquo;Closed World&rdquo; assumption which states that it has all the relevant facts in its database. If it has all the facts, when a query fails, it must be false. This is known as &ldquo;negation as failure&rdquo;.</p>
+<p>So in order to answer queries about S3 permissions, our IAM simulator should have every possible <a href="https://github.com/dnmfarrell/iamsim/blob/master/iam/s3.pl">S3 action</a> in its database. This is also why step 2 above is required to assemble every relevant policy for the principal. Assuming we have every relevant policy and action, we can simulate IAM permissions.</p>
+<h3 id="the-iam-simulator-project">The IAM Simulator Project</h3>
+<p>IAM&rsquo;s policy evaluation <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html">logic</a> is more complicated than our simple simulator can handle. Policies can allow or deny permissions, resource names can contain wildcards, there are boundary policies which act like inclusion lists, and so on.</p>
+<p>I started the <a href="https://github.com/dnmfarrell/iamsim/tree/master">IAM Simulator Project</a> to accurately model IAM behavior. Identity and boundary policies and wildcards are already supported.</p>
+<p>One reason I think that Prolog is such a good tool for simulation is the <a href="https://github.com/dnmfarrell/iamsim/blob/master/iam/sim.pl">core module</a> is only 160 lines of code. But that&rsquo;s not all: we can use Prolog&rsquo;s unification to <em>generate</em> policies. Behold:</p>
+<pre><code>$ swipl iam/sim.pl iam/s3.pl
+Welcome to SWI-Prolog (threaded, 64 bits, version 7.6.4)
+...
+?- fix('s3:GetObject', 's3://example.com/public/*', Ch).
+Ch = [changelog(add, policy(identity, 's3:GetObject-s3://example.com/public/*-allow', allow, 's3:GetObject', 's3://example.com/public/*'))] .
+</code></pre>
+<p>If you&rsquo;re interested in contributing to this project, please open an issue or feel free to pickup an <a href="https://github.com/dnmfarrell/iamsim/issues">existing one</a>.</p>
+<h3 id="notes">Notes</h3>
+<ol>
+<li>IAM Tools:</li>
+</ol>
+<ul>
+<li>The <a href="https://docs.aws.amazon.com/IAM/latest/APIReference/API_SimulateCustomPolicy.html">IAM SimulateCustomPolicy API</a> is most similar to the prolog simulator described above. It&rsquo;s slower because each request is an authenticated network request but supports more simulation features, like policy conditions. OTOH it cannot generate policies.</li>
+<li>The <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/what-is-access-analyzer.html">IAM Access Analyzer</a> can validate policies, identify shared external resources, and unused permissions. But the service does not prevent security holes nor help the developer trying to get their web app to talk to their database.</li>
+<li><a href="https://github.com/localstack/localstack">Localstack</a> simulates a local AWS instance and can enforce IAM permissions across AWS services, but because it doesn&rsquo;t understand IAM, it cannot identify security holes or grant missing permissions.</li>
+<li>Startup <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/what-is-access-analyzer.html">Pulumi</a> has a terraform-like tool which can generate the required IAM policies for resources referenced by code. This empirical approach does solve common app permission issues; but otherwise suffers from the same limitations of understanding as other tools.</li>
+</ul>
+<ol start="2">
+<li>This is the default behavior. Prolog has a &ldquo;cut&rdquo; operator to stop backtracking.</li>
+</ol>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/aws-iam/>aws-iam</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/prolog/>prolog</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/simulation/>simulation</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/cloud-security/>cloud-security</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+</footer>
+
+  </body>
+</html>
