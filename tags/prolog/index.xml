@@ -6,7 +6,18 @@
     <description>Recent content in prolog on Code - a programming blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 23 Sep 2024 12:44:03 -0400</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/prolog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 06 Nov 2024 11:02:02 -0400</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/prolog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A Dictionary in Six Lines of Prolog</title>
+      <link>https://blog.dnmfarrell.com/post/incomplete-data-structures/</link>
+      <pubDate>Wed, 06 Nov 2024 11:02:02 -0400</pubDate>
+      
+      <guid>https://blog.dnmfarrell.com/post/incomplete-data-structures/</guid>
+      <description>Chapter 15 from The Art of Prolog contains this dictionary implementation:
+lookup(Key, dict(Key,X,Left,Right), Value) :- !,X=Value. lookup(Key, dict(Keyl,X,Left,Right), Value) :- Key &amp;lt; Keyl, lookup(Key,Left,Value). lookup(Key, dict(Keyl,X,Left,Right), Value) :- Key &amp;gt; Keyl, lookup(Key,Right,Value).  Believe it or not, these six lines of code implement a dictionary as an ordered, binary search tree. The rule lookup/3 can be used to both add to and get from the dictionary.
+This query calls lookup/3 with a key, a variable, and a value.</description>
+    </item>
+    
     <item>
       <title>Simulating AWS IAM with Prolog</title>
       <link>https://blog.dnmfarrell.com/post/simulating-aws-iam-with-prolog/</link>

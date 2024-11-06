@@ -2,10 +2,15 @@ html,
 body {
   font-family: "Open Sans", sans-serif;
   font-size: large;
+  background-color: #FAFDFB;
+  color: #171219;
 }
 
 pre {
   overflow: auto;
+  margin: 24px 0;
+  font-size: x-large;
+  line-height: 1.2em;
 }
 
 pre:has(.language-wrap) {
@@ -35,10 +40,12 @@ h1 {
 h2 {
   margin-top: 16px;
   margin-bottom: 0;
+  color: #171219;
 }
 
 h3 {
   margin-bottom: 0;
+  color: #171219;
 }
 
 main {
@@ -94,19 +101,6 @@ a:visited { }
 
 em.date {
   color: #6B717E;
-}
-
-@media (prefers-color-scheme: light), (prefers-color-scheme: no-preference) {
-  body {
-    background-color: #FAFDFB;
-    color: #171219;
-  }
-  h2, h3 {
-    color: #171219;
-  }
-  code {
-    color: #6B717E;
-  }
 }
 
 @media (prefers-color-scheme: dark) {

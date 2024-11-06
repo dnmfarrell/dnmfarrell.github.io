@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>A Dictionary in Six Lines of Prolog</title>
+  <meta name="description" content="An incomplete data structure that isn&#39;t a difference list " />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/incomplete-data-structures/" />
+  <meta property="og:title" content="A Dictionary in Six Lines of Prolog" />
+  <meta property="og:description" content="An incomplete data structure that isn&#39;t a difference list ">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2024-11-06T02:02:24Z" />
+  <meta property="og:article:tag" content="prolog" />
+  <meta property="og:article:tag" content="data-structures" />
+  <meta property="og:article:tag" content="difference-lists" />
+</head>
+
+  <body>
+    
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZXLDS5VZ0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZZXLDS5VZ0');
+</script>
+<a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/incomplete-data-structures/><h2>A Dictionary in Six Lines of Prolog</h2></a>
+  <p class="description">An incomplete data structure that isn&#39;t a difference list </p>
+  <p><em class="date">November 6, 2024</em></p>
+</div>
+
+<p>Chapter 15 from <a href="https://mitpress.mit.edu/9780262691635/the-art-of-prolog/">The Art of Prolog</a> contains this dictionary implementation:</p>
+<pre><code>lookup(Key, dict(Key,X,Left,Right), Value) :-
+    !,X=Value.
+lookup(Key, dict(Keyl,X,Left,Right), Value) :-
+    Key &lt; Keyl, lookup(Key,Left,Value).
+lookup(Key, dict(Keyl,X,Left,Right), Value) :-
+    Key &gt; Keyl, lookup(Key,Right,Value).
+</code></pre>
+<p>Believe it or not, these six lines of code implement a dictionary as an ordered, binary search tree. The rule <code>lookup/3</code> can be used to both add to and get from the dictionary.</p>
+<p>This query calls <code>lookup/3</code> with a key, a variable, and a value. The variable is instantiated to a new dictionary containing the key-value pair and the variables <code>_A</code> and <code>_B</code> in the left and right branches:</p>
+<pre><code>?- lookup(123, Dict, &quot;foo&quot;).
+   Dict = dict(123,&quot;foo&quot;,_A,_B).
+</code></pre>
+<p>This query includes a second clause which adds another key-value pair, which is placed in the right branch of the first pair:</p>
+<pre><code>?- lookup(123, Dict, &quot;foo&quot;),
+   lookup(456, Dict, &quot;bar&quot;).
+   Dict = dict(123,&quot;foo&quot;,_A,dict(456,&quot;bar&quot;,_B,_C)).
+</code></pre>
+<p>Since values in logic programming are immutable - why does adding a key-value pair to the dictionary not need to copy and return a new version of the dictionary?</p>
+<p>The answer is because it&rsquo;s an incomplete data structure. The binary tree&rsquo;s left and right branches are variables, whose values can be determined later. So the lookup rule traverses the tree until it either finds a matching key, or it finds a variable, and &ldquo;unifies&rdquo; that branch making its key and value match its arguments.</p>
+<p>To get a key&rsquo;s value, we provide the value as a variable:</p>
+<pre><code>?- lookup(123, Dict, &quot;foo&quot;),
+   lookup(123, Dict, Value).
+   Dict = dict(123-&quot;foo&quot;,_A,_B), Value = &quot;foo&quot;.
+</code></pre>
+<p>Checking for existence is a little tricky though:</p>
+<pre><code>?- lookup(123, Dict, Value).
+   Dict = dict(123-Value,_A,_B).
+</code></pre>
+<p>The query &ldquo;succeeded&rdquo; but the value didn&rsquo;t exist, we got a variable back! We can use <code>nonvar/1</code> to check that our variable contains a value</p>
+<pre><code>?- lookup(123, Dict, Value), nonvar(Value).
+   false.
+</code></pre>
+<p>The Art of Prolog authors Sterling and Shapiro note some other limitations of the dictionary:</p>
+<blockquote>
+<q>If the key is non-numeric, the predicates &lt; and &gt; must be generalized. The cut is necessary ... because of the nonlogical nature of comparison operators, which will give errors if keys are not instantiated.</q>
+
+<p class="source">&mdash;&nbsp;The Art of Prolog, Chapter 15.3, <em></em></p>
+
+</blockquote>
+<p>But that was twenty years ago. Let&rsquo;s modernize it!</p>
+<pre><code>lookup(Key, dict(Key1-Value1, Left, Right), Value) :-
+  (   Key = Key1 -&gt;
+      Value = Value1
+  ;   compare(&lt;, Key, Key1) -&gt;
+      lookup(Key, Left, Value)
+  ;   lookup(Key, Right, Value)
+  ).
+</code></pre>
+<p>This version uses a single rule, with an if/then control structure to avoid leaving behind choicepoints, since we know each key in the dictionary is unique.</p>
+<p>Instead of a numeric comparison, it uses <code>compare/3</code> to sort any key types. This uses Prolog&rsquo;s <a href="https://www.metalevel.at/prolog/sorting">standard order</a> so keys can be strings, atoms, numbers, it doesn&rsquo;t matter.</p>
+<p>We also store pairs as the pair type (<code>Key-Value</code>), instead of two separate values. This makes easy to serialize a dictionary into a list of pairs, which are sortable using the builtin <code>keysort/2</code>:</p>
+<p>Extending our previous query:</p>
+<pre><code>?- lookup(123, Dict, &quot;foo&quot;),
+   lookup(456, Dict, &quot;bar&quot;),
+   to_list(Dict, Ls),
+   keysort(Ls, Ms).
+   Ls = [456-&quot;bar&quot;,123-&quot;foo&quot;],
+   Ms = [123-&quot;foo&quot;,456-&quot;bar&quot;].
+</code></pre>
+<p>Finally, we can make our code clearer by wrapping <code>lookup/3</code> with two new rules: <code>add/3</code> and <code>get/3</code>. The full implementation is on <a href="https://github.com/dnmfarrell/dict">GitHub</a>.</p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/prolog/>prolog</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/data-structures/>data-structures</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/difference-lists/>difference-lists</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+</footer>
+
+  </body>
+</html>
