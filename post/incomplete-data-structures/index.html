@@ -3,12 +3,12 @@
   <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>A Dictionary in Six Lines of Prolog</title>
-  <meta name="description" content="An incomplete data structure that isn&#39;t a difference list " />
+  <title>Incomplete Data Structures Challenge Our Notions of Mutability</title>
+  <meta name="description" content="Immutable but partially-instantiated" />
   <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
   <meta property="og:url" content="https://blog.dnmfarrell.com/post/incomplete-data-structures/" />
-  <meta property="og:title" content="A Dictionary in Six Lines of Prolog" />
-  <meta property="og:description" content="An incomplete data structure that isn&#39;t a difference list ">
+  <meta property="og:title" content="Incomplete Data Structures Challenge Our Notions of Mutability" />
+  <meta property="og:description" content="Immutable but partially-instantiated">
   <meta property="og:site_name" content="blog.dnmfarrell.com" />
   <meta property="og:type" content="article" />
   <meta property="og:article:published_time" content="2024-11-06T02:02:24Z" />
@@ -35,8 +35,8 @@
       
 
 <div class="post-title">
-  <a href=https://blog.dnmfarrell.com/post/incomplete-data-structures/><h2>A Dictionary in Six Lines of Prolog</h2></a>
-  <p class="description">An incomplete data structure that isn&#39;t a difference list </p>
+  <a href=https://blog.dnmfarrell.com/post/incomplete-data-structures/><h2>Incomplete Data Structures Challenge Our Notions of Mutability</h2></a>
+  <p class="description">Immutable but partially-instantiated</p>
   <p><em class="date">November 6, 2024</em></p>
 </div>
 
@@ -58,8 +58,13 @@ lookup(Key, dict(Keyl,X,Left,Right), Value) :-
    lookup(456, Dict, &quot;bar&quot;).
    Dict = dict(123,&quot;foo&quot;,_A,dict(456,&quot;bar&quot;,_B,_C)).
 </code></pre>
+<h3 id="immutable">Immutable?</h3>
 <p>Since values in logic programming are immutable - why does adding a key-value pair to the dictionary not need to copy and return a new version of the dictionary?</p>
 <p>The answer is because it&rsquo;s an incomplete data structure. The binary tree&rsquo;s left and right branches are variables, whose values can be determined later. So the lookup rule traverses the tree until it either finds a matching key, or it finds a variable, and &ldquo;unifies&rdquo; that branch making its key and value match its arguments.</p>
+<p>Instead of being mutable, the dictionary is partially-instantiated. Think of it as an unfinished sketch of a binary tree, where instead of <code>nil</code>, the leaves have a value of &ldquo;TBD&rdquo;.</p>
+<p>Yet it&rsquo;s immutable since once a concrete value is specified, it cannot be changed without making a copy.</p>
+<p>A more commonly encountered incomplete data structure is the <a href="https://pbrown.me/blog/difference-lists-explored/">difference list</a>. These are partially-instantiated linked-lists with a variable as its tail. Prefixing values to the tail allows appending to the list in constant time.</p>
+<h3 id="refactoring-the-dictionary">Refactoring the dictionary</h3>
 <p>To get a key&rsquo;s value, we provide the value as a variable:</p>
 <pre><code>?- lookup(123, Dict, &quot;foo&quot;),
    lookup(123, Dict, Value).
@@ -80,7 +85,7 @@ lookup(Key, dict(Keyl,X,Left,Right), Value) :-
 <p class="source">&mdash;&nbsp;The Art of Prolog, Chapter 15.3, <em></em></p>
 
 </blockquote>
-<p>But that was twenty years ago. Let&rsquo;s modernize it!</p>
+<p>But that was twenty years ago. Let&rsquo;s refactor it!</p>
 <pre><code>lookup(Key, dict(Key1-Value1, Left, Right), Value) :-
   (   Key = Key1 -&gt;
       Value = Value1
@@ -90,7 +95,7 @@ lookup(Key, dict(Keyl,X,Left,Right), Value) :-
   ).
 </code></pre>
 <p>This version uses a single rule, with an if/then control structure to avoid leaving behind choicepoints, since we know each key in the dictionary is unique.</p>
-<p>Instead of a numeric comparison, it uses <code>compare/3</code> to sort any key types. This uses Prolog&rsquo;s <a href="https://www.metalevel.at/prolog/sorting">standard order</a> so keys can be strings, atoms, numbers, it doesn&rsquo;t matter.</p>
+<p>Instead of a numeric comparison, it uses <code>compare/3</code> to sort any key types. This is a newer predicate which uses Prolog&rsquo;s <a href="https://www.metalevel.at/prolog/sorting">standard order</a> so keys can be strings, atoms, numbers, it doesn&rsquo;t matter.</p>
 <p>We also store pairs as the pair type (<code>Key-Value</code>), instead of two separate values. This makes easy to serialize a dictionary into a list of pairs, which are sortable using the builtin <code>keysort/2</code>:</p>
 <p>Extending our previous query:</p>
 <pre><code>?- lookup(123, Dict, &quot;foo&quot;),
@@ -100,7 +105,8 @@ lookup(Key, dict(Keyl,X,Left,Right), Value) :-
    Ls = [456-&quot;bar&quot;,123-&quot;foo&quot;],
    Ms = [123-&quot;foo&quot;,456-&quot;bar&quot;].
 </code></pre>
-<p>Finally, we can make our code clearer by wrapping <code>lookup/3</code> with two new rules: <code>add/3</code> and <code>get/3</code>. The full implementation is on <a href="https://github.com/dnmfarrell/dict">GitHub</a>.</p>
+<p>Finally, we can make our code clearer by wrapping <code>lookup/3</code> with two new rules: <code>add/3</code> and <code>get/3</code>.</p>
+<p>The full implementation is on <a href="https://github.com/dnmfarrell/dict">GitHub</a>.</p>
 
 
 <p>
