@@ -63,7 +63,7 @@ lookup(Key, dict(Keyl,X,Left,Right), Value) :-
 <p>The answer is because it&rsquo;s an incomplete data structure. The binary tree&rsquo;s left and right branches are variables, whose values can be determined later. So the lookup rule traverses the tree until it finds a matching key, or it finds a variable and &ldquo;unifies&rdquo; that branch making its key and value match its arguments.</p>
 <p>Instead of being mutable, the dictionary is partially-instantiated. Think of it as an unfinished sketch of a binary tree, where instead of <code>nil</code>, the leaves have a value of &ldquo;TBD&rdquo;.</p>
 <p>Yet it&rsquo;s immutable since once a concrete value is specified, it cannot be changed without making a copy.</p>
-<p>A more commonly encountered incomplete data structure is the <a href="https://pbrown.me/blog/difference-lists-explored/">difference list</a>. These are partially-instantiated linked-lists with a variable as its tail. Prepending values to the tail appends them to the list in constant time.</p>
+<p>A more commonly encountered incomplete data structure is the <a href="https://pbrown.me/blog/difference-lists-explored/">difference list</a>. These are partially-instantiated linked-lists with a variable for a tail. Prepending values to the tail appends them to the list in constant time.</p>
 <h3 id="refactoring-the-dictionary">Refactoring the dictionary</h3>
 <p>To get a key&rsquo;s value, we provide the value as a variable:</p>
 <pre><code>?- lookup(123, Dict, &quot;foo&quot;),
