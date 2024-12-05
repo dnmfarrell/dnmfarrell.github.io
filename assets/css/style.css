@@ -13,14 +13,20 @@ pre {
   line-height: 1.2em;
 }
 
-pre:has(.language-wrap) {
+pre:has(> .language-wrap) {
   text-wrap:wrap;
   overflow: hidden;
+}
+
+pre:has(> .language-prose) {
+  text-wrap:wrap;
+  line-height: 1.8em;
 }
 
 p > code {
   font-weight: 600;
 }
+
 
 p {
   line-height: 1.5;
