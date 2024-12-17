@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Novelty In Software Engineering</title>
+  <meta name="description" content="A lens for understanding complexity" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/novelty/" />
+  <meta property="og:title" content="Novelty In Software Engineering" />
+  <meta property="og:description" content="A lens for understanding complexity">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2024-12-16T41:35:24Z" />
+  <meta property="og:article:tag" content="complexity" />
+  <meta property="og:article:tag" content="agile" />
+  <meta property="og:article:tag" content="software-engineering" />
+</head>
+
+  <body>
+    
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZXLDS5VZ0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZZXLDS5VZ0');
+</script>
+<a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/novelty/><h2>Novelty In Software Engineering</h2></a>
+  <p class="description">A lens for understanding complexity</p>
+  <p><em class="date">December 16, 2024</em></p>
+</div>
+
+<p>In the 1940s Bell Aircraft used an experimental approach to build the first commercial helicopter:¹</p>
+<blockquote>
+<q>At Gardenville, we built things, tested them, modified them until they worked, and then made the drawings.</q>
+
+<p class="source">&mdash;&nbsp;The Bell Notes, Arthur M. Young, <em></em></p>
+
+</blockquote>
+<p>The project manager contrasted this with how they built airplanes:</p>
+<blockquote>
+<q>The main engineering group made drawings, sent them to the plant, and only the project manager ever saw the product fly. This was successful with airplanes because the airplane did not involve unknowns …</q>
+
+<p class="source">&mdash;&nbsp;The Bell Notes, Arthur M. Young, <em></em></p>
+
+</blockquote>
+<p>Prior to Arthur Young&rsquo;s arrival, Bell Aircraft had attempted to build helicopters without success. Meanwhile Young had built working prototypes on his farm. How is it that a successful aviation firm failed while a farmer triumphed?</p>
+<p>If we characterize problem-solving as the search for a solution, the domain complexity is a key factor. But with an incremental change to a complex domain, much of the space is already explored. And that&rsquo;s why with same methods that had failed to to build a helicopter, Bell Aircraft built the first American jet airplane. Jet propulsion was an <em>incremental</em> solution (they were even given a working jet engine!).</p>
+<p>Meanwhile to create the helicopter, one had to start the &ldquo;search&rdquo; from scratch. The helicopter was a <em>novel</em> solution to the problem of a vertical take-off and landing aircraft.</p>
+<h3 id="novelty-in-software">Novelty in software</h3>
+<p>The experimental development of the helicopter reminds me of Agile - the iterative software development philosophy we use today. Long before &ldquo;Agile&rdquo; was invented, Fred Brooks advocated for something similar, that software should not be &ldquo;built&rdquo; but &ldquo;grown&rdquo;:²</p>
+<blockquote>
+<q>If, as I believe, the conceptual structures we construct today are too complicated to be accurately specified in advance, and too complex to be built faultlessly, then we must take a radically different approach… I find that teams can grow much more complex entities in four months than they can build.</q>
+
+<p class="source">&mdash;&nbsp;No Silver Bullet, Fred P. Brooks, <em></em></p>
+
+</blockquote>
+<p>Brooks wrote his paper in the middle of the <a href="https://en.wikipedia.org/wiki/Productivity_paradox">productivity paradox in IT</a>. The rapid computerization of work had not delivered productivity gains. It turned out that workplace domains were far richer than expected, and the precision demanded by computers hurt as much as it helped. There was too much novelty.</p>
+<p>What changed? Anybody that has used a supermarket self-checkout station might attest that computerization still has room for improvement.³ What changed, I think was that we invented a new domain, the World Wide Web. This domain was much better suited to computers and the &ldquo;Information Highway&rdquo; took off.⁴ Yes, every company&rsquo;s website is different, but they are much more alike than their cultures.</p>
+<p>New standards, tools and libraries were built for the Web. Knowledge spread. The domain <em>novelty</em> decreased while solution complexity grew.</p>
+<p>Today we have fantastically complicated <a href="/post/microservices-reify-compute/">microservices</a>, but little novelty. Perhaps the most valuable function of LLMs is they can generate solutions over <em>infinite</em> domains containing incidental differences in novelty.</p>
+<h3 id="zooming-out">Zooming out</h3>
+<p>Could we one day eliminate novelty to the extent that Agile software development no longer makes sense? After all, we don&rsquo;t <em>grow</em> helicopters anymore. Surely the return to hard engineering, waterfall-style development is inevitable?</p>
+<p>Not so fast. For one thing the costs of engineering projects have ballooned over time. Is that something we want to emulate? For another, unlike hard-ware, software can be distributed instantly and essentially for <em>free</em>. Of course Brooks called this out this too:²</p>
+<blockquote>
+<q>The cost of software has always been development cost, not replication cost. Sharing that cost among even a few users radically cuts the per-user cost. Another way of looking at it is that the use of n copies of a software system effectively multiplies the productivity of its developers by n. That is an enhancement of the productivity of the discipline and of the nation.</q>
+
+<p class="source">&mdash;&nbsp;No Silver Bullet, Fred P. Brooks, <em></em></p>
+
+</blockquote>
+<p>Nevertheless when it&rsquo;s time to engineer software I believe a useful question to ask is: &ldquo;So what&rsquo;s new here?&rdquo;.</p>
+<h4 id="notes">Notes</h4>
+<ol>
+<li><a href="https://arthuryoung.com/books/the-bell-notes/">The Bell Notes</a>, Arthur M. Young.</li>
+<li><a href="https://www.cs.unc.edu/techreports/86-020.pdf">No Silver Bullet</a>, Fred Brooks, 1986.</li>
+<li>Or self-driving cars, smart cities, AI cancer detection etc…</li>
+<li>Likewise, will &ldquo;agents&rdquo; be the best domain for AI to express itself?</li>
+</ol>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/complexity/>complexity</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/agile/>agile</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/software-engineering/>software-engineering</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+</footer>
+
+  </body>
+</html>
