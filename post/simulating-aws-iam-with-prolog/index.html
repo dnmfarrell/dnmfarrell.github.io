@@ -64,7 +64,7 @@
   action(Action),           % the action exists AND
   policy(Action, Resource). % the policy exists
 </code></pre>
-<p>Although it looks like a function, rules behave more like an queries, with the variables Action and Resource acting as placeholders. To see it in action, I&rsquo;m going to create a few facts:</p>
+<p>Although it looks like a function, rules behave more like queries, with the variables Action and Resource acting as placeholders. To see it in action, I&rsquo;m going to create a few facts:</p>
 <pre><code>action('s3:GetObject').
 action('s3:PutObject').
 policy('s3:GetObject', 's3://example.com/foo.csv').

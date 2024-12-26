@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>User Stories As Tools For Thought</title>
+  <meta name="description" content="(But not for planning)" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/stories/" />
+  <meta property="og:title" content="User Stories As Tools For Thought" />
+  <meta property="og:description" content="(But not for planning)">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2024-12-20T42:01:24Z" />
+  <meta property="og:article:tag" content="complexity" />
+  <meta property="og:article:tag" content="user-stories" />
+  <meta property="og:article:tag" content="agile" />
+  <meta property="og:article:tag" content="software-engineering" />
+</head>
+
+  <body>
+    
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZXLDS5VZ0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZZXLDS5VZ0');
+</script>
+<a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/stories/><h2>User Stories As Tools For Thought</h2></a>
+  <p class="description">(But not for planning)</p>
+  <p><em class="date">December 20, 2024</em></p>
+</div>
+
+<p>Last week I wrote about <a href="/post/novelty/">novelty in software engineering</a>, and its relation to complexity. Now most of us are familiar with thinking tools for managing complexity such as documenting requirements, diagramming, statistics and so on. But novelty requires us to be creative, to invent new solutions.</p>
+<p>So this week I want to share one of the most helpful tools I&rsquo;ve found for creative thought in software: user stories. And I don&rsquo;t mean &ldquo;tickets in Jira&rdquo; - in fact I think user stories make for a poor planning tool, which I&rsquo;ll explain later.</p>
+<h3 id="what-are-user-stories">What are user stories?</h3>
+<p>What I mean by user stories is this: a text document which describes the different types of software users, and lists their needs as user stories.</p>
+<p>Let&rsquo;s imagine we&rsquo;re creating an app that lets customers trade stocks, like eTrade. First let&rsquo;s try to enumerate the different types of users. There are many ways to do this. We could contrast internal users (reps, admins, developers) and external users (customers, suppliers, service providers). We could segment customers by size, such as SMB and Enterprise users.</p>
+<p>User identity is not enough however. In the user story document, <em>the key criterion for different user types is that they have different needs</em>, which are expressed as stories. So &ldquo;day trader&rdquo; and &ldquo;investor&rdquo; are both external customers, but they have quite different needs:</p>
+<p>Day Trader</p>
+<ul>
+<li>I want to trade high volume stocks with sophisticated trading strategies to make short term profits.</li>
+<li>I need to see the order book in order to size my trades.</li>
+<li>I need low latency trade execution to minimize drift between my requests and price movement.
+…</li>
+</ul>
+<p>Investor</p>
+<ul>
+<li>I want to buy stocks at the best available price, for the lowest fees.</li>
+<li>I want the software to auto-balance my portfolio amongst different asset classes to mitigate risk.</li>
+<li>I must be notified of relevent investor relation events and my voting options.
+…</li>
+</ul>
+<p>Usually the product manager is the best person to draft the user story document, but tech and other stakeholders should participate. The user stories should be kept up to date to match the team&rsquo;s understanding of the software as it is developed. It can also be used as a simple planning control to prioritize stories.</p>
+<h3 id="why-user-stories-help-with-novelty">Why user stories help with novelty</h3>
+<p>The process of identifying relevant user types and describing their needs improves the team&rsquo;s understanding of the problem the software is meant to address. With novel domains in particular, there is less prior art to copy, and the team is likely different understanindg/opinions &hellip;.</p>
+<p>Discussing the overlapping and conflicting needs of users helps the team prior</p>
+<p>Stories</p>
+<ul>
+<li>Natural language, short</li>
+<li>Different user perspectives more comprehensive descriptions</li>
+<li>Encourage participation</li>
+<li>Good for empathy, the why</li>
+<li>Focus on value not details</li>
+<li>Comprehensible by everyone</li>
+</ul>
+<h3 id="why-user-stories-are-a-poor-planning-tool">Why user stories are a poor planning tool</h3>
+<p>If user stories succinctly articulate users' needs, what are the chances that they are also the right unit of work to be used for coordinating a software project? That would be an amazing coincidence.</p>
+<p>And yet that is the common claim.¹ And when you wed user stories to planning and there is a conflict, what do you do?</p>
+<blockquote>
+<q>If a story won&#39;t fit in an iteration, you can split the story into two or more smaller stories</q>
+
+<p class="source">&mdash;&nbsp;User Stories Applied, Mike Cohn, <em></em></p>
+
+</blockquote>
+<p>In other words, contort user stories to fit into sprints.</p>
+<p>User stories are great, but the users' perspective isn&rsquo;t the whole story. What about project tasks addressing things hidden from users, or only tangentially related to their needs? So called &ldquo;story-less&rdquo; tasks like optimizations, fixing bugs and upgrading software versions. These don&rsquo;t belong to stories, yet they must be done.</p>
+<p>And finally, what happens when you need to communicate the team&rsquo;s understanding of users to project stakeholders, or onboard a new team member? A bucket of Jira tickets isn&rsquo;t a good communication medium for that.²</p>
+<p>The answer is not to sacrifice user stories for planning' sake. And that doesn&rsquo;t mean not &ldquo;doing&rdquo; Agile. In fact neither the Agile Manifesto nor Scrum Guide mention user stories at all.³</p>
+<p>Use stories to develop and communicate a shared understanding of the software&rsquo;s users. Use tickets of work tasks to coordinate the implementation. They shouldn&rsquo;t be the same thing.</p>
+<h4 id="notes">Notes</h4>
+<ol>
+<li>&ldquo;User stories are the right size for planning&rdquo; from User Stories Applied by Mike Cohn.</li>
+<li>And neither are cards pinned to a corkboard, or a photo of them or whatever.</li>
+<li><a href="https://agilemanifesto.org/">Agile Manifesto</a> and <a href="https://scrumguides.org/scrum-guide.html">2020 Scrum Guide</a>.</li>
+</ol>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/complexity/>complexity</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/user-stories/>user-stories</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/agile/>agile</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/software-engineering/>software-engineering</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+</footer>
+
+  </body>
+</html>
