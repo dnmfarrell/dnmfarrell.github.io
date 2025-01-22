@@ -43,7 +43,7 @@
 </div>
 
 <p>In his book <a href="https://www.amazon.com/Nature-Technology-What-How-Evolves/dp/1416544062">The Nature of Technology</a>, W. Brian Arthur describes technology as combinations of other technologies.</p>
-<p>Take a software program like Git. To figure out what technologies Git is made of, perhaps all we have to do is inspect its dependencies? Surprisingly, Git has no real dependencies apart from libc.¹</p>
+<p>Take a software program like Git. To figure out what technologies Git is made of, perhaps all we have to do is inspect its dependencies? Surprisingly, Git has very few real dependencies.¹</p>
 <p>Arthur&rsquo;s description of technology is recursive, so where does it end? Arthur&rsquo;s answer is in elemental technologies. These are technologies which deliver an effect based on a natural phenomenon:</p>
 <blockquote>
 <q>That certain objects—pendulums or quartz crystals—oscillate at a steady given frequency is a phenomenon. Using this phenomenon for time keeping constitutes a principle, and yields from this a clock.</q>
@@ -97,7 +97,7 @@
 <p>We can model the effects of disruption using the Computing Ontology; the disrupted technology and its descendant nodes will be discarded in favor of a new hierarchy. Arthur calls this destructive cascade an &ldquo;avalanche&rdquo;. Unrelated technologies, or those higher up the mountain will be spared.</p>
 <h4 id="notes">Notes</h4>
 <ol>
-<li>Dependencies like Python and SSL are <a href="https://github.com/git/git/blob/master/Makefile">optional</a>.</li>
+<li>E.G. in Git 2.47.1 many dependencies are <a href="https://github.com/NixOS/nixpkgs/blob/8bffda905781922cf05d6d4932805a57418e7746/pkgs/applications/version-management/git/default.nix#L91">optional</a>.</li>
 <li><a href="https://git-scm.com/book/en/v2/Git-Internals-Git-Objects">Git Internals - Git Objects</a> describes some of these.</li>
 <li>Git uses the linear space variant, which occasionally makes for some <a href="https://blog.jcoglan.com/2017/03/22/myers-diff-in-linear-space-theory/">weird diffs</a>.</li>
 <li><a href="https://www.amazon.com/Theory-Economic-Development-Science-Classics/dp/0878556982">The Theory of Economic Development</a>, Joseph, A. Schumpeter.</li>
