@@ -1,64 +1,47 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>bash on Code - a programming blog</title>
+    <title>Bash on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/bash/</link>
-    <description>Recent content in bash on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Bash on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 28 Dec 2021 18:44:47 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/bash/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 28 Dec 2021 18:44:47 -0500</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/bash/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Replicating Bash Argument Splitting</title>
       <link>https://blog.dnmfarrell.com/post/replicating-bash-argument-splitting/</link>
       <pubDate>Tue, 28 Dec 2021 18:44:47 -0500</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/replicating-bash-argument-splitting/</guid>
-      <description>A few weeks ago I was writing a macro loader for my JSON Processor, and I ran into an odd case where code I entered in the terminal was splitting differently to code I loaded from a file. It turns out that Bash&amp;rsquo;s word splitting behaves differently for arguments than it does for variables.
-When processing args Bash will not split quoted words that contain a delimiter:
-printf &amp;quot;%s\n&amp;quot; foo &#39;bar baz&#39; foo bar baz  But if those args are in a string:</description>
+      <description>&lt;p&gt;A few weeks ago I was writing a macro loader for my &lt;a href=&#34;https://github.com/dnmfarrell/jp&#34;&gt;JSON Processor&lt;/a&gt;, and I ran into an odd case where code I entered in the terminal was splitting differently to code I loaded from a file. It turns out that Bash&amp;rsquo;s word splitting behaves differently for arguments than it does for variables.&lt;/p&gt;&#xA;&lt;p&gt;When processing args Bash will not split quoted words that contain a delimiter:&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;printf &amp;quot;%s\n&amp;quot; foo &#39;bar baz&#39;&#xA;foo&#xA;bar baz&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;But if those args are in a string:&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>How to Split a String in POSIX Shell</title>
       <link>https://blog.dnmfarrell.com/post/how-to-split-a-string-in-posix-shell/</link>
       <pubDate>Fri, 12 Nov 2021 09:03:41 -0500</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/how-to-split-a-string-in-posix-shell/</guid>
-      <description>The POSIX Shell specification defines a minimalist shell language with few features compared to stalwarts like Bash. Yet POSIX shells are everywhere: Dash is the default on Ubuntu, and many Docker containers only have busybox ash. Minimalist shells use less resources and are faster than featureful shells like Bash and Zsh¹. They are more likely to be secure too, as the reduced feature sets are easier to reason about and provide a smaller attack surface for hackers.</description>
+      <description>&lt;p&gt;The POSIX Shell &lt;a href=&#34;https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html&#34;&gt;specification&lt;/a&gt; defines a minimalist shell language with few features compared to stalwarts like Bash. Yet POSIX shells are everywhere: &lt;a href=&#34;https://en.wikipedia.org/wiki/Almquist_shell&#34;&gt;Dash&lt;/a&gt; is the default on Ubuntu, and many Docker containers only have busybox &lt;a href=&#34;https://github.com/brgl/busybox/blob/master/shell/ash.c&#34;&gt;ash&lt;/a&gt;. Minimalist shells use less resources and are faster than featureful shells like &lt;a href=&#34;https://www.gnu.org/software/bash/&#34;&gt;Bash&lt;/a&gt; and &lt;a href=&#34;https://www.zsh.org/&#34;&gt;Zsh&lt;/a&gt;¹. They are more likely to be secure too, as the reduced feature sets are easier to reason about and provide a smaller attack surface for hackers.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Bash Function Names Can Be Almost Anything</title>
       <link>https://blog.dnmfarrell.com/post/bash-function-names-can-be-almost-anything/</link>
       <pubDate>Sun, 20 Jun 2021 20:19:32 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/bash-function-names-can-be-almost-anything/</guid>
-      <description>A common misconception about Bash is that function names must follow the same rules that variables do. The Bash manual even suggests this:
- A word consisting solely of letters, numbers, and underscores, and beginning with a letter or underscore. Names are used as shell variable and function names. Also referred to as an identifier.
- In fact Bash function names can be almost any printable character. For instance I can define my own pre-increment unary function:</description>
+      <description>&lt;p&gt;A common misconception about Bash is that function names must follow the same rules that variables do. The Bash &lt;a href=&#34;https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#index-name&#34;&gt;manual&lt;/a&gt; even suggests this:&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;A word consisting solely of letters, numbers, and underscores, and beginning with a letter or underscore. Names are used as shell variable and function names. Also referred to as an identifier.&lt;/p&gt;&#xA;&lt;/blockquote&gt;&#xA;&lt;p&gt;In fact Bash function names can be almost any printable character. For instance I can define my own pre-increment unary function:&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Three Ways to Get a Unix Epoch in Bash</title>
       <link>https://blog.dnmfarrell.com/post/three-ways-to-get-a-unix-epoch-in-bash/</link>
       <pubDate>Sun, 13 Jun 2021 11:34:50 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/three-ways-to-get-a-unix-epoch-in-bash/</guid>
-      <description>The Unix epoch time is the number of elapsed seconds since January 1st, 1970. Epoch times are handy because they&amp;rsquo;re not subject to timezone offsets, and they&amp;rsquo;re numbers, unlike ISO 8601 timestamps for example (&amp;ldquo;1970-01-01T00:00:00Z&amp;rdquo;). That makes them memory efficient, and more importantly, easy to do math with.
-Here are three ways to get the epoch time in Bash.
-Use Date You can use the date program to generate the epoch time by providing the %s formatting argument.</description>
+      <description>&lt;p&gt;The Unix &lt;a href=&#34;https://en.wikipedia.org/wiki/Unix_time&#34;&gt;epoch time&lt;/a&gt; is the number of elapsed seconds since January 1st, 1970. Epoch times are handy because they&amp;rsquo;re not subject to timezone offsets, and they&amp;rsquo;re numbers, unlike ISO 8601 timestamps for example (&amp;ldquo;1970-01-01T00:00:00Z&amp;rdquo;). That makes them memory efficient, and more importantly, easy to do math with.&lt;/p&gt;&#xA;&lt;p&gt;Here are three ways to get the epoch time in Bash.&lt;/p&gt;&#xA;&lt;h3 id=&#34;use-date&#34;&gt;Use Date&lt;/h3&gt;&#xA;&lt;p&gt;You can use the &lt;code&gt;date&lt;/code&gt; program to generate the epoch time by providing the &lt;code&gt;%s&lt;/code&gt; formatting argument. Here I&amp;rsquo;ve included &lt;code&gt;%N&lt;/code&gt; to append nanoseconds:&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Modulinos In Bash</title>
       <link>https://blog.dnmfarrell.com/post/modulinos-in-bash/</link>
       <pubDate>Sat, 12 Jun 2021 00:00:00 +0000</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/modulinos-in-bash/</guid>
-      <description>A modulino is a file which behaves like a library when it is imported, and like a script when executed. I first read about them in Mastering Perl, but you can create them in other languages too. Here&amp;rsquo;s how to do it in Bash.
-Let&amp;rsquo;s say you have a simple script:
-#!/bin/bash echo &amp;quot;Hello, World!&amp;quot;  A common refactor with scripts is to encapsulate all the code behavior in functions. As this script only does one thing, it&amp;rsquo;s a small change:</description>
+      <description>&lt;p&gt;A modulino is a file which behaves like a library when it is imported, and like a script when executed. I first read about them in &lt;a href=&#34;https://www.oreilly.com/library/view/mastering-perl-2nd/9781449364946/&#34;&gt;Mastering Perl&lt;/a&gt;, but you can create them in other languages too. Here&amp;rsquo;s how to do it in Bash.&lt;/p&gt;&#xA;&lt;p&gt;Let&amp;rsquo;s say you have a simple script:&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;#!/bin/bash&#xA;&#xA;echo &amp;quot;Hello, World!&amp;quot;&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;A common refactor with scripts is to encapsulate all the code behavior in functions. As this script only does one thing, it&amp;rsquo;s a small change:&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

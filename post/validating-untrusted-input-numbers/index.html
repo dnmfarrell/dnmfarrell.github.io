@@ -17,6 +17,7 @@
   <meta property="og:article:tag" content="dualvar" />
   <meta property="og:article:tag" content="taint" />
   <meta property="og:article:tag" content="perl" />
+
 </head>
 
   <body>
@@ -45,7 +46,7 @@
 </div>
 
 <p>Validating untrusted input safely is critical for application security: SQL injection, XSS and malicious file upload are common attacks which succeed because the user&rsquo;s input is not vetted correctly.</p>
-<p>Numbers are problematic: negative numbers (&ldquo;the sales price was -$500&rdquo;), very large numbers (&ldquo;my account balance is 9,223,372,036,854,775,807&rdquo;) or not-a-number (&ldquo;rm -rf /&quot;) can all wreak havoc if not handled with care.</p>
+<p>Numbers are problematic: negative numbers (&ldquo;the sales price was -$500&rdquo;), very large numbers (&ldquo;my account balance is 9,223,372,036,854,775,807&rdquo;) or not-a-number (&ldquo;rm -rf /&rdquo;) can all wreak havoc if not handled with care.</p>
 <p>Fortunately, Perl has robust capabilities for validating input but there are some edge cases to be aware of that make answering &ldquo;is $x a number?&rdquo; more difficult than you might think it would be.</p>
 <h3 id="pattern-matching">Pattern matching</h3>
 <p>Part of the problem of course, is that numbers come in more varieties than we commonly assume there to be. Regexes are a natural fit for common cases like decimal integer validation: for example <code>/^\d+$/</code> would confirm the input contains only digits. That might be enough for your application but be aware that it doesn&rsquo;t handle all permutations of integers. What if you want to accept negative numbers?</p>

@@ -97,10 +97,23 @@ blockquote p.source {
   font-size: 85%;
 }
 
-
 a {
   text-decoration: none;
     color: #EC0B43;
+}
+
+textarea.eval_in, textarea.eval_out {
+  width:100%;
+  border-width:3px;
+  font-size: x-large;
+  line-height: 1.2em;
+  margin: 0;
+  box-shadow: none;
+  resize: none;
+}
+
+textarea:focus {
+  outline: none !important;
 }
 
 a:visited { }

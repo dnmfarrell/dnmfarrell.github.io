@@ -1,64 +1,47 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>shell on Code - a programming blog</title>
+    <title>Shell on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/shell/</link>
-    <description>Recent content in shell on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Shell on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 24 Oct 2023 19:45:32 -0400</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/shell/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 24 Oct 2023 19:45:32 -0400</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/shell/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>A ChatGPT Shell Script</title>
       <link>https://blog.dnmfarrell.com/post/chatgpt-at-the-terminal/</link>
       <pubDate>Tue, 24 Oct 2023 19:45:32 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/chatgpt-at-the-terminal/</guid>
-      <description>I wrote a shell script called ch which lets you use ChatGPT from the command line. I&amp;rsquo;ve been using it for the past few months on my laptop and mobile phone.
-This video has more background on the rationale for ch and some examples.
-  </description>
+      <description>&lt;p&gt;I wrote a shell script called &lt;a href=&#34;https://github.com/dnmfarrell/ch&#34;&gt;ch&lt;/a&gt; which lets you use ChatGPT from the command line. I&amp;rsquo;ve been using it for the past few months on my laptop and mobile phone.&lt;/p&gt;&#xA;&lt;p&gt;This video has more background on the rationale for &lt;code&gt;ch&lt;/code&gt; and some examples.&lt;/p&gt;&#xA;&#xA;    &lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;&#xA;      &lt;iframe allow=&#34;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share&#34; allowfullscreen=&#34;allowfullscreen&#34; loading=&#34;eager&#34; referrerpolicy=&#34;strict-origin-when-cross-origin&#34; src=&#34;https://www.youtube.com/embed/9aYUvLeM0yo?autoplay=0&amp;amp;controls=1&amp;amp;end=0&amp;amp;loop=0&amp;amp;mute=0&amp;amp;start=0&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; title=&#34;YouTube video&#34;&gt;&lt;/iframe&gt;&#xA;    &lt;/div&gt;</description>
     </item>
-    
     <item>
       <title>Parallel Processing with POSIX Shell</title>
       <link>https://blog.dnmfarrell.com/post/parallel-processing-with-bash/</link>
       <pubDate>Sun, 12 Feb 2023 17:28:37 -0500</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/parallel-processing-with-bash/</guid>
-      <description>N.B. The main example in this post has been updated to use POSIX shell instead of bash.
-Last week at work I had to whip up a script to process several thousand ids for product analysis on a new feature we&amp;rsquo;re launching. The processing included making HTTP requests to a service, and I was on a deadline, so the script had to be concurrent. Here&amp;rsquo;s what I came up with:</description>
+      <description>&lt;p&gt;&lt;strong&gt;N.B. The main example in this post has been updated to use POSIX shell instead of bash.&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;p&gt;Last week at work I had to whip up a script to process several thousand ids for product analysis on a new feature we&amp;rsquo;re launching. The processing included making HTTP requests to a service, and I was on a deadline, so the script had to be concurrent. Here&amp;rsquo;s what I came up with:&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Unit Testing Shell Scripts</title>
       <link>https://blog.dnmfarrell.com/post/unit-testing-shell-scripts/</link>
       <pubDate>Fri, 16 Jul 2021 09:32:50 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/unit-testing-shell-scripts/</guid>
-      <description>Unit testing is great way to build confidence that your code works. Usually you&amp;rsquo;d write unit tests for libraries; but if you have a particularly long or complicated shell script, it might be worth converting it to a modulino just so you can write tests for it. And if you are writing a library in shell code, you need all the help you can get anyway.
-So let&amp;rsquo;s assume you have some shell code to test, now what?</description>
+      <description>&lt;p&gt;Unit testing is great way to build confidence that your code works. Usually you&amp;rsquo;d write unit tests for libraries; but if you have a particularly long or complicated shell script, it might be worth converting it to a &lt;a href=&#34;https://blog.dnmfarrell.com/post/modulinos-in-bash/&#34;&gt;modulino&lt;/a&gt; just so you can write tests for it. And if you are writing a library in shell code, you need all the help you can get anyway.&lt;/p&gt;&#xA;&lt;p&gt;So let&amp;rsquo;s assume you have some shell code to test, now what? Well most shells have no built-in unit testing capabilities, so you need to write a script to load your code, and check it does the right thing and report the results.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Bash Function Names Can Be Almost Anything</title>
       <link>https://blog.dnmfarrell.com/post/bash-function-names-can-be-almost-anything/</link>
       <pubDate>Sun, 20 Jun 2021 20:19:32 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/bash-function-names-can-be-almost-anything/</guid>
-      <description>A common misconception about Bash is that function names must follow the same rules that variables do. The Bash manual even suggests this:
- A word consisting solely of letters, numbers, and underscores, and beginning with a letter or underscore. Names are used as shell variable and function names. Also referred to as an identifier.
- In fact Bash function names can be almost any printable character. For instance I can define my own pre-increment unary function:</description>
+      <description>&lt;p&gt;A common misconception about Bash is that function names must follow the same rules that variables do. The Bash &lt;a href=&#34;https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#index-name&#34;&gt;manual&lt;/a&gt; even suggests this:&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;A word consisting solely of letters, numbers, and underscores, and beginning with a letter or underscore. Names are used as shell variable and function names. Also referred to as an identifier.&lt;/p&gt;&#xA;&lt;/blockquote&gt;&#xA;&lt;p&gt;In fact Bash function names can be almost any printable character. For instance I can define my own pre-increment unary function:&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Modulinos In Bash</title>
       <link>https://blog.dnmfarrell.com/post/modulinos-in-bash/</link>
       <pubDate>Sat, 12 Jun 2021 00:00:00 +0000</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/modulinos-in-bash/</guid>
-      <description>A modulino is a file which behaves like a library when it is imported, and like a script when executed. I first read about them in Mastering Perl, but you can create them in other languages too. Here&amp;rsquo;s how to do it in Bash.
-Let&amp;rsquo;s say you have a simple script:
-#!/bin/bash echo &amp;quot;Hello, World!&amp;quot;  A common refactor with scripts is to encapsulate all the code behavior in functions. As this script only does one thing, it&amp;rsquo;s a small change:</description>
+      <description>&lt;p&gt;A modulino is a file which behaves like a library when it is imported, and like a script when executed. I first read about them in &lt;a href=&#34;https://www.oreilly.com/library/view/mastering-perl-2nd/9781449364946/&#34;&gt;Mastering Perl&lt;/a&gt;, but you can create them in other languages too. Here&amp;rsquo;s how to do it in Bash.&lt;/p&gt;&#xA;&lt;p&gt;Let&amp;rsquo;s say you have a simple script:&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;#!/bin/bash&#xA;&#xA;echo &amp;quot;Hello, World!&amp;quot;&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;A common refactor with scripts is to encapsulate all the code behavior in functions. As this script only does one thing, it&amp;rsquo;s a small change:&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

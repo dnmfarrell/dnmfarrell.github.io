@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>regexp-common on Code - a programming blog</title>
+    <title>Regexp-Common on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/regexp-common/</link>
-    <description>Recent content in regexp-common on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Regexp-Common on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 03 Dec 2018 09:10:38 +0000</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/regexp-common/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 03 Dec 2018 09:10:38 +0000</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/regexp-common/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Validating Untrusted Input: Numbers</title>
       <link>https://blog.dnmfarrell.com/post/validating-untrusted-input-numbers/</link>
       <pubDate>Mon, 03 Dec 2018 09:10:38 +0000</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/validating-untrusted-input-numbers/</guid>
-      <description>Validating untrusted input safely is critical for application security: SQL injection, XSS and malicious file upload are common attacks which succeed because the user&amp;rsquo;s input is not vetted correctly.
-Numbers are problematic: negative numbers (&amp;ldquo;the sales price was -$500&amp;rdquo;), very large numbers (&amp;ldquo;my account balance is 9,223,372,036,854,775,807&amp;rdquo;) or not-a-number (&amp;ldquo;rm -rf /&amp;quot;) can all wreak havoc if not handled with care.
-Fortunately, Perl has robust capabilities for validating input but there are some edge cases to be aware of that make answering &amp;ldquo;is $x a number?</description>
+      <description>&lt;p&gt;Validating untrusted input safely is critical for application security: SQL injection, XSS and malicious file upload are common attacks which succeed because the user&amp;rsquo;s input is not vetted correctly.&lt;/p&gt;&#xA;&lt;p&gt;Numbers are problematic: negative numbers (&amp;ldquo;the sales price was -$500&amp;rdquo;), very large numbers (&amp;ldquo;my account balance is 9,223,372,036,854,775,807&amp;rdquo;) or not-a-number (&amp;ldquo;rm -rf /&amp;rdquo;) can all wreak havoc if not handled with care.&lt;/p&gt;&#xA;&lt;p&gt;Fortunately, Perl has robust capabilities for validating input but there are some edge cases to be aware of that make answering &amp;ldquo;is $x a number?&amp;rdquo; more difficult than you might think it would be.&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

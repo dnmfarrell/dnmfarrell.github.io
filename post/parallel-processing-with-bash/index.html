@@ -18,6 +18,7 @@
   <meta property="og:article:tag" content="fork" />
   <meta property="og:article:tag" content="shell" />
   <meta property="og:article:tag" content="concurrency" />
+
 </head>
 
   <body>
@@ -72,7 +73,7 @@ prefix_sig=&quot;$prefix_inp-x&quot;
 
 cleanup() {
 	for sigchan in &quot;$prefix_sig&quot;*; do
-        echo 1 &gt;&quot;$sigchan&quot;
+		echo 1 &gt;&quot;$sigchan&quot;
 	done
 	rm -f &quot;$prefix_inp&quot;*
 	wait
@@ -94,9 +95,9 @@ while getopts &quot;w:&quot; opt; do
 	case &quot;$opt&quot; in
 	'w') num_workers=&quot;$OPTARG&quot; ;;
 	*)
-        printf &quot;Usage:\n\tforklift [-w#] command\n&quot;
-        exit 1
-        ;;
+		printf &quot;Usage:\n\tforklift [-w#] command\n&quot;
+		exit 1
+		;;
 	esac
 done
 shift $((OPTIND - 1))
@@ -117,9 +118,9 @@ done
 while read -r line; do
 	echo &quot;$line&quot; &gt;&quot;$prefix_inp-$next_fifo&quot;
 	if [ &quot;$next_fifo&quot; -eq &quot;$num_workers&quot; ]; then
-        next_fifo=1
+		next_fifo=1
 	else
-        next_fifo=$((next_fifo + 1))
+		next_fifo=$((next_fifo + 1))
 	fi
 done
 </code></pre>

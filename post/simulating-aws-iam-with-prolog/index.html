@@ -16,6 +16,7 @@
   <meta property="og:article:tag" content="prolog" />
   <meta property="og:article:tag" content="simulation" />
   <meta property="og:article:tag" content="cloud-security" />
+
 </head>
 
   <body>
@@ -44,7 +45,7 @@
 </div>
 
 <p>Of all the AWS services, <a href="https://docs.aws.amazon.com/iam/">IAM</a> seems to be the least well-understood. There is something about its data types, logical rules and runtime conditions that make for an arcane, abstract service that most developers treat like a black box.</p>
-<p>And that&rsquo;s unfortunate because IAM secures organizations' cloud resources, and can be the difference between having a data moat and a data breach.</p>
+<p>And that&rsquo;s unfortunate because IAM secures organizations&rsquo; cloud resources, and can be the difference between having a data moat and a data breach.</p>
 <p>Now whilst there are a bunch of tools¹ to help manage IAM permissions, they all suffer from one drawback or another. So I wanted to prototype something better.</p>
 <h3 id="sketching-a-solution">Sketching a solution</h3>
 <p>What I&rsquo;d like is a local program that can ingest IAM policies and then simulate whether certain requests would succeed or fail. The program should be able to enumerate all the actions an identity may perform on a given resource. I could then write unit tests which check my app has the permissions it needs and that it does not grant permissions in violation of organization-wide rules. This would work with CI/CD to prevent new security holes, and identify missing permissions <em>before</em> the app is deployed.</p>

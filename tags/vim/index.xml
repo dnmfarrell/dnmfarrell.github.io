@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>vim on Code - a programming blog</title>
+    <title>Vim on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/vim/</link>
-    <description>Recent content in vim on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Vim on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 23 Nov 2021 11:50:45 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/vim/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 23 Nov 2021 11:50:45 -0500</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/vim/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>How to Copy a Vim Buffer to the Clipboard</title>
       <link>https://blog.dnmfarrell.com/post/how-to-copy-a-vim-buffer-to-the-clipboard/</link>
       <pubDate>Tue, 23 Nov 2021 11:50:45 -0500</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/how-to-copy-a-vim-buffer-to-the-clipboard/</guid>
-      <description>I usually program with vim inside a tmux session. I&amp;rsquo;m a big fan of tmux, but the copy-and-paste feature is decidedly clunky. And my version of vim is compiled without clipboard support. What to do? I could install a vim with clipboard support, but surely this is just a small matter of programming.
-Copy text into the clipboard The clipboard is controlled by the windowing system; my system uses X11, so I use the xclip utility to copy text into the clipboard.</description>
+      <description>&lt;p&gt;I usually program with vim inside a tmux session. I&amp;rsquo;m a &lt;a href=&#34;https://blog.dnmfarrell.com/post/organize-your-work-with-tmux/&#34;&gt;big fan of tmux&lt;/a&gt;, but the copy-and-paste feature is decidedly clunky. And my version of vim is compiled without &lt;a href=&#34;https://vim.fandom.com/wiki/Accessing_the_system_clipboard#Checking_for_X11-clipboard_support_in_terminal&#34;&gt;clipboard support&lt;/a&gt;. What to do? I &lt;em&gt;could&lt;/em&gt; install a vim with clipboard support, but surely this is just a small matter of programming.&lt;/p&gt;&#xA;&lt;h3 id=&#34;copy-text-into-the-clipboard&#34;&gt;Copy text into the clipboard&lt;/h3&gt;&#xA;&lt;p&gt;The clipboard is controlled by the windowing system; my system uses X11, so I use the &lt;a href=&#34;https://github.com/astrand/xclip&#34;&gt;xclip&lt;/a&gt; utility to copy text into the clipboard. If you&amp;rsquo;re using &lt;a href=&#34;https://wayland.freedesktop.org/&#34;&gt;Wayland&lt;/a&gt; you&amp;rsquo;ll need to use a different utility, like &lt;a href=&#34;https://github.com/bugaevc/wl-clipboard&#34;&gt;wl-clipboard&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

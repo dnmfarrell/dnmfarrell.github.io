@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>haskell on Code - a programming blog</title>
+    <title>Haskell on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/haskell/</link>
-    <description>Recent content in haskell on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Haskell on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 24 Feb 2023 07:39:14 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/haskell/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 24 Feb 2023 07:39:14 -0500</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/haskell/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Monads Can Simplify Go&#39;s Error Handling</title>
       <link>https://blog.dnmfarrell.com/post/monads-simplify-go-error-handling/</link>
       <pubDate>Fri, 24 Feb 2023 07:39:14 -0500</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/monads-simplify-go-error-handling/</guid>
-      <description>Roughly a year ago I wrote about my attempts to tackle Go&amp;rsquo;s error handling problem using generics. I wasn&amp;rsquo;t very successful:
- This code is almost as long as the original and frankly, hurts my eyes.
- Since then I&amp;rsquo;ve continued experimenting with the idea and think I have something worth sharing. But first, let me recap the problem with an example.
-Parsing Truthiness Many programming languages have the concept of truthiness, that decides whether or not an expression will evaluate as true or false in a boolean context.</description>
+      <description>&lt;p&gt;Roughly a year ago I &lt;a href=&#34;https://blog.dnmfarrell.com/post/can-generics-rescue-golangs-clunky-error-handling/&#34;&gt;wrote about&lt;/a&gt; my attempts to tackle Go&amp;rsquo;s &lt;a href=&#34;https://go.googlesource.com/proposal/+/master/design/go2draft-error-handling-overview.md&#34;&gt;error handling problem&lt;/a&gt; using generics. I wasn&amp;rsquo;t very successful:&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;This code is almost as long as the original and frankly, hurts my eyes.&lt;/p&gt;&#xA;&lt;/blockquote&gt;&#xA;&lt;p&gt;Since then I&amp;rsquo;ve continued experimenting with the idea and think I have something worth sharing. But first, let me recap the problem with an example.&lt;/p&gt;&#xA;&lt;h3 id=&#34;parsing-truthiness&#34;&gt;Parsing Truthiness&lt;/h3&gt;&#xA;&lt;p&gt;Many programming languages have the concept of &lt;a href=&#34;https://blog.dnmfarrell.com/post/the-inconvenient-convenience-of-dynamic-languages/&#34;&gt;truthiness&lt;/a&gt;, that decides whether or not an expression will evaluate as true or false in a boolean context. For example in C, the number 0 evaluates as false in an &lt;code&gt;if&lt;/code&gt; statement.&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

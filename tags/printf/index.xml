@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>printf on Code - a programming blog</title>
+    <title>Printf on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/printf/</link>
-    <description>Recent content in printf on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Printf on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 13 Jun 2021 11:34:50 -0400</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/printf/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 13 Jun 2021 11:34:50 -0400</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/printf/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Three Ways to Get a Unix Epoch in Bash</title>
       <link>https://blog.dnmfarrell.com/post/three-ways-to-get-a-unix-epoch-in-bash/</link>
       <pubDate>Sun, 13 Jun 2021 11:34:50 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/three-ways-to-get-a-unix-epoch-in-bash/</guid>
-      <description>The Unix epoch time is the number of elapsed seconds since January 1st, 1970. Epoch times are handy because they&amp;rsquo;re not subject to timezone offsets, and they&amp;rsquo;re numbers, unlike ISO 8601 timestamps for example (&amp;ldquo;1970-01-01T00:00:00Z&amp;rdquo;). That makes them memory efficient, and more importantly, easy to do math with.
-Here are three ways to get the epoch time in Bash.
-Use Date You can use the date program to generate the epoch time by providing the %s formatting argument.</description>
+      <description>&lt;p&gt;The Unix &lt;a href=&#34;https://en.wikipedia.org/wiki/Unix_time&#34;&gt;epoch time&lt;/a&gt; is the number of elapsed seconds since January 1st, 1970. Epoch times are handy because they&amp;rsquo;re not subject to timezone offsets, and they&amp;rsquo;re numbers, unlike ISO 8601 timestamps for example (&amp;ldquo;1970-01-01T00:00:00Z&amp;rdquo;). That makes them memory efficient, and more importantly, easy to do math with.&lt;/p&gt;&#xA;&lt;p&gt;Here are three ways to get the epoch time in Bash.&lt;/p&gt;&#xA;&lt;h3 id=&#34;use-date&#34;&gt;Use Date&lt;/h3&gt;&#xA;&lt;p&gt;You can use the &lt;code&gt;date&lt;/code&gt; program to generate the epoch time by providing the &lt;code&gt;%s&lt;/code&gt; formatting argument. Here I&amp;rsquo;ve included &lt;code&gt;%N&lt;/code&gt; to append nanoseconds:&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

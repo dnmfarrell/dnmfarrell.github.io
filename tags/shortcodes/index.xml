@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>shortcodes on Code - a programming blog</title>
+    <title>Shortcodes on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/shortcodes/</link>
-    <description>Recent content in shortcodes on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Shortcodes on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 06 Jul 2023 20:23:09 -0400</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/shortcodes/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 06 Jul 2023 20:23:09 -0400</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/shortcodes/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Escaping HTML in Hugo posts</title>
       <link>https://blog.dnmfarrell.com/post/escaping-html-in-hugo-posts/</link>
       <pubDate>Thu, 06 Jul 2023 20:23:09 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/escaping-html-in-hugo-posts/</guid>
-      <description>Hugo, the static site generation engine (which generates this site) has a useful function called safeHTML which marks an HTML string as &amp;ldquo;safe&amp;rdquo;, preventing it from being escaped and displayed literally.
-The other day I needed this same behavior but for a variable declared in a post&amp;rsquo;s frontmatter. &amp;ldquo;I&amp;rsquo;ll use that handy safeHTML function&amp;rdquo; I thought. Wrong! Hugo&amp;rsquo;s security model doesn&amp;rsquo;t allow its builtin functions to be called from posts.</description>
+      <description>&lt;p&gt;Hugo, the static site generation engine (which generates this site) has a useful function called &lt;a href=&#34;https://gohugo.io/functions/safehtml/&#34;&gt;safeHTML&lt;/a&gt; which marks an HTML string as &amp;ldquo;safe&amp;rdquo;, preventing it from being escaped and displayed literally.&lt;/p&gt;&#xA;&lt;p&gt;The other day I needed this same behavior but for a variable declared in a post&amp;rsquo;s frontmatter. &amp;ldquo;I&amp;rsquo;ll use that handy safeHTML function&amp;rdquo; I thought. Wrong! Hugo&amp;rsquo;s security model doesn&amp;rsquo;t allow its builtin functions to be called from posts.&lt;/p&gt;&#xA;&lt;p&gt;Instead Hugo allows posts to embed &lt;a href=&#34;https://gohugo.io/content-management/shortcodes/&#34;&gt;shortcodes&lt;/a&gt;, which are similar to macros. The challenge then, was to concoct a shortcode that would lookup an arbitrary post parameter and mark it as safe.&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

@@ -17,6 +17,7 @@
   <meta property="og:article:tag" content="modulino" />
   <meta property="og:article:tag" content="posix" />
   <meta property="og:article:tag" content="shell" />
+
 </head>
 
   <body>
@@ -49,7 +50,7 @@
 <p>This could be as simple as using C-style <a href="https://en.wikipedia.org/wiki/Assert.h">assert statements</a>, but with interpreted code like shell, you don&rsquo;t get the same guarantees about the correctness of the code; so if your test program only fails on asserts, it will report success even if you didn&rsquo;t run all the tests you intended to. The other issue with some assert-style test code is when a test failure causes the test program to exit early, and report only one error, when it could have reported multiple test failures if only the test script had run to completion.</p>
 <p>For those reasons I like the <a href="https://testanything.org/">Test Anything Protocol</a>. TAP-compliant test code must emit a test plan with the number of tests to run, and for every test case either &ldquo;ok&rdquo; for passes or &ldquo;not ok&rdquo; for failures. So TAP parsers can verify that the right number of tests ran, and when tests do fail, programmers can inspect the output and see the context of the failure. To that end I wrote a minimalist <a href="https://github.com/dnmfarrell/tap.sh/">TAP library</a> for POSIX-compatible shells.</p>
 <h3 id="tutorial">Tutorial</h3>
-<p>Imagine we have written a shell library called <code>examples/hello/hello.sh</code>. It has one function, which by default prints &ldquo;Hello, World!&quot;:</p>
+<p>Imagine we have written a shell library called <code>examples/hello/hello.sh</code>. It has one function, which by default prints &ldquo;Hello, World!&rdquo;:</p>
 <pre><code class="language-sh">hello() {
   subject=&quot;$1&quot;
   [ -z &quot;$subject&quot; ] &amp;&amp; subject=&quot;World!&quot;

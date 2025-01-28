@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>ipv4 on Code - a programming blog</title>
+    <title>Ipv4 on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/ipv4/</link>
-    <description>Recent content in ipv4 on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Ipv4 on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 19 Sep 2019 11:00:07 +0000</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/ipv4/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 19 Sep 2019 11:00:07 +0000</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/ipv4/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Creating IP Address Tools From Scratch</title>
       <link>https://blog.dnmfarrell.com/post/creating-ip-address-tools-from-scratch/</link>
       <pubDate>Thu, 19 Sep 2019 11:00:07 +0000</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/creating-ip-address-tools-from-scratch/</guid>
-      <description>Recently I&amp;rsquo;ve been researching how the Internet is organized, and working with whois data. I&amp;rsquo;ve been creating simple tools that process IP addresses without any help from CPAN. At work we tend to use Net::IP::XS for these tasks, but sometimes it&amp;rsquo;s fun to figure out how things work under the hood.
-Converting to decimal I&amp;rsquo;m sure you&amp;rsquo;re familiar with the IPv4 address format; the &amp;ldquo;dotted quad&amp;rdquo; consists of four numbers between 0 and 255 separated by periods.</description>
+      <description>&lt;p&gt;Recently I&amp;rsquo;ve been researching how the Internet is organized, and working with &lt;a href=&#34;https://en.wikipedia.org/wiki/WHOIS&#34;&gt;whois&lt;/a&gt; data. I&amp;rsquo;ve been creating simple tools that process IP addresses without any help from CPAN. At work we tend to use &lt;a href=&#34;https://metacpan.org/pod/Net::IP::XS&#34;&gt;Net::IP::XS&lt;/a&gt; for these tasks, but sometimes it&amp;rsquo;s fun to figure out how things work under the hood.&lt;/p&gt;&#xA;&lt;h3 id=&#34;converting-to-decimal&#34;&gt;Converting to decimal&lt;/h3&gt;&#xA;&lt;p&gt;I&amp;rsquo;m sure you&amp;rsquo;re familiar with the IPv4 address &lt;a href=&#34;https://en.wikipedia.org/wiki/IPv4#Addressing&#34;&gt;format&lt;/a&gt;; the &amp;ldquo;dotted quad&amp;rdquo; consists of four numbers between 0 and 255 separated by periods. Your home wifi network probably starts at 192.168.0.0. The format is just another way of representing a 32-bit integer; here are the numbers and their equivalent in binary:&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

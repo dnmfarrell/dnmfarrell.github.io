@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>exceptions on Code - a programming blog</title>
+    <title>Exceptions on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/exceptions/</link>
-    <description>Recent content in exceptions on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Exceptions on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 10 Jan 2022 23:41:35 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/exceptions/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 10 Jan 2022 23:41:35 -0500</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/exceptions/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Can Generics Rescue Golang&#39;s Clunky Error Handling?</title>
       <link>https://blog.dnmfarrell.com/post/can-generics-rescue-golangs-clunky-error-handling/</link>
       <pubDate>Mon, 10 Jan 2022 23:41:35 -0500</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/can-generics-rescue-golangs-clunky-error-handling/</guid>
-      <description>One of the most complained about aspects of programming in Go is error handling. However - Go is getting generics! Generics have already been merged to master and are slated for inclusion in the 1.18 release. So can generics raise¹ Go&amp;rsquo;s error handling out of the doldrums?
-The problem Here&amp;rsquo;s some typical error-handling code:
-str, err := foobar() if err != nil { // handle error }  The function foobar returns two values; the second one is an error.</description>
+      <description>&lt;p&gt;One of the most complained about aspects of programming in Go is error handling. However - Go is getting &lt;a href=&#34;https://go.googlesource.com/proposal/+/refs/heads/master/design/43651-type-parameters.md&#34;&gt;generics&lt;/a&gt;! Generics have already been merged to &lt;a href=&#34;https://github.com/golang/go&#34;&gt;master&lt;/a&gt; and are slated for inclusion in the 1.18 release. So can generics raise¹ Go&amp;rsquo;s error handling out of the doldrums?&lt;/p&gt;&#xA;&lt;h3 id=&#34;the-problem&#34;&gt;The problem&lt;/h3&gt;&#xA;&lt;p&gt;Here&amp;rsquo;s some typical error-handling code:&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code class=&#34;language-pre&#34;&gt;str, err := foobar()&#xA;if err != nil {&#xA;  // handle error&#xA;}&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;The function &lt;code&gt;foobar&lt;/code&gt; returns two values; the second one is an error. The condition checks whether &lt;code&gt;err&lt;/code&gt; is defined, and if it is, branches into some error handling code (logging, early return, whatever is needed).&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

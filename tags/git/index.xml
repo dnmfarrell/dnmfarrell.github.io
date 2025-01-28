@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>git on Code - a programming blog</title>
+    <title>Git on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/git/</link>
-    <description>Recent content in git on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Git on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 08 Aug 2017 20:27:16 +0000</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/git/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 08 Aug 2017 20:27:16 +0000</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/git/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Git Bisect And Perl</title>
       <link>https://blog.dnmfarrell.com/post/git-bisect-and-perl/</link>
       <pubDate>Tue, 08 Aug 2017 20:27:16 +0000</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/git-bisect-and-perl/</guid>
-      <description>At work we have many developers committing code to a large Git repo, and a huge test suite which runs to check the software builds and operates correctly. Inevitably, developers push commits which break a test or two, and in particularly hectic moments, it can be difficult to figure out &amp;ldquo;who broke the build&amp;rdquo;.
-Enter Git&amp;rsquo;s bisect command. I feed it the SHA of the earliest bad commit I know of (or &amp;ldquo;HEAD&amp;rdquo;) and the SHA of the last working commit:</description>
+      <description>&lt;p&gt;At &lt;a href=&#34;https://ziprecruiter.com&#34;&gt;work&lt;/a&gt; we have many developers committing code to a large Git repo, and a huge test suite which runs to check the software builds and operates correctly. Inevitably, developers push commits which break a test or two, and in particularly hectic moments, it can be difficult to figure out &amp;ldquo;who broke the build&amp;rdquo;.&lt;/p&gt;&#xA;&lt;p&gt;Enter Git&amp;rsquo;s bisect &lt;a href=&#34;https://git-scm.com/docs/git-bisect&#34;&gt;command&lt;/a&gt;. I feed it the SHA of the earliest bad commit I know of (or &amp;ldquo;HEAD&amp;rdquo;) and the SHA of the last working commit:&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

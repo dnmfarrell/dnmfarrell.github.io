@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>test2-tools-skipuntil on Code - a programming blog</title>
+    <title>Test2-Tools-Skipuntil on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/test2-tools-skipuntil/</link>
-    <description>Recent content in test2-tools-skipuntil on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Test2-Tools-Skipuntil on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 12 Jun 2018 15:26:40 +0000</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/test2-tools-skipuntil/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 12 Jun 2018 15:26:40 +0000</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/test2-tools-skipuntil/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Writing New Testing Tools With Test2</title>
       <link>https://blog.dnmfarrell.com/post/writing-new-testing-tools-with-test2/</link>
       <pubDate>Tue, 12 Jun 2018 15:26:40 +0000</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/writing-new-testing-tools-with-test2/</guid>
-      <description>Perl has had great testing tools for a long time, but Test2 is the single biggest improvement to Perl testing in years. One of my favorite Test2 features is how easy it is to extend it with new tools, and today I&amp;rsquo;ll show you how I wrote my first tool.
-Dealing with known test failures Ideally when your tests fail, it means that something needs to be fixed, and that thing is fixable.</description>
+      <description>&lt;p&gt;Perl has had great testing tools for a long time, but &lt;a href=&#34;https://metacpan.org/pod/Test2&#34;&gt;Test2&lt;/a&gt; is the single biggest improvement to Perl testing in years. One of my favorite Test2 features is how easy it is to extend it with new tools, and today I&amp;rsquo;ll show you how I wrote my first tool.&lt;/p&gt;&#xA;&lt;h3 id=&#34;dealing-with-known-test-failures&#34;&gt;Dealing with known test failures&lt;/h3&gt;&#xA;&lt;p&gt;Ideally when your tests fail, it means that something needs to be fixed, and that thing is fixable. However in the Real World™ things aren&amp;rsquo;t always that simple. For example you might investigate a failure, figure out the root cause, but the person to fix it is on vacation. Or perhaps there&amp;rsquo;s a datetime bug in the code, and it will resolve itself in a few days. The key here is that the failure is understood and not serious but also impractical to fix in the short term.&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

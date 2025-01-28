@@ -1,40 +1,33 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>linux on Code - a programming blog</title>
+    <title>Linux on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/linux/</link>
-    <description>Recent content in linux on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Linux on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 10 Feb 2022 22:34:09 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 10 Feb 2022 22:34:09 -0500</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/linux/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>How Much Memory Is My Program Really Using?</title>
       <link>https://blog.dnmfarrell.com/post/how-much-memory-is-my-program-really-using/</link>
       <pubDate>Thu, 10 Feb 2022 22:34:09 -0500</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/how-much-memory-is-my-program-really-using/</guid>
-      <description>It sounds like such a simple question - but virtual memory makes measuring real memory use complicated. Popular tools like ps and top report virtual, resident and shared memory consumption, but these are unsatisfactory:
- Shared memory is not apportioned per process using it so it is overstated. Resident memory includes shared memory, so it overstates as well. Virtual memory includes resident memory plus data held in swap, which is not in main memory.</description>
+      <description>&lt;p&gt;It sounds like such a simple question - but virtual memory makes measuring real memory use complicated. Popular tools like ps and top report virtual, resident and shared memory consumption, but these are unsatisfactory:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Shared memory is not apportioned per process using it so it is overstated.&lt;/li&gt;&#xA;&lt;li&gt;Resident memory includes shared memory, so it overstates as well.&lt;/li&gt;&#xA;&lt;li&gt;Virtual memory includes resident memory plus data held in swap, which is not in main memory.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Fortunately unless you are running a Linux kernel older than the last financial crisis, you have a better option: Proportional Set Size (PSS)¹. This is the amount of private memory the process is using, plus its proportional allocation of shared memory. The kernel reports this data per PID in &lt;code&gt;/proc/$pid/smaps&lt;/code&gt;. The file lists each memory block mapped to the process, and its properties. You &lt;em&gt;could&lt;/em&gt; wrangle the smaps data with shell code, but you don&amp;rsquo;t have to! The &lt;a href=&#34;https://www.selenic.com/smem/&#34;&gt;smem tool&lt;/a&gt; does that, and it can filter/format too. Modern kernels also aggregate the data in &lt;code&gt;/proc/$pid/smaps_rollup&lt;/code&gt; which is convenient to grep and less error prone than rolling your own aggregator².&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>How to Copy a Vim Buffer to the Clipboard</title>
       <link>https://blog.dnmfarrell.com/post/how-to-copy-a-vim-buffer-to-the-clipboard/</link>
       <pubDate>Tue, 23 Nov 2021 11:50:45 -0500</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/how-to-copy-a-vim-buffer-to-the-clipboard/</guid>
-      <description>I usually program with vim inside a tmux session. I&amp;rsquo;m a big fan of tmux, but the copy-and-paste feature is decidedly clunky. And my version of vim is compiled without clipboard support. What to do? I could install a vim with clipboard support, but surely this is just a small matter of programming.
-Copy text into the clipboard The clipboard is controlled by the windowing system; my system uses X11, so I use the xclip utility to copy text into the clipboard.</description>
+      <description>&lt;p&gt;I usually program with vim inside a tmux session. I&amp;rsquo;m a &lt;a href=&#34;https://blog.dnmfarrell.com/post/organize-your-work-with-tmux/&#34;&gt;big fan of tmux&lt;/a&gt;, but the copy-and-paste feature is decidedly clunky. And my version of vim is compiled without &lt;a href=&#34;https://vim.fandom.com/wiki/Accessing_the_system_clipboard#Checking_for_X11-clipboard_support_in_terminal&#34;&gt;clipboard support&lt;/a&gt;. What to do? I &lt;em&gt;could&lt;/em&gt; install a vim with clipboard support, but surely this is just a small matter of programming.&lt;/p&gt;&#xA;&lt;h3 id=&#34;copy-text-into-the-clipboard&#34;&gt;Copy text into the clipboard&lt;/h3&gt;&#xA;&lt;p&gt;The clipboard is controlled by the windowing system; my system uses X11, so I use the &lt;a href=&#34;https://github.com/astrand/xclip&#34;&gt;xclip&lt;/a&gt; utility to copy text into the clipboard. If you&amp;rsquo;re using &lt;a href=&#34;https://wayland.freedesktop.org/&#34;&gt;Wayland&lt;/a&gt; you&amp;rsquo;ll need to use a different utility, like &lt;a href=&#34;https://github.com/bugaevc/wl-clipboard&#34;&gt;wl-clipboard&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Is Linux Growing Out of All Proportion?</title>
       <link>https://blog.dnmfarrell.com/post/is-linux-growing-out-of-all-proportion/</link>
       <pubDate>Wed, 13 Oct 2021 12:49:58 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/is-linux-growing-out-of-all-proportion/</guid>
-      <description>As of October 1st, the Linux kernel source¹ is comprised of over 22 million lines of code (excludes comments, blank lines)². In the past 15 years that figure has increased an average of over 10% per year. At this rate, it will reach 50 million lines of code by 2030. If you studied 2,000 lines of kernel source code per day, you&amp;rsquo;d never catch up. So is the kernel growing out of all proportion?</description>
+      <description>&lt;p&gt;As of October 1st, the Linux kernel source¹ is comprised of over 22 million lines of code (excludes comments, blank lines)². In the past 15 years that figure has increased an average of over 10% per year. At this rate, it will reach 50 million lines of code by 2030. If you studied 2,000 lines of kernel source code per day, you&amp;rsquo;d never catch up. So is the kernel growing out of all proportion?&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

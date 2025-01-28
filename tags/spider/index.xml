@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>spider on Code - a programming blog</title>
+    <title>Spider on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/spider/</link>
-    <description>Recent content in spider on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Spider on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 13 Jan 2019 20:31:37 +0000</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/spider/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 13 Jan 2019 20:31:37 +0000</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/spider/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Spidering websites with Headless Chrome and Selenium</title>
       <link>https://blog.dnmfarrell.com/post/spidering-websites-with-headless-chrome-and-selenium/</link>
       <pubDate>Sun, 13 Jan 2019 20:31:37 +0000</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/spidering-websites-with-headless-chrome-and-selenium/</guid>
-      <description>Over the holidays I was working on a project that needed to download content from different websites. I needed a web spider, but the typical Perl options like WWW:Mechanize wouldn&amp;rsquo;t cut it, as with JavaScript controlling the content on many websites, I needed a JavaScript-enabled browser. But browsers consume lots of memory - what to do?
-The answer was to use headless Chrome, which works exactly like normal except it has no graphical display, reducing its memory footprint.</description>
+      <description>&lt;p&gt;Over the holidays I was working on a project that needed to download content from different websites. I needed a web spider, but the typical Perl options like &lt;a href=&#34;https://metacpan.org/pod/WWW:Mechanize&#34;&gt;WWW:Mechanize&lt;/a&gt; wouldn&amp;rsquo;t cut it, as with JavaScript controlling the content on many websites, I needed a JavaScript-enabled browser. But browsers consume lots of memory - what to do?&lt;/p&gt;&#xA;&lt;p&gt;The answer was to use headless Chrome, which works exactly like normal except it has no graphical display, reducing its memory footprint. I can control it using &lt;a href=&#34;https://metacpan.org/pod/Selenium::Remote::Driver&#34;&gt;Selenium::Remote::Driver&lt;/a&gt; and Selenium server. Here&amp;rsquo;s how I did it.&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

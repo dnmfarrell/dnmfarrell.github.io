@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>resident-set-size on Code - a programming blog</title>
+    <title>Resident-Set-Size on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/resident-set-size/</link>
-    <description>Recent content in resident-set-size on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Resident-Set-Size on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 10 Feb 2022 22:34:09 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/resident-set-size/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 10 Feb 2022 22:34:09 -0500</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/resident-set-size/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>How Much Memory Is My Program Really Using?</title>
       <link>https://blog.dnmfarrell.com/post/how-much-memory-is-my-program-really-using/</link>
       <pubDate>Thu, 10 Feb 2022 22:34:09 -0500</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/how-much-memory-is-my-program-really-using/</guid>
-      <description>It sounds like such a simple question - but virtual memory makes measuring real memory use complicated. Popular tools like ps and top report virtual, resident and shared memory consumption, but these are unsatisfactory:
- Shared memory is not apportioned per process using it so it is overstated. Resident memory includes shared memory, so it overstates as well. Virtual memory includes resident memory plus data held in swap, which is not in main memory.</description>
+      <description>&lt;p&gt;It sounds like such a simple question - but virtual memory makes measuring real memory use complicated. Popular tools like ps and top report virtual, resident and shared memory consumption, but these are unsatisfactory:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Shared memory is not apportioned per process using it so it is overstated.&lt;/li&gt;&#xA;&lt;li&gt;Resident memory includes shared memory, so it overstates as well.&lt;/li&gt;&#xA;&lt;li&gt;Virtual memory includes resident memory plus data held in swap, which is not in main memory.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Fortunately unless you are running a Linux kernel older than the last financial crisis, you have a better option: Proportional Set Size (PSS)¹. This is the amount of private memory the process is using, plus its proportional allocation of shared memory. The kernel reports this data per PID in &lt;code&gt;/proc/$pid/smaps&lt;/code&gt;. The file lists each memory block mapped to the process, and its properties. You &lt;em&gt;could&lt;/em&gt; wrangle the smaps data with shell code, but you don&amp;rsquo;t have to! The &lt;a href=&#34;https://www.selenic.com/smem/&#34;&gt;smem tool&lt;/a&gt; does that, and it can filter/format too. Modern kernels also aggregate the data in &lt;code&gt;/proc/$pid/smaps_rollup&lt;/code&gt; which is convenient to grep and less error prone than rolling your own aggregator².&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

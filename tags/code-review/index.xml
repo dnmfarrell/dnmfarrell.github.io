@@ -1,50 +1,40 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>code-review on Code - a programming blog</title>
+    <title>Code-Review on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/code-review/</link>
-    <description>Recent content in code-review on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Code-Review on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 04 Feb 2024 13:24:08 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/code-review/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 04 Feb 2024 13:24:08 -0500</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/code-review/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>The Best Way to Improve Software Quality</title>
       <link>https://blog.dnmfarrell.com/post/the-best-way-to-improve-software-quality/</link>
       <pubDate>Sun, 04 Feb 2024 13:24:08 -0500</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/the-best-way-to-improve-software-quality/</guid>
-      <description>A few years ago I was working on a team that owned a web app for our enterprise customers. It had been forked from our original app specifically to meet the needs of larger clients. Despite both apps&#39; shared heritage, they were not similarly reliable. My team&amp;rsquo;s app build almost never failed, yet the original app build was red a third of the time. Since a red build prevented new deployments of the app, it slowed a lot of people down.</description>
+      <description>&lt;p&gt;A few years ago I was working on a team that owned a web app for our enterprise customers. It had been forked from our original app specifically to meet the needs of larger clients. Despite both apps&amp;rsquo; shared heritage, they were not similarly reliable. My team&amp;rsquo;s app build almost never failed, yet the original app build was red a third of the time. Since a red build prevented new deployments of the app, it slowed a lot of people down.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Your Code Review Policy Doesn&#39;t Matter As Much As You Might Think</title>
       <link>https://blog.dnmfarrell.com/post/your-code-review-policy-doesnt-matter/</link>
       <pubDate>Wed, 15 Nov 2023 10:04:55 -0500</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/your-code-review-policy-doesnt-matter/</guid>
-      <description>Recently at work we&amp;rsquo;ve instituted a change to require code review by default. The merge request owner can disable the review requirement in GitLab but the intention is to always review. Some co-workers think this change is great, others worry about the additional overhead and loss of velocity.
-I used to think stuff like this matters - I don&amp;rsquo;t anymore. Moreover I don&amp;rsquo;t think you believe it either.
-Try this thought experiment: think of a time you were part of a high performing software project.</description>
+      <description>&lt;p&gt;Recently at work we&amp;rsquo;ve instituted a change to require code review by default. The merge request owner can disable the review requirement in GitLab but the intention is to always review. Some co-workers think this change is great, others worry about the additional overhead and loss of velocity.&lt;/p&gt;&#xA;&lt;p&gt;I used to think stuff like this matters - I don&amp;rsquo;t anymore. Moreover I don&amp;rsquo;t think you believe it either.&lt;/p&gt;&#xA;&lt;p&gt;Try this thought experiment: think of a time you were part of a high performing software project. Now ask yourself: would a different code review policy have substantially changed the outcome?&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>The Inconvenient Convenience of Dynamic Languages</title>
       <link>https://blog.dnmfarrell.com/post/the-inconvenient-convenience-of-dynamic-languages/</link>
       <pubDate>Wed, 03 Nov 2021 06:08:38 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/the-inconvenient-convenience-of-dynamic-languages/</guid>
-      <description>Truthiness is the behavior of interpreting non-boolean values as true or false in a conditional context. E.g. in this loop: while 1 { ... }, the 1 is interpreted as true. Dynamic programming languages provide this behavior as a convenience to save the programmer from typing more than they need to. However, this week I wasted a bunch of time tracking down a bug that had a several root causes:</description>
+      <description>&lt;p&gt;Truthiness is the behavior of interpreting non-boolean values as true or false in a conditional context. E.g. in this loop: &lt;code&gt;while 1 { ... }&lt;/code&gt;, the 1 is interpreted as &lt;code&gt;true&lt;/code&gt;. Dynamic programming languages provide this behavior as a convenience to save the programmer from typing more than they need to. However, this week I wasted a bunch of time tracking down a bug that had a several root causes:&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Is Code Review Always A Good Thing?</title>
       <link>https://blog.dnmfarrell.com/post/is-code-review-always-a-good-thing/</link>
       <pubDate>Sun, 05 Sep 2021 14:28:43 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/is-code-review-always-a-good-thing/</guid>
-      <description>Code review is one of those hygienic things most developers believe they ought to do, like kitchen workers washing their hands, but don&amp;rsquo;t always do. Yet tech articles tend to be unanimously in favor of code review, extolling its benefits (&amp;ldquo;catch bugs&amp;rdquo;, &amp;ldquo;maintain code consistency&amp;rdquo;, &amp;ldquo;transfer knowledge&amp;rdquo;). So if restaurants can require workers to wash their hands, maybe organizations can require their developers to review every code change?
-Broadly speaking I think we can lump all of code review&amp;rsquo;s benefits under the category of &amp;ldquo;improve code quality&amp;rdquo;.</description>
+      <description>&lt;p&gt;Code review is one of those hygienic things most developers believe they ought to do, like kitchen workers washing their hands, but don&amp;rsquo;t always do. Yet tech articles tend to be unanimously in favor of code review, extolling its benefits (&amp;ldquo;catch bugs&amp;rdquo;, &amp;ldquo;maintain code consistency&amp;rdquo;, &amp;ldquo;transfer knowledge&amp;rdquo;). So if restaurants can require workers to wash their hands, maybe organizations can require their developers to review every code change?&lt;/p&gt;&#xA;&lt;p&gt;Broadly speaking I think we can lump all of code review&amp;rsquo;s benefits under the category of &amp;ldquo;improve code quality&amp;rdquo;. I know there is no agreed-upon definition of code quality but allow me to channel my inner &lt;a href=&#34;https://en.wikipedia.org/wiki/I_know_it_when_I_see_it&#34;&gt;Justice Potter&lt;/a&gt; and wave away your objections for now. (What of &amp;ldquo;transfer knowledge&amp;rdquo;? - first I think unfamiliar reviewers reviewing code changes is &lt;a href=&#34;https://gigamonkeys.com/code-reading/&#34;&gt;inefficient&lt;/a&gt; compared to them interacting with the code by making a small change and/or writing tests for it. Second whatever knowledge is accumulated by the reviewer should ultimately lead to higher quality code output anyway).&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

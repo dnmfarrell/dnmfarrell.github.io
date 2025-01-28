@@ -1,31 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>scala on Code - a programming blog</title>
+    <title>Scala on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/scala/</link>
-    <description>Recent content in scala on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Scala on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 14 Nov 2022 11:54:06 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/scala/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 14 Nov 2022 11:54:06 -0500</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/scala/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Silencing Spark&#39;s Most Annoying Warning</title>
       <link>https://blog.dnmfarrell.com/post/silencing-sparks-most-annoying-warning/</link>
       <pubDate>Mon, 14 Nov 2022 11:54:06 -0500</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/silencing-sparks-most-annoying-warning/</guid>
-      <description>Apache Spark is a chatty application; it logs early and often. Sure, some log messages increase Spark&amp;rsquo;s observability, but others seem questionable. Like logging query plans, which can add over 1MB of text to a single log message.¹
-Writing enormous log messages causes issues with our logging pipeline, so at $work we set the Spark config option spark.sql.maxPlanStringLength to 0. This stops Spark from logging query plans. However it has an unfortunate consequence:</description>
+      <description>&lt;p&gt;Apache Spark is a chatty application; it &lt;a href=&#34;https://en.wikipedia.org/wiki/Release_early,_release_often&#34;&gt;logs early and often&lt;/a&gt;. Sure, some log messages increase Spark&amp;rsquo;s observability, but others seem questionable. Like logging query plans, which can add over 1MB of text to a single log message.¹&lt;/p&gt;&#xA;&lt;p&gt;Writing enormous log messages causes issues with our logging pipeline, so at $work we set the Spark config option &lt;a href=&#34;https://spark.apache.org/docs/latest/configuration.html&#34;&gt;spark.sql.maxPlanStringLength&lt;/a&gt; to 0. This stops Spark from logging query plans. However it has an unfortunate consequence:&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Understanding Delta Lake&#39;s Change Data Feed</title>
       <link>https://blog.dnmfarrell.com/post/understanding-delta-lake-change-data-feed/</link>
       <pubDate>Tue, 01 Nov 2022 19:55:49 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/understanding-delta-lake-change-data-feed/</guid>
-      <description>The release of Delta Lake 2.0.0 came with an exciting new feature called Change data feed which tracks row-level changes to a delta table. This ability unlocks new use cases:
- Batch selection of new data; previously new rows could be streamed from a delta table, but streams are opaque. Batch mode enables operations on a whole set of changes. Streaming Change Data Capture (CDC) rows from delta tables, similar to MySQL&amp;rsquo;s binlog.</description>
+      <description>&lt;p&gt;The release of Delta Lake &lt;a href=&#34;https://github.com/delta-io/delta/releases/tag/v2.0.0&#34;&gt;2.0.0&lt;/a&gt; came with an exciting new feature called &lt;a href=&#34;https://docs.delta.io/2.0.0/delta-change-data-feed.html&#34;&gt;Change data feed&lt;/a&gt; which tracks row-level changes to a delta table. This ability unlocks new use cases:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Batch selection of new data; previously new rows could be streamed from a delta table, but streams are opaque. Batch mode enables operations on a whole set of changes.&lt;/li&gt;&#xA;&lt;li&gt;Streaming Change Data Capture (CDC) rows from delta tables, similar to MySQL&amp;rsquo;s &lt;a href=&#34;https://dev.mysql.com/doc/refman/8.0/en/binary-log.html&#34;&gt;binlog&lt;/a&gt;.&lt;/li&gt;&#xA;&lt;li&gt;Row-level observability to help debug, understand data patterns and collect better table stats.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;To get started with Change data feed, there are three things to know: how to enable them, how to view changes and how the changes are stored.&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

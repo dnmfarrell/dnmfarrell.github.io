@@ -15,6 +15,7 @@
   <meta property="og:article:tag" content="software-quality" />
   <meta property="og:article:tag" content="code-review" />
   <meta property="og:article:tag" content="ownership" />
+
 </head>
 
   <body>
@@ -42,7 +43,7 @@
   <p><em class="date">February 4, 2024</em></p>
 </div>
 
-<p>A few years ago I was working on a team that owned a web app for our enterprise customers. It had been forked from our original app specifically to meet the needs of larger clients. Despite both apps' shared heritage, they were not similarly reliable. My team&rsquo;s app build almost never failed, yet the original app build was red a third of the time. Since a red build prevented new deployments of the app, it slowed a lot of people down.</p>
+<p>A few years ago I was working on a team that owned a web app for our enterprise customers. It had been forked from our original app specifically to meet the needs of larger clients. Despite both apps&rsquo; shared heritage, they were not similarly reliable. My team&rsquo;s app build almost never failed, yet the original app build was red a third of the time. Since a red build prevented new deployments of the app, it slowed a lot of people down.</p>
 <p>Both apps were maintained by large numbers of software engineers, and the distribution of talent and experience was similar. I bandied together with some other frustrated engineers to try and solve the problem.</p>
 <p>First we manually investigated each failed build, and categorized and counted the root causes. But apart from flaky tests, we found no pattern. Next we tried bisecting every new build failure and private-messaging the engineer responsible. This helped a little, but many engineers did not respond quickly, and some resented being pinged outside of their working hours. In response we built a bot that would bisect every broken build and announce the name of the perpetrator in a public Slack channel. Yet the broken builds continued.</p>
 <p>Along the way I encountered many questionable code choices. One that stands out was an email send function that received an email object arg. The object could have provided a <code>should_send</code> method, but instead of polymorphism the authors went with an if/else statement with one branch for each email class. It was hundreds of lines long. Picture the poor engineer creating a new email class - what&rsquo;s one more branch in email send versus refactoring the whole thing?</p>
@@ -54,7 +55,7 @@
 <li>The variations of <a href="https://en.wikipedia.org/wiki/Conway%27s_law">Conway&rsquo;s Law</a> are also relevant.</li>
 <li>This effect has been observed in <a href="https://dl.acm.org/doi/10.1145/2025113.2025119">published research</a> too.</li>
 </ol>
-<p>I ignore CICD here because a lack of CICD doesn&rsquo;t explain the difference between the two apps' build reliability.</p>
+<p>I ignore CICD here because a lack of CICD doesn&rsquo;t explain the difference between the two apps&rsquo; build reliability.</p>
 <p>You might be wondering if every app has a single owner, how to share code? We use these conventions:</p>
 <ul>
 <li>Common code is kept in a directory per programming language, and every language has a &ldquo;guild&rdquo; which owns its common code. Common code is only allowed to depend on open source, and other common code.</li>

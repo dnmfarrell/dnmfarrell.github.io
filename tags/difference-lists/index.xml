@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>difference-lists on Code - a programming blog</title>
+    <title>Difference-Lists on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/difference-lists/</link>
-    <description>Recent content in difference-lists on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Difference-Lists on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 06 Nov 2024 11:02:02 -0400</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/difference-lists/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 06 Nov 2024 11:02:02 -0400</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/difference-lists/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>I&#39;m Not Mutable, I&#39;m Partially Instantiated</title>
       <link>https://blog.dnmfarrell.com/post/incomplete-data-structures/</link>
       <pubDate>Wed, 06 Nov 2024 11:02:02 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/incomplete-data-structures/</guid>
-      <description>Chapter 15 from The Art of Prolog contains this dictionary implementation:
-lookup(Key, dict(Key,X,Left,Right), Value) :- !,X=Value. lookup(Key, dict(Keyl,X,Left,Right), Value) :- Key &amp;lt; Keyl, lookup(Key,Left,Value). lookup(Key, dict(Keyl,X,Left,Right), Value) :- Key &amp;gt; Keyl, lookup(Key,Right,Value).  Believe it or not, these six lines of code implement a dictionary as an ordered, binary search tree. The rule lookup/3 can be used to both add to and get from the dictionary.
-This query calls lookup/3 with a key, a variable, and a value.</description>
+      <description>&lt;p&gt;Chapter 15 from &lt;a href=&#34;https://mitpress.mit.edu/9780262691635/the-art-of-prolog/&#34;&gt;The Art of Prolog&lt;/a&gt; contains this dictionary implementation:&lt;/p&gt;&#xA;&lt;p&gt;&lt;script&gt;var lookup = pl.create();&lt;/script&gt;&#xA;&#xA;&lt;script&gt;&#xA;&#xA;function eval_ab6b4fe32dbe84f33e60d8e111c3716b() {&#xA;  let output = &#34;&#34;;&#xA;  let answ = function() {&#xA;    lookup.answer({&#xA;      success: function(answer) {&#xA;        let msg = lookup.format_answer(answer);&#xA;        output += `${msg};\n`;&#xA;        answ();&#xA;      },&#xA;      fail: function() {&#xA;        if (output == &#34;&#34;) {&#xA;          output = &#34;false.&#34;&#xA;        } else {&#xA;          output = output.substr(0, output.length-2) + &#34;.&#34;;&#xA;        }&#xA;        document.querySelector(&#39;textarea#oab6b4fe32dbe84f33e60d8e111c3716b&#39;).value = output;&#xA;        let cons = document.querySelector(&#39;textarea#oab6b4fe32dbe84f33e60d8e111c3716b&#39;);&#xA;        cons.style.height = &#34;1px&#34;;&#xA;        cons.style.height = (cons.scrollHeight)+&#34;px&#34;;&#xA;        output = &#34;&#34;;&#xA;      },&#xA;    });&#xA;  };&#xA;  let code = document.querySelector(&#39;textarea#iab6b4fe32dbe84f33e60d8e111c3716b&#39;);&#xA;  code.style.height = &#34;1px&#34;;&#xA;  code.style.height = (code.scrollHeight)+&#34;px&#34;;&#xA;  code.value.substr(0,3) != &#39;?- &#39;&#xA;  ? lookup.consult(&#xA;    `${code.value}\n`, { &#xA;      success: function() {&#xA;        code.style.borderColor = &#39;#4DA167&#39;;&#xA;        let cons = document.querySelector(&#39;textarea#oab6b4fe32dbe84f33e60d8e111c3716b&#39;);&#xA;        cons.value = &#34;OK.&#34;;&#xA;        cons.style.height = &#34;1px&#34;;&#xA;        cons.style.height = (cons.scrollHeight)+&#34;px&#34;;&#xA;      },&#xA;      error: function(err) {&#xA;        code.style.borderColor = &#39;#EC0B43&#39;;&#xA;        document.querySelector(&#39;textarea#oab6b4fe32dbe84f33e60d8e111c3716b&#39;).value = err;&#xA;        let cons = document.querySelector(&#39;textarea#oab6b4fe32dbe84f33e60d8e111c3716b&#39;);&#xA;        cons.style.height = &#34;1px&#34;;&#xA;        cons.style.height = (cons.scrollHeight)+&#34;px&#34;;&#xA;      },&#xA;    })&#xA;  : lookup.query(&#xA;    `${code.value.substr(3)}`, {&#xA;      success: function() {&#xA;        code.style.borderColor = &#39;#4DA167&#39;;&#xA;        document.querySelector(&#39;textarea#oab6b4fe32dbe84f33e60d8e111c3716b&#39;).value = &#34;&#34;;&#xA;        answ();&#xA;      },&#xA;      error: function(err) {&#xA;        code.style.borderColor = &#39;#EC0B43&#39;;&#xA;        document.querySelector(&#39;textarea#oab6b4fe32dbe84f33e60d8e111c3716b&#39;).value = err;&#xA;        let cons = document.querySelector(&#39;textarea#oab6b4fe32dbe84f33e60d8e111c3716b&#39;);&#xA;        cons.style.height = &#34;1px&#34;;&#xA;        cons.style.height = (cons.scrollHeight)+&#34;px&#34;;&#xA;      },&#xA;    });&#xA;}&#xA;&lt;/script&gt;&#xA;&lt;div&gt;&#xA;&lt;textarea class=&#34;eval_in&#34; id=&#34;iab6b4fe32dbe84f33e60d8e111c3716b&#34; onkeyup=&#34;eval_ab6b4fe32dbe84f33e60d8e111c3716b()&#34;&gt;&#xA;lookup(Key, dict(Key,X,Left,Right), Value) :-&#xA;    !,X=Value.&#xA;lookup(Key, dict(Keyl,X,Left,Right), Value) :-&#xA;    Key &amp;lt; Keyl, lookup(Key,Left,Value).&#xA;lookup(Key, dict(Keyl,X,Left,Right), Value) :-&#xA;    Key &amp;gt; Keyl, lookup(Key,Right,Value).&lt;/textarea&gt;&#xA;&lt;textarea class=&#34;eval_out&#34; readonly id=&#34;oab6b4fe32dbe84f33e60d8e111c3716b&#34;&gt;&lt;/textarea&gt;&#xA;&lt;/div&gt;&#xA;&lt;script&gt;&#xA;addEventListener(&#34;DOMContentLoaded&#34;, (event) =&gt; { eval_ab6b4fe32dbe84f33e60d8e111c3716b() });&#xA;&lt;/script&gt;&#xA;&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

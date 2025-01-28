@@ -1,31 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>ash on Code - a programming blog</title>
+    <title>Ash on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/ash/</link>
-    <description>Recent content in ash on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Ash on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 12 Nov 2021 09:03:41 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/ash/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 12 Nov 2021 09:03:41 -0500</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/ash/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>How to Split a String in POSIX Shell</title>
       <link>https://blog.dnmfarrell.com/post/how-to-split-a-string-in-posix-shell/</link>
       <pubDate>Fri, 12 Nov 2021 09:03:41 -0500</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/how-to-split-a-string-in-posix-shell/</guid>
-      <description>The POSIX Shell specification defines a minimalist shell language with few features compared to stalwarts like Bash. Yet POSIX shells are everywhere: Dash is the default on Ubuntu, and many Docker containers only have busybox ash. Minimalist shells use less resources and are faster than featureful shells like Bash and Zsh¹. They are more likely to be secure too, as the reduced feature sets are easier to reason about and provide a smaller attack surface for hackers.</description>
+      <description>&lt;p&gt;The POSIX Shell &lt;a href=&#34;https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html&#34;&gt;specification&lt;/a&gt; defines a minimalist shell language with few features compared to stalwarts like Bash. Yet POSIX shells are everywhere: &lt;a href=&#34;https://en.wikipedia.org/wiki/Almquist_shell&#34;&gt;Dash&lt;/a&gt; is the default on Ubuntu, and many Docker containers only have busybox &lt;a href=&#34;https://github.com/brgl/busybox/blob/master/shell/ash.c&#34;&gt;ash&lt;/a&gt;. Minimalist shells use less resources and are faster than featureful shells like &lt;a href=&#34;https://www.gnu.org/software/bash/&#34;&gt;Bash&lt;/a&gt; and &lt;a href=&#34;https://www.zsh.org/&#34;&gt;Zsh&lt;/a&gt;¹. They are more likely to be secure too, as the reduced feature sets are easier to reason about and provide a smaller attack surface for hackers.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Bash Function Names Can Be Almost Anything</title>
       <link>https://blog.dnmfarrell.com/post/bash-function-names-can-be-almost-anything/</link>
       <pubDate>Sun, 20 Jun 2021 20:19:32 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/bash-function-names-can-be-almost-anything/</guid>
-      <description>A common misconception about Bash is that function names must follow the same rules that variables do. The Bash manual even suggests this:
- A word consisting solely of letters, numbers, and underscores, and beginning with a letter or underscore. Names are used as shell variable and function names. Also referred to as an identifier.
- In fact Bash function names can be almost any printable character. For instance I can define my own pre-increment unary function:</description>
+      <description>&lt;p&gt;A common misconception about Bash is that function names must follow the same rules that variables do. The Bash &lt;a href=&#34;https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#index-name&#34;&gt;manual&lt;/a&gt; even suggests this:&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;A word consisting solely of letters, numbers, and underscores, and beginning with a letter or underscore. Names are used as shell variable and function names. Also referred to as an identifier.&lt;/p&gt;&#xA;&lt;/blockquote&gt;&#xA;&lt;p&gt;In fact Bash function names can be almost any printable character. For instance I can define my own pre-increment unary function:&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

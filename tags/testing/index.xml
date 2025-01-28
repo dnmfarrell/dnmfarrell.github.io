@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>testing on Code - a programming blog</title>
+    <title>Testing on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/testing/</link>
-    <description>Recent content in testing on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Testing on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 16 Jul 2021 09:32:50 -0400</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/testing/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 16 Jul 2021 09:32:50 -0400</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/testing/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Unit Testing Shell Scripts</title>
       <link>https://blog.dnmfarrell.com/post/unit-testing-shell-scripts/</link>
       <pubDate>Fri, 16 Jul 2021 09:32:50 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/unit-testing-shell-scripts/</guid>
-      <description>Unit testing is great way to build confidence that your code works. Usually you&amp;rsquo;d write unit tests for libraries; but if you have a particularly long or complicated shell script, it might be worth converting it to a modulino just so you can write tests for it. And if you are writing a library in shell code, you need all the help you can get anyway.
-So let&amp;rsquo;s assume you have some shell code to test, now what?</description>
+      <description>&lt;p&gt;Unit testing is great way to build confidence that your code works. Usually you&amp;rsquo;d write unit tests for libraries; but if you have a particularly long or complicated shell script, it might be worth converting it to a &lt;a href=&#34;https://blog.dnmfarrell.com/post/modulinos-in-bash/&#34;&gt;modulino&lt;/a&gt; just so you can write tests for it. And if you are writing a library in shell code, you need all the help you can get anyway.&lt;/p&gt;&#xA;&lt;p&gt;So let&amp;rsquo;s assume you have some shell code to test, now what? Well most shells have no built-in unit testing capabilities, so you need to write a script to load your code, and check it does the right thing and report the results.&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

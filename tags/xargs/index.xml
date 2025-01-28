@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>xargs on Code - a programming blog</title>
+    <title>Xargs on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/xargs/</link>
-    <description>Recent content in xargs on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Xargs on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 28 Dec 2021 18:44:47 -0500</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/xargs/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 28 Dec 2021 18:44:47 -0500</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/xargs/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Replicating Bash Argument Splitting</title>
       <link>https://blog.dnmfarrell.com/post/replicating-bash-argument-splitting/</link>
       <pubDate>Tue, 28 Dec 2021 18:44:47 -0500</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/replicating-bash-argument-splitting/</guid>
-      <description>A few weeks ago I was writing a macro loader for my JSON Processor, and I ran into an odd case where code I entered in the terminal was splitting differently to code I loaded from a file. It turns out that Bash&amp;rsquo;s word splitting behaves differently for arguments than it does for variables.
-When processing args Bash will not split quoted words that contain a delimiter:
-printf &amp;quot;%s\n&amp;quot; foo &#39;bar baz&#39; foo bar baz  But if those args are in a string:</description>
+      <description>&lt;p&gt;A few weeks ago I was writing a macro loader for my &lt;a href=&#34;https://github.com/dnmfarrell/jp&#34;&gt;JSON Processor&lt;/a&gt;, and I ran into an odd case where code I entered in the terminal was splitting differently to code I loaded from a file. It turns out that Bash&amp;rsquo;s word splitting behaves differently for arguments than it does for variables.&lt;/p&gt;&#xA;&lt;p&gt;When processing args Bash will not split quoted words that contain a delimiter:&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;printf &amp;quot;%s\n&amp;quot; foo &#39;bar baz&#39;&#xA;foo&#xA;bar baz&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;p&gt;But if those args are in a string:&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

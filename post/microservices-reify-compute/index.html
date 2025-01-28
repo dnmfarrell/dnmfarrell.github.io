@@ -17,6 +17,7 @@
   <meta property="og:article:tag" content="software-engineering" />
   <meta property="og:article:tag" content="reification" />
   <meta property="og:article:tag" content="entropy" />
+
 </head>
 
   <body>
@@ -45,7 +46,7 @@
 </div>
 
 <p>Twenty five years ago the most popular solution for web apps was known as &ldquo;LAMP&rdquo; (Linux, Apache, MySQL, PHP). A typical web app today, deployed with Kubernetes might comprise of 5x as many technologies. That we don&rsquo;t use such acronyms anymore tells us something about how software engineering has changed.</p>
-<p>This has mostly been a journey from implicit to explicit state. For example, Kubernetes manifests declare how much memory an application will need. This is necessary to make deployments' resources <em>calculable</em>. But this requires more work from the software engineer, to estimate and declare the memory needed by the app.</p>
+<p>This has mostly been a journey from implicit to explicit state. For example, Kubernetes manifests declare how much memory an application will need. This is necessary to make deployments&rsquo; resources <em>calculable</em>. But this requires more work from the software engineer, to estimate and declare the memory needed by the app.</p>
 <p>Under a monolithic deployment, no memory declaration is required. Co-deployed apps share the machine&rsquo;s memory. This simpler arrangement is fine for smaller scales. However once scale drives aggregate demand to exceed available memory, the problem becomes intractable. <em>Some</em> explicit resource allocation is needed - at this stage it could be accomplished by segmenting the apps and deploying each segment to their own machine for example. Microservices are the end state of this journey.</p>
 <p>The evolution from the implicit to the explicit is necessary for progress. Why? Well, fundamentally, all technological progress depends on <em>increasing</em> order:¹</p>
 <blockquote>
@@ -59,7 +60,7 @@
 <p>A popular way to think about complexity in software is to distinguish between the &ldquo;essential&rdquo; complexity of the problem and the &ldquo;accidental&rdquo; complexity introduced by attempting to solve it.² But this distinction tends to fixate our thinking; &ldquo;Complexity&rdquo; becomes a boogeyman, terrifying engineers, blowing budgets and ruining plans.³</p>
 <p>Instead of treating complexity like a symptom of bad design, we should embrace it.⁴ The first step is getting away from the metaphysical concept of complexity-qua-complexity. We must make it real.</p>
 <p>All complexity is perceived - so we should ask: &ldquo;who is perceiving it?&rdquo;. Not everything has to be solved with technology. Are new members of the team taking too long to start contributing? Maybe they should be paired with a team member for their first contribution.</p>
-<p>Commonalities provide a base for new abstractions. If your annual survey says most engineers are struggling with Terraform, can infrastructure management be abstracted? Usually a handful of archetypes describes most apps' infrastructure. Addressing commonalities to improve engineer velocity is the start of creating an <a href="https://internaldeveloperplatform.org/what-is-an-internal-developer-platform">Internal Developer Platform</a>.</p>
+<p>Commonalities provide a base for new abstractions. If your annual survey says most engineers are struggling with Terraform, can infrastructure management be abstracted? Usually a handful of archetypes describes most apps&rsquo; infrastructure. Addressing commonalities to improve engineer velocity is the start of creating an <a href="https://internaldeveloperplatform.org/what-is-an-internal-developer-platform">Internal Developer Platform</a>.</p>
 <p>Most engineers are familiar with the pattern of identifying commonalities and abstracting them.⁵ Far fewer are familiar with the idea of bringing <em>intelligence</em> to solve important problems. For example, typically we only know if Kubernetes will horizontally scale a pod by observing it in action. But we could parse autoscaler expressions and simulate scaling conditions, so that we could prevent deployment of apps that don&rsquo;t scale as expected. Even better, an intelligent tool could help engineers write correct scaling rules in the first place.</p>
 <p>And organizations aren&rsquo;t on their own. There is a growing market of tools and services to help. Manage Kubernetes applications from the terminal with <a href="https://k9scli.io/">K9</a>. Visualize deployments with <a href="https://argo-cd.readthedocs.io/en/stable/">Argo CD</a>. Cut your logging spend with <a href="https://grafana.com/oss/loki/">Grafana Loki</a>. Kubecon and other <a href="https://events.linuxfoundation.org/about/calendar/?_sft_lfevent-category=kubecon-cloudnativecon-cncf-events">events</a> are great ways to learn about new tools and services that can deliver more value from microservices.</p>
 <p>To deliver scale, microservices made software engineering more complex. But it&rsquo;s not the end of the story. Our primitives will get better.⁶ Reifying compute has created a new logical substrate to build on, and it is full of possibilities.</p>

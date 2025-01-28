@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>delta-table on Code - a programming blog</title>
+    <title>Delta-Table on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/delta-table/</link>
-    <description>Recent content in delta-table on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Delta-Table on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 01 Nov 2022 19:55:49 -0400</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/delta-table/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 01 Nov 2022 19:55:49 -0400</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/delta-table/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Understanding Delta Lake&#39;s Change Data Feed</title>
       <link>https://blog.dnmfarrell.com/post/understanding-delta-lake-change-data-feed/</link>
       <pubDate>Tue, 01 Nov 2022 19:55:49 -0400</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/understanding-delta-lake-change-data-feed/</guid>
-      <description>The release of Delta Lake 2.0.0 came with an exciting new feature called Change data feed which tracks row-level changes to a delta table. This ability unlocks new use cases:
- Batch selection of new data; previously new rows could be streamed from a delta table, but streams are opaque. Batch mode enables operations on a whole set of changes. Streaming Change Data Capture (CDC) rows from delta tables, similar to MySQL&amp;rsquo;s binlog.</description>
+      <description>&lt;p&gt;The release of Delta Lake &lt;a href=&#34;https://github.com/delta-io/delta/releases/tag/v2.0.0&#34;&gt;2.0.0&lt;/a&gt; came with an exciting new feature called &lt;a href=&#34;https://docs.delta.io/2.0.0/delta-change-data-feed.html&#34;&gt;Change data feed&lt;/a&gt; which tracks row-level changes to a delta table. This ability unlocks new use cases:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Batch selection of new data; previously new rows could be streamed from a delta table, but streams are opaque. Batch mode enables operations on a whole set of changes.&lt;/li&gt;&#xA;&lt;li&gt;Streaming Change Data Capture (CDC) rows from delta tables, similar to MySQL&amp;rsquo;s &lt;a href=&#34;https://dev.mysql.com/doc/refman/8.0/en/binary-log.html&#34;&gt;binlog&lt;/a&gt;.&lt;/li&gt;&#xA;&lt;li&gt;Row-level observability to help debug, understand data patterns and collect better table stats.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;To get started with Change data feed, there are three things to know: how to enable them, how to view changes and how the changes are stored.&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

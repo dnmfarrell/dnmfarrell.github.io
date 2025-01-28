@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>perlguts on Code - a programming blog</title>
+    <title>Perlguts on Code - a programming blog</title>
     <link>https://blog.dnmfarrell.com/tags/perlguts/</link>
-    <description>Recent content in perlguts on Code - a programming blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Perlguts on Code - a programming blog</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 23 Jul 2018 09:01:37 +0000</lastBuildDate><atom:link href="https://blog.dnmfarrell.com/tags/perlguts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 23 Jul 2018 09:01:37 +0000</lastBuildDate>
+    <atom:link href="https://blog.dnmfarrell.com/tags/perlguts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Patching Perl: Loading Modules That Return False</title>
       <link>https://blog.dnmfarrell.com/post/patching-perl-loading-modules-that-return-false/</link>
       <pubDate>Mon, 23 Jul 2018 09:01:37 +0000</pubDate>
-      
       <guid>https://blog.dnmfarrell.com/post/patching-perl-loading-modules-that-return-false/</guid>
-      <description>[Update: this is now an issue for Perl 7]
-If you&amp;rsquo;ve been programming Perl for a while, you&amp;rsquo;ve probably run into this exception: Foo.pm did not return a true value. This is a peculiar quirk of the require function: modules must return a true value else Perl interprets it as a failure:
- The file must return true as the last statement to indicate successful execution of any initialization code, so it&amp;rsquo;s customary to end such a file with &amp;ldquo;1;&amp;rdquo; unless you&amp;rsquo;re sure it&amp;rsquo;ll return true otherwise.</description>
+      <description>&lt;p&gt;[&lt;strong&gt;Update&lt;/strong&gt;: this is now &lt;a href=&#34;https://github.com/Perl/perl5/issues/17921&#34;&gt;an issue for Perl 7&lt;/a&gt;]&lt;/p&gt;&#xA;&lt;p&gt;If you&amp;rsquo;ve been programming Perl for a while, you&amp;rsquo;ve probably run into this exception: &lt;code&gt;Foo.pm did not return a true value&lt;/code&gt;. This is a peculiar quirk of the &lt;code&gt;require&lt;/code&gt; function: modules &lt;em&gt;must&lt;/em&gt; return a true value else Perl interprets it as a failure:&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;The file must return true as the last statement to indicate&#xA;successful execution of any initialization code, so it&amp;rsquo;s customary&#xA;to end such a file with &amp;ldquo;1;&amp;rdquo; unless you&amp;rsquo;re sure it&amp;rsquo;ll return true&#xA;otherwise. But it&amp;rsquo;s better just to put the &amp;ldquo;1;&amp;rdquo;, in case you add&#xA;more statements.&#xA;&lt;br&gt;&#xA;&lt;em&gt;perlfunc&lt;/em&gt;&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>
