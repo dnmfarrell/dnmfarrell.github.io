@@ -43,24 +43,24 @@
   <p><em class="date">January 21, 2025</em></p>
 </div>
 
-<p>In his book <a href="https://www.amazon.com/Nature-Technology-What-How-Evolves/dp/1416544062">The Nature of Technology</a>, W. Brian Arthur describes technology as combinations of other technologies. This description poses a couple of questions for software.</p>
-<p>First, take a program like Git. To figure out what technologies Git is made of, perhaps all we have to do is inspect its dependencies? Surprisingly, Git has few real dependencies.¹</p>
+<p>In his book <a href="https://www.amazon.com/Nature-Technology-What-How-Evolves/dp/1416544062">The Nature of Technology</a>, W. Brian Arthur describes technology as combinations of other technologies. This description poses a couple of questions for computing.</p>
+<p>First, take a software program like Git. To figure out what technologies Git is made of, perhaps all we have to do is inspect its dependencies? Surprisingly, Git has few real dependencies.¹</p>
 <p>Second, note how Arthur&rsquo;s description of technology is recursive — where does it end? His answer is in elemental technologies. These are technologies which deliver an effect based on a natural phenomenon:</p>
 <blockquote>
-<q>That certain objects—pendulums or quartz crystals—oscillate at a steady given frequency is a phenomenon. Using this phenomenon for time keeping constitutes a principle, and yields from this a clock.</q>
+<q>That certain objects — pendulums or quartz crystals — oscillate at a steady given frequency is a phenomenon. Using this phenomenon for time keeping constitutes a principle, and yields from this a clock.</q>
 
 <p class="source">&mdash;&nbsp;W. Brian Arthur, <em>The Nature of Technology</em></p>
 
 </blockquote>
-<p>If we re-examine Git not by its software dependencies, but by the algorithms and data structures in its source,² we get closer. Consider Git&rsquo;s recursive three-way merge feature:</p>
+<p>If we re-examine Git not by its software dependencies, but by the algorithms and data structures in its source, we get closer.² Consider Git&rsquo;s recursive three-way merge feature:</p>
 <ul>
-<li>Recursive three way merge is built from Diff3 and a DAG of commits;</li>
+<li>Recursive three-way merge is built from Diff3 and a DAG of commits;</li>
 <li>Commit objects associate metadata with a top-level tree;</li>
 <li>Tree objects are directory-like structures which associate filenames with sub-trees and hashes;</li>
 <li>Hashes are SHA-1 hashes of blobs;</li>
 <li>Blobs consist of a header string and DEFLATE-compressed binary data.</li>
 </ul>
-<p>Diff3 operates on the phenomena of <em>structural similarity</em> to reconcile two edits with a common ancestor. SHA-1 takes advantage of the <em>uniform distribution</em> of modulo to create unpredictable-but-deterministic values. Lossless compression algorithms like DEFLATE operate on the phenomenon of <em>statistical redundancy</em> in data.</p>
+<p>Diff3 reconciles two edits of a common ancestor using their <em>structural similarity</em>. SHA-1 takes advantage of the <em>uniform distribution</em> of modulo to create unpredictable-but-deterministic values. Lossless compression algorithms like DEFLATE work due to <em>statistical redundancy</em> in data.</p>
 <p>In other words:</p>
 <blockquote>
 <q>A technology is a programming of phenomena to our purposes.</q>
@@ -72,40 +72,39 @@
 <p>We can model Git&rsquo;s merging ability as an ontology of technologies:</p>
 <p><img src="/images/innovation/partial-ontology.png" alt=""></p>
 <p>Note the hierarchy: the lines denote &ldquo;using&rdquo; relationships. Git&rsquo;s recursive three-way merge uses a version of Diff3 that uses <a href="http://www.xmailserver.org/diff2.pdf">Myers&rsquo; difference algorithm</a>.³</p>
-<p>Moreover, the importance of a member can be shown by its descendants. The broader the applicability and larger the effect, the more descendants it will have. This is why the dictionary (hashed binary tree of pairs) is an important data structure, but the config struct for any particular app is not.</p>
-<p>&ldquo;Importance&rdquo; here is different from economic value. Schumpeter explained that most economic benefits are not delivered by invention, but by innovation and the subsequent diffusion of new technology throughout an economy.⁴</p>
 <h3 id="innovations-frontier">Innovation&rsquo;s frontier</h3>
-<p>Zooming out from Git, imagine that we have modeled all computing technologies as an ontology. We could use the Computing Ontology to frame some key terms:</p>
+<p>Zooming out from Git, imagine that we have modeled all computing technologies as an ontology. The frontier of computing innovation then, is defined as the set of all unique combinations of nodes in the Computing Ontology.</p>
+<p>Git&rsquo;s speed, correctness guarantees and efficient use of space were essential to its success.⁴ Without the availability of suitable elemental technologies, &ldquo;Git&rdquo; would have been beyond the frontier and it&rsquo;s invention impossible.</p>
+<p>The Computing Ontology can also help us define terms:</p>
 <ul>
 <li><em>Invention</em> is the discovery of a new phenomenon and an algorithm and/or data structure to harness it. A new node is added.</li>
 <li><em>Innovation</em> is a novel combination of existing nodes to accomplish a new effect; new child nodes are added.</li>
 <li><em>Configuration</em> is the software engineering we do every day. Creating apps, fixing bugs etc. These create or modify child nodes, but they&rsquo;re unlikely to have descendants.</li>
 </ul>
-<p>In terms of the number of descendants: invention &gt; innovation &gt; configuration.</p>
-<p>The frontier of computing innovation then, is defined as the set of all unique combinations of nodes in the Computing Ontology.</p>
-<p>Git&rsquo;s speed, correctness guarantees and efficient use of space were essential to its success.⁵ Without the availability of suitable elemental technologies, Git could not exist.</p>
+<p>In terms of the number of descendants: invention &gt; innovation &gt; configuration. This is why the dictionary (hashed binary tree of pairs) is an important data structure, but the config struct for any particular app is not.</p>
 <h3 id="disruption">Disruption</h3>
 <p>What would it take to displace Git? Discovering a better algorithm that uses the same data structures wouldn&rsquo;t be enough as Git could adopt it. For example, Git now defaults to using SHA-256 instead of SHA-1.</p>
-<p>It seems like disruption would require an innovation that created a fundamentally better way of version control. Such as using a schema-aware difference algorithm. Maybe no such technologies exist yet, in which case they would need to be invented first.</p>
+<p>It seems like disruption would require an innovation that created a fundamentally better way of version control. Such as using a schema-aware difference algorithm. Maybe no such technologies exist yet; disruption is beyond the frontier.</p>
 <p>But that&rsquo;s not all:</p>
 <blockquote>
-<q>I am struck that innovation emerges when people are faced by problems—particular, well-specified problems.</q>
+<q>I am struck that innovation emerges when people are faced by problems — particular, well-specified problems.</q>
 
 <p class="source">&mdash;&nbsp;W. Brian Arthur, <em>The Nature of Technology</em></p>
 
 </blockquote>
-<p>What makes disruption possible is not just that the elemental technologies must have been invented, but that the problem/opportunity has been identified. Linus&rsquo; experience with BitKeeper and his deep file system expertise uniquely positioned him to create Git.⁶</p>
+<p>It&rsquo;s not enough to be technically feasible, somebody has to identify the problem/opportunity in order to exploit it.</p>
+<p>When Larry McVoy created <a href="https://en.wikipedia.org/wiki/BitKeeper">BitKeeper</a> he invented the concept of distributed version control. Later when he stopped providing BitKeeper to the Linux kernel project for free, he created a problem which actually spawned two new version control systems: Mercurial and Git.⁵</p>
 <p>Where might we see disruption soon? The Infrastructure-as-Code paradigm looks vulnerable. Last year, Brian Grant (Kubernetes architect) wrote an <a href="https://medium.com/itnext/the-12-anti-factors-of-infrastructure-as-code-acb52fba3ae0">excellent series</a> on IaC which identifies fundamental issues with how tools like Terraform work. Several competitors have emerged - a notable example is <a href="https://www.systeminit.com/">Systems Initiative</a> led by Adam Jacob, creator of Chef. What will happen if they succeed?</p>
-<p>We can model the effects of disruption using the Computing Ontology; the disrupted technology and its descendant nodes will be discarded in favor of a new hierarchy of nodes. As the new technology evolves, its changing components will contribute more nodes to the Ontology. The effects of those changes will ripple out, driving further adaptations and disruptions. Arthur calls this destructive cascade an &ldquo;avalanche&rdquo; but in the context of the Computing Ontology, the changes may radiate in any direction.</p>
+<p>We can model the effects of disruption using the Computing Ontology; the disrupted technology and its descendant nodes will be discarded in favor of a new hierarchy of nodes. As the new technology evolves,⁶ its changing components will contribute more nodes to the Ontology. The effects of those changes will ripple out, driving further adaptations and disruptions.</p>
+<p>Arthur calls this destructive cascade an &ldquo;avalanche&rdquo;. It&rsquo;s not just Terraform that is at risk, but its descendants such as projects like OpenTofu and services like Scalr. The cloud service providers sitting higher on the mountain will be spared.</p>
 <hr>
 <ol>
 <li>E.G. in Git 2.47.1 many dependencies are <a href="https://github.com/NixOS/nixpkgs/blob/8bffda905781922cf05d6d4932805a57418e7746/pkgs/applications/version-management/git/default.nix#L91">optional</a>.</li>
 <li><a href="https://git-scm.com/book/en/v2/Git-Internals-Git-Objects">Git Internals - Git Objects</a> describes some of these.</li>
 <li>Git uses the linear space variant, which occasionally makes for some <a href="https://blog.jcoglan.com/2017/03/22/myers-diff-in-linear-space-theory/">weird diffs</a>.</li>
-<li><a href="https://www.amazon.com/Theory-Economic-Development-Science-Classics/dp/0878556982">The Theory of Economic Development</a>, Joseph, A. Schumpeter.</li>
 <li>Linus explained this in an early <a href="https://www.youtube.com/watch?v=4XpnKHJAok8">talk at Google</a>. Git was so much faster than the rest that it changed how users actually did version control.</li>
-<li>For example, Mercurial was created around the same time as Git by another Linux kernel developer who was familiar with BitKeeper. Yet it was ~10x slower for certain operations and never gained the traction that Git did.</li>
-<li>Arthur describes several mechanisms by which this happens: internal replacement, lock-in and adaptive stretch and structural deepening.</li>
+<li>The coincidence of pejorative project names is striking.</li>
+<li>Arthur describes several forces which drive adaptations in existing technologies: internal replacement, lock-in and adaptive stretch and structural deepening.</li>
 </ol>
 
 
