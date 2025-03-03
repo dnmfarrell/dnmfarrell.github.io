@@ -74,7 +74,7 @@
 <p>Note the hierarchy: the arrows indicate &ldquo;using&rdquo; relationships. Git&rsquo;s recursive three-way merge uses a version of Diff3 that uses <a href="http://www.xmailserver.org/diff2.pdf">Myers&rsquo; difference algorithm</a>.³</p>
 <h3 id="innovations-frontier">Innovation&rsquo;s frontier</h3>
 <p>Zooming out from Git, imagine that we have modeled all computing technologies as an ontology. The frontier of computing innovation then, is defined as the set of all unique combinations of nodes in the Computing Ontology.</p>
-<p>Git&rsquo;s speed, correctness guarantees and efficient use of space were essential to its success.⁴ Without the availability of suitable elemental technologies, &ldquo;Git&rdquo; would have been beyond the frontier and it&rsquo;s invention impossible.</p>
+<p>Git&rsquo;s speed, correctness guarantees and efficient use of space were essential to its success.⁴ Without the availability of suitable elemental technologies, &ldquo;Git&rdquo; would have been beyond the technology frontier.</p>
 <p>The Computing Ontology can also help us define terms:</p>
 <ul>
 <li><em>Invention</em> is the discovery of a new phenomenon and an algorithm and/or data structure to harness it. A new node is added.</li>
@@ -83,8 +83,8 @@
 </ul>
 <p>In terms of the number of descendants: invention &gt; innovation &gt; configuration. This is why the dictionary (hashed binary tree of pairs) is an important data structure, but the config struct for any particular app is not.</p>
 <h3 id="disruption">Disruption</h3>
-<p>What would it take to displace Git? Discovering a better algorithm that uses the same data structures wouldn&rsquo;t be enough as Git could adopt it. For example, Git now defaults to using SHA-256 instead of SHA-1.</p>
-<p>It seems like disruption would require an innovation that created a fundamentally better way of version control. Such as using a schema-aware difference algorithm. Maybe no such technologies exist yet; disruption is beyond the frontier.</p>
+<p>What would it take to displace Git? Discovering a better algorithm that uses the same data structures wouldn&rsquo;t be enough as Git itself could adopt it. For example, Git now defaults to using SHA-256 instead of SHA-1.</p>
+<p>It seems like disruption would require an innovation that created a fundamentally better way of version control. Such as using a schema-aware difference algorithm. If no such technologies exist yet, disruption is beyond the frontier.</p>
 <p>But that&rsquo;s not all:</p>
 <blockquote>
 <q>I am struck that innovation emerges when people are faced by problems — particular, well-specified problems.</q>
@@ -96,7 +96,7 @@
 <p>When Larry McVoy created <a href="https://en.wikipedia.org/wiki/BitKeeper">BitKeeper</a> he invented the concept of distributed version control. Later when he stopped providing BitKeeper to the Linux kernel project for free, he created a problem which actually spawned two new version control systems: Mercurial and Git.⁵</p>
 <p>Where might we see disruption soon? The Infrastructure-as-Code paradigm looks vulnerable. Last year, Brian Grant (Kubernetes architect) wrote an <a href="https://medium.com/itnext/the-12-anti-factors-of-infrastructure-as-code-acb52fba3ae0">excellent series</a> on IaC which identifies fundamental issues with how tools like Terraform work. Several competitors have emerged - a notable example is <a href="https://www.systeminit.com/">Systems Initiative</a> led by Adam Jacob, creator of Chef. What will happen if they succeed?</p>
 <p>We can model the effects of disruption using the Computing Ontology; the disrupted technology and its descendant nodes will be discarded in favor of a new hierarchy of nodes. As the new technology evolves,⁶ its changing components will contribute more nodes to the Ontology. The effects of those changes will ripple out, driving further adaptations and disruptions.</p>
-<p>Arthur calls this destructive cascade an &ldquo;avalanche&rdquo;. It&rsquo;s not just Terraform that is at risk, but its descendants such as projects like OpenTofu and services like Scalr. The cloud service providers sitting higher on the mountain will be spared.</p>
+<p>Arthur calls this destructive cascade an &ldquo;avalanche&rdquo;. It&rsquo;s not just Terraform that is at risk, but its descendants such as projects like OpenTofu and services like Scalr. The cloud service providers stationed higher up the mountain will be spared.</p>
 <hr>
 <ol>
 <li>E.G. in Git 2.47.1 many dependencies are <a href="https://github.com/NixOS/nixpkgs/blob/8bffda905781922cf05d6d4932805a57418e7746/pkgs/applications/version-management/git/default.nix#L91">optional</a>.</li>
