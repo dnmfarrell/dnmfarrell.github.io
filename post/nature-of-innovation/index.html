@@ -72,14 +72,15 @@
 <h3 id="a-computing-ontology">A Computing Ontology</h3>
 <p>We can model Git&rsquo;s merging ability as an ontology of technologies:</p>
 <p><img src="/images/innovation/partial-ontology.png" alt=""></p>
+<p>In this diagram, rounded rectangles are phenomena, rectangles are algorithms, and cylinders are data structures.</p>
 <p>Note the hierarchy: the arrows indicate (approximate) &ldquo;using&rdquo; relationships. Git&rsquo;s recursive three-way merge uses a version of Diff3 that uses <a href="http://www.xmailserver.org/diff2.pdf">Myers&rsquo; difference algorithm</a>.³</p>
 <p>The Computing Ontology can also help us define terms:</p>
 <ul>
 <li><em>Invention</em> is the discovery of a new phenomenon and an algorithm and/or data structure to harness it. A new root node is added.</li>
 <li><em>Innovation</em> is a novel combination of existing nodes to accomplish a new effect; new child nodes are added.</li>
-<li><em>Configuration</em> is the software engineering we do every day. Creating apps, fixing bugs etc. These create or modify child nodes, but they&rsquo;re unlikely to have descendants.</li>
+<li><em>Engineering</em> is the software development we do every day. Creating apps, fixing bugs etc. These create or modify child nodes, but they&rsquo;re unlikely to have descendants.</li>
 </ul>
-<p>In terms of the number of descendants: invention &gt; innovation &gt; configuration. This is why the dictionary (hashed binary tree of pairs) is an important data structure, but the config struct for any particular app is not.</p>
+<p>In terms of the number of descendants: invention &gt; innovation &gt; engineering. This is why the dictionary (hashed binary tree of pairs) is an important data structure, but the config struct for any particular app is not.</p>
 <h3 id="innovations-frontier">Innovation&rsquo;s frontier</h3>
 <p>Zooming out from Git, imagine that we have modeled all computing technologies as an ontology. The frontier of computing innovation then, is defined as the set of all possible combinations of nodes in the Computing Ontology.</p>
 <p>Git&rsquo;s speed, correctness guarantees and efficient use of space were essential to its success.⁴ Without the availability of suitable technologies, &ldquo;Git&rdquo; would have been beyond the technology frontier.</p>
