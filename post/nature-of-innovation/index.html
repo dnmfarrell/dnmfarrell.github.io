@@ -52,7 +52,8 @@
 <p class="source">&mdash;&nbsp;W. Brian Arthur, <em>The Nature of Technology</em></p>
 
 </blockquote>
-<p>If we re-examine Git not by its software dependencies, but by the algorithms and data structures in its source, we get closer.² Consider Git&rsquo;s recursive three-way merge feature:</p>
+<p>If we re-examine Git not by its software dependencies, but by the algorithms and data structures in its source, we get closer.²</p>
+<p>Consider Git&rsquo;s recursive three-way merge feature:</p>
 <ul>
 <li>Recursive three-way merge is built from Diff3 and a DAG of commits;</li>
 <li>Commit objects associate metadata with a top-level tree;</li>
@@ -60,7 +61,7 @@
 <li>Hashes are SHA-1 hashes of blobs;</li>
 <li>Blobs consist of a header string and DEFLATE-compressed binary data.</li>
 </ul>
-<p>Diff3 reconciles two edits of a common ancestor based upon their <em>structural similarity</em>. SHA-1 uses the <em>uniform distribution</em> of modulo to create unpredictable-but-deterministic values. Lossless compression algorithms like DEFLATE work due to <em>statistical redundancy</em> in data.</p>
+<p>The Huntley-Mcllroy diff algorithm operates on the phenomenon that <em>ordered correspondence survives editing</em>. Myers diff improves the performance by exploiting the the fact that <em>text changes are sparse</em>. Diff3 can reconcile texts to a common ancestor because <em>independent edits to separate regions are commutative</em>.</p>
 <p>In other words:</p>
 <blockquote>
 <q>A technology is a programming of phenomena to our purposes.</q>
@@ -71,17 +72,17 @@
 <h3 id="a-computing-ontology">A Computing Ontology</h3>
 <p>We can model Git&rsquo;s merging ability as an ontology of technologies:</p>
 <p><img src="/images/innovation/partial-ontology.png" alt=""></p>
-<p>Note the hierarchy: the arrows indicate &ldquo;using&rdquo; relationships. Git&rsquo;s recursive three-way merge uses a version of Diff3 that uses <a href="http://www.xmailserver.org/diff2.pdf">Myers&rsquo; difference algorithm</a>.³</p>
-<h3 id="innovations-frontier">Innovation&rsquo;s frontier</h3>
-<p>Zooming out from Git, imagine that we have modeled all computing technologies as an ontology. The frontier of computing innovation then, is defined as the set of all unique combinations of nodes in the Computing Ontology.</p>
-<p>Git&rsquo;s speed, correctness guarantees and efficient use of space were essential to its success.⁴ Without the availability of suitable elemental technologies, &ldquo;Git&rdquo; would have been beyond the technology frontier.</p>
+<p>Note the hierarchy: the arrows indicate (approximate) &ldquo;using&rdquo; relationships. Git&rsquo;s recursive three-way merge uses a version of Diff3 that uses <a href="http://www.xmailserver.org/diff2.pdf">Myers&rsquo; difference algorithm</a>.³</p>
 <p>The Computing Ontology can also help us define terms:</p>
 <ul>
-<li><em>Invention</em> is the discovery of a new phenomenon and an algorithm and/or data structure to harness it. A new node is added.</li>
+<li><em>Invention</em> is the discovery of a new phenomenon and an algorithm and/or data structure to harness it. A new root node is added.</li>
 <li><em>Innovation</em> is a novel combination of existing nodes to accomplish a new effect; new child nodes are added.</li>
 <li><em>Configuration</em> is the software engineering we do every day. Creating apps, fixing bugs etc. These create or modify child nodes, but they&rsquo;re unlikely to have descendants.</li>
 </ul>
 <p>In terms of the number of descendants: invention &gt; innovation &gt; configuration. This is why the dictionary (hashed binary tree of pairs) is an important data structure, but the config struct for any particular app is not.</p>
+<h3 id="innovations-frontier">Innovation&rsquo;s frontier</h3>
+<p>Zooming out from Git, imagine that we have modeled all computing technologies as an ontology. The frontier of computing innovation then, is defined as the set of all possible combinations of nodes in the Computing Ontology.</p>
+<p>Git&rsquo;s speed, correctness guarantees and efficient use of space were essential to its success.⁴ Without the availability of suitable technologies, &ldquo;Git&rdquo; would have been beyond the technology frontier.</p>
 <h3 id="disruption">Disruption</h3>
 <p>What would it take to displace Git? Discovering a better algorithm that uses the same data structures wouldn&rsquo;t be enough as Git itself could adopt it. For example, Git now defaults to using SHA-256 instead of SHA-1.</p>
 <p>It seems like disruption would require an innovation that created a fundamentally better way of version control. Such as using a schema-aware difference algorithm. If no such technologies exist yet, disruption is beyond the frontier.</p>
@@ -92,19 +93,19 @@
 <p class="source">&mdash;&nbsp;W. Brian Arthur, <em>The Nature of Technology</em></p>
 
 </blockquote>
-<p>It&rsquo;s not enough to be technically feasible, somebody has to identify the problem/opportunity in order to exploit it.</p>
+<p>In Computing Ontology terms we might say the number of possible combinations of nodes is too costly to search. A particular challenge constrains the search space.</p>
 <p>When Larry McVoy created <a href="https://en.wikipedia.org/wiki/BitKeeper">BitKeeper</a> he invented the concept of distributed version control. Later when he stopped providing BitKeeper to the Linux kernel project for free, he created a problem which actually spawned two new version control systems: Mercurial and Git.⁵</p>
-<p>Where might we see disruption soon? The Infrastructure-as-Code paradigm looks vulnerable. Last year, Brian Grant (Kubernetes architect) wrote an <a href="https://medium.com/itnext/the-12-anti-factors-of-infrastructure-as-code-acb52fba3ae0">excellent series</a> on IaC which identifies fundamental issues with how tools like Terraform work. Several competitors have emerged - a notable example is <a href="https://www.systeminit.com/">Systems Initiative</a> led by Adam Jacob, creator of Chef. What will happen if they succeed?</p>
-<p>We can model the effects of disruption using the Computing Ontology; the disrupted technology and its descendant nodes will be discarded in favor of a new hierarchy of nodes. As the new technology evolves,⁶ its changing components will contribute more nodes to the Ontology. The effects of those changes will ripple out, driving further adaptations and disruptions.</p>
-<p>Arthur calls this destructive cascade an &ldquo;avalanche&rdquo;. It&rsquo;s not just Terraform that is at risk, but its descendants such as projects like OpenTofu and services like Scalr. The cloud service providers stationed higher up the mountain will be spared.</p>
+<p>We can model the effects of disruption using the Computing Ontology; the disrupted technology and its descendant nodes will be discarded in favor of a new hierarchy of nodes. As the new technology evolves,⁶ its changing components contribute more nodes to the Ontology. The effects of those changes ripple out, driving further adaptations and disruptions.</p>
+<p>Arthur calls this destruction an &ldquo;avalanche&rdquo;. BitKeeper was swept away, but the technologies it used were spared.⁷ Meanwhile Git and the web enabled new technologies like GitHub.</p>
 <hr>
 <ol>
 <li>E.G. in Git 2.47.1 many dependencies are <a href="https://github.com/NixOS/nixpkgs/blob/8bffda905781922cf05d6d4932805a57418e7746/pkgs/applications/version-management/git/default.nix#L91">optional</a>.</li>
 <li><a href="https://git-scm.com/book/en/v2/Git-Internals-Git-Objects">Git Internals - Git Objects</a> describes some of these.</li>
 <li>Git uses the linear space variant, which occasionally makes for some <a href="https://blog.jcoglan.com/2017/03/22/myers-diff-in-linear-space-theory/">weird diffs</a>.</li>
-<li>Linus explained this in an early <a href="https://www.youtube.com/watch?v=4XpnKHJAok8">talk at Google</a>. Git was so much faster than the rest that it changed how users actually did version control.</li>
+<li>Linus explained this in an early <a href="https://www.youtube.com/watch?v=4XpnKHJAok8">talk at Google</a>. Git was so much faster than the rest that it changed how users actually did version control. A large change in speed becomes a change in kind.</li>
 <li>The coincidence of pejoratives as project names is striking.</li>
 <li>Arthur describes several forces which drive adaptations in existing technologies: internal replacement, lock-in and adaptive stretch and structural deepening.</li>
+<li>Rochkind&rsquo;s Source Code Control System (the original version control system for Unix) interleaves all versions of a file into a single structure called interleaved deltas (or the &ldquo;weave&rdquo;). BitKeeper uses a weave-merge algorithm.</li>
 </ol>
 
 
