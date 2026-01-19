@@ -50,7 +50,7 @@
 
 <script>
 
-function eval_1c13341ebe3bb26f1b76d843e6fd80ae() {
+function eval_3f046e8231fd33a6cbbed876e114bb1e() {
   let output = "";
   let answ = function() {
     lookup.answer({
@@ -65,15 +65,15 @@ function eval_1c13341ebe3bb26f1b76d843e6fd80ae() {
         } else {
           output = output.substr(0, output.length-2) + ".";
         }
-        document.querySelector('textarea#o1c13341ebe3bb26f1b76d843e6fd80ae').value = output;
-        let cons = document.querySelector('textarea#o1c13341ebe3bb26f1b76d843e6fd80ae');
+        document.querySelector('textarea#o3f046e8231fd33a6cbbed876e114bb1e').value = output;
+        let cons = document.querySelector('textarea#o3f046e8231fd33a6cbbed876e114bb1e');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
         output = "";
       },
     });
   };
-  let code = document.querySelector('textarea#i1c13341ebe3bb26f1b76d843e6fd80ae');
+  let code = document.querySelector('textarea#i3f046e8231fd33a6cbbed876e114bb1e');
   code.style.height = "1px";
   code.style.height = (code.scrollHeight)+"px";
   code.value.substr(0,3) != '?- '
@@ -81,15 +81,15 @@ function eval_1c13341ebe3bb26f1b76d843e6fd80ae() {
     `${code.value}\n`, { 
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        let cons = document.querySelector('textarea#o1c13341ebe3bb26f1b76d843e6fd80ae');
+        let cons = document.querySelector('textarea#o3f046e8231fd33a6cbbed876e114bb1e');
         cons.value = "OK.";
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o1c13341ebe3bb26f1b76d843e6fd80ae').value = err;
-        let cons = document.querySelector('textarea#o1c13341ebe3bb26f1b76d843e6fd80ae');
+        document.querySelector('textarea#o3f046e8231fd33a6cbbed876e114bb1e').value = err;
+        let cons = document.querySelector('textarea#o3f046e8231fd33a6cbbed876e114bb1e');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
@@ -98,36 +98,36 @@ function eval_1c13341ebe3bb26f1b76d843e6fd80ae() {
     `${code.value.substr(3)}`, {
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        document.querySelector('textarea#o1c13341ebe3bb26f1b76d843e6fd80ae').value = "";
+        document.querySelector('textarea#o3f046e8231fd33a6cbbed876e114bb1e').value = "";
         answ();
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o1c13341ebe3bb26f1b76d843e6fd80ae').value = err;
-        let cons = document.querySelector('textarea#o1c13341ebe3bb26f1b76d843e6fd80ae');
+        document.querySelector('textarea#o3f046e8231fd33a6cbbed876e114bb1e').value = err;
+        let cons = document.querySelector('textarea#o3f046e8231fd33a6cbbed876e114bb1e');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
     });
 }
-addEventListener("DOMContentLoaded", (event) => { eval_1c13341ebe3bb26f1b76d843e6fd80ae() });
+addEventListener("DOMContentLoaded", (event) => { eval_3f046e8231fd33a6cbbed876e114bb1e() });
 </script>
 <div style="margin-bottom:24px">
-<textarea class="eval_in" id="i1c13341ebe3bb26f1b76d843e6fd80ae" onkeyup="eval_1c13341ebe3bb26f1b76d843e6fd80ae()">
+<textarea class="eval_in" id="i3f046e8231fd33a6cbbed876e114bb1e" onkeyup="eval_3f046e8231fd33a6cbbed876e114bb1e()">
 lookup(Key, dict(Key,X,Left,Right), Value) :-
     !,X=Value.
 lookup(Key, dict(Keyl,X,Left,Right), Value) :-
     Key &lt; Keyl, lookup(Key,Left,Value).
 lookup(Key, dict(Keyl,X,Left,Right), Value) :-
     Key &gt; Keyl, lookup(Key,Right,Value).</textarea>
-<textarea class="eval_out" readonly id="o1c13341ebe3bb26f1b76d843e6fd80ae"></textarea>
+<textarea class="eval_out" readonly id="o3f046e8231fd33a6cbbed876e114bb1e"></textarea>
 </div>
 </p>
 <p>Believe it or not, these six lines of code implement a dictionary as an ordered, binary search tree. The rule <code>lookup/3</code> can be used to both add to and get from the dictionary.</p>
 <p>This query calls <code>lookup/3</code> with a key, a variable, and a value. The variable is instantiated to a new dictionary containing the key-value pair and variables (beginning with <code>_</code>) in the left and right branches:</p>
 <script>
 
-function eval_d8e47abadebe96eee540103ee9b4d202() {
+function eval_e74d99e6e102ae30deb4e0a248edeb5b() {
   let output = "";
   let answ = function() {
     lookup.answer({
@@ -142,15 +142,15 @@ function eval_d8e47abadebe96eee540103ee9b4d202() {
         } else {
           output = output.substr(0, output.length-2) + ".";
         }
-        document.querySelector('textarea#od8e47abadebe96eee540103ee9b4d202').value = output;
-        let cons = document.querySelector('textarea#od8e47abadebe96eee540103ee9b4d202');
+        document.querySelector('textarea#oe74d99e6e102ae30deb4e0a248edeb5b').value = output;
+        let cons = document.querySelector('textarea#oe74d99e6e102ae30deb4e0a248edeb5b');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
         output = "";
       },
     });
   };
-  let code = document.querySelector('textarea#id8e47abadebe96eee540103ee9b4d202');
+  let code = document.querySelector('textarea#ie74d99e6e102ae30deb4e0a248edeb5b');
   code.style.height = "1px";
   code.style.height = (code.scrollHeight)+"px";
   code.value.substr(0,3) != '?- '
@@ -158,15 +158,15 @@ function eval_d8e47abadebe96eee540103ee9b4d202() {
     `${code.value}\n`, { 
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        let cons = document.querySelector('textarea#od8e47abadebe96eee540103ee9b4d202');
+        let cons = document.querySelector('textarea#oe74d99e6e102ae30deb4e0a248edeb5b');
         cons.value = "OK.";
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#od8e47abadebe96eee540103ee9b4d202').value = err;
-        let cons = document.querySelector('textarea#od8e47abadebe96eee540103ee9b4d202');
+        document.querySelector('textarea#oe74d99e6e102ae30deb4e0a248edeb5b').value = err;
+        let cons = document.querySelector('textarea#oe74d99e6e102ae30deb4e0a248edeb5b');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
@@ -175,30 +175,30 @@ function eval_d8e47abadebe96eee540103ee9b4d202() {
     `${code.value.substr(3)}`, {
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        document.querySelector('textarea#od8e47abadebe96eee540103ee9b4d202').value = "";
+        document.querySelector('textarea#oe74d99e6e102ae30deb4e0a248edeb5b').value = "";
         answ();
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#od8e47abadebe96eee540103ee9b4d202').value = err;
-        let cons = document.querySelector('textarea#od8e47abadebe96eee540103ee9b4d202');
+        document.querySelector('textarea#oe74d99e6e102ae30deb4e0a248edeb5b').value = err;
+        let cons = document.querySelector('textarea#oe74d99e6e102ae30deb4e0a248edeb5b');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
     });
 }
-addEventListener("DOMContentLoaded", (event) => { eval_d8e47abadebe96eee540103ee9b4d202() });
+addEventListener("DOMContentLoaded", (event) => { eval_e74d99e6e102ae30deb4e0a248edeb5b() });
 </script>
 <div style="margin-bottom:24px">
-<textarea class="eval_in" id="id8e47abadebe96eee540103ee9b4d202" onkeyup="eval_d8e47abadebe96eee540103ee9b4d202()">
+<textarea class="eval_in" id="ie74d99e6e102ae30deb4e0a248edeb5b" onkeyup="eval_e74d99e6e102ae30deb4e0a248edeb5b()">
 ?- lookup(123, Dict, &#34;foo&#34;).</textarea>
-<textarea class="eval_out" readonly id="od8e47abadebe96eee540103ee9b4d202"></textarea>
+<textarea class="eval_out" readonly id="oe74d99e6e102ae30deb4e0a248edeb5b"></textarea>
 </div>
 
 <p>This query includes a second clause which adds another key-value pair, which is placed in the right branch of the first pair:</p>
 <script>
 
-function eval_84a0e884aa833990eb0ae0d0384c84b4() {
+function eval_a448d8ec40e03ba80e88330b49894a0a() {
   let output = "";
   let answ = function() {
     lookup.answer({
@@ -213,15 +213,15 @@ function eval_84a0e884aa833990eb0ae0d0384c84b4() {
         } else {
           output = output.substr(0, output.length-2) + ".";
         }
-        document.querySelector('textarea#o84a0e884aa833990eb0ae0d0384c84b4').value = output;
-        let cons = document.querySelector('textarea#o84a0e884aa833990eb0ae0d0384c84b4');
+        document.querySelector('textarea#oa448d8ec40e03ba80e88330b49894a0a').value = output;
+        let cons = document.querySelector('textarea#oa448d8ec40e03ba80e88330b49894a0a');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
         output = "";
       },
     });
   };
-  let code = document.querySelector('textarea#i84a0e884aa833990eb0ae0d0384c84b4');
+  let code = document.querySelector('textarea#ia448d8ec40e03ba80e88330b49894a0a');
   code.style.height = "1px";
   code.style.height = (code.scrollHeight)+"px";
   code.value.substr(0,3) != '?- '
@@ -229,15 +229,15 @@ function eval_84a0e884aa833990eb0ae0d0384c84b4() {
     `${code.value}\n`, { 
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        let cons = document.querySelector('textarea#o84a0e884aa833990eb0ae0d0384c84b4');
+        let cons = document.querySelector('textarea#oa448d8ec40e03ba80e88330b49894a0a');
         cons.value = "OK.";
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o84a0e884aa833990eb0ae0d0384c84b4').value = err;
-        let cons = document.querySelector('textarea#o84a0e884aa833990eb0ae0d0384c84b4');
+        document.querySelector('textarea#oa448d8ec40e03ba80e88330b49894a0a').value = err;
+        let cons = document.querySelector('textarea#oa448d8ec40e03ba80e88330b49894a0a');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
@@ -246,25 +246,25 @@ function eval_84a0e884aa833990eb0ae0d0384c84b4() {
     `${code.value.substr(3)}`, {
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        document.querySelector('textarea#o84a0e884aa833990eb0ae0d0384c84b4').value = "";
+        document.querySelector('textarea#oa448d8ec40e03ba80e88330b49894a0a').value = "";
         answ();
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o84a0e884aa833990eb0ae0d0384c84b4').value = err;
-        let cons = document.querySelector('textarea#o84a0e884aa833990eb0ae0d0384c84b4');
+        document.querySelector('textarea#oa448d8ec40e03ba80e88330b49894a0a').value = err;
+        let cons = document.querySelector('textarea#oa448d8ec40e03ba80e88330b49894a0a');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
     });
 }
-addEventListener("DOMContentLoaded", (event) => { eval_84a0e884aa833990eb0ae0d0384c84b4() });
+addEventListener("DOMContentLoaded", (event) => { eval_a448d8ec40e03ba80e88330b49894a0a() });
 </script>
 <div style="margin-bottom:24px">
-<textarea class="eval_in" id="i84a0e884aa833990eb0ae0d0384c84b4" onkeyup="eval_84a0e884aa833990eb0ae0d0384c84b4()">
+<textarea class="eval_in" id="ia448d8ec40e03ba80e88330b49894a0a" onkeyup="eval_a448d8ec40e03ba80e88330b49894a0a()">
 ?- lookup(123, Dict, &#34;foo&#34;),
    lookup(456, Dict, &#34;bar&#34;).</textarea>
-<textarea class="eval_out" readonly id="o84a0e884aa833990eb0ae0d0384c84b4"></textarea>
+<textarea class="eval_out" readonly id="oa448d8ec40e03ba80e88330b49894a0a"></textarea>
 </div>
 
 <h3 id="immutable">Immutable?</h3>
@@ -277,7 +277,7 @@ addEventListener("DOMContentLoaded", (event) => { eval_84a0e884aa833990eb0ae0d03
 <p>To get a key&rsquo;s value, we provide the value as a variable:</p>
 <script>
 
-function eval_b470fbb408988f2309c622893859dc7b() {
+function eval_38293868070f499cb858f4b209d2b7cb() {
   let output = "";
   let answ = function() {
     lookup.answer({
@@ -292,15 +292,15 @@ function eval_b470fbb408988f2309c622893859dc7b() {
         } else {
           output = output.substr(0, output.length-2) + ".";
         }
-        document.querySelector('textarea#ob470fbb408988f2309c622893859dc7b').value = output;
-        let cons = document.querySelector('textarea#ob470fbb408988f2309c622893859dc7b');
+        document.querySelector('textarea#o38293868070f499cb858f4b209d2b7cb').value = output;
+        let cons = document.querySelector('textarea#o38293868070f499cb858f4b209d2b7cb');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
         output = "";
       },
     });
   };
-  let code = document.querySelector('textarea#ib470fbb408988f2309c622893859dc7b');
+  let code = document.querySelector('textarea#i38293868070f499cb858f4b209d2b7cb');
   code.style.height = "1px";
   code.style.height = (code.scrollHeight)+"px";
   code.value.substr(0,3) != '?- '
@@ -308,15 +308,15 @@ function eval_b470fbb408988f2309c622893859dc7b() {
     `${code.value}\n`, { 
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        let cons = document.querySelector('textarea#ob470fbb408988f2309c622893859dc7b');
+        let cons = document.querySelector('textarea#o38293868070f499cb858f4b209d2b7cb');
         cons.value = "OK.";
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#ob470fbb408988f2309c622893859dc7b').value = err;
-        let cons = document.querySelector('textarea#ob470fbb408988f2309c622893859dc7b');
+        document.querySelector('textarea#o38293868070f499cb858f4b209d2b7cb').value = err;
+        let cons = document.querySelector('textarea#o38293868070f499cb858f4b209d2b7cb');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
@@ -325,31 +325,31 @@ function eval_b470fbb408988f2309c622893859dc7b() {
     `${code.value.substr(3)}`, {
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        document.querySelector('textarea#ob470fbb408988f2309c622893859dc7b').value = "";
+        document.querySelector('textarea#o38293868070f499cb858f4b209d2b7cb').value = "";
         answ();
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#ob470fbb408988f2309c622893859dc7b').value = err;
-        let cons = document.querySelector('textarea#ob470fbb408988f2309c622893859dc7b');
+        document.querySelector('textarea#o38293868070f499cb858f4b209d2b7cb').value = err;
+        let cons = document.querySelector('textarea#o38293868070f499cb858f4b209d2b7cb');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
     });
 }
-addEventListener("DOMContentLoaded", (event) => { eval_b470fbb408988f2309c622893859dc7b() });
+addEventListener("DOMContentLoaded", (event) => { eval_38293868070f499cb858f4b209d2b7cb() });
 </script>
 <div style="margin-bottom:24px">
-<textarea class="eval_in" id="ib470fbb408988f2309c622893859dc7b" onkeyup="eval_b470fbb408988f2309c622893859dc7b()">
+<textarea class="eval_in" id="i38293868070f499cb858f4b209d2b7cb" onkeyup="eval_38293868070f499cb858f4b209d2b7cb()">
 ?- lookup(123, Dict, &#34;foo&#34;),
    lookup(123, Dict, Value).</textarea>
-<textarea class="eval_out" readonly id="ob470fbb408988f2309c622893859dc7b"></textarea>
+<textarea class="eval_out" readonly id="o38293868070f499cb858f4b209d2b7cb"></textarea>
 </div>
 
 <p>Checking for existence is a little tricky though:</p>
 <script>
 
-function eval_2bcaef75b7e825edf4ce7169f1e47727() {
+function eval_ee57f78f5149be6e2f72174cba7e7dc2() {
   let output = "";
   let answ = function() {
     lookup.answer({
@@ -364,15 +364,15 @@ function eval_2bcaef75b7e825edf4ce7169f1e47727() {
         } else {
           output = output.substr(0, output.length-2) + ".";
         }
-        document.querySelector('textarea#o2bcaef75b7e825edf4ce7169f1e47727').value = output;
-        let cons = document.querySelector('textarea#o2bcaef75b7e825edf4ce7169f1e47727');
+        document.querySelector('textarea#oee57f78f5149be6e2f72174cba7e7dc2').value = output;
+        let cons = document.querySelector('textarea#oee57f78f5149be6e2f72174cba7e7dc2');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
         output = "";
       },
     });
   };
-  let code = document.querySelector('textarea#i2bcaef75b7e825edf4ce7169f1e47727');
+  let code = document.querySelector('textarea#iee57f78f5149be6e2f72174cba7e7dc2');
   code.style.height = "1px";
   code.style.height = (code.scrollHeight)+"px";
   code.value.substr(0,3) != '?- '
@@ -380,15 +380,15 @@ function eval_2bcaef75b7e825edf4ce7169f1e47727() {
     `${code.value}\n`, { 
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        let cons = document.querySelector('textarea#o2bcaef75b7e825edf4ce7169f1e47727');
+        let cons = document.querySelector('textarea#oee57f78f5149be6e2f72174cba7e7dc2');
         cons.value = "OK.";
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o2bcaef75b7e825edf4ce7169f1e47727').value = err;
-        let cons = document.querySelector('textarea#o2bcaef75b7e825edf4ce7169f1e47727');
+        document.querySelector('textarea#oee57f78f5149be6e2f72174cba7e7dc2').value = err;
+        let cons = document.querySelector('textarea#oee57f78f5149be6e2f72174cba7e7dc2');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
@@ -397,30 +397,30 @@ function eval_2bcaef75b7e825edf4ce7169f1e47727() {
     `${code.value.substr(3)}`, {
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        document.querySelector('textarea#o2bcaef75b7e825edf4ce7169f1e47727').value = "";
+        document.querySelector('textarea#oee57f78f5149be6e2f72174cba7e7dc2').value = "";
         answ();
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o2bcaef75b7e825edf4ce7169f1e47727').value = err;
-        let cons = document.querySelector('textarea#o2bcaef75b7e825edf4ce7169f1e47727');
+        document.querySelector('textarea#oee57f78f5149be6e2f72174cba7e7dc2').value = err;
+        let cons = document.querySelector('textarea#oee57f78f5149be6e2f72174cba7e7dc2');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
     });
 }
-addEventListener("DOMContentLoaded", (event) => { eval_2bcaef75b7e825edf4ce7169f1e47727() });
+addEventListener("DOMContentLoaded", (event) => { eval_ee57f78f5149be6e2f72174cba7e7dc2() });
 </script>
 <div style="margin-bottom:24px">
-<textarea class="eval_in" id="i2bcaef75b7e825edf4ce7169f1e47727" onkeyup="eval_2bcaef75b7e825edf4ce7169f1e47727()">
+<textarea class="eval_in" id="iee57f78f5149be6e2f72174cba7e7dc2" onkeyup="eval_ee57f78f5149be6e2f72174cba7e7dc2()">
 ?- lookup(123, Dict, Value).</textarea>
-<textarea class="eval_out" readonly id="o2bcaef75b7e825edf4ce7169f1e47727"></textarea>
+<textarea class="eval_out" readonly id="oee57f78f5149be6e2f72174cba7e7dc2"></textarea>
 </div>
 
 <p>The query &ldquo;succeeded&rdquo; but the value didn&rsquo;t exist, we got a variable back! We can use <code>nonvar/1</code> to check that our variable contains a value</p>
 <script>
 
-function eval_3c301f2541877ee2144c147f0e2d22b1() {
+function eval_034248e512471eeb7121cc27013ff24d() {
   let output = "";
   let answ = function() {
     lookup.answer({
@@ -435,15 +435,15 @@ function eval_3c301f2541877ee2144c147f0e2d22b1() {
         } else {
           output = output.substr(0, output.length-2) + ".";
         }
-        document.querySelector('textarea#o3c301f2541877ee2144c147f0e2d22b1').value = output;
-        let cons = document.querySelector('textarea#o3c301f2541877ee2144c147f0e2d22b1');
+        document.querySelector('textarea#o034248e512471eeb7121cc27013ff24d').value = output;
+        let cons = document.querySelector('textarea#o034248e512471eeb7121cc27013ff24d');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
         output = "";
       },
     });
   };
-  let code = document.querySelector('textarea#i3c301f2541877ee2144c147f0e2d22b1');
+  let code = document.querySelector('textarea#i034248e512471eeb7121cc27013ff24d');
   code.style.height = "1px";
   code.style.height = (code.scrollHeight)+"px";
   code.value.substr(0,3) != '?- '
@@ -451,15 +451,15 @@ function eval_3c301f2541877ee2144c147f0e2d22b1() {
     `${code.value}\n`, { 
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        let cons = document.querySelector('textarea#o3c301f2541877ee2144c147f0e2d22b1');
+        let cons = document.querySelector('textarea#o034248e512471eeb7121cc27013ff24d');
         cons.value = "OK.";
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o3c301f2541877ee2144c147f0e2d22b1').value = err;
-        let cons = document.querySelector('textarea#o3c301f2541877ee2144c147f0e2d22b1');
+        document.querySelector('textarea#o034248e512471eeb7121cc27013ff24d').value = err;
+        let cons = document.querySelector('textarea#o034248e512471eeb7121cc27013ff24d');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
@@ -468,24 +468,24 @@ function eval_3c301f2541877ee2144c147f0e2d22b1() {
     `${code.value.substr(3)}`, {
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        document.querySelector('textarea#o3c301f2541877ee2144c147f0e2d22b1').value = "";
+        document.querySelector('textarea#o034248e512471eeb7121cc27013ff24d').value = "";
         answ();
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o3c301f2541877ee2144c147f0e2d22b1').value = err;
-        let cons = document.querySelector('textarea#o3c301f2541877ee2144c147f0e2d22b1');
+        document.querySelector('textarea#o034248e512471eeb7121cc27013ff24d').value = err;
+        let cons = document.querySelector('textarea#o034248e512471eeb7121cc27013ff24d');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
     });
 }
-addEventListener("DOMContentLoaded", (event) => { eval_3c301f2541877ee2144c147f0e2d22b1() });
+addEventListener("DOMContentLoaded", (event) => { eval_034248e512471eeb7121cc27013ff24d() });
 </script>
 <div style="margin-bottom:24px">
-<textarea class="eval_in" id="i3c301f2541877ee2144c147f0e2d22b1" onkeyup="eval_3c301f2541877ee2144c147f0e2d22b1()">
+<textarea class="eval_in" id="i034248e512471eeb7121cc27013ff24d" onkeyup="eval_034248e512471eeb7121cc27013ff24d()">
 ?- lookup(123, Dict, Value), nonvar(Value).</textarea>
-<textarea class="eval_out" readonly id="o3c301f2541877ee2144c147f0e2d22b1"></textarea>
+<textarea class="eval_out" readonly id="o034248e512471eeb7121cc27013ff24d"></textarea>
 </div>
 
 <p>The Art of Prolog authors Sterling and Shapiro note some other limitations of the dictionary:</p>
@@ -500,7 +500,7 @@ addEventListener("DOMContentLoaded", (event) => { eval_3c301f2541877ee2144c147f0
 
 <script>
 
-function eval_465052545fb564ce224bad346d1b87f8() {
+function eval_5345655a85bb648b7c04d46e241f2fd2() {
   let output = "";
   let answ = function() {
     lookup2.answer({
@@ -515,15 +515,15 @@ function eval_465052545fb564ce224bad346d1b87f8() {
         } else {
           output = output.substr(0, output.length-2) + ".";
         }
-        document.querySelector('textarea#o465052545fb564ce224bad346d1b87f8').value = output;
-        let cons = document.querySelector('textarea#o465052545fb564ce224bad346d1b87f8');
+        document.querySelector('textarea#o5345655a85bb648b7c04d46e241f2fd2').value = output;
+        let cons = document.querySelector('textarea#o5345655a85bb648b7c04d46e241f2fd2');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
         output = "";
       },
     });
   };
-  let code = document.querySelector('textarea#i465052545fb564ce224bad346d1b87f8');
+  let code = document.querySelector('textarea#i5345655a85bb648b7c04d46e241f2fd2');
   code.style.height = "1px";
   code.style.height = (code.scrollHeight)+"px";
   code.value.substr(0,3) != '?- '
@@ -531,15 +531,15 @@ function eval_465052545fb564ce224bad346d1b87f8() {
     `${code.value}\n`, { 
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        let cons = document.querySelector('textarea#o465052545fb564ce224bad346d1b87f8');
+        let cons = document.querySelector('textarea#o5345655a85bb648b7c04d46e241f2fd2');
         cons.value = "OK.";
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o465052545fb564ce224bad346d1b87f8').value = err;
-        let cons = document.querySelector('textarea#o465052545fb564ce224bad346d1b87f8');
+        document.querySelector('textarea#o5345655a85bb648b7c04d46e241f2fd2').value = err;
+        let cons = document.querySelector('textarea#o5345655a85bb648b7c04d46e241f2fd2');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
@@ -548,22 +548,22 @@ function eval_465052545fb564ce224bad346d1b87f8() {
     `${code.value.substr(3)}`, {
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        document.querySelector('textarea#o465052545fb564ce224bad346d1b87f8').value = "";
+        document.querySelector('textarea#o5345655a85bb648b7c04d46e241f2fd2').value = "";
         answ();
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o465052545fb564ce224bad346d1b87f8').value = err;
-        let cons = document.querySelector('textarea#o465052545fb564ce224bad346d1b87f8');
+        document.querySelector('textarea#o5345655a85bb648b7c04d46e241f2fd2').value = err;
+        let cons = document.querySelector('textarea#o5345655a85bb648b7c04d46e241f2fd2');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
     });
 }
-addEventListener("DOMContentLoaded", (event) => { eval_465052545fb564ce224bad346d1b87f8() });
+addEventListener("DOMContentLoaded", (event) => { eval_5345655a85bb648b7c04d46e241f2fd2() });
 </script>
 <div style="margin-bottom:24px">
-<textarea class="eval_in" id="i465052545fb564ce224bad346d1b87f8" onkeyup="eval_465052545fb564ce224bad346d1b87f8()">
+<textarea class="eval_in" id="i5345655a85bb648b7c04d46e241f2fd2" onkeyup="eval_5345655a85bb648b7c04d46e241f2fd2()">
 lookup(Key, dict(Key1-Value1, Left, Right), Value) :-
   (   Key = Key1 -&gt;
       Value = Value1
@@ -571,7 +571,7 @@ lookup(Key, dict(Key1-Value1, Left, Right), Value) :-
       lookup(Key, Left, Value)
   ;   lookup(Key, Right, Value)
   ).</textarea>
-<textarea class="eval_out" readonly id="o465052545fb564ce224bad346d1b87f8"></textarea>
+<textarea class="eval_out" readonly id="o5345655a85bb648b7c04d46e241f2fd2"></textarea>
 </div>
 </p>
 <p>This version uses a single rule, with an if/then control structure to avoid leaving behind choicepoints, since we know each key in the dictionary is unique.</p>
@@ -579,7 +579,7 @@ lookup(Key, dict(Key1-Value1, Left, Right), Value) :-
 <p>We can make our code clearer by wrapping <code>lookup/3</code> with two new rules: <code>add/3</code> and <code>get/3</code>:</p>
 <script>
 
-function eval_6aea39978a4fb0e066138e30857a8e64() {
+function eval_e635300aa607a469e6ea8f884e87139b() {
   let output = "";
   let answ = function() {
     lookup2.answer({
@@ -594,15 +594,15 @@ function eval_6aea39978a4fb0e066138e30857a8e64() {
         } else {
           output = output.substr(0, output.length-2) + ".";
         }
-        document.querySelector('textarea#o6aea39978a4fb0e066138e30857a8e64').value = output;
-        let cons = document.querySelector('textarea#o6aea39978a4fb0e066138e30857a8e64');
+        document.querySelector('textarea#oe635300aa607a469e6ea8f884e87139b').value = output;
+        let cons = document.querySelector('textarea#oe635300aa607a469e6ea8f884e87139b');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
         output = "";
       },
     });
   };
-  let code = document.querySelector('textarea#i6aea39978a4fb0e066138e30857a8e64');
+  let code = document.querySelector('textarea#ie635300aa607a469e6ea8f884e87139b');
   code.style.height = "1px";
   code.style.height = (code.scrollHeight)+"px";
   code.value.substr(0,3) != '?- '
@@ -610,15 +610,15 @@ function eval_6aea39978a4fb0e066138e30857a8e64() {
     `${code.value}\n`, { 
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        let cons = document.querySelector('textarea#o6aea39978a4fb0e066138e30857a8e64');
+        let cons = document.querySelector('textarea#oe635300aa607a469e6ea8f884e87139b');
         cons.value = "OK.";
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o6aea39978a4fb0e066138e30857a8e64').value = err;
-        let cons = document.querySelector('textarea#o6aea39978a4fb0e066138e30857a8e64');
+        document.querySelector('textarea#oe635300aa607a469e6ea8f884e87139b').value = err;
+        let cons = document.querySelector('textarea#oe635300aa607a469e6ea8f884e87139b');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
@@ -627,34 +627,34 @@ function eval_6aea39978a4fb0e066138e30857a8e64() {
     `${code.value.substr(3)}`, {
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        document.querySelector('textarea#o6aea39978a4fb0e066138e30857a8e64').value = "";
+        document.querySelector('textarea#oe635300aa607a469e6ea8f884e87139b').value = "";
         answ();
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o6aea39978a4fb0e066138e30857a8e64').value = err;
-        let cons = document.querySelector('textarea#o6aea39978a4fb0e066138e30857a8e64');
+        document.querySelector('textarea#oe635300aa607a469e6ea8f884e87139b').value = err;
+        let cons = document.querySelector('textarea#oe635300aa607a469e6ea8f884e87139b');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
     });
 }
-addEventListener("DOMContentLoaded", (event) => { eval_6aea39978a4fb0e066138e30857a8e64() });
+addEventListener("DOMContentLoaded", (event) => { eval_e635300aa607a469e6ea8f884e87139b() });
 </script>
 <div style="margin-bottom:24px">
-<textarea class="eval_in" id="i6aea39978a4fb0e066138e30857a8e64" onkeyup="eval_6aea39978a4fb0e066138e30857a8e64()">
+<textarea class="eval_in" id="ie635300aa607a469e6ea8f884e87139b" onkeyup="eval_e635300aa607a469e6ea8f884e87139b()">
 get(Key, Dict, Value) :-
   lookup(Key, Dict, Value), nonvar(Value).
 
 add(Key, Dict, Value) :-
   lookup(Key, Dict, Value).</textarea>
-<textarea class="eval_out" readonly id="o6aea39978a4fb0e066138e30857a8e64"></textarea>
+<textarea class="eval_out" readonly id="oe635300aa607a469e6ea8f884e87139b"></textarea>
 </div>
 
 <p>We also store pairs as the pair type (<code>Key-Value</code>), instead of two separate values. This makes easy to serialize a dictionary into a list of pairs, which are sortable using the builtin <code>keysort/2</code>.</p>
 <script>
 
-function eval_58fede096867958fd46d10a18441007e() {
+function eval_5180d4e40e896ae0f176d789048d6f15() {
   let output = "";
   let answ = function() {
     lookup2.answer({
@@ -669,15 +669,15 @@ function eval_58fede096867958fd46d10a18441007e() {
         } else {
           output = output.substr(0, output.length-2) + ".";
         }
-        document.querySelector('textarea#o58fede096867958fd46d10a18441007e').value = output;
-        let cons = document.querySelector('textarea#o58fede096867958fd46d10a18441007e');
+        document.querySelector('textarea#o5180d4e40e896ae0f176d789048d6f15').value = output;
+        let cons = document.querySelector('textarea#o5180d4e40e896ae0f176d789048d6f15');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
         output = "";
       },
     });
   };
-  let code = document.querySelector('textarea#i58fede096867958fd46d10a18441007e');
+  let code = document.querySelector('textarea#i5180d4e40e896ae0f176d789048d6f15');
   code.style.height = "1px";
   code.style.height = (code.scrollHeight)+"px";
   code.value.substr(0,3) != '?- '
@@ -685,15 +685,15 @@ function eval_58fede096867958fd46d10a18441007e() {
     `${code.value}\n`, { 
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        let cons = document.querySelector('textarea#o58fede096867958fd46d10a18441007e');
+        let cons = document.querySelector('textarea#o5180d4e40e896ae0f176d789048d6f15');
         cons.value = "OK.";
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o58fede096867958fd46d10a18441007e').value = err;
-        let cons = document.querySelector('textarea#o58fede096867958fd46d10a18441007e');
+        document.querySelector('textarea#o5180d4e40e896ae0f176d789048d6f15').value = err;
+        let cons = document.querySelector('textarea#o5180d4e40e896ae0f176d789048d6f15');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
@@ -702,22 +702,22 @@ function eval_58fede096867958fd46d10a18441007e() {
     `${code.value.substr(3)}`, {
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        document.querySelector('textarea#o58fede096867958fd46d10a18441007e').value = "";
+        document.querySelector('textarea#o5180d4e40e896ae0f176d789048d6f15').value = "";
         answ();
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o58fede096867958fd46d10a18441007e').value = err;
-        let cons = document.querySelector('textarea#o58fede096867958fd46d10a18441007e');
+        document.querySelector('textarea#o5180d4e40e896ae0f176d789048d6f15').value = err;
+        let cons = document.querySelector('textarea#o5180d4e40e896ae0f176d789048d6f15');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
     });
 }
-addEventListener("DOMContentLoaded", (event) => { eval_58fede096867958fd46d10a18441007e() });
+addEventListener("DOMContentLoaded", (event) => { eval_5180d4e40e896ae0f176d789048d6f15() });
 </script>
 <div style="margin-bottom:24px">
-<textarea class="eval_in" id="i58fede096867958fd46d10a18441007e" onkeyup="eval_58fede096867958fd46d10a18441007e()">
+<textarea class="eval_in" id="i5180d4e40e896ae0f176d789048d6f15" onkeyup="eval_5180d4e40e896ae0f176d789048d6f15()">
 to_list(D,Ls) :-
   to_list_([D|Hole],Hole,[],Ls).
 
@@ -735,13 +735,13 @@ to_list_([D|Ds],Hole,Acc,Ls) :-
       Ls=[Root|Acc]
   ;   to_list_(Ds,Hole2,[Root|Acc],Ls)
   ).</textarea>
-<textarea class="eval_out" readonly id="o58fede096867958fd46d10a18441007e"></textarea>
+<textarea class="eval_out" readonly id="o5180d4e40e896ae0f176d789048d6f15"></textarea>
 </div>
 
 <p>If you change the dictionary key values, you&rsquo;ll see the order of <code>Ms</code> changes:</p>
 <script>
 
-function eval_6456b06ea941d5dfdf2daa1517467cfc() {
+function eval_205546daa97d6fca671db445e1ffc61d() {
   let output = "";
   let answ = function() {
     lookup2.answer({
@@ -756,15 +756,15 @@ function eval_6456b06ea941d5dfdf2daa1517467cfc() {
         } else {
           output = output.substr(0, output.length-2) + ".";
         }
-        document.querySelector('textarea#o6456b06ea941d5dfdf2daa1517467cfc').value = output;
-        let cons = document.querySelector('textarea#o6456b06ea941d5dfdf2daa1517467cfc');
+        document.querySelector('textarea#o205546daa97d6fca671db445e1ffc61d').value = output;
+        let cons = document.querySelector('textarea#o205546daa97d6fca671db445e1ffc61d');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
         output = "";
       },
     });
   };
-  let code = document.querySelector('textarea#i6456b06ea941d5dfdf2daa1517467cfc');
+  let code = document.querySelector('textarea#i205546daa97d6fca671db445e1ffc61d');
   code.style.height = "1px";
   code.style.height = (code.scrollHeight)+"px";
   code.value.substr(0,3) != '?- '
@@ -772,15 +772,15 @@ function eval_6456b06ea941d5dfdf2daa1517467cfc() {
     `${code.value}\n`, { 
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        let cons = document.querySelector('textarea#o6456b06ea941d5dfdf2daa1517467cfc');
+        let cons = document.querySelector('textarea#o205546daa97d6fca671db445e1ffc61d');
         cons.value = "OK.";
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o6456b06ea941d5dfdf2daa1517467cfc').value = err;
-        let cons = document.querySelector('textarea#o6456b06ea941d5dfdf2daa1517467cfc');
+        document.querySelector('textarea#o205546daa97d6fca671db445e1ffc61d').value = err;
+        let cons = document.querySelector('textarea#o205546daa97d6fca671db445e1ffc61d');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
@@ -789,27 +789,27 @@ function eval_6456b06ea941d5dfdf2daa1517467cfc() {
     `${code.value.substr(3)}`, {
       success: function() {
         code.style.borderBottomColor = '#4DA167';
-        document.querySelector('textarea#o6456b06ea941d5dfdf2daa1517467cfc').value = "";
+        document.querySelector('textarea#o205546daa97d6fca671db445e1ffc61d').value = "";
         answ();
       },
       error: function(err) {
         code.style.borderBottomColor = '#EC0B43';
-        document.querySelector('textarea#o6456b06ea941d5dfdf2daa1517467cfc').value = err;
-        let cons = document.querySelector('textarea#o6456b06ea941d5dfdf2daa1517467cfc');
+        document.querySelector('textarea#o205546daa97d6fca671db445e1ffc61d').value = err;
+        let cons = document.querySelector('textarea#o205546daa97d6fca671db445e1ffc61d');
         cons.style.height = "1px";
         cons.style.height = (cons.scrollHeight)+"px";
       },
     });
 }
-addEventListener("DOMContentLoaded", (event) => { eval_6456b06ea941d5dfdf2daa1517467cfc() });
+addEventListener("DOMContentLoaded", (event) => { eval_205546daa97d6fca671db445e1ffc61d() });
 </script>
 <div style="margin-bottom:24px">
-<textarea class="eval_in" id="i6456b06ea941d5dfdf2daa1517467cfc" onkeyup="eval_6456b06ea941d5dfdf2daa1517467cfc()">
+<textarea class="eval_in" id="i205546daa97d6fca671db445e1ffc61d" onkeyup="eval_205546daa97d6fca671db445e1ffc61d()">
 ?- add(123, Dict, &#34;foo&#34;),
    add(456, Dict, &#34;bar&#34;),
    to_list(Dict, Ls),
    keysort(Ls, Ms).</textarea>
-<textarea class="eval_out" readonly id="o6456b06ea941d5dfdf2daa1517467cfc"></textarea>
+<textarea class="eval_out" readonly id="o205546daa97d6fca671db445e1ffc61d"></textarea>
 </div>
 
 <p>The full Dictionary implementation is on <a href="https://github.com/dnmfarrell/dict">GitHub</a>.</p>

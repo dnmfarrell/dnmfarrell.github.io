@@ -69,21 +69,21 @@
 <p class="source">&mdash;&nbsp;W. Brian Arthur, <em>The Nature of Technology</em></p>
 
 </blockquote>
-<h3 id="a-computing-ontology">A Computing Ontology</h3>
-<p>We can model Git&rsquo;s merging ability as an ontology of technologies:</p>
+<h3 id="a-dependency-diagram">A Dependency Diagram</h3>
+<p>We can model Git&rsquo;s merging ability as dependency diagram:</p>
 <p><img src="/images/innovation/partial-ontology.png" alt=""></p>
 <p>In this diagram, rounded rectangles are phenomena, rectangles are algorithms, and cylinders are data structures.</p>
 <p>Note the hierarchy: the arrows indicate (approximate) &ldquo;using&rdquo; relationships. Git&rsquo;s recursive three-way merge uses a version of Diff3 that uses <a href="http://www.xmailserver.org/diff2.pdf">Myers&rsquo; difference algorithm</a>.³</p>
-<p>The Computing Ontology can also help us define terms:</p>
+<h3 id="innovations-frontier">Innovation&rsquo;s frontier</h3>
+<p>Git&rsquo;s speed, correctness guarantees and efficient use of space were essential to its success.⁴ Without the availability of suitable technologies, &ldquo;Git&rdquo; would have been beyond the technology frontier.</p>
+<p>Zooming out from Git, imagine that we have modeled all computing technologies on a giant dependency diagram. The frontier of computing innovation then, is defined as the set of all possible combinations of nodes in the diagram.</p>
+<p>The Dependency Diagram can also help us define terms:</p>
 <ul>
 <li><em>Invention</em> is the discovery of a new phenomenon and an algorithm and/or data structure to harness it. A new root node is added.</li>
 <li><em>Innovation</em> is a novel combination of existing nodes to accomplish a new effect; new child nodes are added.</li>
 <li><em>Engineering</em> is the software development we do every day. Creating apps, fixing bugs etc. These create or modify child nodes, but they&rsquo;re unlikely to have descendants.</li>
 </ul>
 <p>In terms of the number of descendants: invention &gt; innovation &gt; engineering. This is why the dictionary (hashed binary tree of pairs) is an important data structure, but the config struct for any particular app is not.</p>
-<h3 id="innovations-frontier">Innovation&rsquo;s frontier</h3>
-<p>Zooming out from Git, imagine that we have modeled all computing technologies as an ontology. The frontier of computing innovation then, is defined as the set of all possible combinations of nodes in the Computing Ontology.</p>
-<p>Git&rsquo;s speed, correctness guarantees and efficient use of space were essential to its success.⁴ Without the availability of suitable technologies, &ldquo;Git&rdquo; would have been beyond the technology frontier.</p>
 <h3 id="disruption">Disruption</h3>
 <p>What would it take to displace Git? Discovering a better algorithm that uses the same data structures wouldn&rsquo;t be enough as Git itself could adopt it. For example, Git now defaults to using SHA-256 instead of SHA-1.</p>
 <p>It seems like disruption would require an innovation that created a fundamentally better way of version control. Such as using a schema-aware difference algorithm. If no such technologies exist yet, disruption is beyond the frontier.</p>
@@ -94,9 +94,9 @@
 <p class="source">&mdash;&nbsp;W. Brian Arthur, <em>The Nature of Technology</em></p>
 
 </blockquote>
-<p>In Computing Ontology terms we might say the number of possible combinations of nodes is too costly to search. A particular challenge constrains the search space.</p>
+<p>Returning to our imaginary Dependency Diagram of all computing technologies, we might say the number of possible combinations of nodes is too costly to search. Well-specified problems are helpful because they constrain the search space.</p>
 <p>When Larry McVoy created <a href="https://en.wikipedia.org/wiki/BitKeeper">BitKeeper</a> he invented the concept of distributed version control. Later when he stopped providing BitKeeper to the Linux kernel project for free, he created a problem which actually spawned two new version control systems: Mercurial and Git.⁵</p>
-<p>We can model the effects of disruption using the Computing Ontology; the disrupted technology and its descendant nodes will be discarded in favor of a new hierarchy of nodes. As the new technology evolves,⁶ its changing components contribute more nodes to the Ontology. The effects of those changes ripple out, driving further adaptations and disruptions.</p>
+<p>We can model the effects of disruption using the Dependency Diagram; the disrupted technology and its descendant nodes will be discarded in favor of a new hierarchy of nodes. As the new technology evolves,⁶ its changing components contribute more nodes to the diagram. The effects of those changes ripple out, driving further adaptations and disruptions.</p>
 <p>Arthur calls this destruction an &ldquo;avalanche&rdquo;. BitKeeper was swept away, but the technologies it used were spared.⁷ Meanwhile Git and the web enabled new technologies like GitHub.</p>
 <hr>
 <ol>
