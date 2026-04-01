@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Your Agents Need a Human in the Loop</title>
+  <meta name="description" content="AI agents are intelligent, but not wise" />
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/why-your-agents-need-a-human-in-the-loop/" />
+  <meta property="og:title" content="Why Your Agents Need a Human in the Loop" />
+  <meta property="og:description" content="AI agents are intelligent, but not wise">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2026-04-01T30:00:26Z" />
+  <meta property="og:article:tag" content="ai" />
+  <meta property="og:article:tag" content="agents" />
+  <meta property="og:article:tag" content="greenlight" />
+  <meta property="og:article:tag" content="security" />
+
+</head>
+
+  <body>
+    Looking for help building the future? Let's connect on <a href="https://www.linkedin.com/in/david-farrell-a27a16296/">LinkedIn</a>
+
+    
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZXLDS5VZ0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZZXLDS5VZ0');
+</script>
+<a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/why-your-agents-need-a-human-in-the-loop/><h2>Why Your Agents Need a Human in the Loop</h2></a>
+  <p class="description">AI agents are intelligent, but not wise</p>
+  <p><em class="date">April 1, 2026</em></p>
+</div>
+
+<blockquote>
+<q>But to whom, how much, when, for the sake of what and how - these no longer belong to everyone nor are easy.</q>
+
+<p class="source">&mdash;&nbsp;Aristotle, <em>Nichomachean Ethics 2.9</em></p>
+
+</blockquote>
+<p>Earlier this year an employee at Meta&rsquo;s &ldquo;Superintelligence&rdquo; division watched in horror as her AI agent <a href="https://x.com/summeryue0/status/2025774069124399363?s=20">deleted all of her emails</a>. She had instructed the agent to check her inbox and suggest which emails should be archived or deleted, but not to take any action until she said so. The agent deleted the emails anyway. What happened? To process the large inbox, the agent compacted its context window and lost the original instruction.</p>
+<p>We might say that although agents demonstrate intelligence, they are not wise.</p>
+<h3 id="large-language-models">Large Language Models</h3>
+<p>Whilst intelligence is concerned with facts, wisdom is concerned with ends, with what ought to be done. An LLM is a system that produces plausible outputs for a given input. Expecting an LLM to know what it ought to do is like expecting a calculator to know which numbers to start calculating with.</p>
+<p>So we prompt LLMs to make them produce useful output. Our thoughtfulness of what to include in the prompt <em>encodes</em> wisdom.</p>
+<h3 id="the-agent-architecture">The agent architecture</h3>
+<p>An agent is an LLM in a loop. There&rsquo;s a harness (the program that manages the loop), and a brain (the LLM that decides what to do next). The harness sends the brain a system prompt with instructions and rules, plus the conversation history. The brain responds with either text or a tool call (read a file, run a command, make an API request). The harness executes the tool call, appends the result, and loops.</p>
+<p>But whilst tool calls make LLMs more useful, they introduce a new problem; the LLM can run commands that have side effects and that makes them dangerous.</p>
+<p>This is why agents have a permissions model. When the brain requests a tool call, the harness evaluates it against a set of rules — typically written in markdown — to decide whether to allow, deny, or ask the user. Read-only operations might be auto-approved; shell commands might require approval; network requests might be blocked entirely. The rules are a pragmatic acknowledgment that the brain cannot be trusted to stay within bounds on its own.</p>
+<h3 id="keeping-humans-in-the-loop">Keeping humans in the loop</h3>
+<p>So humans must remain in the loop. But naively inserting a human into every decision creates its own problems. The <a href="/post/the-unsupervised-agent-problem/">rubber-stamping problem</a> is real — it quickly gets tedious repeatedly approving permission requests, which is why agents offer the &ldquo;always allow&rdquo; option for low risk commands.</p>
+<p>Keeping the permission model in the agent has several problems: the rules are not a first-class object, they have no create time, no duration. It&rsquo;s not possible to say &ldquo;allow this for the next 5 minutes&rdquo;. There&rsquo;s no history of permission requests, no audit trail to understand if a dangerous command was auto-allowed or not. And the user is beholden to which tool calls the agent decides require permission checks - even read commands are not side-effect free and may cause trouble when done in high volume, or by reading an extremely large file.</p>
+<p>A better model is to move enforcement out of the agent and into the environment. Instead of the harness deciding which tool calls to allow, every action flows through an external rules engine that evaluates it independently. Tools like <a href="https://github.com/NVIDIA/OpenShell">OpenShell</a> and <a href="https://getgreenlight.github.io">Greenlight</a> (which I wrote) take this approach — the agent&rsquo;s runtime environment enforces constraints regardless of what the brain or harness think the rules are.</p>
+<p>Agents are powerful instruments, but they require oversight. As Aristotle points out, determining the right course of action is not easy, and for now, that job belongs to humans.</p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/ai/>ai</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/agents/>agents</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/greenlight/>greenlight</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/security/>security</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+</footer>
+
+  </body>
+</html>
