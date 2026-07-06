@@ -1,0 +1,159 @@
+html,
+body {
+  font-family: "Open Sans", sans-serif;
+  font-size: large;
+  background-color: #FAFDFB;
+  color: #171219;
+}
+
+pre {
+  overflow: auto;
+  margin: 24px 0;
+  font-size: x-large;
+  line-height: 1.2em;
+}
+
+pre:has(> .language-wrap) {
+  text-wrap:wrap;
+  overflow: hidden;
+}
+
+pre:has(> .language-prose) {
+  text-wrap:wrap;
+  line-height: 1.8em;
+}
+
+p > code {
+  font-weight: 600;
+}
+
+
+p {
+  line-height: 1.5;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+p.description {
+  margin-bottom: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  color: #EC0B43;
+}
+
+h2 {
+  margin-top: 16px;
+  margin-bottom: 0;
+  color: #171219;
+}
+
+h3,h4 {
+  margin-bottom: 0;
+  color: #171219;
+}
+
+main {
+  min-height: 100vh;
+  padding: 1em;
+  max-width: 800px;
+}
+
+img {
+  max-width: 100%;
+}
+
+svg {
+  max-width: 100%;
+}
+
+footer ul {
+  margin: 0;
+  padding: 0;
+}
+
+footer li {
+  margin: 0;
+  display: inline;
+  padding: 2px 3px;
+}
+
+footer li em {
+  margin: 0;
+  display: block;
+  padding: 2px 3px;
+}
+
+blockquote {
+  border-left: 8px solid #4DA167;
+  margin-left: 0.75em;
+  padding-left: 0.5em;
+  font-size: 110%;
+  color: #4DA167;
+}
+
+blockquote p.source {
+  font-size: 85%;
+}
+
+a {
+  text-decoration: none;
+    color: #EC0B43;
+}
+
+textarea.eval_in, textarea.eval_out {
+  width:100%;
+  border-width:0;
+  border-color: #909090;
+  font-size: large;
+  line-height: 1.2em;
+  margin: 0;
+  box-shadow: none;
+  resize: none;
+  display: block;
+}
+
+textarea.eval_in {
+  border-bottom-width: 2px;
+  border-bottom-style: dotted;
+}
+
+textarea.eval_out {
+  border-top-width: 0;
+}
+
+textarea:focus {
+  outline: none !important;
+
+}
+
+a:visited { }
+
+em.date {
+  color: #6B717E;
+}
+
+/* Applies padding to all table headers and data cells */
+th, td {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+table {
+  margin-bottom: 15px;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  html, body, textarea.eval_in, textarea.eval_out {
+    background-color: #171219;
+    color: #FAFDFB;
+  }
+  h2, h3, h4 {
+    color: #FAFDFB;
+  }
+  code {
+    color: #FAFDFB;
+  }
+}

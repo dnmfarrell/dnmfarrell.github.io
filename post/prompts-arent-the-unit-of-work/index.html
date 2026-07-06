@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Prompts Aren&#39;t the Unit of Work</title>
+  <meta name="description" content="Work lives in tickets" />
+  
+  <link rel="stylesheet" href="/css/style.494bcf4bb06db4bea2d701559a68fb161502f12e028f181e9971771b0a770136.css" type="text/css" integrity="sha256-SUvPS7BttL6i1wFVmmj7FhUC8S4CjxgemXF3Gwp3ATY=">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/prompts-arent-the-unit-of-work/" />
+  <meta property="og:title" content="Prompts Aren&#39;t the Unit of Work" />
+  <meta property="og:description" content="Work lives in tickets">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2026-07-06T39:39:26Z" />
+  <meta property="og:article:tag" content="artificial-intelligence" />
+  <meta property="og:article:tag" content="software-development" />
+
+</head>
+
+  <body>
+    Your agents keep stopping. <a href="https://aigreenlight.app">Greenlight</a> keeps them working — so you get what you're paying for.
+
+    
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZXLDS5VZ0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZZXLDS5VZ0');
+</script>
+<a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/prompts-arent-the-unit-of-work/><h2>Prompts Aren&#39;t the Unit of Work</h2></a>
+  <p class="description">Work lives in tickets</p>
+  
+  
+  <p>
+    <em class="date">July 6, 2026</em>
+  </p>
+</div>
+
+<p>Prompting coding agents has quickly become normal. It feels so natural: just tell the agent what you want! The problem is that the prompt is not the unit of work.</p>
+<p>You see, a prompt isn&rsquo;t just instructions. It&rsquo;s a compressed representation of everything you know about the work: the goal, the state, and what should happen next. The problem is that most of that knowledge never actually makes it into the prompt. It stays in your head.</p>
+<p>Let’s imagine you want to add a &ldquo;dry-run&rdquo; feature to your shell script. You fire up Claude Code, and tell it to write a spec for the dry-run feature. After a minute, Claude prompts with a write permission request to docs/dry-run-feature.md, which you approve. You keep watching the screen and a few seconds later Claude says he&rsquo;s done. You read the spec, it looks good and you reply to Claude telling him to implement the spec. Note that nothing about the work itself changed, rather the stage of development progressed. Yet you&rsquo;re forced to write another prompt. Claude starts beavering away, and then stops to ask you a question about the dry-run behavior &hellip;</p>
+<p>Each time you reply to Claude you&rsquo;re reconstructing the context from the current state of the work.</p>
+<p>What if instead of starting with a prompt, you opened a ticket (or GitHub issue) which briefly described the feature, and you set the ticket status to “spec-needed”. Then the prompt for “spec-needed” tickets could be a template: ‘Read the description of ticket #{ticket_number} and write a detailed spec … When you’re done, run bin/submit #{ticket_number}&quot;.’</p>
+<p>See that by running bin/submit, the agent is no longer asking a human what to do next, it&rsquo;s telling the system what changed. Once the work has explicit state, software development starts to look less like a chat and more like a state machine:</p>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left">Ticket Status</th>
+          <th style="text-align: left">Agent Role Needed</th>
+          <th style="text-align: left">Transition action</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">spec-needed</td>
+          <td style="text-align: left">Spec writer</td>
+          <td style="text-align: left">Submit</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">spec-in-review</td>
+          <td style="text-align: left">Spec reviewer</td>
+          <td style="text-align: left">Reject, submit</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">code-needed</td>
+          <td style="text-align: left">Implementer</td>
+          <td style="text-align: left">Reject, submit</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">code-in-review</td>
+          <td style="text-align: left">Code reviewer</td>
+          <td style="text-align: left">Reject, merge</td>
+      </tr>
+  </tbody>
+</table>
+<p>Once the workflow is explicit, orchestration becomes possible. Each state has a well-defined goal, a corresponding prompt template, and a known set of valid transitions. And in fact, that&rsquo;s exactly how <a href="https://aigreenlight.app/#autopilot">Greenlight autopilot</a> works.</p>
+<p>When each stage has an explicit purpose, several things become possible. Agents receive the permissions appropriate for their role, reducing unnecessary requests. Separate agents can write and review specifications, reducing ambiguities before a human gets involved. And because the workflow is tracked in a ticket and not in a conversation, any coding agent can pick up the work where it was left off.</p>
+<p>Work lives in tickets and code lives in Git. Agent conversations are just a way of transforming one into the other.</p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/artificial-intelligence/>artificial-intelligence</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/software-development/>software-development</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+</footer>
+
+  </body>
+</html>
