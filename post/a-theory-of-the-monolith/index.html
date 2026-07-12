@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>A Theory of the Monolith</title>
+  <meta name="description" content="A Coasean account of software boundaries" />
+  
+  <link rel="stylesheet" href="/css/style.494bcf4bb06db4bea2d701559a68fb161502f12e028f181e9971771b0a770136.css" type="text/css" integrity="sha256-SUvPS7BttL6i1wFVmmj7FhUC8S4CjxgemXF3Gwp3ATY=">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/a-theory-of-the-monolith/" />
+  <meta property="og:title" content="A Theory of the Monolith" />
+  <meta property="og:description" content="A Coasean account of software boundaries">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2026-07-12T19:11:26Z" />
+  <meta property="og:article:tag" content="software-architecture" />
+  <meta property="og:article:tag" content="artifical-intelligence" />
+  <meta property="og:article:tag" content="economics" />
+
+</head>
+
+  <body>
+    Your agents keep stopping. <a href="https://aigreenlight.app">Greenlight</a> keeps them working — so you get what you're paying for.
+
+    
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZXLDS5VZ0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZZXLDS5VZ0');
+</script>
+<a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/a-theory-of-the-monolith/><h2>A Theory of the Monolith</h2></a>
+  <p class="description">A Coasean account of software boundaries</p>
+  
+  
+  <p>
+    <em class="date">July 12, 2026</em>
+  </p>
+</div>
+
+<p>Why do we build monolithic applications? And when do we decide they’ve become too large and start breaking them up?</p>
+<p>Ronald Coase asked a similar question about firms. If markets are so efficient, why do firms exist at all? His answer was transaction costs. Coordinating work through the market incurs costs—discovering suppliers, negotiating contracts, enforcing agreements. Firms exist because, up to a point, performing work internally is cheaper.</p>
+<p>Software exhibits a similar phenomenon. Rather than building every feature as an independent service, we begin with a monolith. Only later, and often reluctantly, do we break it up.</p>
+<p>We might say:</p>
+<blockquote>
+<p>A firm will continue to add to its monolith until the marginal costs exceed those of an alternative.</p>
+</blockquote>
+<p>Unfortunately, this explains very little. Behold:</p>
+<blockquote>
+<p>A firm will continue to add to its sales team until the marginal costs exceed those of an alternative.</p>
+</blockquote>
+<p>That’s another way of saying that people make rational decisions. Man <em>is</em> the rational animal. It’s tautological.</p>
+<h3 id="beyond-conways-law">Beyond Conway’s Law</h3>
+<p>Melvin Conway observed that software architectures often resemble the communication structures of the organizations that produce them. That observation may explain why certain architectures arise, but it does not explain why those architectures are economically attractive in the first place.</p>
+<p>So rather than asking how organizations shape software, let&rsquo;s ask a different question:</p>
+<p>What is “mono” in the monolith?</p>
+<h3 id="the-deployable">The deployable</h3>
+<p>It&rsquo;s temping to say &ldquo;That&rsquo;s easy! It&rsquo;s the application functionality, stupid&rdquo;. But feature flags, configuration and blue-green deployments show otherwise. A single monolith can present radically different behaviour in different environments.</p>
+<p>But notice at the time of deployment, the code and other artifacts of the monolith are synchronized. Let&rsquo;s call this a &ldquo;deployable&rdquo;.</p>
+<p>A deployable then, is the application unit that is versioned, deployed and operated together. It consists of one or more processes together with the persistent state on which those processes depend. For example, an instance of a rails app and its postgres database is a deployable.</p>
+<p>The defining property of a deployable is that it synchronizes certain decisions. When you add code to a monolith, you implicitly agree that these dimensions will evolve together.</p>
+<p>The dimensions include:</p>
+<ul>
+<li>Deployment — components are released together.</li>
+<li>Failure — components share an operational fate.</li>
+<li>Persistence — components coordinate over shared state.</li>
+<li>Resources — components compete within the same deployment envelope.</li>
+<li>Scaling — capacity is adjusted together.</li>
+<li>Technology — implementation choices constrain one another.</li>
+</ul>
+<p>We might say then that the ideal service boundary is one whose components genuinely want to evolve independently. A deployable reduces explicit coordination by requiring these dimensions to remain synchronized.</p>
+<h3 id="why-monoliths-work">Why monoliths work</h3>
+<p>A deployable internalizes coordination by synchronizing decisions. Just think: a function call requires no API versioning. Shared state avoids distributed consistency issues. A single deployment requires no release choreography.</p>
+<p>The monolith wins precisely because many decisions only have to be made once. Like firms in Coase’s theory, monoliths internalize coordination.</p>
+<h3 id="why-they-eventually-fail">Why they eventually fail</h3>
+<p>The assumption behind a deployable is that its constituent parts benefit from evolving together. Early in a project’s life, that’s usually true. New features tend to touch the same code, share the same infrastructure, and have similar operational requirements.</p>
+<p>Over time however, those concerns diverge. One subsystem wants to be deployed daily, another monthly. One demands high availability, another is an internal reporting tool. One would benefit from a new language, while the rest would not. The monolith insists these concerns remain synchronized anyway. This is forced synchronization.</p>
+<p>Eventually, the cost of synchronizing unrelated concerns exceeds the cost of coordinating them explicitly. At that point, introducing another deployable becomes economically attractive.</p>
+<h3 id="deployables-dont-have-to-remove-coupling">Deployables don’t have to remove coupling</h3>
+<p>Moving code into another service does not automatically break the synchronization, it only makes it optional. This explains why many microservice migrations disappoint.</p>
+<p>Consider a service that:</p>
+<ul>
+<li>Requires coordinated releases.</li>
+<li>Shares its database.</li>
+<li>Fails whenever another service fails.</li>
+</ul>
+<p>Has anything meaningful changed? The code now communicates over HTTP instead of function calls, but the synchronization requirements remain. The monolith has simply been distributed.</p>
+<p>A useful way to evaluate a proposed service boundary is to ask:</p>
+<p>Which synchronization constraints does this boundary eliminate? If the answer is “none” then it&rsquo;s not a microservice, it&rsquo;s merely LARPing as one.</p>
+<h3 id="hysteresis">Hysteresis</h3>
+<p>When microservices were trendy, many organizations adopted them prematurely. The forced synchronization costs were not yet high enough to justify paying the coordination costs and they regretted it.</p>
+<p>These days well-run organizations will do the opposite, and tend to overshoot. I call this lag to adopt microservices &ldquo;architectural hysteresis&rdquo;.</p>
+<p>If a monolith becomes more expensive today than an ideal service-oriented architecture, organizations will not migrate immediately.</p>
+<p>The migration is expensive and risky: systems must be redesigned, operational tooling must be built, teams must learn new practices and new failure modes appear.</p>
+<p>Architectures therefore exhibit hysteresis. Organizations tolerate increasingly expensive monoliths because architectural change is a substantial investment. Only once the benefits of microservices are so obvious to everyone that they cannot be denied, does decomposition begin.</p>
+<h3 id="ai-changes-the-calculus">AI changes the calculus</h3>
+<p>The most expensive part of microservices is complexity. Microservices come with a barrage of new tools, configuration and behaviors that are hard for humans to understand. Much of this work is coordination work rather than creative work.</p>
+<p>Take a typical AWS deployment as an example. Permissions live in IAM, are defined in Terraform, and are exercised by applications running in Kubernetes. Each system has its own concepts, configuration language and debugging tools. By the time you discover a permission is wrong, you’re often three layers removed from where the mistake was made.</p>
+<p>AI handles much of this complexity. It knows the typical IAM patterns and what to avoid. It speaks native terraform, and can deploy it for you, and fix common issues when they come up. It remembers all the different Kubernetes commands to debug errors, and can tell the difference between a missing IAM role and a misconfigured egress.</p>
+<p>Whilst AI will (of course) help reduce the complexity of managing a monolith too, what&rsquo;s notable about the synchronization constraints of the deployable, is that they are not affected by AI.</p>
+<p>Just as Coase explained the boundary of the firm as the point where internal organization becomes more expensive than market transactions, perhaps the boundary of the monolith is the point where forced synchronization becomes more expensive than explicit coordination.</p>
+<p>The architecture of the future may therefore not be determined by new programming languages, services or hardware, but by this question:</p>
+<p>Where should change be synchronized, and where should it be coordinated?</p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/software-architecture/>software-architecture</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/artifical-intelligence/>artifical-intelligence</a>
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/economics/>economics</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+</footer>
+
+  </body>
+</html>
