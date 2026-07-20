@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>When &#34;Best Practices&#34; Aren&#39;t Best</title>
+  <meta name="description" content="Why software engineering advice depends on context" />
+  
+  <link rel="stylesheet" href="/css/style.494bcf4bb06db4bea2d701559a68fb161502f12e028f181e9971771b0a770136.css" type="text/css" integrity="sha256-SUvPS7BttL6i1wFVmmj7FhUC8S4CjxgemXF3Gwp3ATY=">
+  <meta property="og:url" content="https://blog.dnmfarrell.com/post/when-best-practices-arent-best/" />
+  <meta property="og:title" content="When &#34;Best Practices&#34; Aren&#39;t Best" />
+  <meta property="og:description" content="Why software engineering advice depends on context">
+  <meta property="og:site_name" content="blog.dnmfarrell.com" />
+  <meta property="og:type" content="article" />
+  <meta property="og:article:published_time" content="2026-07-20T09:44:26Z" />
+  <meta property="og:article:tag" content="software-engineering" />
+
+</head>
+
+  <body>
+    Your agents keep stopping. <a href="https://aigreenlight.app">Greenlight</a> keeps them working — so you get what you're paying for.
+
+    
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZXLDS5VZ0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZZXLDS5VZ0');
+</script>
+<a href="/">
+  <h1>Code</h1>
+</a>
+
+    <main>
+      
+
+<div class="post-title">
+  <a href=https://blog.dnmfarrell.com/post/when-best-practices-arent-best/><h2>When &#34;Best Practices&#34; Aren&#39;t Best</h2></a>
+  <p class="description">Why software engineering advice depends on context</p>
+  
+  
+  <p>
+    <em class="date">July 20, 2026</em>
+  </p>
+</div>
+
+<p>A few years ago when DevOps and microservices were all the rage, it seemed like the software industry had reached a consensus on what good practice looked like.  No book captured this better than <a href="https://a.co/d/0ai3RkG4">Accelerate</a>, a favorite of mine that guided my own work and thousands of other professionals. Based on survey data, the book lists 24 &ldquo;capabilities&rdquo; that every high performing engineering org should aim for.</p>
+<p>Re-reading the book now, I still think it is filled with good ideas, but I would be hesitant to describe them as &ldquo;best practices&rdquo;. Every capability contains an assumption, and some may not apply in all cases.</p>
+<p>For example:</p>
+<blockquote>
+<p>Team experimentation—cheap experiments foster innovation.</p>
+</blockquote>
+<p>Assumes that there are material gains to be had from fostering innovation.</p>
+<blockquote>
+<p>Loosely coupled architecture—independent components enable scaling.</p>
+</blockquote>
+<p>Assumes the <a href="/post/a-theory-of-the-monolith/">coordination costs</a> of independent components don’t outweigh the benefits.</p>
+<blockquote>
+<p>Continuous Delivery—deployment frequency correlates to quality.</p>
+</blockquote>
+<p>Assumes frequent deployments are possible or even desirable.</p>
+<p>The trouble with this advice is it does not distinguish between different engineering org objectives. Consider a government software contractor: there&rsquo;s no possibility for a dev to launch an AB test and discover a new UI that &ldquo;delights customers&rdquo; leading to a revenue win. The client does not want ad-hoc deployments, except in the case of fixing a serious bug.  Even monthly releases may be too frequent. The government software contractor&rsquo;s engineering objective is to satisfy the contract while minimizing delivery cost and operational risk, not to maximize market learning.</p>
+<p>By treating all organizations as benefiting from rapid learning and frequent delivery, <em>Accelerate</em> may drive you in the wrong direction.</p>
+<h3 id="dora">DORA</h3>
+<blockquote>
+<p>These metrics work for any type of technology your organization is delivering, but are best suited for measuring one application or service at a time. Whether you are building large language models, retail banking applications, mobile food ordering applications, or mainframe-based travel systems, these five metrics can help you assess the delivery performance of your application.</p>
+<p><em>dora.dev/guides/dora-metrics</em></p>
+</blockquote>
+<p>The DORA metrics were developed alongside <em>Accelerate</em> as a way of measuring software delivery performance. Unlike the 24 capabilities, they don&rsquo;t prescribe how to work; they define metrics correlated with high-performing organizations.</p>
+<p>But metrics, like capabilities, encode assumptions. If the assumptions change, the metrics themselves may cease to measure what matters.</p>
+<p>DORA assumes that deployment is the unit of work. In a CI/CD environment, that&rsquo;s a reasonable assumption because deployments happen frequently and are intentionally kept small. But with a fixed release cadence, that no longer applies.</p>
+<p>So let&rsquo;s consider the DORA metrics and how we might adapt them to our government software contractor example.</p>
+<h4 id="deployment-frequency">Deployment Frequency</h4>
+<p>How often a team successfully releases software to production over a given time period. Deployment frequency is really a proxy for an organization&rsquo;s ability to work in small, independently releasable increments. When release cadence is fixed externally, that proxy breaks down.</p>
+<p>Instead let&rsquo;s use the number of tickets released over a given time period. A quarterly release containing ten tickets represents a very different engineering capability from one containing two hundred, even though both deploy on the same day.</p>
+<h4 id="lead-time-for-changes">Lead Time for Changes</h4>
+<p>This is the amount of time it takes for a committed change to reach production. Unfortunately measuring until production incorporates customer scheduling and contractual delays that are outside the engineering org&rsquo;s control.</p>
+<p>Instead of deployment, we measure the time from a ticket entering development until it is approved for release—the throughput that the engineering org actually controls.</p>
+<h4 id="mean-time-to-recovery">Mean Time To Recovery</h4>
+<p>This is how long it takes to restore service to normal after a deployment-related failure. With infrequent deployments, it may not tell us much.</p>
+<p>Instead we can broaden the measure to be the median time from discovery of a production issue until the fix is deployed. That could be a deployment-related failure, but it could also be discovered later, such as a customer-reported defect.</p>
+<h4 id="change-failure-rate">Change Failure Rate</h4>
+<p>The percentage of deployments that cause a failure in production requiring a hotfix or rollback. With infrequent releases, deployments don&rsquo;t occur often enough to accurately track engineering activity.</p>
+<p>Instead we might track the rate of tickets that caused a failure in production requiring a hotfix or rollback. That&rsquo;s a stability metric that can be tracked per team, and improved over time.</p>
+<h3 id="best-practices">&ldquo;Best&rdquo; practices</h3>
+<p>Software engineering practices are solutions to optimization problems. Change the optimization objective, and the optimal practices may change too.</p>
+<p><em>Accelerate</em> never claimed to discover universal laws of software engineering. It identified practices correlated with success in organizations competing through rapid software delivery. The truth is that &ldquo;best&rdquo; is shorthand for &ldquo;best under these assumptions&rdquo;. By drawing out those assumptions and comparing them to our own situation, we may well do better.</p>
+
+
+<p>
+
+
+<em>Tags: 
+
+
+
+  
+  
+  
+
+  <a href=https://blog.dnmfarrell.com/tags/software-engineering/>software-engineering</a>
+
+
+
+</em>
+
+
+
+</p>
+
+
+    </main>
+    <footer>
+</footer>
+
+  </body>
+</html>
